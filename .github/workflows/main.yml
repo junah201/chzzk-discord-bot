@@ -9,12 +9,14 @@ jobs:
   Layer_deploy:
     strategy:
       matrix:
-        layer: [pynacl_layer, common_layer]
+        layer: [pynacl_layer, common_layer, requests_layer]
         include:
           - layer: pynacl_layer
             path: ./layers/pynacl
           - layer: common_layer
             path: ./layers/common
+          - layer: requests_layer
+            path: ./layers/requests
 
     uses: junah201/Chizz-Bot/.github/workflows/layer.yml@main
     with:
