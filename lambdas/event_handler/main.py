@@ -14,7 +14,7 @@ DISCORD_PUBLIC_KEY = os.environ.get("DISCORD_PUBLIC_KEY")
 
 def middleware(event, context):
     print(f"event: {event}")
-    print(event["rowBody"])
+    print(event["rawBody"])
 
     # verify the signature
     try:
