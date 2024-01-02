@@ -1,0 +1,75 @@
+name: Deploy Lambda to AWS
+
+on:
+  workflow_call:
+    inputs:
+      file_path:
+        required: true
+        type: string
+      layer_name:
+        required: true
+        type: string
+
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          architecture: x64
+
+      - name: Install Python module
+        run: |
+          python -m pip install --upgrade pip
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r ${{ inputs.file_path }}/python/requirements.txt
+
+      - name: Python files to Zip file
+        run: |
+          (mv ./venv/lib/python3.10/site-packages/* ${{ inputs.file_path }}/python)
+          (cd ${{ inputs.file_path }}; zip -r ../../Build_${{ inputs.layer_name }}.zip python/)
+
+      - name: Upload zip file artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build_${{ inputs.layer_name }}
+          path: Build_${{ inputs.layer_name }}.zip
+          if-no-files-found: error
+
+  CD:
+    runs-on: ubuntu-latest
+    needs: [CI]
+    steps:
+      - name: Install AWS CLI
+        uses: unfor19/install-aws-cli-action@v1
+        with:
+          version: 2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Download Lambda Build.zip
+        uses: actions/download-artifact@v3
+        with:
+          name: build_${{ inputs.layer_name }}
+
+      - name: Upload to S3
+        run: aws s3 cp Build_${{ inputs.layer_name }}.zip s3://gaebari-lambda-build/Build_${{ inputs.layer_name }}.zip
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Deploy ${{ inputs.layer_name }}
+        run: aws lambda publish-layer-version --layer-name ${{ inputs.layer_name }} --content S3Bucket=gaebari-lambda-build,S3Key=Build_${{ inputs.layer_name }}.zip
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}

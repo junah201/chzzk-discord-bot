@@ -1,0 +1,37 @@
+name: Call Deploy Action
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  Layer_deploy:
+    strategy:
+      matrix:
+        layer: [pynacl_layer, common_layer]
+        include:
+          - layer: pynacl_layer
+            path: ./layers/pynacl
+          - layer: common_layer
+            path: ./layers/common
+
+    uses: junah201/Chizz-Bot/.github/workflows/layer.yml@main
+    with:
+      file_path: ${{ matrix.path }}
+      layer_name: ${{ matrix.layer }}
+    secrets: inherit
+
+  Lambda_deploy:
+    strategy:
+      matrix:
+        lambda: [event_handler]
+        include:
+          - lambda: event_handler
+            path: ./lambdas/event_handler
+
+    uses: junah201/Chizz-Bot/.github/workflows/lambda.yml@main
+    with:
+      file_path: ${{ matrix.path }}
+      lambda_name: ${{ matrix.lambda }}
+    secrets: inherit
