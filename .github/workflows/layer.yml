@@ -61,14 +61,14 @@ jobs:
           name: build_${{ inputs.layer_name }}
 
       - name: Upload to S3
-        run: aws s3 cp Build_${{ inputs.layer_name }}.zip s3://gaebari-lambda-build/Build_${{ inputs.layer_name }}.zip
+        run: aws s3 cp Build_${{ inputs.layer_name }}.zip s3://${{ secrets.AWS_S3_BUCKET_NAME }}/Build_${{ inputs.layer_name }}.zip
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
 
       - name: Deploy ${{ inputs.layer_name }}
-        run: aws lambda publish-layer-version --layer-name ${{ inputs.layer_name }} --content S3Bucket=gaebari-lambda-build,S3Key=Build_${{ inputs.layer_name }}.zip
+        run: aws lambda publish-layer-version --layer-name ${{ inputs.layer_name }} --content S3Bucket=${{ secrets.AWS_S3_BUCKET_NAME }},S3Key=Build_${{ inputs.layer_name }}.zip
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

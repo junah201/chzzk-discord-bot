@@ -53,14 +53,14 @@ jobs:
           name: build_${{ inputs.lambda_name }}
 
       - name: Upload to S3
-        run: aws s3 cp Build_${{ inputs.lambda_name }}.zip s3://gaebari-lambda-build/Build_${{ inputs.lambda_name }}.zip
+        run: aws s3 cp Build_${{ inputs.lambda_name }}.zip s3://${{ secrets.AWS_S3_BUCKET_NAME }}/Build_${{ inputs.lambda_name }}.zip
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
 
       - name: Deploy ${{ inputs.lambda_name }}
-        run: aws lambda update-function-code --function-name ${{ inputs.lambda_name }} --s3-bucket gaebari-lambda-build --s3-key Build_${{ inputs.lambda_name }}.zip
+        run: aws lambda update-function-code --function-name ${{ inputs.lambda_name }} --s3-bucket ${{ secrets.AWS_S3_BUCKET_NAME }} --s3-key Build_${{ inputs.lambda_name }}.zip
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
