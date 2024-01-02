@@ -68,6 +68,21 @@ module "common_layer" {
   s3_bucket   = aws_s3_bucket.lambda_build_bucket.id
 }
 
+module "requests_layer" {
+  source = "terraform-aws-modules/lambda/aws"
+
+  create_layer = true
+
+  layer_name          = "requests_layer"
+  description         = "requests"
+  compatible_runtimes = ["python3.10"]
+
+  source_path = "../layers/requests"
+
+  store_on_s3 = true
+  s3_bucket   = aws_s3_bucket.lambda_build_bucket.id
+}
+
 // Lambdas
 module "event_handler" {
   depends_on = [aws_s3_bucket.lambda_build_bucket, module.lambda_default_role]
@@ -79,7 +94,7 @@ module "event_handler" {
   handler       = "main.lambda_handler"
   runtime       = "python3.10"
   timeout       = 120
-  source_path   = "../lambdas/evant_handler"
+  source_path   = "../lambdas/event_handler"
 
   store_on_s3 = true
   s3_bucket   = var.lambda_build_bucket
@@ -89,6 +104,7 @@ module "event_handler" {
 
   layers = [
     module.common_layer.lambda_layer_arn,
+    module.requests_layer.lambda_layer_arn,
     module.pynacl_layer.lambda_layer_arn,
   ]
 
