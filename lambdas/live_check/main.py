@@ -80,9 +80,22 @@ def middleware(event, context):
                                 "text": "Chizz BOT"
                             },
                             "url": f"https://chzzk.naver.com/live/${channel_id}",
-                            "timestamp": f"{chzzk.liveStartTime}"
-                        }
-                    ]
+                            "timestamp": f"{chzzk.openDate}"
+                        },
+                    ],
+                    "components": [
+                        {
+                            "type": COMPONENT_TYPE.ACTION_ROW,
+                            "components": [
+                                {
+                                    "type": COMPONENT_TYPE.BUTTON,
+                                    "label": "바로가기",
+                                    "style": BUTTON_STYLE.LINK,
+                                    "url": f"https://chzzk.naver.com/live/${channel_id}"
+                                }
+                            ]
+                        },
+                    ],
                 }
             )
 
