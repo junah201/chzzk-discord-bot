@@ -181,7 +181,7 @@ def handler(event, context):
                         "footer": {
                             "text": "Chizz BOT"
                         },
-                        "url": f"https://chzzk.naver.com/${Chzzk_id}",
+                        "url": f"https://chzzk.naver.com/{Chzzk_id}",
                         "timestamp": f"{chzzk.openDate}"
                     },
                 ],
@@ -199,7 +199,7 @@ def handler(event, context):
                     "footer": {
                         "text": "Chizz BOT"
                     },
-                    "url": f"https://chzzk.naver.com/${Chzzk_id}",
+                    "url": f"https://chzzk.naver.com/{Chzzk_id}",
                     "timestamp": f"{chzzk.openDate}"
                 },
             ],

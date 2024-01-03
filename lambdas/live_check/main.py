@@ -73,13 +73,13 @@ def middleware(event, context):
                             },
                             "author": {
                                 "name": f"{chzzk.channel.channelName}",
-                                "url": f"https://chzzk.naver.com/live/${channel_id}",
+                                "url": f"https://chzzk.naver.com/live/{channel_id}",
                                 "icon_url": f"{chzzk.channel.channelImageUrl}"
                             },
                             "footer": {
                                 "text": "Chizz BOT"
                             },
-                            "url": f"https://chzzk.naver.com/live/${channel_id}",
+                            "url": f"https://chzzk.naver.com/live/{channel_id}",
                             "timestamp": f"{chzzk.openDate}"
                         },
                     ],
@@ -91,7 +91,7 @@ def middleware(event, context):
                                     "type": COMPONENT_TYPE.BUTTON,
                                     "label": "바로가기",
                                     "style": BUTTON_STYLE.LINK,
-                                    "url": f"https://chzzk.naver.com/live/${channel_id}"
+                                    "url": f"https://chzzk.naver.com/live/{channel_id}"
                                 }
                             ]
                         },
