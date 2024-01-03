@@ -33,11 +33,23 @@ def handler(event, context):
         return {
             "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
             "data": {
-                "content": f"해당 채널에 알림이 존재하지 않습니다.",
+                "embeds": [
+                    {
+                        "title": f"치지직 알림 삭제 실패",
+                        "description": f"<#{discord_channel_id}> 채널에 알림이 존재하지 않습니다.",
+                        "color": 0xF01D15,
+                        "footer": {
+                            "text": "Chizz BOT"
+                        },
+                        "timestamp": f"{chzzk.openDate}"
+                    },
+                ],
             },
         }
 
-    for item in res.get('Items'):
+    items = res.get('Items')
+
+    for item in items:
         dynamodb.delete_item(
             TableName='chzzk-bot-db',
             Key={
@@ -46,9 +58,25 @@ def handler(event, context):
             }
         )
 
+    tmp = [
+        f"[{item.get('channel_name')}](https://chzzk.naver.com/{item.get('channel_id')})"
+        for item in items
+    ]
+
+    msg = ", ".join(tmp)
+
     return {
         "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
         "data": {
-            "content": f"해당 채널에 등록되어 있던 치지직 알림이 모두 삭제되었습니다.",
-        }
+            "embeds": [
+                {
+                    "title": f"알림 삭제 완료",
+                    "description": f"<#{discord_channel_id}>에 등록되어 있던 {msg} 채널 알림이 모두 삭제되었습니다.",
+                    "color": 0x02E895,
+                    "footer": {
+                        "text": "Chizz BOT"
+                    },
+                },
+            ],
+        },
     }

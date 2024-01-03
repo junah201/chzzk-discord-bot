@@ -34,6 +34,7 @@ def handler(event, context):
             "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
             "data": {
                 "content": f"치지직 채널 ID를 입력해주세요.",
+                "flags": 64  # 64 is the flag for ephemeral messages
             },
         }
 
@@ -42,6 +43,17 @@ def handler(event, context):
             "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
             "data": {
                 "content": f"디코 채널을 입력해주세요.",
+                "flags": 64  # 64 is the flag for ephemeral messages
+            },
+        }
+
+    # 채널이 텍스트 채널인지 확인
+    if channel_data.get('type') not in [CHANNEL_TYPE.GUILD_TEXT, CHANNEL_TYPE.GUILD_ANNOUNCEMENT]:
+        return {
+            "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
+            "data": {
+                "content": f"텍스트 채널만 등록할 수 있습니다.",
+                "flags": 64  # 64 is the flag for ephemeral messages
             },
         }
 
@@ -52,7 +64,17 @@ def handler(event, context):
         return {
             "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
             "data": {
-                "content": f"존재하지 않는 치지직 채널입니다.",
+                "embeds": [
+                    {
+                        "title": f"존재하지 않는 치지직 채널",
+                        "description": f"치지직 채널 ID가 `{Chzzk_id}`인 채널이 존재하지 않습니다.\n\n치지직 채널 ID는 치지직 채널의 URL에서 확인할 수 있습니다.\n\n예시: `https://chzzk.naver.com/xyz123456` -> `xyz123456`",
+                        "color": 0xF01D15,
+                        "footer": {
+                            "text": "Chizz BOT"
+                        },
+                        "timestamp": f"{chzzk.openDate}"
+                    },
+                ],
             },
         }
 
@@ -89,7 +111,17 @@ def handler(event, context):
             return {
                 "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
                 "data": {
-                    "content": f"치지직 채널 정보 등록에 실패했습니다. 다시 시도해주세요.",
+                    "embeds": [
+                        {
+                            "title": f"치지직 채널 정보 등록 실패",
+                            "description": f"**{chzzk.channel.channelName}**님의 치지직 채널 정보 등록에 실패했습니다. 다시 시도해주세요.",
+                            "color": 0xF01D15,
+                            "footer": {
+                                "text": "Chizz BOT"
+                            },
+                            "timestamp": f"{chzzk.openDate}"
+                        },
+                    ],
                 },
             }
 
@@ -111,7 +143,17 @@ def handler(event, context):
         return {
             "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
             "data": {
-                "content": f"이미 해당 디코 채널에 등록된 치지직 채널입니다.",
+                "embeds": [
+                    {
+                        "title": f"알림 등록 실패",
+                        "description": f"이미 <#{discord_channel_id}>에 등록된 채널(**{chzzk.channel.channelName}**)입니다.",
+                        "color": 0xF01D15,
+                        "footer": {
+                            "text": "Chizz BOT"
+                        },
+                        "timestamp": f"{chzzk.openDate}"
+                    },
+                ],
             },
         }
 
@@ -131,13 +173,35 @@ def handler(event, context):
         return {
             "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
             "data": {
-                "content": f"치지직 알림 등록에 실패했습니다. 다시 시도해주세요.",
+                "embeds": [
+                    {
+                        "title": f"알림 등록 실패",
+                        "description": f"**{chzzk.channel.channelName}**님의 방송 알림 등록에 실패했습니다. 다시 시도해주세요.",
+                        "color": 0xF01D15,
+                        "footer": {
+                            "text": "Chizz BOT"
+                        },
+                        "url": f"https://chzzk.naver.com/${Chzzk_id}",
+                        "timestamp": f"{chzzk.openDate}"
+                    },
+                ],
             },
         }
 
     return {
         "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
         "data": {
-            "content": f"치지직 알림 등록에 성공했습니다.",
+            "embeds": [
+                {
+                    "title": f"알림 등록 완료",
+                    "description": f"**{chzzk.channel.channelName}**님의 방송 알림을 <#{discord_channel_id}>에 등록했습니다.",
+                    "color": 0x02E895,
+                    "footer": {
+                        "text": "Chizz BOT"
+                    },
+                    "url": f"https://chzzk.naver.com/${Chzzk_id}",
+                    "timestamp": f"{chzzk.openDate}"
+                },
+            ],
         }
     }
