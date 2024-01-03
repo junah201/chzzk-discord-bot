@@ -28,7 +28,7 @@ def middleware(event, context):
     for item in res["Items"]:
         print(item)
         channel_id = item["channelId"]["S"]
-        last_live_id = item["lastLiveId"]["S"]
+        last_live_id = item["lastLiveId"]["N"]
 
         chzzk = get_chzzk(channel_id)
 
@@ -94,7 +94,7 @@ def middleware(event, context):
             },
             UpdateExpression='SET lastLiveId = :live_id, lastLiveTitle = :live_title',
             ExpressionAttributeValues={
-                ':live_id': {'S': f'{chzzk.liveId}'},
+                ':live_id': {'N': f'{chzzk.liveId}'},
                 ':live_title': {'S': chzzk.liveTitle}
             }
         )
