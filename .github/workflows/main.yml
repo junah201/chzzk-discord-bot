@@ -18,7 +18,7 @@ jobs:
           - layer: requests_layer
             path: ./layers/requests
 
-    uses: junah201/Chizz-Bot/.github/workflows/layer.yml@main
+    uses: junah201/chzzk-discord-bot/.github/workflows/layer.yml@main
     with:
       file_path: ${{ matrix.path }}
       layer_name: ${{ matrix.layer }}
@@ -34,7 +34,7 @@ jobs:
           - lambda: live_check
             path: ./lambdas/live_check
 
-    uses: junah201/Chizz-Bot/.github/workflows/lambda.yml@main
+    uses: junah201/chzzk-discord-bot/.github/workflows/lambda.yml@main
     with:
       file_path: ${{ matrix.path }}
       lambda_name: ${{ matrix.lambda }}
