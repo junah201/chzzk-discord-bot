@@ -35,7 +35,7 @@ def middleware(event, context):
         if not chzzk:
             continue
 
-        if chzzk.liveId == last_live_id:
+        if str(chzzk.liveId) == str(last_live_id):
             continue
 
         if chzzk.status != "OPEN":
