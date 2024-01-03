@@ -48,7 +48,7 @@ def handler(event, context):
         }
 
     # 채널이 텍스트 채널인지 확인
-    if channel_data.get('type') not in [CHANNEL_TYPE.GUILD_TEXT, CHANNEL_TYPE.GUILD_ANNOUNCEMENT]:
+    if channel_data.get('type') not in [CHANNEL_TYPE.GUILD_TEXT, CHANNEL_TYPE.GUILD_NEWS]:
         return {
             "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
             "data": {
