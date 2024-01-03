@@ -27,10 +27,12 @@ jobs:
   Lambda_deploy:
     strategy:
       matrix:
-        lambda: [event_handler]
+        lambda: [event_handler, live_check]
         include:
           - lambda: event_handler
             path: ./lambdas/event_handler
+          - lambda: live_check
+            path: ./lambdas/live_check
 
     uses: junah201/Chizz-Bot/.github/workflows/lambda.yml@main
     with:
