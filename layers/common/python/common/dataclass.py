@@ -23,9 +23,10 @@ class TYPE:
 
 
 @dataclass
-class CUSTOM_ID:
-    ADD_NOTIFICATION: str = "add_notification"
-    DELETE_NOTIFICATION: str = "delete_notification"
+class COMMAND_NAME:
+    ADD_NOTIFICATION: str = "알림추가"
+    DELETE_NOTIFICATION: str = "알림삭제"
+
 
 @dataclass
 class COMPONENT_TYPE:
