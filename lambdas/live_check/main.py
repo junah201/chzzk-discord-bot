@@ -3,6 +3,7 @@
 """
 
 import json
+from datetime import datetime
 
 try:
     from common import *
@@ -80,7 +81,7 @@ def middleware(event, context):
                                 "text": "치직"
                             },
                             "url": f"https://chzzk.naver.com/live/{channel_id}",
-                            "timestamp": f"{chzzk.openDate}"
+                            "timestamp": datetime.now().isoformat()
                         },
                     ],
                     "components": [

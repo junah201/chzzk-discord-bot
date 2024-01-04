@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import boto3
 
 try:
@@ -41,7 +43,7 @@ def handler(event, context):
                         "footer": {
                             "text": "치직"
                         },
-                        "timestamp": f"{chzzk.openDate}"
+                        "timestamp": datetime.now().isoformat()
                     },
                 ],
             },

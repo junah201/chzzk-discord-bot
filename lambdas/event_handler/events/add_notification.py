@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import boto3
 
 try:
@@ -72,7 +74,7 @@ def handler(event, context):
                         "footer": {
                             "text": "치직"
                         },
-                        "timestamp": f"{chzzk.openDate}"
+                        "timestamp": datetime.now().isoformat()
                     },
                 ],
             },
@@ -119,7 +121,7 @@ def handler(event, context):
                             "footer": {
                                 "text": "치직"
                             },
-                            "timestamp": f"{chzzk.openDate}"
+                            "timestamp": datetime.now().isoformat()
                         },
                     ],
                 },
@@ -151,7 +153,7 @@ def handler(event, context):
                         "footer": {
                             "text": "치직"
                         },
-                        "timestamp": f"{chzzk.openDate}"
+                        "timestamp": datetime.now().isoformat()
                     },
                 ],
             },
@@ -182,7 +184,7 @@ def handler(event, context):
                             "text": "치직"
                         },
                         "url": f"https://chzzk.naver.com/{Chzzk_id}",
-                        "timestamp": f"{chzzk.openDate}"
+                        "timestamp": datetime.now().isoformat()
                     },
                 ],
             },
@@ -200,7 +202,7 @@ def handler(event, context):
                         "text": "치직"
                     },
                     "url": f"https://chzzk.naver.com/{Chzzk_id}",
-                    "timestamp": f"{chzzk.openDate}"
+                    "timestamp": datetime.now().isoformat()
                 },
             ],
         }
