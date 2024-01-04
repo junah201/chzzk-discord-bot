@@ -29,3 +29,16 @@ def send_message(channel_id: int, data: dict):
     if res.status_code != 200:
         raise Exception(
             f"Failed to send message: {res.status_code} {res.text}")
+
+
+def get_channel(channel_id, token=DISCORD_TOKEN) -> dict | None:
+    res = requests.get(
+        f"https://discord.com/api/v10/channels/{channel_id}",
+        headers={
+            "Authorization": f"Bot {token}",
+        },
+    )
+    if res.status_code != 200:
+        return None
+
+    return res.json()
