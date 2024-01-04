@@ -139,7 +139,6 @@ module "live_check" {
   layers = [
     module.common_layer.lambda_layer_arn,
     module.requests_layer.lambda_layer_arn,
-    module.pynacl_layer.lambda_layer_arn,
   ]
 
   environment_variables = {
@@ -172,7 +171,7 @@ module "discord_oauth2_redirect" {
   layers = [
     module.common_layer.lambda_layer_arn,
     module.requests_layer.lambda_layer_arn,
-    module.pynacl_layer.lambda_layer_arn,
+  ]
   ]
 
   environment_variables = {
