@@ -190,11 +190,39 @@ module "discord_me" {
   source = "terraform-aws-modules/lambda/aws"
 
   function_name = "discord_me"
-  description   = "discord_me check"
+  description   = "로그인되어 있는 디스코드 계정 정보를 반환합니다."
   handler       = "main.lambda_handler"
   runtime       = "python3.10"
   timeout       = 120
   source_path   = "../lambdas/discord_me"
+
+  store_on_s3 = true
+  s3_bucket   = var.lambda_build_bucket
+
+  create_role = false
+  lambda_role = module.lambda_default_role.role_arn
+
+  layers = [
+    module.common_layer.lambda_layer_arn,
+    module.requests_layer.lambda_layer_arn,
+  ]
+
+  tags = {
+    version = "v1"
+  }
+}
+
+module "discord_guilds" {
+  depends_on = [aws_s3_bucket.lambda_build_bucket, module.lambda_default_role]
+
+  source = "terraform-aws-modules/lambda/aws"
+
+  function_name = "discord_guilds"
+  description   = "로그인되어 있는 디스코드 계정의 서버 목록을 반환합니다."
+  handler       = "main.lambda_handler"
+  runtime       = "python3.10"
+  timeout       = 120
+  source_path   = "../lambdas/discord_guilds"
 
   store_on_s3 = true
   s3_bucket   = var.lambda_build_bucket
