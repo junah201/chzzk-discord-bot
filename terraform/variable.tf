@@ -26,6 +26,18 @@ variable "DISCORD_TOKEN" {
   description = "Discord bot token"
 }
 
+variable "DISCORD_CLIENT_ID" {
+  type = string
+  description = "Discord client id"
+  sensitive   = true
+}
+
+variable "DISCORD_CLIENT_SECRET" {
+  type = string
+  description = "Discord client secret"
+  sensitive   = true
+}
+
 variable "lambda_build_bucket" {
   type        = string
   description = "S3 bucket for lambda build"
