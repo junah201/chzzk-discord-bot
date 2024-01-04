@@ -70,7 +70,7 @@ def handler(event, context):
                         "description": f"치지직 채널 ID가 `{Chzzk_id}`인 채널이 존재하지 않거나 한번도 방송을 키지 않은 채널입니다.\n\n치지직 채널 ID는 치지직 채널의 URL에서 확인할 수 있습니다.\n\n예시: `https://chzzk.naver.com/xyz123456` -> `xyz123456`",
                         "color": 0xF01D15,
                         "footer": {
-                            "text": "Chizz BOT"
+                            "text": "치직"
                         },
                         "timestamp": f"{chzzk.openDate}"
                     },
@@ -117,7 +117,7 @@ def handler(event, context):
                             "description": f"**{chzzk.channel.channelName}**님의 치지직 채널 정보 등록에 실패했습니다. 다시 시도해주세요.",
                             "color": 0xF01D15,
                             "footer": {
-                                "text": "Chizz BOT"
+                                "text": "치직"
                             },
                             "timestamp": f"{chzzk.openDate}"
                         },
@@ -149,7 +149,7 @@ def handler(event, context):
                         "description": f"이미 <#{discord_channel_id}>에 등록된 채널(**{chzzk.channel.channelName}**)입니다.",
                         "color": 0xF01D15,
                         "footer": {
-                            "text": "Chizz BOT"
+                            "text": "치직"
                         },
                         "timestamp": f"{chzzk.openDate}"
                     },
@@ -179,7 +179,7 @@ def handler(event, context):
                         "description": f"**{chzzk.channel.channelName}**님의 방송 알림 등록에 실패했습니다. 다시 시도해주세요.",
                         "color": 0xF01D15,
                         "footer": {
-                            "text": "Chizz BOT"
+                            "text": "치직"
                         },
                         "url": f"https://chzzk.naver.com/{Chzzk_id}",
                         "timestamp": f"{chzzk.openDate}"
@@ -197,7 +197,7 @@ def handler(event, context):
                     "description": f"**{chzzk.channel.channelName}**님의 방송 알림을 <#{discord_channel_id}>에 등록했습니다.",
                     "color": 0x02E895,
                     "footer": {
-                        "text": "Chizz BOT"
+                        "text": "치직"
                     },
                     "url": f"https://chzzk.naver.com/{Chzzk_id}",
                     "timestamp": f"{chzzk.openDate}"

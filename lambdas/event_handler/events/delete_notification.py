@@ -39,7 +39,7 @@ def handler(event, context):
                         "description": f"<#{discord_channel_id}> 채널에 알림이 존재하지 않습니다.",
                         "color": 0xF01D15,
                         "footer": {
-                            "text": "Chizz BOT"
+                            "text": "치직"
                         },
                         "timestamp": f"{chzzk.openDate}"
                     },
@@ -74,7 +74,7 @@ def handler(event, context):
                     "description": f"<#{discord_channel_id}>에 등록되어 있던 {msg} 채널 알림이 모두 삭제되었습니다.",
                     "color": 0x02E895,
                     "footer": {
-                        "text": "Chizz BOT"
+                        "text": "치직"
                     },
                 },
             ],

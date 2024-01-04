@@ -77,7 +77,7 @@ def middleware(event, context):
                                 "icon_url": f"{chzzk.channel.channelImageUrl}"
                             },
                             "footer": {
-                                "text": "Chizz BOT"
+                                "text": "치직"
                             },
                             "url": f"https://chzzk.naver.com/live/{channel_id}",
                             "timestamp": f"{chzzk.openDate}"
