@@ -67,7 +67,7 @@ def handler(event, context):
                 "embeds": [
                     {
                         "title": f"존재하지 않는 치지직 채널",
-                        "description": f"치지직 채널 ID가 `{Chzzk_id}`인 채널이 존재하지 않습니다.\n\n치지직 채널 ID는 치지직 채널의 URL에서 확인할 수 있습니다.\n\n예시: `https://chzzk.naver.com/xyz123456` -> `xyz123456`",
+                        "description": f"치지직 채널 ID가 `{Chzzk_id}`인 채널이 존재하지 않거나 한번도 방송을 키지 않은 채널입니다.\n\n치지직 채널 ID는 치지직 채널의 URL에서 확인할 수 있습니다.\n\n예시: `https://chzzk.naver.com/xyz123456` -> `xyz123456`",
                         "color": 0xF01D15,
                         "footer": {
                             "text": "Chizz BOT"

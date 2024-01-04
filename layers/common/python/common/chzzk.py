@@ -60,6 +60,10 @@ def get_chzzk(channel_id: str) -> ChzzkLive | None:
         return None
 
     content = res.json()["content"]
+
+    # 한번도 방송을 키지 않은 경우
+    if content is None:
+        return None
     channel = content.pop("channel", {})
     return ChzzkLive(
         **content,
