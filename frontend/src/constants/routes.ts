@@ -7,6 +7,11 @@ export const ROUTES = [
     AUTH: false,
   },
   {
+    PATH: '/dashboard',
+    ELEMENT: Loadable(() => import('@/pages/Dashboard')),
+    AUTH: true,
+  },
+  {
     PATH: '/login',
     ELEMENT: Loadable(() => import('@/pages/Login')),
     AUTH: false,
