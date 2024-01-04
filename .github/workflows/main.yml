@@ -48,6 +48,8 @@ jobs:
             path: ./lambdas/discord_me
           - lambda: discord_guilds
             path: ./lambdas/discord_guilds
+          - lambda: get_guild_channels
+            path: ./lambdas/get_guild_channels
           - lambda: post_notification
             path: ./lambdas/post_notification
 
