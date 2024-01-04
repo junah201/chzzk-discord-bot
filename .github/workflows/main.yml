@@ -34,6 +34,7 @@ jobs:
             discord_oauth2_redirect,
             discord_me,
             discord_guilds,
+            get_guild_channels,
           ]
         include:
           - lambda: event_handler
@@ -46,6 +47,8 @@ jobs:
             path: ./lambdas/discord_me
           - lambda: discord_guilds
             path: ./lambdas/discord_guilds
+          - lambda: get_guild_channels
+            path: ./lambdas/get_guild_channels
 
     uses: junah201/chzzk-discord-bot/.github/workflows/lambda.yml@main
     with:
