@@ -263,6 +263,10 @@ module "get_guild_channels" {
     module.requests_layer.lambda_layer_arn,
   ]
 
+  environment_variables = {
+    "DISCORD_TOKEN" = var.DISCORD_TOKEN
+  }
+
   tags = {
     version = "v1"
   }
