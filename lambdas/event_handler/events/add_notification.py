@@ -167,6 +167,7 @@ def handler(event, context):
             'channel_id': {'S': f'{discord_channel_id}'},
             'channel_name': {'S': channel_data.get('name', '')},
             'guild_id': {'S': channel_data.get('guild_id', '')},
+            "custom_message": {'S': ""}
         }
     )
 
