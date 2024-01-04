@@ -27,7 +27,14 @@ jobs:
   Lambda_deploy:
     strategy:
       matrix:
-        lambda: [event_handler, live_check, discord_oauth2_redirect, discord_me]
+        lambda:
+          [
+            event_handler,
+            live_check,
+            discord_oauth2_redirect,
+            discord_me,
+            discord_guilds,
+          ]
         include:
           - lambda: event_handler
             path: ./lambdas/event_handler
@@ -37,6 +44,8 @@ jobs:
             path: ./lambdas/discord_oauth2_redirect
           - lambda: discord_me
             path: ./lambdas/discord_me
+          - lambda: discord_guilds
+            path: ./lambdas/discord_guilds
 
     uses: junah201/chzzk-discord-bot/.github/workflows/lambda.yml@main
     with:
