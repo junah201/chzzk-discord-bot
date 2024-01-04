@@ -1,10 +1,8 @@
 """
-Discord OAuth2 Redirect
+로그인되어 있는 디스코드 사용자의 정보를 가져옵니다.
 """
 
-import os
 import json
-from datetime import datetime
 
 import requests
 
@@ -21,9 +19,9 @@ def middleware(event, context):
         }
 
     res = requests.get(
-        "https://discord.com/api/v10/uses/@me",
+        "https://discord.com/api/users/@me",
         headers={
-            "Authorization": f'Barear {token}'
+            "Authorization": token
         }
     )
 
