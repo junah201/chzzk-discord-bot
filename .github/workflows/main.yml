@@ -35,6 +35,7 @@ jobs:
             discord_me,
             discord_guilds,
             get_guild_channels,
+            post_notification,
           ]
         include:
           - lambda: event_handler
@@ -47,8 +48,8 @@ jobs:
             path: ./lambdas/discord_me
           - lambda: discord_guilds
             path: ./lambdas/discord_guilds
-          - lambda: get_guild_channels
-            path: ./lambdas/get_guild_channels
+          - lambda: post_notification
+            path: ./lambdas/post_notification
 
     uses: junah201/chzzk-discord-bot/.github/workflows/lambda.yml@main
     with:
