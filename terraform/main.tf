@@ -172,13 +172,40 @@ module "discord_oauth2_redirect" {
     module.common_layer.lambda_layer_arn,
     module.requests_layer.lambda_layer_arn,
   ]
-  ]
 
   environment_variables = {
     "DISCORD_TOKEN" = var.DISCORD_TOKEN
     "DISCORD_CLIENT_ID" = var.DISCORD_CLIENT_ID
     "DISCORD_CLIENT_SECRET" = var.DISCORD_CLIENT_SECRET
   }
+
+  tags = {
+    version = "v1"
+  }
+}
+
+module "discord_me" {
+  depends_on = [aws_s3_bucket.lambda_build_bucket, module.lambda_default_role]
+
+  source = "terraform-aws-modules/lambda/aws"
+
+  function_name = "discord_me"
+  description   = "discord_me check"
+  handler       = "main.lambda_handler"
+  runtime       = "python3.10"
+  timeout       = 120
+  source_path   = "../lambdas/discord_me"
+
+  store_on_s3 = true
+  s3_bucket   = var.lambda_build_bucket
+
+  create_role = false
+  lambda_role = module.lambda_default_role.role_arn
+
+  layers = [
+    module.common_layer.lambda_layer_arn,
+    module.requests_layer.lambda_layer_arn,
+  ]
 
   tags = {
     version = "v1"
