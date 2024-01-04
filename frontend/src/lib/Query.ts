@@ -2,7 +2,9 @@ import { AxiosResponse } from 'axios';
 import { useSnackbar } from 'notistack';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 
-import { AxiosErr } from '.';
+import { AxiosErr, removeCookie } from '.';
+
+import { ACCESS_TOEKN } from '@/constants';
 
 export { QueryClient, QueryClientProvider } from 'react-query';
 
@@ -51,6 +53,7 @@ export const useCustomQuery = <DataT = any>(
         enqueueSnackbar(`로그인 세션이 만료되었습니다.`, {
           variant: 'error',
         });
+        removeCookie(ACCESS_TOEKN.key);
         location.reload();
         return;
       }
