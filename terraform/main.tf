@@ -332,6 +332,29 @@ module "get_notification_by_guild_id" {
   }
 }
 
+module "delete_notification" {
+  depends_on = [aws_s3_bucket.lambda_build_bucket, module.lambda_default_role]
+
+  source = "terraform-aws-modules/lambda/aws"
+
+  function_name = "delete_notification"
+  description   = "알림을 삭제합니다. 만약 해당 알림이 없으면 404를 반환합니다."
+  handler       = "main.lambda_handler"
+  runtime       = "python3.10"
+  timeout       = 120
+  source_path   = "../lambdas/delete_notification"
+
+  store_on_s3 = true
+  s3_bucket   = var.lambda_build_bucket
+
+  create_role = false
+  lambda_role = module.lambda_default_role.role_arn
+
+  tags = {
+    version = "v1"
+  }
+}
+
 // DynamoDB
 resource "aws_dynamodb_table" "db_table" {
   name = "chzzk-bot-db"
