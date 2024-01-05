@@ -37,6 +37,7 @@ jobs:
             get_guild_channels,
             post_notification,
             get_notification_by_guild_id,
+            delete_notification,
           ]
         include:
           - lambda: event_handler
@@ -55,6 +56,8 @@ jobs:
             path: ./lambdas/post_notification
           - lambda: get_notification_by_guild_id
             path: ./lambdas/get_notification_by_guild_id
+          - lambda: delete_notification
+            path: ./lambdas/delete_notification
 
     uses: junah201/chzzk-discord-bot/.github/workflows/lambda.yml@main
     with:
