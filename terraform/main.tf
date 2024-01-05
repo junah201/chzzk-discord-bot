@@ -349,10 +349,28 @@ resource "aws_dynamodb_table" "db_table" {
     type = "S"
   }
 
+  attribute {
+    name = "guild_id"
+    type = "S"
+  }
+
   global_secondary_index {
     name               = "GSI-SK"
     hash_key           = "SK"
     range_key          = "PK"
     projection_type    = "KEYS_ONLY"
+  }
+
+  global_secondary_index {
+    name               = "GSI-GuildID"
+    hash_key           = "guild_id"
+    range_key           = "PK"
+    projection_type    = "INCLUDE"
+
+    non_key_attributes = [
+      "SK",
+      "channel_id",
+      "channel_name"
+    ]
   }
 }
