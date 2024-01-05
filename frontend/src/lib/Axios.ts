@@ -168,10 +168,11 @@ export class Axios {
     });
   }
 
-  delete(endPoint: EndPoint) {
+  delete(endPoint: EndPoint, data: DataForm) {
     return this.#instance({
       method: 'DELETE',
       url: `${endPoint}`,
+      data,
     });
   }
 }

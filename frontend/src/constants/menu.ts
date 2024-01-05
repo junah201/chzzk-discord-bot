@@ -26,11 +26,6 @@ const menu: Menu[] = [
     url: '/',
   },
   {
-    id: 'support',
-    title: '지원서버',
-    url: '/support-server',
-  },
-  {
     id: 'dashboard',
     title: '대시보드',
     url: '/dashboard',

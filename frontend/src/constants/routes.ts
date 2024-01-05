@@ -16,4 +16,9 @@ export const ROUTES = [
     ELEMENT: Loadable(() => import('@/pages/Login')),
     AUTH: false,
   },
+  {
+    PATH: '/server/:guildId',
+    ELEMENT: Loadable(() => import('@/pages/Guild')),
+    AUTH: true,
+  },
 ];

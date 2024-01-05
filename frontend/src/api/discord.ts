@@ -26,3 +26,9 @@ export const getGuilds = async () => {
 
   return res;
 };
+
+export const getChannels = async (guildId: string) => {
+  const res = await AuthAxios.get(API_ROUTE.DISCORD.CHANNELS(guildId));
+
+  return res;
+};

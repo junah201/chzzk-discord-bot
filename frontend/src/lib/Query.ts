@@ -132,7 +132,7 @@ export const useCustomMutation = <DataT>(
           options.ErrorMessage || `알 수 없는 에러가 발생했습니다.`;
         const status = err.response?.status ? `${err.response?.status} ` : '';
         const error =
-          err.response?.data?.detail || err.message || JSON.stringify(err);
+          err.response?.data?.message || err.message || JSON.stringify(err);
 
         enqueueSnackbar(`${message} (${status} ${error})`, {
           variant: 'error',

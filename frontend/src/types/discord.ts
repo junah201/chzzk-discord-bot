@@ -41,3 +41,11 @@ export interface Channel {
   permission_overwrites: [];
   nsfw: boolean;
 }
+
+export interface Notification {
+  PK: string;
+  SK: string;
+  guild_id: string;
+  channel_id: string;
+  channel_name: string;
+}

@@ -1,11 +1,11 @@
-import { ThemeOptions } from "../types";
+import { ThemeOptions } from '../types';
 
 export default function TableCell(theme: ThemeOptions) {
   return {
     MuiTableCell: {
       styleOverrides: {
         root: {
-          fontSize: "0.875rem",
+          fontSize: '0.875rem',
           padding: 8,
           borderColor: theme.palette.divider,
         },
