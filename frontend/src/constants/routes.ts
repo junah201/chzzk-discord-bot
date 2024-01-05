@@ -21,4 +21,9 @@ export const ROUTES = [
     ELEMENT: Loadable(() => import('@/pages/Guild')),
     AUTH: true,
   },
+  {
+    PATH: '*',
+    ELEMENT: Loadable(() => import('@/pages/NotFound')),
+    AUTH: false,
+  },
 ];
