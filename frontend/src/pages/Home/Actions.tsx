@@ -33,7 +33,7 @@ const Actions = () => {
         size="large"
         fullWidth={isMobile}
       >
-        대쉬보드
+        대시보드
       </Button>
     </Box>
   );

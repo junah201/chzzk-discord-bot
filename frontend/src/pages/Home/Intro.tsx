@@ -23,7 +23,7 @@ const Intro = () => {
           wordBreak: 'keep-all',
         }}
       >
-        N개의 서버에서 사용 중인 치직 봇을 대쉬보드와 함께 사용해보세요.
+        치직 봇을 대시보드와 함께 사용해보세요.
       </Typography>
     </>
   );
