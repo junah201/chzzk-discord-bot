@@ -51,6 +51,8 @@ def handler(event, context):
 
     items = res.get('Items')
 
+    cnt = len(items)
+
     for item in items:
         dynamodb.delete_item(
             TableName='chzzk-bot-db',
@@ -60,24 +62,18 @@ def handler(event, context):
             }
         )
 
-    tmp = [
-        f"[{item.get('channel_name')}](https://chzzk.naver.com/{item.get('channel_id')})"
-        for item in items
-    ]
-
-    msg = ", ".join(tmp)
-
     return {
         "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
         "data": {
             "embeds": [
                 {
                     "title": f"알림 삭제 완료",
-                    "description": f"<#{discord_channel_id}>에 등록되어 있던 {msg} 채널 알림이 모두 삭제되었습니다.",
+                    "description": f"<#{discord_channel_id}>에 등록되어 있던 {cnt}개의 채널 알림이 모두 삭제되었습니다.",
                     "color": 0x02E895,
                     "footer": {
                         "text": "치직"
                     },
+                    "timestamp": datetime.now().isoformat()
                 },
             ],
         },
