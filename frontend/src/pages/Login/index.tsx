@@ -34,7 +34,7 @@ const Login = () => {
       const res = await login(code);
 
       setCookie(ACCESS_TOEKN.key, res.data.access_token, {
-        expires: new Date(Date.now() + res.data.expires_in),
+        expires: new Date(Date.now() + res.data.expires_in * 1000),
       });
 
       navigate(ROUTE.HOME);
