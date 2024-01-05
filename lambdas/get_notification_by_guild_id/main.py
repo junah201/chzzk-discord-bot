@@ -28,13 +28,25 @@ def middleware(event, context):
         }
     )
 
+    result = [
+        {
+            "PK": item.get('PK', {}).get('S'),
+            "SK": item.get('SK', {}).get('S'),
+            "guild_id": item.get('guild_id', {}).get('S'),
+            "channel_id": item.get('channel_id', {}).get('S'),
+            "channel_name": item.get('channel_name', {}).get('S'),
+        }
+
+        for item in res.get('Items')
+    ]
+
     return {
         "statusCode": 200,
         "headers": {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*'
         },
-        "body": json.dumps(res.get('Items'))
+        "body": json.dumps(result)
     }
 
 
