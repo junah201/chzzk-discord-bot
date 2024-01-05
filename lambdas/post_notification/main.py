@@ -85,6 +85,7 @@ def middleware(event, context):
                 'channelId': {'S': chzzk.channel.channelId},
                 'channelName': {'S': chzzk.channel.channelName},
                 'channelImageUrl': {'S': chzzk.channel.channelImageUrl},
+                "type": {"S": "CHZZK"}
             }
         )
 
