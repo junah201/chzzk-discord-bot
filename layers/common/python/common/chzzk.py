@@ -28,8 +28,8 @@ class ChzzkLive:
     accumulateCount: int
     openDate: str
     closeDate: str
-    adult: bool | None = None
-    chatChannelId: str
+    adult: bool | None
+    chatChannelId: str | None
     categoryType: str
     liveCategory: str
     liveCategoryValue: str
@@ -41,6 +41,7 @@ class ChzzkLive:
     livePlaybackJson: str
     channel: ChzzkChannel
     livePollingStatusJson: str
+    userAdultStatus: str | None
 
     def __str__(self) -> str:
         return f"ChzzkLive(liveId={self.liveId}, liveTitle={self.liveTitle}, status={self.status})"
@@ -54,7 +55,7 @@ def get_chzzk(channel_id: str) -> ChzzkLive | None:
     만약 채널이 존재하지 않는다면 None을 반환합니다.
     """
     res = requests.get(
-        f"https://api.chzzk.naver.com/service/v1/channels/{channel_id}/live-detail")
+        f"https://api.chzzk.naver.com/service/v2/channels/{channel_id}/live-detail")
 
     # 채널이 존재하지 않는 경우 or 알 수 없는 오류
     if res.status_code != 200:
