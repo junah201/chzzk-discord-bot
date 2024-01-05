@@ -28,6 +28,7 @@ class ChzzkLive:
     accumulateCount: int
     openDate: str
     closeDate: str
+    adult: bool | None = None
     chatChannelId: str
     categoryType: str
     liveCategory: str
