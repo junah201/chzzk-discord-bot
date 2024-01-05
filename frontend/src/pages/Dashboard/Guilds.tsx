@@ -1,4 +1,4 @@
-import { ArrowForwardIosOutlined } from '@mui/icons-material';
+import { ArrowForwardIosOutlined, LaunchOutlined } from '@mui/icons-material';
 import {
   Box,
   Avatar,
@@ -35,6 +35,7 @@ const Guilds = () => {
       {guilds.map((guild) => (
         <GuildBox guild={guild} />
       ))}
+      <SupportServer />
     </Box>
   );
 };
@@ -76,6 +77,36 @@ const GuildBox = ({ guild }: GuildProps) => {
       </Box>
       <IconButton>
         <ArrowForwardIosOutlined />
+      </IconButton>
+    </Box>
+  );
+};
+
+const SupportServer = () => {
+  const theme = useTheme();
+
+  return (
+    <Box
+      component="a"
+      href="https://api.chzzk.junah.dev/support-server"
+      sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: theme.spacing(1),
+        backgroundColor: '#5865F2',
+
+        paddingX: theme.spacing(2),
+        paddingY: theme.spacing(1),
+        borderRadius: theme.spacing(2),
+        marginTop: theme.spacing(2),
+      }}
+    >
+      <Typography variant="h5">
+        도움이 필요하십니까? 서포트 디스코드 서버에 참여하세요.
+      </Typography>
+      <IconButton>
+        <LaunchOutlined />
       </IconButton>
     </Box>
   );
