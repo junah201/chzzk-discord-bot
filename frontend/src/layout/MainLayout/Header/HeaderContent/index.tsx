@@ -2,8 +2,6 @@ import { MenuOutlined } from '@mui/icons-material';
 import { Box, IconButton, List, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
-import NavItem from './NavItem';
-
 import LogoSection from '@/components/Logo';
 
 interface HeaderContentProps {
@@ -24,24 +22,6 @@ const HeaderContent = ({ open, setOpen }: HeaderContentProps) => {
       }}
     >
       <LogoSection />
-      {!isMobile && (
-        <Box
-          sx={{
-            display: 'flex',
-          }}
-        >
-          <List
-            sx={{
-              display: 'flex',
-              gap: theme.spacing(3),
-            }}
-          >
-            <NavItem name="홈" url="/" />
-            <NavItem name="사용법" url="/docs" />
-            <NavItem name="서포트 서버" url="https://" />
-          </List>
-        </Box>
-      )}
       <Box
         sx={{
           display: 'flex',

@@ -2,6 +2,7 @@ import { Box, Divider, Drawer } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
 import DrawerContent from './DrawerContent';
+import DrawerFooter from './DrawerFooter';
 import DrawerHeader from './DrawerHeader';
 
 import { drawerWidth } from '@/constants/config';
@@ -42,6 +43,7 @@ const MainDrawer = ({ open, setOpen }: DrawerProps) => {
         <Divider flexItem />
         <DrawerContent />
         <Divider flexItem />
+        <DrawerFooter />
       </Drawer>
     </Box>
   );
