@@ -46,8 +46,12 @@ def middleware(event, context):
     dynamodb.delete_item(
         TableName='chzzk-bot-db',
         Key={
-            'PK': f'CHZZK#{chzzk_id}',
-            'SK': f'NOTI#{channel_id}'
+            'PK': {
+                'S': f'CHZZK#{chzzk_id}'
+            },
+            'SK': {
+                'S': f'NOTI#{channel_id}'
+            },
         }
     )
 
