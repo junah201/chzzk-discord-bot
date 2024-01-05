@@ -377,6 +377,11 @@ resource "aws_dynamodb_table" "db_table" {
     type = "S"
   }
 
+  attribute {
+    name = "type"
+    type = "S"
+  }
+
   global_secondary_index {
     name               = "GSI-SK"
     hash_key           = "SK"
@@ -394,6 +399,17 @@ resource "aws_dynamodb_table" "db_table" {
       "SK",
       "channel_id",
       "channel_name"
+    ]
+  }
+
+  global_secondary_index {
+    name               = "GSI-type"
+    hash_key           = "type"
+    projection_type    = "INCLUDE"
+
+    non_key_attributes = [
+      "PK",
+      "lastLiveId"
     ]
   }
 }
