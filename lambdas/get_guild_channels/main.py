@@ -44,9 +44,20 @@ def middleware(event, context):
 
     data = res.json()
     print("=== discord response ===")
+    print(res.status_code)
     print(json.dumps(data))
 
-    if res.status_code != 200:
+    if res.status_code == 403:
+        return {
+            "statusCode": 403,
+            "headers": {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            "body": json.dumps({"message": "you don't have permission"}),
+        }
+
+    if res.status_code == 401:
         return {
             "statusCode": 401,
             "headers": {
@@ -54,6 +65,16 @@ def middleware(event, context):
                 'Access-Control-Allow-Origin': '*'
             },
             "body": json.dumps({"message": "token is invalid"}),
+        }
+
+    if res.status_code != 200:
+        return {
+            "statusCode": 400,
+            "headers": {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            "body": json.dumps({"message": "unknown error"}),
         }
 
     # 채팅 채널 목록을 필터링합니다. (채널이 텍스트 채널 혹은 공지 채널이여야 합니다.)
