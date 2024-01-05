@@ -33,7 +33,7 @@ def middleware(event, context):
             'client_secret': DISCORD_CLIENT_SECRET,
             'grant_type': 'authorization_code',
             'code': code,
-            'redirect_uri': "http://localhost:3000/login",
+            'redirect_uri': "https://chzzk.junah.dev/login",
             'scope': 'identify, email, guilds'
         }
     )

@@ -25,7 +25,7 @@ const Login = () => {
     const code = urlParams.get('code');
 
     if (!code) {
-      const url = `https://discord.com/api/oauth2/authorize?client_id=${VITE_DISCORD_CLIENT_ID}&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Flogin&scope=identify+email+guilds`;
+      const url = `https://discord.com/api/oauth2/authorize?client_id=${VITE_DISCORD_CLIENT_ID}&response_type=code&redirect_uri=https%3A%2F%2Fchzzk.junah.dev%2Flogin&scope=identify+email+guilds`;
       window.location.href = url;
       return;
     }
