@@ -304,6 +304,34 @@ module "post_notification" {
   }
 }
 
+module "get_notification_by_guild_id" {
+  depends_on = [aws_s3_bucket.lambda_build_bucket, module.lambda_default_role]
+
+  source = "terraform-aws-modules/lambda/aws"
+
+  function_name = "get_notification_by_guild_id"
+  description   = "특정 ID의 디스코드 서버의 알림 목록을 가져옵니다. 데이터가 없을 경우 빈 리스트를 반환합니다."
+  handler       = "main.lambda_handler"
+  runtime       = "python3.10"
+  timeout       = 120
+  source_path   = "../lambdas/get_notification_by_guild_id"
+
+  store_on_s3 = true
+  s3_bucket   = var.lambda_build_bucket
+
+  create_role = false
+  lambda_role = module.lambda_default_role.role_arn
+
+  layers = [
+    module.common_layer.lambda_layer_arn,
+    module.requests_layer.lambda_layer_arn,
+  ]
+
+  tags = {
+    version = "v1"
+  }
+}
+
 // DynamoDB
 resource "aws_dynamodb_table" "db_table" {
   name = "chzzk-bot-db"
