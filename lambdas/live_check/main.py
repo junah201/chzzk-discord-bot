@@ -17,18 +17,21 @@ dynamodb = boto3.client('dynamodb')
 
 
 def middleware(event, context):
-    res = dynamodb.scan(
+    res = dynamodb.query(
         TableName='chzzk-bot-db',
-        FilterExpression='SK >= :sk_start AND SK < :sk_end',
+        IndexName='GSI-type',
+        KeyConditionExpression='#PK = :type_val',
+        ExpressionAttributeNames={
+            '#PK': 'type'
+        },
         ExpressionAttributeValues={
-            ':sk_start': {'S': f"CHZZK#"},
-            ':sk_end': {'S': f'NOTI#'},
+            ':type_val': {'S': f'CHZZK'}
         }
     )
 
     for item in res["Items"]:
         print(item)
-        channel_id = item["channelId"]["S"]
+        channel_id = item["PK"]["S"].split("#")[1]
         last_live_id = item["lastLiveId"]["N"]
 
         chzzk = get_chzzk(channel_id)
