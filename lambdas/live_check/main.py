@@ -73,7 +73,7 @@ def middleware(event, context):
                                 }
                             ],
                             "image": {
-                                "url": chzzk.liveImageUrl.replace("_{type}", "_1080"),
+                                "url": (chzzk.liveImageUrl or chzzk.channel.channelImageUrl).replace("_{type}", "_1080"),
                             },
                             "author": {
                                 "name": f"{chzzk.channel.channelName}",
