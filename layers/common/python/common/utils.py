@@ -26,9 +26,8 @@ def send_message(channel_id: int, data: dict):
         },
         data=json.dumps(data)
     )
-    if res.status_code != 200:
-        raise Exception(
-            f"Failed to send message: {res.status_code} {res.text}")
+
+    return res
 
 
 def get_channel(channel_id, token=DISCORD_TOKEN) -> dict | None:

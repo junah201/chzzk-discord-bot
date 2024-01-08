@@ -57,7 +57,7 @@ def middleware(event, context):
         for noti in res["Items"]:
             discord_channel_id = noti["channel_id"]["S"]
 
-            send_message(
+            res = send_message(
                 channel_id=discord_channel_id,
                 data={
                     "content": "",
@@ -102,6 +102,21 @@ def middleware(event, context):
                     ],
                 }
             )
+
+            # 채널이 존재하지 않는 경우
+            if res.status_code == 404:
+                dynamodb.delete_item(
+                    TableName='chzzk-bot-db',
+                    Key={
+                        'PK': noti.get('PK'),
+                        'SK': noti.get('SK')
+                    }
+                )
+                continue
+
+            # 메시지 전송에 실패한 경우
+            if res.status_code != 200:
+                continue
 
         dynamodb.update_item(
             TableName='chzzk-bot-db',
