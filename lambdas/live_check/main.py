@@ -60,7 +60,7 @@ def middleware(event, context):
             res = send_message(
                 channel_id=discord_channel_id,
                 data={
-                    "content": "",
+                    "content": noti.get("custom_message", ""),
                     "embeds": [
                         {
                             "title": f"{chzzk.liveTitle}",
