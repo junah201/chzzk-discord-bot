@@ -17,6 +17,13 @@ dynamodb = boto3.client('dynamodb')
 
 
 def middleware(event, context):
+    result = {
+        "total_channel_count": 0,
+        "live_channel_count": 0,
+        "total_send_count": 0,
+        "fail_send_count": 0,
+    }
+
     res = dynamodb.query(
         TableName='chzzk-bot-db',
         IndexName='GSI-type',
@@ -28,6 +35,8 @@ def middleware(event, context):
             ':type_val': {'S': f'CHZZK'}
         }
     )
+
+    result["total_channel_count"] = res["Count"]
 
     for item in res["Items"]:
         print(item)
@@ -44,6 +53,24 @@ def middleware(event, context):
 
         if chzzk.status != "OPEN":
             continue
+
+        result["live_channel_count"] += 1
+
+        dynamodb.update_item(
+            TableName='chzzk-bot-db',
+            Key={
+                'PK': item.get('PK'),
+                'SK': item.get('SK')
+            },
+            UpdateExpression='SET lastLiveId = :live_id, lastLiveTitle = :live_title',
+            ExpressionAttributeValues={
+                ':live_id': {'N': f'{chzzk.liveId}'},
+                ':live_title': {'S': chzzk.liveTitle}
+            }
+        )
+
+        print(
+            f"LIVE_START {chzzk.channel.channelName}, {chzzk.liveId}, {chzzk.liveTitle}")
 
         res = dynamodb.query(
             TableName='chzzk-bot-db',
@@ -105,6 +132,7 @@ def middleware(event, context):
 
             # 채널이 존재하지 않는 경우
             if res.status_code == 404:
+                print("channel not found")
                 dynamodb.delete_item(
                     TableName='chzzk-bot-db',
                     Key={
@@ -112,29 +140,27 @@ def middleware(event, context):
                         'SK': noti.get('SK')
                     }
                 )
+                result["fail_send_count"] += 1
                 continue
 
             # 메시지 전송에 실패한 경우
             if res.status_code != 200:
+                print("send message fail", res.status_code)
+                print(res.json())
+                result["fail_send_count"] += 1
                 continue
 
-        dynamodb.update_item(
-            TableName='chzzk-bot-db',
-            Key={
-                'PK': item.get('PK'),
-                'SK': item.get('SK')
-            },
-            UpdateExpression='SET lastLiveId = :live_id, lastLiveTitle = :live_title',
-            ExpressionAttributeValues={
-                ':live_id': {'N': f'{chzzk.liveId}'},
-                ':live_title': {'S': chzzk.liveTitle}
-            }
-        )
+            # 성공
+            print("send message success")
+            result["total_send_count"] += 1
+
+    return result
 
 
 def lambda_handler(event, context):
     res = middleware(event, context)
 
-    print("res", json.dumps(res))
+    print("=== res ===")
+    print(json.dumps(res))
 
     return res
