@@ -104,7 +104,7 @@ def handler(event, context):
                 'lastLiveTitle': {'S': chzzk.liveTitle},
                 'channelId': {'S': chzzk.channel.channelId},
                 'channelName': {'S': chzzk.channel.channelName},
-                'channelImageUrl': {'S': chzzk.channel.channelImageUrl},
+                'channelImageUrl': {'S': chzzk.channel.channelImageUrl or ""},
                 "type": {"S": "CHZZK"}
             }
         )
