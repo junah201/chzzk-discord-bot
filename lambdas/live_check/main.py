@@ -105,7 +105,7 @@ def middleware(event, context):
                             "author": {
                                 "name": f"{chzzk.channel.channelName}",
                                 "url": f"https://chzzk.naver.com/live/{channel_id}",
-                                "icon_url": f"{chzzk.channel.channelImageUrl}"
+                                "icon_url": chzzk.channel.channelImageUrl or "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png?type=f120_120_na"
                             },
                             "footer": {
                                 "text": "치직"
