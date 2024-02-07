@@ -127,7 +127,7 @@ module "live_check" {
   description   = "live check"
   handler       = "main.lambda_handler"
   runtime       = "python3.10"
-  timeout       = 120
+  timeout       = 570
   source_path   = "../lambdas/live_check"
 
   store_on_s3 = true
