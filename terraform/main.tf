@@ -437,6 +437,11 @@ resource "aws_dynamodb_table" "db_table" {
     type = "S"
   }
 
+  attribute {
+    name = "index"
+    type = "N"
+  }
+
 
   global_secondary_index {
     name               = "GSI-SK"
@@ -468,5 +473,12 @@ resource "aws_dynamodb_table" "db_table" {
       "PK",
       "lastLiveId"
     ]
+  }
+
+  global_secondary_index {
+    name               = "GSI-index"
+    hash_key           = "index"
+    range_key           = "PK"
+    projection_type    = "ALL"
   }
 }
