@@ -2,7 +2,6 @@ import { Box, useTheme } from '@mui/material';
 import { useParams } from 'react-router-dom';
 
 import AddForm from './AddForm';
-import GuildProfile from './GuildProfile';
 import NotFound from './NotFound';
 import NotiList from './NotiList';
 
@@ -39,7 +38,6 @@ const GuildDetail = () => {
         gap: theme.spacing(1),
       }}
     >
-      <GuildProfile />
       <AddForm channels={channels} />
       <NotiList guildId={guildId} />
     </Box>

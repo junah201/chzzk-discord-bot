@@ -1,16 +1,8 @@
 import { ArrowForwardIosOutlined, LaunchOutlined } from '@mui/icons-material';
-import {
-  Box,
-  Avatar,
-  Typography,
-  Stack,
-  useTheme,
-  Skeleton,
-  IconButton,
-} from '@mui/material';
+import { Box, Avatar, Typography, useTheme, IconButton } from '@mui/material';
 import { Link } from 'react-router-dom';
 
-import { getGuilds, getMe } from '@/api/discord';
+import { getGuilds } from '@/api/discord';
 import { QUERY } from '@/constants/query';
 import { useCustomQuery } from '@/lib';
 import { Guild } from '@/types';

@@ -10,7 +10,9 @@ const DISCORD = Object.freeze({
 
 const NOTIFICATION = Object.freeze({
   ADD: '/notifications',
+  UPDATE: '/notifications',
   DELETE: '/notifications',
+  SEND_TEST: '/notifications/test',
   GET_BY_GUILD_ID: (guildId: string) => `/notifications/${guildId}`,
 });
 

@@ -1,21 +1,21 @@
 import { Button } from '@mui/material';
 import { UseFormHandleSubmit } from 'react-hook-form';
 
-import { addNotification } from '@/api';
+import { updateNotification } from '@/api';
 import { QUERY, RegisterField } from '@/constants';
 import { useCustomMutation } from '@/lib';
 
-interface AddButtonProps {
+interface UpdateButtonProps {
   handleSubmit: UseFormHandleSubmit<RegisterField, undefined>;
 }
 
-const AddButton = ({ handleSubmit }: AddButtonProps) => {
+const UpdateButton = ({ handleSubmit }: UpdateButtonProps) => {
   const { mutate, isLoading } = useCustomMutation(
-    (userInput) => addNotification(userInput),
+    (userInput) => updateNotification(userInput),
     {
-      SuccessMessage: '치지직 알림이 추가되었습니다.',
+      SuccessMessage: `수정되었습니다.`,
       SuccessQueryKey: QUERY.KEY.NOTIFICATIONS,
-      ErrorMessage: '치지직 알림 추가에 실패했습니다.',
+      ErrorMessage: `수정에 실패했습니다.`,
     }
   );
 
@@ -28,9 +28,9 @@ const AddButton = ({ handleSubmit }: AddButtonProps) => {
       variant="contained"
       color="primary"
     >
-      치지직 알림 추가
+      수정하기
     </Button>
   );
 };
 
-export default AddButton;
+export default UpdateButton;

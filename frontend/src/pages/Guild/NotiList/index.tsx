@@ -12,6 +12,8 @@ import {
 } from '@mui/material';
 
 import DeleteButton from './DeleteButton';
+import TestButton from './TestButton';
+import ModalButton from './UpdateNoti/ModalButton';
 
 import { getNotificationsByGuildId } from '@/api';
 import { QUERY } from '@/constants';
@@ -54,7 +56,9 @@ const NotiList = ({ guildId }: NotiListProps) => {
           <TableRow>
             <TableCell>치지직</TableCell>
             <TableCell>디스코드 채널</TableCell>
-            <TableCell>삭제</TableCell>
+            <TableCell align="center">테스트 알림 전송</TableCell>
+            <TableCell align="center">수정</TableCell>
+            <TableCell align="center">삭제</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -89,7 +93,13 @@ const Noti = ({ noti }: NotiProps) => {
           #{noti.channel_name}
         </Link>
       </TableCell>
-      <TableCell>
+      <TableCell align="center">
+        <TestButton chzzk_id={chzzk} channel_id={noti.channel_id} />
+      </TableCell>
+      <TableCell align="center">
+        <ModalButton noti={noti} />
+      </TableCell>
+      <TableCell align="center">
         <DeleteButton chzzk_id={chzzk} channel_id={noti.channel_id} />
       </TableCell>
     </TableRow>

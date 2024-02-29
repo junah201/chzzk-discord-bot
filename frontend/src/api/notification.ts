@@ -36,3 +36,19 @@ export const deleteNotification = async (data: NotificationDelete) => {
 
   return res;
 };
+
+interface NotificationUpdate extends NotificationCreate {}
+
+export const updateNotification = async (data: NotificationUpdate) => {
+  const res = await AuthAxios.put(API_ROUTE.NOTIFICATION.UPDATE, data);
+
+  return res;
+};
+
+interface NotificationTest extends NotificationDelete {}
+
+export const sendTestNotification = async (data: NotificationTest) => {
+  const res = await AuthAxios.post(API_ROUTE.NOTIFICATION.SEND_TEST, data);
+
+  return res;
+};

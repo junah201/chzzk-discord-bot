@@ -17,6 +17,8 @@ const AddForm = ({ channels }: AddFormProps) => {
   const { control, handleSubmit } = useForm<RegisterField, any>({
     defaultValues: {
       [INPUT.CHZZK_ID.name]: '',
+      [INPUT.CHANNEL_ID.name]: null,
+      [INPUT.CUSTOM_MESSAGE.name]: '',
     },
   });
 
@@ -63,7 +65,7 @@ const AddForm = ({ channels }: AddFormProps) => {
             label="커스텀 메시지"
             type="multiline"
             control={control}
-            placeholder=""
+            placeholder="@everyone 홍길동님이 방송을 시작했습니다!"
             helperText="알림에 커스텀 메시지를 추가할 수 있습니다."
           />
         </Grid>

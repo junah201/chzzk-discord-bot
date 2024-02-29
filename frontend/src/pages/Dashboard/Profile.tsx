@@ -65,6 +65,9 @@ const Profile = () => {
       >
         <Typography variant="h1">{user.global_name}님의 서버 목록</Typography>
         <Typography variant="body1" color={theme.palette.text.secondary}>
+          {user.global_name}님이 관리자 권한이 있는 서버만 보여집니다.
+        </Typography>
+        <Typography variant="body1" color={theme.palette.text.secondary}>
           아래 서버 리스트에서 서버를 골라 관리해보세요.
         </Typography>
         <Typography variant="body1" color={theme.palette.text.secondary}>

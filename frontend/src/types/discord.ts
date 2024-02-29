@@ -48,4 +48,5 @@ export interface Notification {
   guild_id: string;
   channel_id: string;
   channel_name: string;
+  custom_message: string;
 }
