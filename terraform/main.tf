@@ -437,6 +437,7 @@ resource "aws_dynamodb_table" "db_table" {
     type = "S"
   }
 
+
   global_secondary_index {
     name               = "GSI-SK"
     hash_key           = "SK"
@@ -453,7 +454,8 @@ resource "aws_dynamodb_table" "db_table" {
     non_key_attributes = [
       "SK",
       "channel_id",
-      "channel_name"
+      "channel_name",
+      "custom_message",
     ]
   }
 

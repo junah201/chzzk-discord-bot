@@ -35,6 +35,7 @@ def middleware(event, context):
             "guild_id": item.get('guild_id', {}).get('S'),
             "channel_id": item.get('channel_id', {}).get('S'),
             "channel_name": item.get('channel_name', {}).get('S'),
+            "custom_message": item.get('custom_message', {}).get('S'),
         }
 
         for item in res.get('Items')
