@@ -387,6 +387,29 @@ module "send_test_notification" {
   }
 }
 
+module "update_notification" {
+  depends_on = [aws_s3_bucket.lambda_build_bucket, module.lambda_default_role]
+
+  source = "terraform-aws-modules/lambda/aws"
+
+  function_name = "update_notification"
+  description   = "알림의 커스텀 메시지를 수정합니다."
+  handler       = "main.lambda_handler"
+  runtime       = "python3.10"
+  timeout       = 120
+  source_path   = "../lambdas/update_notification"
+
+  store_on_s3 = true
+  s3_bucket   = var.lambda_build_bucket
+
+  create_role = false
+  lambda_role = module.lambda_default_role.role_arn
+
+  tags = {
+    version = "v1"
+  }
+}
+
 // DynamoDB
 resource "aws_dynamodb_table" "db_table" {
   name = "chzzk-bot-db"
