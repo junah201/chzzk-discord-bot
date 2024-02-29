@@ -38,6 +38,7 @@ jobs:
             post_notification,
             get_notification_by_guild_id,
             delete_notification,
+            send_test_notification,
           ]
         include:
           - lambda: event_handler
@@ -58,6 +59,8 @@ jobs:
             path: ./lambdas/get_notification_by_guild_id
           - lambda: delete_notification
             path: ./lambdas/delete_notification
+          - lambda: send_test_notification
+            path: ./lambdas/send_test_notification
 
     uses: junah201/chzzk-discord-bot/.github/workflows/lambda.yml@main
     with:
