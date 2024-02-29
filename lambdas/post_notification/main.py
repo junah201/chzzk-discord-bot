@@ -85,7 +85,8 @@ def middleware(event, context):
                 'channelId': {'S': chzzk.channel.channelId},
                 'channelName': {'S': chzzk.channel.channelName},
                 'channelImageUrl': {'S': chzzk.channel.channelImageUrl or ""},
-                "type": {"S": "CHZZK"}
+                "type": {"S": "CHZZK"},
+                "index": {"N": int(chzzk_id, 16) % 10}
             }
         )
 
@@ -131,7 +132,8 @@ def middleware(event, context):
             'channel_id': {'S': f'{channel_id}'},
             'channel_name': {'S': channel_data.get('name', '')},
             'guild_id': {'S': channel_data.get('guild_id', '')},
-            "custom_message": {'S': custom_message}
+            "custom_message": {'S': custom_message},
+            "index": {"N": -1}
         }
     )
 
