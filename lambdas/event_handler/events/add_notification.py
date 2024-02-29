@@ -106,7 +106,7 @@ def handler(event, context):
                 'channelName': {'S': chzzk.channel.channelName},
                 'channelImageUrl': {'S': chzzk.channel.channelImageUrl or ""},
                 "type": {"S": "CHZZK"},
-                "index": {"N": int(Chzzk_id, 16) % 10}
+                "index": {"N": f"{int(Chzzk_id, 16) % 10}"}
             }
         )
 
@@ -171,7 +171,7 @@ def handler(event, context):
             'guild_id': {'S': channel_data.get('guild_id', '')},
             "custom_message": {'S': ""},
             "type": {"S": "NOTI"},
-            "index": {"N": -1}
+            "index": {"N": "-1"}
         }
     )
 
