@@ -17,6 +17,12 @@ dynamodb = boto3.client('dynamodb')
 
 
 def middleware(event, context):
+    index = int(event.get("resources", [])[0][-1])
+    print(f"index: {index}")
+    """
+    트리거마다 처리하는 데이터가 다르게 분산화합니다.
+    """
+
     result = {
         "total_channel_count": 0,
         "live_channel_count": 0,
@@ -26,13 +32,13 @@ def middleware(event, context):
 
     res = dynamodb.query(
         TableName='chzzk-bot-db',
-        IndexName='GSI-type',
-        KeyConditionExpression='#PK = :type_val',
+        IndexName='GSI-index',
+        KeyConditionExpression='#PK = :index_val',
         ExpressionAttributeNames={
-            '#PK': 'type'
+            '#PK': 'index'
         },
         ExpressionAttributeValues={
-            ':type_val': {'S': f'CHZZK'}
+            ':index_val': {'N': f'{index}'}
         }
     )
 
