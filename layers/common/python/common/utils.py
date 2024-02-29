@@ -17,11 +17,11 @@ def delete_message(channel_id: int, message_id: int):
             f"Failed to delete message: {res.status_code} {res.text}")
 
 
-def send_message(channel_id: int, data: dict):
+def send_message(channel_id: int, data: dict, token=DISCORD_TOKEN):
     res = requests.post(
         f"https://discord.com/api/v9/channels/{channel_id}/messages",
         headers={
-            "Authorization": f"Bot {DISCORD_TOKEN}",
+            "Authorization": f"Bot {token}",
             "Content-Type": "application/json"
         },
         data=json.dumps(data)

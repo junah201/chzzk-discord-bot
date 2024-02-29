@@ -54,6 +54,10 @@ def get_chzzk(channel_id: str) -> ChzzkLive | None:
     """채널 ID를 통해 치지직 채널 정보를 가져옵니다.
     만약 채널이 존재하지 않는다면 None을 반환합니다.
     """
+    # 정규화되지 않은 채널 ID
+    if "/" in channel_id:
+        return None
+
     try:
         res = requests.get(
             f"https://api.chzzk.naver.com/service/v2/channels/{channel_id}/live-detail")
