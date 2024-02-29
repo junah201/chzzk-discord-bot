@@ -23,12 +23,34 @@ def middleware(event, context):
     chzzk_id = body.get("chzzk_id", None)
     discord_channel_id = body.get("channel_id", None)
 
+    if chzzk_id is None or discord_channel_id is None:
+        return {
+            "statusCode": 400,
+            "headers": {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            "body": json.dumps({"message": "chzzk_id, channel_id are required"}),
+        }
+
+    # 치지직 채널이 있는지 확인
+    chzzk = get_chzzk(chzzk_id)
+    if not chzzk:
+        return {
+            "statusCode": 400,
+            "headers": {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            "body": json.dumps({"message": "해당 치지직 채널을 찾을 수 없습니다."}),
+        }
+
     res = dynamodb.query(
         TableName='chzzk-bot-db',
         KeyConditionExpression='PK = :pk_val AND begins_with(SK, :sk_val)',
         ExpressionAttributeValues={
-            ':pk_val': {'S': f'CHZZK#{discord_channel_id}'},
-            ':sk_val': {'S': f'NOTI#{chzzk_id}'}
+            ':pk_val': {'S': f'CHZZK#{chzzk_id}'},
+            ':sk_val': {'S': f'NOTI#{discord_channel_id}'}
         }
     )
 
@@ -119,7 +141,7 @@ def middleware(event, context):
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
-            "body": json.dumps({"message": f"테스트 알림 전송에 실패했습니다. ({res.json()})"}),
+            "body": json.dumps({"message": f"테스트 알림 전송에 실패했습니다. 치직 봇이 해당 채널에 메시지를 보낼 권한이 있는지 확인해주세요. ({res.json()})"}),
         }
 
     # 성공
