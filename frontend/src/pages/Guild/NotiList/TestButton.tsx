@@ -18,6 +18,7 @@ const TestButton = ({ channel_id, chzzk_id }: TestButtonProps) => {
       }),
     {
       SuccessMessage: `테스트 알림이 전송되었습니다.`,
+      ErrorMessage: '',
     }
   );
 
