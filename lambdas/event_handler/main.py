@@ -17,28 +17,31 @@ DISCORD_PUBLIC_KEY = os.environ.get("DISCORD_PUBLIC_KEY")
 
 def middleware(event, context):
     print(f"event: {event}")
-    print(event["rawBody"])
+    print(json.dumps(event))
 
     # verify the signature
     try:
-        raw_body = event.get("rawBody")
-        auth_sig = event['params']['header'].get('x-signature-ed25519')
-        auth_ts = event['params']['header'].get('x-signature-timestamp')
+        raw_body = event['body']
+        auth_sig = event['headers'].get('x-signature-ed25519')
+        auth_ts = event['headers'].get('x-signature-timestamp')
 
-        message = auth_ts.encode() + raw_body.encode()
         verify_key = VerifyKey(bytes.fromhex(DISCORD_PUBLIC_KEY))
         verify_key.verify(
-            message,
+            f'{auth_ts}{raw_body}'.encode(),
             bytes.fromhex(auth_sig)
-        )  # raises an error if unequal
+        )
     except Exception as e:
         raise Exception(f"[UNAUTHORIZED] Invalid request signature: {e}")
 
     # ping pong
-    body = event.get("body", {})
+    body = json.loads(raw_body)
+    print("=== body ===")
+    print(body)
+
     if body.get("type") == TYPE.PING:
         return {
-            "type": 1
+            'type': 1
+
         }
 
     # event handler
@@ -55,7 +58,7 @@ def middleware(event, context):
             return {
                 "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
                 "data": {
-                    "content": f"{command_name=}\n\n```json\n{event.get('rawBody')}```",
+                    "content": f"{command_name=}\n\n```json\n{event.get('body')}```",
                 }
             }
 
@@ -65,4 +68,7 @@ def lambda_handler(event, context):
 
     print("res", json.dumps(res))
 
-    return res
+    return {
+        'statusCode': 200,
+        'body': json.dumps(res)
+    }

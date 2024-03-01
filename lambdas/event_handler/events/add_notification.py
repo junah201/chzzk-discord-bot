@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 
 import boto3
 
@@ -12,7 +13,7 @@ dynamodb = boto3.client('dynamodb')
 
 
 def handler(event, context):
-    body = event.get("body", {})
+    body = json.loads(event["body"])
     data = body.get("data", {})
 
     options = data.get("options", [])
