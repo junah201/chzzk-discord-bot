@@ -60,7 +60,11 @@ def get_chzzk(channel_id: str) -> ChzzkLive | None:
 
     try:
         res = requests.get(
-            f"https://api.chzzk.naver.com/service/v2/channels/{channel_id}/live-detail")
+            f"https://api.chzzk.naver.com/service/v2/channels/{channel_id}/live-detail",
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            }
+        )
     except Exception as e:
         print(e)
         return None
