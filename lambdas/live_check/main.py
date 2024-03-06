@@ -45,7 +45,6 @@ def middleware(event, context):
     result["total_channel_count"] = res["Count"]
 
     for item in res["Items"]:
-        print(item)
         channel_id = item["PK"]["S"].split("#")[1]
         last_live_id = item["lastLiveId"]["N"]
 
