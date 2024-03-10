@@ -75,7 +75,7 @@ def middleware(event, context):
         )
 
         print(
-            f"LIVE_START {chzzk.channel.channelName}, {chzzk.liveId}, {chzzk.liveTitle}")
+            f"LIVE_START {chzzk.channel.channelName}, {chzzk.liveId}, {chzzk.liveTitle}, {index=}")
 
         res = dynamodb.query(
             TableName='chzzk-bot-db',
@@ -151,7 +151,13 @@ def middleware(event, context):
             # 메시지 전송에 실패한 경우
             if res.status_code != 200:
                 print("send message fail", res.status_code)
-                print(res.json())
+                try:
+                    print(res.json())
+                except:
+                    try:
+                        print(res.text)
+                    except:
+                        print("unknown error")
                 result["fail_send_count"] += 1
                 continue
 
