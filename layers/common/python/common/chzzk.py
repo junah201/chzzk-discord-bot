@@ -26,6 +26,7 @@ class ChzzkLive:
     defaultThumbnailImageUrl: str | None
     concurrentUserCount: int
     accumulateCount: int
+    chatDonationRankingExposure: bool | None
     openDate: str
     closeDate: str
     adult: bool | None
