@@ -41,7 +41,6 @@ def middleware(event, context):
     if body.get("type") == TYPE.PING:
         return {
             'type': 1
-
         }
 
     # event handler

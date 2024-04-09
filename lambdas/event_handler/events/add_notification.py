@@ -18,12 +18,12 @@ def handler(event, context):
 
     options = data.get("options", [])
 
-    Chzzk_id = None
+    chzzk_id = None
     discord_channel_id = None
 
     for option in options:
         if option.get("name") == "치지직":
-            Chzzk_id = option.get("value")
+            chzzk_id = option.get("value")
         elif option.get("name") == "채널":
             discord_channel_id = option.get("value")
 
@@ -32,7 +32,7 @@ def handler(event, context):
         .get("channels", {}) \
         .get(discord_channel_id, {})
 
-    if not Chzzk_id:
+    if not chzzk_id:
         return {
             "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
             "data": {
@@ -60,7 +60,7 @@ def handler(event, context):
             },
         }
 
-    chzzk = get_chzzk(Chzzk_id)
+    chzzk = get_chzzk(chzzk_id)
 
     # 실제 치지직 채널이 있는지 확인
     if not chzzk:
@@ -70,7 +70,7 @@ def handler(event, context):
                 "embeds": [
                     {
                         "title": f"존재하지 않는 치지직 채널",
-                        "description": f"치지직 채널 ID가 `{Chzzk_id}`인 채널이 존재하지 않거나 한번도 방송을 키지 않은 채널입니다.\n\n치지직 채널 ID는 치지직 채널의 URL에서 확인할 수 있습니다.\n\n예시: `https://chzzk.naver.com/xyz123456` -> `xyz123456`",
+                        "description": f"치지직 채널 ID가 `{chzzk_id}`인 채널이 존재하지 않거나 한번도 방송을 키지 않은 채널입니다.\n\n치지직 채널 ID는 치지직 채널의 URL에서 확인할 수 있습니다.\n\n예시: `https://chzzk.naver.com/xyz123456` -> `xyz123456`",
                         "color": 0xF01D15,
                         "footer": {
                             "text": "치직"
@@ -89,8 +89,8 @@ def handler(event, context):
             '#sk': 'SK'
         },
         ExpressionAttributeValues={
-            ':pk_val': {'S': f'CHZZK#{Chzzk_id}'},
-            ':sk_val': {'S': f'CHZZK#{Chzzk_id}'}
+            ':pk_val': {'S': f'CHZZK#{chzzk_id}'},
+            ':sk_val': {'S': f'CHZZK#{chzzk_id}'}
         }
     )
 
@@ -99,15 +99,15 @@ def handler(event, context):
         res = dynamodb.put_item(
             TableName='chzzk-bot-db',
             Item={
-                'PK': {'S': f'CHZZK#{Chzzk_id}'},
-                'SK': {'S': f'CHZZK#{Chzzk_id}'},
-                'lastLiveId': {'N': f"{chzzk.liveId}"},
-                'lastLiveTitle': {'S': chzzk.liveTitle},
-                'channelId': {'S': chzzk.channel.channelId},
-                'channelName': {'S': chzzk.channel.channelName},
-                'channelImageUrl': {'S': chzzk.channel.channelImageUrl or ""},
+                'PK': {'S': f'CHZZK#{chzzk_id}'},
+                'SK': {'S': f'CHZZK#{chzzk_id}'},
+                'lastLiveId': {'N': f"{chzzk['liveId']}"},
+                'lastLiveTitle': {'S': chzzk['liveTitle']},
+                'channelId': {'S': chzzk['channel']['channelId']},
+                'channelName': {'S': chzzk['channel']['channelName']},
+                'channelImageUrl': {'S': chzzk['channel']['channelImageUrl'] or ""},
                 "type": {"S": "CHZZK"},
-                "index": {"N": f"{int(Chzzk_id, 16) % 6}"}
+                "index": {"N": f"{int(chzzk_id, 16) % 6}"}
             }
         )
 
@@ -119,7 +119,7 @@ def handler(event, context):
                     "embeds": [
                         {
                             "title": f"치지직 채널 정보 등록 실패",
-                            "description": f"**{chzzk.channel.channelName}**님의 치지직 채널 정보 등록에 실패했습니다. 다시 시도해주세요.",
+                            "description": f"**{chzzk['channel']['channelName']}**님의 치지직 채널 정보 등록에 실패했습니다. 다시 시도해주세요.",
                             "color": 0xF01D15,
                             "footer": {
                                 "text": "치직"
@@ -138,7 +138,7 @@ def handler(event, context):
             '#sk': 'SK'
         },
         ExpressionAttributeValues={
-            ':pk_val': {'S': f'CHZZK#{Chzzk_id}'},
+            ':pk_val': {'S': f'CHZZK#{chzzk_id}'},
             ':sk_val': {'S': f'NOTI#{discord_channel_id}'}
         }
     )
@@ -151,7 +151,7 @@ def handler(event, context):
                 "embeds": [
                     {
                         "title": f"알림 등록 실패",
-                        "description": f"이미 <#{discord_channel_id}>에 등록된 채널(**{chzzk.channel.channelName}**)입니다.",
+                        "description": f"이미 <#{discord_channel_id}>에 등록된 채널(**{chzzk['channel']['channelName']}**)입니다.",
                         "color": 0xF01D15,
                         "footer": {
                             "text": "치직"
@@ -165,7 +165,7 @@ def handler(event, context):
     res = dynamodb.put_item(
         TableName='chzzk-bot-db',
         Item={
-            'PK': {'S': f'CHZZK#{Chzzk_id}'},
+            'PK': {'S': f'CHZZK#{chzzk_id}'},
             'SK': {'S': f'NOTI#{discord_channel_id}'},
             'channel_id': {'S': f'{discord_channel_id}'},
             'channel_name': {'S': channel_data.get('name', '')},
@@ -184,12 +184,12 @@ def handler(event, context):
                 "embeds": [
                     {
                         "title": f"알림 등록 실패",
-                        "description": f"**{chzzk.channel.channelName}**님의 방송 알림 등록에 실패했습니다. 다시 시도해주세요.",
+                        "description": f"**{chzzk['channel']['channelName']}**님의 방송 알림 등록에 실패했습니다. 다시 시도해주세요.",
                         "color": 0xF01D15,
                         "footer": {
                             "text": "치직"
                         },
-                        "url": f"https://chzzk.naver.com/{Chzzk_id}",
+                        "url": f"https://chzzk.naver.com/{chzzk_id}",
                         "timestamp": datetime.now().isoformat()
                     },
                 ],
@@ -202,12 +202,12 @@ def handler(event, context):
             "embeds": [
                 {
                     "title": f"알림 등록 완료",
-                    "description": f"**{chzzk.channel.channelName}**님의 방송 알림을 <#{discord_channel_id}>에 등록했습니다.",
+                    "description": f"**{chzzk['channel']['channelName']}**님의 방송 알림을 <#{discord_channel_id}>에 등록했습니다.",
                     "color": 0x02E895,
                     "footer": {
                         "text": "치직"
                     },
-                    "url": f"https://chzzk.naver.com/{Chzzk_id}",
+                    "url": f"https://chzzk.naver.com/{chzzk_id}",
                     "timestamp": datetime.now().isoformat()
                 },
             ],

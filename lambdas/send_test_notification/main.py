@@ -72,22 +72,22 @@ def middleware(event, context):
             "content": f"관리자의 요청에 따라 전송된 테스트 알림입니다." + "\n\n" + item.get("custom_message", {}).get("S", ""),
             "embeds": [
                 {
-                    "title": f"{chzzk.liveTitle}",
-                    "description": f"{chzzk.channel.channelName} 님이 방송을 시작했습니다.",
+                    "title": f"{chzzk['liveTitle']}",
+                    "description": f"{chzzk['channel']['channelName']} 님이 방송을 시작했습니다.",
                     "color": 0x02E895,
                     "fields": [
                         {
                             "name": '카테고리',
-                            "value": chzzk.liveCategoryValue
+                                    "value": chzzk['liveCategoryValue']
                         }
                     ],
                     "image": {
-                        "url": (chzzk.liveImageUrl or chzzk.channel.channelImageUrl or "").replace("_{type}", "_1080"),
+                        "url": (chzzk['liveImageUrl'] or chzzk['channel']['channelImageUrl'] or "").replace("_{type}", "_1080"),
                     },
                     "author": {
-                        "name": f"{chzzk.channel.channelName}",
+                        "name": f"{chzzk['channel']['channelName']}",
                         "url": f"https://chzzk.naver.com/live/{chzzk_id}",
-                        "icon_url": chzzk.channel.channelImageUrl or "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png?type=f120_120_na"
+                        "icon_url": chzzk['channel']['channelImageUrl'] or "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png?type=f120_120_na"
                     },
                     "footer": {
                         "text": "치직"

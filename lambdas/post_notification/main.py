@@ -80,11 +80,11 @@ def middleware(event, context):
             Item={
                 'PK': {'S': f'CHZZK#{chzzk_id}'},
                 'SK': {'S': f'CHZZK#{chzzk_id}'},
-                'lastLiveId': {'N': f"{chzzk.liveId}"},
-                'lastLiveTitle': {'S': chzzk.liveTitle},
-                'channelId': {'S': chzzk.channel.channelId},
-                'channelName': {'S': chzzk.channel.channelName},
-                'channelImageUrl': {'S': chzzk.channel.channelImageUrl or ""},
+                'lastLiveId': {'N': f"{chzzk['liveId']}"},
+                'lastLiveTitle': {'S': chzzk['liveTitle']},
+                'channelId': {'S': chzzk['channel']['channelId']},
+                'channelName': {'S': chzzk['channel']['channelName']},
+                'channelImageUrl': {'S': chzzk['channel']['channelImageUrl'] or ""},
                 "type": {"S": "CHZZK"},
                 "index": {"N": f"{int(chzzk_id, 16) % 6}"}
             }
@@ -121,7 +121,7 @@ def middleware(event, context):
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
-            "body": json.dumps({"message": f"이미 {channel_data['name']}에 등록된 채널({chzzk.channel.channelName})입니다."}),
+            "body": json.dumps({"message": f"이미 {channel_data['name']}에 등록된 채널({chzzk['channel']['channelName']})입니다."}),
         }
 
     dynamodb.put_item(

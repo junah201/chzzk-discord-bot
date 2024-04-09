@@ -53,10 +53,10 @@ def middleware(event, context):
         if not chzzk:
             continue
 
-        if str(chzzk.liveId) == str(last_live_id):
+        if str(chzzk['liveId']) == str(last_live_id):
             continue
 
-        if chzzk.status != "OPEN":
+        if chzzk['status'] != "OPEN":
             continue
 
         result["live_channel_count"] += 1
@@ -69,13 +69,13 @@ def middleware(event, context):
             },
             UpdateExpression='SET lastLiveId = :live_id, lastLiveTitle = :live_title',
             ExpressionAttributeValues={
-                ':live_id': {'N': f'{chzzk.liveId}'},
-                ':live_title': {'S': chzzk.liveTitle}
+                ':live_id': {'N': f'{chzzk['liveId']}'},
+                ':live_title': {'S': chzzk['liveTitle']}
             }
         )
 
         print(
-            f"LIVE_START {chzzk.channel.channelName}, {chzzk.liveId}, {chzzk.liveTitle}, {index=}")
+            f"LIVE_START {chzzk['channel']['channelName']}, {chzzk['liveId']}, {chzzk['liveTitle']}, {index=}")
 
         res = dynamodb.query(
             TableName='chzzk-bot-db',
@@ -95,22 +95,22 @@ def middleware(event, context):
                     "content": noti.get("custom_message", {}).get("S", ""),
                     "embeds": [
                         {
-                            "title": f"{chzzk.liveTitle}",
-                            "description": f"{chzzk.channel.channelName} 님이 방송을 시작했습니다.",
+                            "title": f"{chzzk['liveTitle']}",
+                            "description": f"{chzzk['channel']['channelName']} 님이 방송을 시작했습니다.",
                             "color": 0x02E895,
                             "fields": [
                                 {
                                     "name": '카테고리',
-                                    "value": chzzk.liveCategoryValue
+                                    "value": chzzk['liveCategoryValue']
                                 }
                             ],
                             "image": {
-                                "url": (chzzk.liveImageUrl or chzzk.channel.channelImageUrl or "").replace("_{type}", "_1080"),
+                                "url": (chzzk['liveImageUrl'] or chzzk['channel']['channelImageUrl'] or "").replace("_{type}", "_1080"),
                             },
                             "author": {
-                                "name": f"{chzzk.channel.channelName}",
+                                "name": f"{chzzk['channel']['channelName']}",
                                 "url": f"https://chzzk.naver.com/live/{channel_id}",
-                                "icon_url": chzzk.channel.channelImageUrl or "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png?type=f120_120_na"
+                                "icon_url": chzzk['channel']['channelImageUrl'] or "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png?type=f120_120_na"
                             },
                             "footer": {
                                 "text": "치직"

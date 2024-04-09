@@ -1,24 +1,15 @@
-from dataclasses import dataclass
-
+from typing import TypedDict
 import requests
 
 
-@dataclass
-class ChzzkChannel:
+class ChzzkChannel(TypedDict):
     channelId: str
     channelName: str
     channelImageUrl: str
     verifiedMark: bool
 
-    def __str__(self) -> str:
-        return f"ChzzkChannel(channelId={self.channelId}, channelName={self.channelName})"
 
-    def __repr__(self) -> str:
-        return self.__str__()
-
-
-@dataclass
-class ChzzkLive:
+class ChzzkLive(TypedDict):
     liveId: int
     liveTitle: str
     status: str
@@ -79,8 +70,5 @@ def get_chzzk(channel_id: str) -> ChzzkLive | None:
     # 한번도 방송을 키지 않은 경우
     if content is None:
         return None
-    channel = content.pop("channel", {})
-    return ChzzkLive(
-        **content,
-        channel=ChzzkChannel(**channel)
-    )
+
+    return content
