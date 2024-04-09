@@ -38,7 +38,7 @@ def middleware(event, context):
             '#PK': 'index'
         },
         ExpressionAttributeValues={
-            ':index_val': {'N': f'{index}'}
+            ':index_val': {'N': f"{index}"}
         }
     )
 
@@ -69,7 +69,7 @@ def middleware(event, context):
             },
             UpdateExpression='SET lastLiveId = :live_id, lastLiveTitle = :live_title',
             ExpressionAttributeValues={
-                ':live_id': {'N': f'{chzzk['liveId']}'},
+                ':live_id': {'N': f"{chzzk['liveId']}"},
                 ':live_title': {'S': chzzk['liveTitle']}
             }
         )
@@ -81,7 +81,7 @@ def middleware(event, context):
             TableName='chzzk-bot-db',
             KeyConditionExpression='PK = :pk_val AND begins_with(SK, :sk_val)',
             ExpressionAttributeValues={
-                ':pk_val': {'S': f'CHZZK#{channel_id}'},
+                ':pk_val': {'S': f"CHZZK#{channel_id}"},
                 ':sk_val': {'S': 'NOTI#'}
             }
         )

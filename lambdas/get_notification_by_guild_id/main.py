@@ -24,7 +24,7 @@ def middleware(event, context):
         IndexName='GSI-GuildID',
         KeyConditionExpression='guild_id = :guild_id',
         ExpressionAttributeValues={
-            ':guild_id': {'S': f'{guild_id}'}
+            ':guild_id': {'S': f"{guild_id}"}
         }
     )
 

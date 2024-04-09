@@ -27,7 +27,7 @@ def handler(event, context):
             '#sk': 'SK'
         },
         ExpressionAttributeValues={
-            ':sk_val': {'S': f'NOTI#{discord_channel_id}'}
+            ':sk_val': {'S': f"NOTI#{discord_channel_id}"}
         }
     )
 

@@ -39,8 +39,8 @@ def middleware(event, context):
             '#sk': 'SK'
         },
         ExpressionAttributeValues={
-            ':pk_val': {'S': f'CHZZK#{chzzk_id}'},
-            ':sk_val': {'S': f'NOTI#{channel_id}'}
+            ':pk_val': {'S': f"CHZZK#{chzzk_id}"},
+            ':sk_val': {'S': f"NOTI#{channel_id}"}
         }
     )
 

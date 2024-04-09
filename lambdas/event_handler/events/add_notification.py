@@ -89,8 +89,8 @@ def handler(event, context):
             '#sk': 'SK'
         },
         ExpressionAttributeValues={
-            ':pk_val': {'S': f'CHZZK#{chzzk_id}'},
-            ':sk_val': {'S': f'CHZZK#{chzzk_id}'}
+            ':pk_val': {'S': f"CHZZK#{chzzk_id}"},
+            ':sk_val': {'S': f"CHZZK#{chzzk_id}"}
         }
     )
 
@@ -99,8 +99,8 @@ def handler(event, context):
         res = dynamodb.put_item(
             TableName='chzzk-bot-db',
             Item={
-                'PK': {'S': f'CHZZK#{chzzk_id}'},
-                'SK': {'S': f'CHZZK#{chzzk_id}'},
+                'PK': {'S': f"CHZZK#{chzzk_id}"},
+                'SK': {'S': f"CHZZK#{chzzk_id}"},
                 'lastLiveId': {'N': f"{chzzk['liveId']}"},
                 'lastLiveTitle': {'S': chzzk['liveTitle']},
                 'channelId': {'S': chzzk['channel']['channelId']},
@@ -138,8 +138,8 @@ def handler(event, context):
             '#sk': 'SK'
         },
         ExpressionAttributeValues={
-            ':pk_val': {'S': f'CHZZK#{chzzk_id}'},
-            ':sk_val': {'S': f'NOTI#{discord_channel_id}'}
+            ':pk_val': {'S': f"CHZZK#{chzzk_id}"},
+            ':sk_val': {'S': f"NOTI#{discord_channel_id}"}
         }
     )
 
@@ -165,9 +165,9 @@ def handler(event, context):
     res = dynamodb.put_item(
         TableName='chzzk-bot-db',
         Item={
-            'PK': {'S': f'CHZZK#{chzzk_id}'},
-            'SK': {'S': f'NOTI#{discord_channel_id}'},
-            'channel_id': {'S': f'{discord_channel_id}'},
+            'PK': {'S': f"CHZZK#{chzzk_id}"},
+            'SK': {'S': f"NOTI#{discord_channel_id}"},
+            'channel_id': {'S': f"{discord_channel_id}"},
             'channel_name': {'S': channel_data.get('name', '')},
             'guild_id': {'S': channel_data.get('guild_id', '')},
             "custom_message": {'S': ""},

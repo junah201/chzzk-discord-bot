@@ -49,8 +49,8 @@ def middleware(event, context):
         TableName='chzzk-bot-db',
         KeyConditionExpression='PK = :pk_val AND begins_with(SK, :sk_val)',
         ExpressionAttributeValues={
-            ':pk_val': {'S': f'CHZZK#{chzzk_id}'},
-            ':sk_val': {'S': f'NOTI#{discord_channel_id}'}
+            ':pk_val': {'S': f"CHZZK#{chzzk_id}"},
+            ':sk_val': {'S': f"NOTI#{discord_channel_id}"}
         }
     )
 

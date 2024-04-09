@@ -27,7 +27,7 @@ def middleware(event, context):
 
         verify_key = VerifyKey(bytes.fromhex(DISCORD_PUBLIC_KEY))
         verify_key.verify(
-            f'{auth_ts}{raw_body}'.encode(),
+            f"{auth_ts}{raw_body}".encode(),
             bytes.fromhex(auth_sig)
         )
     except Exception as e:

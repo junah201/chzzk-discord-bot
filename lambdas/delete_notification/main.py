@@ -32,8 +32,8 @@ def middleware(event, context):
         TableName='chzzk-bot-db',
         KeyConditionExpression='PK = :pk_val AND SK = :sk_val',
         ExpressionAttributeValues={
-            ':pk_val': {'S': f'CHZZK#{chzzk_id}'},
-            ':sk_val': {'S': f'NOTI#{channel_id}'}
+            ':pk_val': {'S': f"CHZZK#{chzzk_id}"},
+            ':sk_val': {'S': f"NOTI#{channel_id}"}
         }
     )
 
@@ -47,10 +47,10 @@ def middleware(event, context):
         TableName='chzzk-bot-db',
         Key={
             'PK': {
-                'S': f'CHZZK#{chzzk_id}'
+                'S': f"CHZZK#{chzzk_id}"
             },
             'SK': {
-                'S': f'NOTI#{channel_id}'
+                'S': f"NOTI#{channel_id}"
             },
         }
     )

@@ -70,16 +70,16 @@ def middleware(event, context):
             '#sk': 'SK'
         },
         ExpressionAttributeValues={
-            ':pk_val': {'S': f'CHZZK#{chzzk_id}'},
-            ':sk_val': {'S': f'CHZZK#{chzzk_id}'}
+            ':pk_val': {'S': f"CHZZK#{chzzk_id}"},
+            ':sk_val': {'S': f"CHZZK#{chzzk_id}"}
         }
     )
     if not res.get('Items', []):
         res = dynamodb.put_item(
             TableName='chzzk-bot-db',
             Item={
-                'PK': {'S': f'CHZZK#{chzzk_id}'},
-                'SK': {'S': f'CHZZK#{chzzk_id}'},
+                'PK': {'S': f"CHZZK#{chzzk_id}"},
+                'SK': {'S': f"CHZZK#{chzzk_id}"},
                 'lastLiveId': {'N': f"{chzzk['liveId']}"},
                 'lastLiveTitle': {'S': chzzk['liveTitle']},
                 'channelId': {'S': chzzk['channel']['channelId']},
@@ -110,8 +110,8 @@ def middleware(event, context):
             '#sk': 'SK'
         },
         ExpressionAttributeValues={
-            ':pk_val': {'S': f'CHZZK#{chzzk_id}'},
-            ':sk_val': {'S': f'NOTI#{channel_id}'}
+            ':pk_val': {'S': f"CHZZK#{chzzk_id}"},
+            ':sk_val': {'S': f"NOTI#{channel_id}"}
         }
     )
     if res.get('Items', []):
@@ -127,9 +127,9 @@ def middleware(event, context):
     dynamodb.put_item(
         TableName='chzzk-bot-db',
         Item={
-            'PK': {'S': f'CHZZK#{chzzk_id}'},
-            'SK': {'S': f'NOTI#{channel_id}'},
-            'channel_id': {'S': f'{channel_id}'},
+            'PK': {'S': f"CHZZK#{chzzk_id}"},
+            'SK': {'S': f"NOTI#{channel_id}"},
+            'channel_id': {'S': f"{channel_id}"},
             'channel_name': {'S': channel_data.get('name', '')},
             'guild_id': {'S': channel_data.get('guild_id', '')},
             "custom_message": {'S': custom_message},
