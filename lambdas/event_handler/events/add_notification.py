@@ -1,3 +1,5 @@
+import asyncio
+import aiohttp
 from datetime import datetime
 import json
 
@@ -12,7 +14,7 @@ except ImportError:
 dynamodb = boto3.client('dynamodb')
 
 
-def handler(event, context):
+async def middleware(event, context):
     body = json.loads(event["body"])
     data = body.get("data", {})
 
@@ -60,7 +62,8 @@ def handler(event, context):
             },
         }
 
-    chzzk = get_chzzk(chzzk_id)
+    async with aiohttp.ClientSession() as session:
+        chzzk = get_chzzk(chzzk_id, session=session)
 
     # 실제 치지직 채널이 있는지 확인
     if not chzzk:
@@ -213,3 +216,7 @@ def handler(event, context):
             ],
         }
     }
+
+
+def handler(event, context):
+    return asyncio.run(middleware(event, context))

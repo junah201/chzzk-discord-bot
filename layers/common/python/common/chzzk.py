@@ -1,5 +1,5 @@
 from typing import TypedDict
-import requests
+import aiohttp
 
 
 class ChzzkChannel(TypedDict):
@@ -42,7 +42,7 @@ class ChzzkLive(TypedDict):
         return self.__str__()
 
 
-def get_chzzk(channel_id: str) -> ChzzkLive | None:
+async def get_chzzk(channel_id: str, session: aiohttp.ClientSession) -> ChzzkLive | None:
     """채널 ID를 통해 치지직 채널 정보를 가져옵니다.
     만약 채널이 존재하지 않는다면 None을 반환합니다.
     """
@@ -51,24 +51,24 @@ def get_chzzk(channel_id: str) -> ChzzkLive | None:
         return None
 
     try:
-        res = requests.get(
-            f"https://api.chzzk.naver.com/service/v2/channels/{channel_id}/live-detail",
+        async with session.get(
+            url=f"https://api.chzzk.naver.com/service/v2/channels/{channel_id}/live-detail",
             headers={
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
             }
-        )
+        ) as res:
+            # 채널이 존재하지 않는 경우 or 알 수 없는 오류
+            if res.status != 200:
+                return None
+
+            content = await res.json()
+            content = content["content"]
+
+            # 한번도 방송을 키지 않은 경우
+            if content is None:
+                return None
+
+            return content
     except Exception as e:
         print(e)
         return None
-
-    # 채널이 존재하지 않는 경우 or 알 수 없는 오류
-    if res.status_code != 200:
-        return None
-
-    content = res.json()["content"]
-
-    # 한번도 방송을 키지 않은 경우
-    if content is None:
-        return None
-
-    return content

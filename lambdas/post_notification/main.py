@@ -2,6 +2,7 @@
 DynamoDB에 알림 데이터를 저장합니다.
 """
 
+import asyncio
 import json
 
 try:
@@ -15,7 +16,7 @@ import boto3
 dynamodb = boto3.client('dynamodb')
 
 
-def middleware(event, context):
+async def middleware(event, context):
     # get authorization header
     headers = event.get("headers", {})
     token = headers.get("Authorization", None)
@@ -38,7 +39,7 @@ def middleware(event, context):
             }
 
     # 디스코드 채널 정보 확인
-    channel_data = get_channel(channel_id)
+    channel_data = await get_channel(channel_id)
     if not channel_data:
         return {
             "statusCode": 400,
@@ -50,7 +51,10 @@ def middleware(event, context):
         }
 
     # 치지직 채널이 있는지 확인
-    chzzk = get_chzzk(chzzk_id)
+    async with aiohttp.ClientSession() as session:
+        chzzk = await get_chzzk(chzzk_id, session=session)
+
+    # 실제 치지직 채널이 있는지 확인
     if not chzzk:
         return {
             "statusCode": 400,
@@ -150,7 +154,7 @@ def lambda_handler(event, context):
     print("=== event ===")
     print(json.dumps(event))
 
-    res = middleware(event, context)
+    res = asyncio.run(middleware(event, context))
 
     print("=== response ===")
     print(json.dumps(res))
