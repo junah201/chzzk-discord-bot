@@ -38,20 +38,20 @@ async def middleware(event, context):
                 "body": json.dumps({"message": "token, chzzk_id, channel_id, custom_message are required"}),
             }
 
-    # 디스코드 채널 정보 확인
-    channel_data = await get_channel(channel_id)
-    if not channel_data:
-        return {
-            "statusCode": 400,
-            "headers": {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            "body": json.dumps({"message": "해당 디스코드 채널을 찾을 수 없습니다."}),
-        }
-
-    # 치지직 채널이 있는지 확인
     async with aiohttp.ClientSession() as session:
+        # 디스코드 채널 정보 확인
+        channel_data = await get_channel(channel_id, session=session)
+        if not channel_data:
+            return {
+                "statusCode": 400,
+                "headers": {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                "body": json.dumps({"message": "해당 디스코드 채널을 찾을 수 없습니다."}),
+            }
+
+        # 치지직 채널이 있는지 확인
         chzzk = await get_chzzk(chzzk_id, session=session)
 
     # 실제 치지직 채널이 있는지 확인
