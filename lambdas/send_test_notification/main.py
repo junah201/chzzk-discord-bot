@@ -117,7 +117,7 @@ async def middleware(event, context):
         )
 
         # 채널이 존재하지 않는 경우
-        if res.status_code == 404:
+        if res.status == 404:
             print("channel not found")
             dynamodb.delete_item(
                 TableName='chzzk-bot-db',
@@ -136,8 +136,8 @@ async def middleware(event, context):
             }
 
         # 메시지 전송에 실패한 경우
-        if res.status_code != 200:
-            print("send message fail", res.status_code)
+        if res.status != 200:
+            print("send message fail", res.status)
             print(res.json())
             return {
                 "statusCode": 500,
