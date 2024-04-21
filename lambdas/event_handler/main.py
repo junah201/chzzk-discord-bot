@@ -22,13 +22,13 @@ def middleware(event, context):
     # verify the signature
     try:
         raw_body = event['body']
-        auth_sig = event['headers'].get('x-signature-ed25519')
-        auth_ts = event['headers'].get('x-signature-timestamp')
+        signature = event['headers'].get('x-signature-ed25519')
+        timestamp = event['headers'].get('x-signature-timestamp')
 
         verify_key = VerifyKey(bytes.fromhex(DISCORD_PUBLIC_KEY))
         verify_key.verify(
-            f"{auth_ts}{raw_body}".encode(),
-            bytes.fromhex(auth_sig)
+            f"{timestamp}{raw_body}".encode(),
+            bytes.fromhex(signature)
         )
     except Exception as e:
         raise Exception(f"[UNAUTHORIZED] Invalid request signature: {e}")
@@ -63,9 +63,31 @@ def middleware(event, context):
 
 
 def lambda_handler(event, context):
-    res = middleware(event, context)
-
-    print("res", json.dumps(res))
+    try:
+        res = middleware(event, context)
+        print("res", json.dumps(res))
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        return {
+            "statusCode": 200,
+            "body": json.dumps(
+                {
+                    "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
+                    "data": {
+                        "embeds": [
+                            {
+                                "title": f"알 수 없는 오류 발생",
+                                "description": f"```{e}```\n\n계속해서 문제가 발생한다면 대신 [치직 봇 웹사이트](https://chzzk.junah.dev)를 사용해주세요.\n또한 [치직 봇 공식 서버](https://api.chzzk.junah.dev/support-server)에서 도움을 받을 수 있습니다.",
+                                "color": 0xF01D15,
+                                "footer": {
+                                    "text": "치직"
+                                }
+                            },
+                        ],
+                    }
+                }
+            ),
+        }
 
     return {
         'statusCode': 200,
