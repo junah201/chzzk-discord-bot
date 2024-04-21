@@ -63,7 +63,7 @@ async def middleware(event, context):
         }
 
     async with aiohttp.ClientSession() as session:
-        chzzk = get_chzzk(chzzk_id, session=session)
+        chzzk = await get_chzzk(chzzk_id, session=session)
 
     # 실제 치지직 채널이 있는지 확인
     if not chzzk:
