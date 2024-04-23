@@ -20,6 +20,7 @@ dynamodb = boto3.client('dynamodb')
 async def send_notice_message(
     chzzk: ChzzkLive,
     noti: dict,
+    index: str,
     session: aiohttp.ClientSession
 ) -> bool:
     """
@@ -50,7 +51,7 @@ async def send_notice_message(
                         "icon_url": chzzk['channel']['channelImageUrl'] or "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png?type=f120_120_na"
                     },
                     "footer": {
-                        "text": "치직"
+                        "text": f"치직 ({index})"
                     },
                     "url": f"https://chzzk.naver.com/live/{chzzk['channel']['channelId']}",
                     "timestamp": datetime.now().isoformat()
@@ -75,7 +76,9 @@ async def send_notice_message(
 
     # 채널이 존재하지 않는 경우
     if res.status == 404:
-        print("channel not found")
+        print(
+            f"channel not found, NOTI#{noti['channel_id']['S']} CHZZK#{chzzk['channel']['channelId']}, index: {index}"
+        )
         dynamodb.delete_item(
             TableName='chzzk-bot-db',
             Key={
@@ -87,22 +90,24 @@ async def send_notice_message(
 
     # 메시지 전송에 실패한 경우
     if res.status != 200:
-        print("send message fail", res.status)
+        msg = f"send message fail {res.status}, NOTI#{noti['channel_id']['S']} CHZZK#{chzzk['channel']['channelId']}, index: {index}"
         try:
-            print(await res.json())
+            msg += f"\n{await res.json()}"
         except:
             try:
-                print(await res.text())
-            except:
-                print("unknown error")
+                msg += f"\n{await res.text()}"
+            except Exception as e:
+                msg += f"\n{e}"
+        print(msg)
         return False
 
     # 성공
-    print("send message success")
+    print(
+        f"send message success, NOTI#{noti['channel_id']['S']} CHZZK#{chzzk['channel']['channelId']}, index: {index}")
     return True
 
 
-async def check_live(item: dict, session: aiohttp.ClientSession):
+async def check_live(item: dict, index: str, session: aiohttp.ClientSession):
     chzzk_channel_id = item["PK"]["S"].split("#")[1]
     last_live_id = item["lastLiveId"]["N"]
 
@@ -133,7 +138,7 @@ async def check_live(item: dict, session: aiohttp.ClientSession):
     )
 
     print(
-        f"LIVE_START {chzzk['channel']['channelName']}, {chzzk['liveId']}, {chzzk['liveTitle']}")
+        f"LIVE_START {chzzk['channel']['channelName']}, {chzzk['liveId']}, {chzzk['liveTitle']}, index: {index}")
 
     all_noti = dynamodb.query(
         TableName='chzzk-bot-db',
@@ -149,6 +154,7 @@ async def check_live(item: dict, session: aiohttp.ClientSession):
             send_notice_message(
                 chzzk,
                 noti,
+                index=index,
                 session=session
             ) for noti in all_noti["Items"]
         ]
@@ -160,7 +166,6 @@ async def check_live(item: dict, session: aiohttp.ClientSession):
 
 async def middleware(event, context):
     index = int(event.get("resources", [])[0][-1])
-    print(f"index: {index}")
     """
     트리거마다 처리하는 데이터가 다르게 분산화합니다.
     """
@@ -182,14 +187,14 @@ async def middleware(event, context):
             *[
                 check_live(
                     item,
+                    index,
                     session
                 ) for item in res["Items"]
             ]
         )
 
-    print(tmp)
-
     result = {
+        "index": index,
         "total_channel_count": sum([i[0] for i in tmp]),
         "live_channel_count": sum([i[1] for i in tmp]),
         "total_send_count": sum([i[2] for i in tmp]),
