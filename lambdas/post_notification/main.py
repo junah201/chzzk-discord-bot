@@ -2,7 +2,6 @@
 DynamoDB에 알림 데이터를 저장합니다.
 """
 
-import asyncio
 import json
 
 try:
@@ -16,7 +15,7 @@ import boto3
 dynamodb = boto3.client('dynamodb')
 
 
-async def middleware(event, context):
+def middleware(event, context):
     # get authorization header
     headers = event.get("headers", {})
     token = headers.get("Authorization", None)
@@ -38,23 +37,20 @@ async def middleware(event, context):
                 "body": json.dumps({"message": "token, chzzk_id, channel_id, custom_message are required"}),
             }
 
-    async with aiohttp.ClientSession() as session:
-        # 디스코드 채널 정보 확인
-        channel_data = await get_channel(channel_id, session=session)
-        if not channel_data:
-            return {
-                "statusCode": 400,
-                "headers": {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
-                },
-                "body": json.dumps({"message": "해당 디스코드 채널을 찾을 수 없습니다."}),
-            }
+    # 디스코드 채널 정보 확인
+    channel_data = get_channel(channel_id)
+    if not channel_data:
+        return {
+            "statusCode": 400,
+            "headers": {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            "body": json.dumps({"message": "해당 디스코드 채널을 찾을 수 없습니다."}),
+        }
 
-        # 치지직 채널이 있는지 확인
-        chzzk = await get_chzzk(chzzk_id, session=session)
-
-    # 실제 치지직 채널이 있는지 확인
+    # 치지직 채널이 있는지 확인
+    chzzk = get_chzzk(chzzk_id)
     if not chzzk:
         return {
             "statusCode": 400,
@@ -154,7 +150,7 @@ def lambda_handler(event, context):
     print("=== event ===")
     print(json.dumps(event))
 
-    res = asyncio.run(middleware(event, context))
+    res = middleware(event, context)
 
     print("=== response ===")
     print(json.dumps(res))
