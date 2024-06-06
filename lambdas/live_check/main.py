@@ -150,6 +150,19 @@ def middleware(event, context):
             # 메시지 전송에 실패한 경우
             if res.status_code != 200:
                 print("send message fail", res.status_code)
+                dynamodb.update_item(
+                    TableName='chzzk-bot-db',
+                    Key={
+                        'PK': noti.get('PK'),
+                        'SK': noti.get('SK')
+                    },
+                    UpdateExpression='SET last_noti_status = :last_noti_status, last_noti_at = :last_noti_at, noti_fail_count = :noti_fail_count',
+                    ExpressionAttributeValues={
+                        ':last_noti_status': {'S': f"FAIL_{res.status_code}"},
+                        ':last_noti_at': {'S': datetime.now().isoformat()},
+                        ':noti_fail_count': {'N': str(int(noti.get("noti_fail_count", {"N": "0"})["N"]) + 1)}
+                    }
+                )
                 try:
                     print(res.json())
                 except:
@@ -163,6 +176,19 @@ def middleware(event, context):
             # 성공
             print("send message success")
             result["total_send_count"] += 1
+            dynamodb.update_item(
+                TableName='chzzk-bot-db',
+                Key={
+                    'PK': noti.get('PK'),
+                    'SK': noti.get('SK')
+                },
+                UpdateExpression='SET last_noti_status = :last_noti_status, last_noti_at = :last_noti_at, noti_fail_count = :noti_fail_count',
+                ExpressionAttributeValues={
+                    ':last_noti_status': {'S': f"SUCCESS"},
+                    ':last_noti_at': {'S': datetime.now().isoformat()},
+                    ':noti_fail_count': {'N': "0"}
+                }
+            )
 
     return result
 
