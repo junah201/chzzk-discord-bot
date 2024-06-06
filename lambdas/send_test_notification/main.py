@@ -69,7 +69,7 @@ def middleware(event, context):
     data = {
         "content": f"관리자의 요청에 따라 전송된 테스트 알림입니다." + "\n\n" + item.get("custom_message", {}).get("S", "")
     }
-    if item.get("disable_embed", {"BOOL": False})["BOOL"]:
+    if not item.get("disable_embed", {"BOOL": False})["BOOL"]:
         data["embeds"] = [
             {
                 "title": f"{chzzk['liveTitle']}",
@@ -96,7 +96,7 @@ def middleware(event, context):
                 "timestamp": datetime.now().isoformat()
             },
         ]
-    if item.get("disable_button", {"BOOL": False})["BOOL"]:
+    if not item.get("disable_button", {"BOOL": False})["BOOL"]:
         data["components"] = [
             {
                 "type": COMPONENT_TYPE.ACTION_ROW,

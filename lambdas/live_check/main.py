@@ -91,7 +91,7 @@ def middleware(event, context):
             data = {
                 "content": noti.get("custom_message", {}).get("S", ""),
             }
-            if noti.get("disable_embed", {"BOOL": False})["BOOL"]:
+            if not noti.get("disable_embed", {"BOOL": False})["BOOL"]:
                 data["embeds"] = [
                     {
                         "title": f"{chzzk['liveTitle']}",
@@ -118,7 +118,7 @@ def middleware(event, context):
                         "timestamp": datetime.now().isoformat()
                     },
                 ]
-            if noti.get("disable_button", {"BOOL": False})["BOOL"]:
+            if not noti.get("disable_button", {"BOOL": False})["BOOL"]:
                 data["components"] = [
                     {
                         "type": COMPONENT_TYPE.ACTION_ROW,
