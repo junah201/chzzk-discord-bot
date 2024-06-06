@@ -30,14 +30,9 @@ def middleware(event, context):
 
     result = [
         {
-            "PK": item.get('PK', {}).get('S'),
-            "SK": item.get('SK', {}).get('S'),
-            "guild_id": item.get('guild_id', {}).get('S'),
-            "channel_id": item.get('channel_id', {}).get('S'),
-            "channel_name": item.get('channel_name', {}).get('S'),
-            "custom_message": item.get('custom_message', {}).get('S'),
+            key: list(value.values())[0]
+            for key, value in item.items()
         }
-
         for item in res.get('Items')
     ]
 

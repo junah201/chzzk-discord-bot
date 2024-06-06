@@ -172,6 +172,8 @@ def handler(event, context):
             'guild_id': {'S': channel_data.get('guild_id', '')},
             "custom_message": {'S': ""},
             "type": {"S": "NOTI"},
+            "disable_embed": {'BOOL': False},
+            "disable_button": {'BOOL': False},
             "index": {"N": "-1"}
         }
     )

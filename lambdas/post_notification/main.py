@@ -25,6 +25,8 @@ def middleware(event, context):
     chzzk_id = body.get("chzzk_id", None)
     channel_id = body.get("channel_id", None)
     custom_message = body.get("custom_message", None)
+    disable_embed = body.get("disable_embed", False)
+    disable_button = body.get("disable_button", False)
 
     for i in [token, chzzk_id, channel_id, custom_message]:
         if i is None:
@@ -133,6 +135,9 @@ def middleware(event, context):
             'channel_name': {'S': channel_data.get('name', '')},
             'guild_id': {'S': channel_data.get('guild_id', '')},
             "custom_message": {'S': custom_message},
+            "type": {"S": "NOTI"},
+            "disable_embed": {'BOOL': disable_embed},
+            "disable_button": {'BOOL': disable_button},
             "index": {"N": "-1"}
         }
     )

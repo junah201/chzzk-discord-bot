@@ -66,50 +66,54 @@ def middleware(event, context):
 
     item = res["Items"][0]
 
+    data = {
+        "content": f"관리자의 요청에 따라 전송된 테스트 알림입니다." + "\n\n" + item.get("custom_message", {}).get("S", "")
+    }
+    if item.get("disable_embed", {"BOOL": False})["BOOL"]:
+        data["embeds"] = [
+            {
+                "title": f"{chzzk['liveTitle']}",
+                "description": f"{chzzk['channel']['channelName']} 님이 방송을 시작했습니다.",
+                "color": 0x02E895,
+                "fields": [
+                    {
+                        "name": '카테고리',
+                        "value": chzzk['liveCategoryValue']
+                    }
+                ],
+                "image": {
+                    "url": (chzzk['liveImageUrl'] or chzzk['channel']['channelImageUrl'] or "").replace("_{type}", "_1080"),
+                },
+                "author": {
+                    "name": f"{chzzk['channel']['channelName']}",
+                    "url": f"https://chzzk.naver.com/live/{chzzk_id}",
+                    "icon_url": chzzk['channel']['channelImageUrl'] or "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png?type=f120_120_na"
+                },
+                "footer": {
+                    "text": "치직"
+                },
+                "url": f"https://chzzk.naver.com/live/{chzzk_id}",
+                "timestamp": datetime.now().isoformat()
+            },
+        ]
+    if item.get("disable_button", {"BOOL": False})["BOOL"]:
+        data["components"] = [
+            {
+                "type": COMPONENT_TYPE.ACTION_ROW,
+                "components": [
+                    {
+                        "type": COMPONENT_TYPE.BUTTON,
+                        "label": "바로가기",
+                        "style": BUTTON_STYLE.LINK,
+                        "url": f"https://chzzk.naver.com/live/{chzzk_id}"
+                    }
+                ]
+            },
+        ]
+
     res = send_message(
         channel_id=discord_channel_id,
-        data={
-            "content": f"관리자의 요청에 따라 전송된 테스트 알림입니다." + "\n\n" + item.get("custom_message", {}).get("S", ""),
-            "embeds": [
-                {
-                    "title": f"{chzzk['liveTitle']}",
-                    "description": f"{chzzk['channel']['channelName']} 님이 방송을 시작했습니다.",
-                    "color": 0x02E895,
-                    "fields": [
-                        {
-                            "name": '카테고리',
-                                    "value": chzzk['liveCategoryValue']
-                        }
-                    ],
-                    "image": {
-                        "url": (chzzk['liveImageUrl'] or chzzk['channel']['channelImageUrl'] or "").replace("_{type}", "_1080"),
-                    },
-                    "author": {
-                        "name": f"{chzzk['channel']['channelName']}",
-                        "url": f"https://chzzk.naver.com/live/{chzzk_id}",
-                        "icon_url": chzzk['channel']['channelImageUrl'] or "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png?type=f120_120_na"
-                    },
-                    "footer": {
-                        "text": "치직"
-                    },
-                    "url": f"https://chzzk.naver.com/live/{chzzk_id}",
-                    "timestamp": datetime.now().isoformat()
-                },
-            ],
-            "components": [
-                {
-                    "type": COMPONENT_TYPE.ACTION_ROW,
-                    "components": [
-                        {
-                            "type": COMPONENT_TYPE.BUTTON,
-                            "label": "바로가기",
-                            "style": BUTTON_STYLE.LINK,
-                            "url": f"https://chzzk.naver.com/live/{chzzk_id}"
-                        }
-                    ]
-                },
-            ],
-        }
+        data=data
     )
 
     # 채널이 존재하지 않는 경우
