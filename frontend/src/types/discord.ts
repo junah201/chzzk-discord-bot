@@ -49,4 +49,6 @@ export interface Notification {
   channel_id: string;
   channel_name: string;
   custom_message: string;
+  disable_embed: boolean;
+  disable_button: boolean;
 }

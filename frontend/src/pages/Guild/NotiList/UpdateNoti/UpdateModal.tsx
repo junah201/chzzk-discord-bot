@@ -17,6 +17,8 @@ const DetailModal = ({ noti }: DetailModalProps) => {
       [INPUT.CHZZK_ID.name]: noti.PK.split('#')[1],
       [INPUT.CHANNEL_ID.name]: noti.channel_id,
       [INPUT.CUSTOM_MESSAGE.name]: noti.custom_message,
+      [INPUT.DISABLE_EMBED.name]: noti.disable_embed,
+      [INPUT.DISABLE_BUTTON.name]: noti.disable_button,
     },
   });
 
@@ -64,6 +66,20 @@ const DetailModal = ({ noti }: DetailModalProps) => {
           control={control}
           placeholder="@everyone 홍길동님이 방송을 시작했습니다!"
           helperText="알림에 커스텀 메시지를 추가할 수 있습니다."
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <ControlInput
+          {...INPUT.DISABLE_EMBED}
+          label="Embed 비활성화"
+          type="checkbox"
+          control={control}
+        />
+        <ControlInput
+          {...INPUT.DISABLE_BUTTON}
+          label="바로가기 버튼 비활성화"
+          type="checkbox"
+          control={control}
         />
       </Grid>
       <Grid item xs={12}>

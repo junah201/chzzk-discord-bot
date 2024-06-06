@@ -21,6 +21,14 @@ export const INPUT = Object.freeze({
     name: 'custom_message',
     rules: {},
   }),
+  DISABLE_EMBED: Object.freeze({
+    name: 'disable_embed',
+    rules: {},
+  }),
+  DISABLE_BUTTON: Object.freeze({
+    name: 'disable_button',
+    rules: {},
+  }),
 });
 
 export type RegisterTypes = (typeof INPUT)[keyof typeof INPUT]['name'];

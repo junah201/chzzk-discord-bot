@@ -35,6 +35,7 @@ export const INPUT_TYPE = Object.freeze({
   TEXT: 'text',
   MULTILINE: 'multiline',
   SELECT: 'select',
+  CHECKBOX: 'checkbox',
 });
 
 type InputSchema = typeof INPUT_TYPE;

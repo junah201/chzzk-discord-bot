@@ -1,9 +1,8 @@
 import { Box } from '@mui/material';
 import { useController, Control } from 'react-hook-form';
 
-import { TextInput, SelectInput, MultilineInput } from './form';
+import { TextInput, SelectInput, MultilineInput, CheckboxInput } from './form';
 
-import { RegisterTypes } from '@/constants/form';
 import { FormRules, INPUT_TYPE, InputTypes, Option } from '@/types';
 
 interface InitInputProps<RegisterTypes extends string> {
@@ -79,6 +78,18 @@ export const BasicInput = <RegisterTypes extends string>({
             errorMessage={errorMessage}
             helperText={helperText}
             options={options}
+            disabled={disabled}
+          />
+        );
+      case INPUT_TYPE.CHECKBOX:
+        return (
+          <CheckboxInput
+            name={name}
+            label={label}
+            value={value}
+            onChange={onChange}
+            errorMessage={errorMessage}
+            helperText={helperText}
             disabled={disabled}
           />
         );
