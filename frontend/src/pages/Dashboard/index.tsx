@@ -1,4 +1,4 @@
-import { Box, Avatar, Typography, Stack, Link, useTheme } from '@mui/material';
+import { Box } from '@mui/material';
 
 import Guilds from './Guilds';
 import Profile from './Profile';

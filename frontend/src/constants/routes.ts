@@ -17,6 +17,11 @@ export const ROUTES = [
     AUTH: false,
   },
   {
+    PATH: '/logout',
+    ELEMENT: Loadable(() => import('@/pages/Logout')),
+    AUTH: false,
+  },
+  {
     PATH: '/server/:guildId',
     ELEMENT: Loadable(() => import('@/pages/Guild')),
     AUTH: true,
