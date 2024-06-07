@@ -95,21 +95,27 @@ const Noti = ({ noti }: NotiProps) => {
           #{noti.channel_name}
         </Link>
       </TableCell>
-      <TableCell align="center">
-        <Tooltip
-          title={dayjs(noti.last_noti_at).format('YYYY-MM-DD HH:mm:ss')}
-          placement="top"
-        >
-          <Typography>{fromNow(noti.last_noti_at)}</Typography>
-        </Tooltip>
-        <Typography
-          color={
-            noti.last_noti_status === 'SUCCESS' ? 'primary.main' : 'error.main'
-          }
-        >
-          {noti.last_noti_status}
-        </Typography>
-      </TableCell>
+      {noti.last_noti_at ? (
+        <TableCell align="center">
+          <Tooltip
+            title={dayjs(noti.last_noti_at).format('YYYY-MM-DD HH:mm:ss')}
+            placement="top"
+          >
+            <Typography>{fromNow(noti.last_noti_at)}</Typography>
+          </Tooltip>
+          <Typography
+            color={
+              noti.last_noti_status === 'SUCCESS'
+                ? 'primary.main'
+                : 'error.main'
+            }
+          >
+            {noti.last_noti_status}
+          </Typography>
+        </TableCell>
+      ) : (
+        <TableCell></TableCell>
+      )}
       <TableCell align="center">
         <TestButton chzzk_id={chzzk} channel_id={noti.channel_id} />
       </TableCell>
