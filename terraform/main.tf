@@ -462,6 +462,8 @@ resource "aws_dynamodb_table" "db_table" {
       "custom_message",
       "disable_button",
       "disable_embed",
+      "last_noti_at",
+      "last_noti_status"
     ]
   }
 
