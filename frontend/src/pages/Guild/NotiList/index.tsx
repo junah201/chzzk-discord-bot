@@ -1,7 +1,6 @@
 import {
   Box,
   Link,
-  Paper,
   Table,
   TableHead,
   TableRow,
@@ -9,7 +8,9 @@ import {
   TableCell,
   TableBody,
   Typography,
+  Tooltip,
 } from '@mui/material';
+import dayjs from 'dayjs';
 
 import DeleteButton from './DeleteButton';
 import TestButton from './TestButton';
@@ -17,7 +18,7 @@ import ModalButton from './UpdateNoti/ModalButton';
 
 import { getNotificationsByGuildId } from '@/api';
 import { QUERY } from '@/constants';
-import { useCustomQuery } from '@/lib';
+import { fromNow, useCustomQuery } from '@/lib';
 import { Notification } from '@/types';
 
 interface NotiListProps {
@@ -26,7 +27,7 @@ interface NotiListProps {
 
 const NotiList = ({ guildId }: NotiListProps) => {
   const theme = useTheme();
-  const { data, isLoading, isError } = useCustomQuery(
+  const { data, isLoading } = useCustomQuery(
     [QUERY.KEY.NOTIFICATIONS, { guildId }],
     () => getNotificationsByGuildId(guildId),
     {
@@ -56,6 +57,7 @@ const NotiList = ({ guildId }: NotiListProps) => {
           <TableRow>
             <TableCell>치지직</TableCell>
             <TableCell>디스코드 채널</TableCell>
+            <TableCell align="center">마지막 알림</TableCell>
             <TableCell align="center">테스트 알림 전송</TableCell>
             <TableCell align="center">수정</TableCell>
             <TableCell align="center">삭제</TableCell>
@@ -92,6 +94,21 @@ const Noti = ({ noti }: NotiProps) => {
         >
           #{noti.channel_name}
         </Link>
+      </TableCell>
+      <TableCell align="center">
+        <Tooltip
+          title={dayjs(noti.last_noti_at).format('YYYY-MM-DD HH:mm:ss')}
+          placement="top"
+        >
+          <Typography>{fromNow(noti.last_noti_at)}</Typography>
+        </Tooltip>
+        <Typography
+          color={
+            noti.last_noti_status === 'SUCCESS' ? 'primary.main' : 'error.main'
+          }
+        >
+          {noti.last_noti_status}
+        </Typography>
       </TableCell>
       <TableCell align="center">
         <TestButton chzzk_id={chzzk} channel_id={noti.channel_id} />
