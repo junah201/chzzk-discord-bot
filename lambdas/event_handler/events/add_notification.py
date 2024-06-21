@@ -107,7 +107,7 @@ def handler(event, context):
                 'channelName': {'S': chzzk['channel']['channelName']},
                 'channelImageUrl': {'S': chzzk['channel']['channelImageUrl'] or ""},
                 "type": {"S": "CHZZK"},
-                "index": {"N": f"{int(chzzk_id, 16) % 5}"}
+                "index": {"N": f"{int(chzzk_id, 16) % 7}"}
             }
         )
 
