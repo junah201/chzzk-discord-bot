@@ -12,15 +12,31 @@ except ImportError:
     from layers.common.python.common import *
 
 import boto3
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 dynamodb = boto3.client('dynamodb')
 
 
 def middleware(event, context):
     index = int(event.get("resources", [])[0][-1])
+    request_id = context.aws_request_id
     """
     트리거마다 처리하는 데이터가 다르게 분산화합니다.
     """
+
+    logger.info(
+        json.dumps(
+            {
+                "type": "START",
+                "index": index,
+                "request_id": request_id
+            },
+            ensure_ascii=False
+        )
+    )
 
     result = {
         "total_channel_count": 0,
@@ -41,13 +57,53 @@ def middleware(event, context):
         }
     )
 
+    logger.info(
+        json.dumps(
+            {
+                "type": "CHANNEL_QUERY_END",
+                "total_channel_count": res["Count"],
+                "index": index,
+                "request_id": request_id
+            },
+            ensure_ascii=False
+        )
+    )
+
     result["total_channel_count"] = res["Count"]
 
     for item in res["Items"]:
         channel_id = item["PK"]["S"].split("#")[1]
         last_live_id = item["lastLiveId"]["N"]
 
-        chzzk = get_chzzk(channel_id)
+        try:
+            start_time = datetime.now()
+            chzzk = get_chzzk(channel_id)
+            end_time = datetime.now()
+            logger.info(
+                json.dumps(
+                    {
+                        "type": "GET_CHZZK_END",
+                        "channel_id": channel_id,
+                        "index": index,
+                        "time": (end_time - start_time).total_seconds(),
+                        "request_id": request_id
+                    },
+                    ensure_ascii=False
+                )
+            )
+        except Exception as e:
+            logger.error(
+                json.dumps(
+                    {
+                        "type": "GET_CHZZK_ERROR",
+                        "channel_id": channel_id,
+                        "index": index,
+                        "error": str(e),
+                        "request_id": request_id
+                    }
+                )
+            )
+            continue
 
         if not chzzk:
             continue
@@ -57,6 +113,19 @@ def middleware(event, context):
 
         if chzzk['status'] != "OPEN":
             continue
+
+        logger.info(
+            json.dumps(
+                {
+                    "type": "LIVE_START",
+                    "chzzk_id": channel_id,
+                    "index": index,
+                    "liveId": chzzk['liveId'],
+                    "liveTitle": chzzk['liveTitle'],
+                    "request_id": request_id
+                }
+            )
+        )
 
         result["live_channel_count"] += 1
 
@@ -73,9 +142,6 @@ def middleware(event, context):
             }
         )
 
-        print(
-            f"LIVE_START {chzzk['channel']['channelName']}, {chzzk['liveId']}, {chzzk['liveTitle']}, {index=}")
-
         res = dynamodb.query(
             TableName='chzzk-bot-db',
             KeyConditionExpression='PK = :pk_val AND begins_with(SK, :sk_val)',
@@ -83,6 +149,19 @@ def middleware(event, context):
                 ':pk_val': {'S': f"CHZZK#{channel_id}"},
                 ':sk_val': {'S': 'NOTI#'}
             }
+        )
+
+        logger.info(
+            json.dumps(
+                {
+                    "type": "NOTI_QUERY_END",
+                    "chzzk_id": channel_id,
+                    "index": index,
+                    "noti_count": res["Count"],
+                    "request_id": request_id
+                },
+                ensure_ascii=False
+            ),
         )
 
         for noti in res["Items"]:
@@ -140,7 +219,18 @@ def middleware(event, context):
 
             # 채널이 존재하지 않는 경우
             if res.status_code == 404:
-                print("channel not found")
+                logging.error(
+                    json.dumps(
+                        {
+                            "type": "DISCORD_CHANNEL_NOT_FOUND",
+                            "chzzk_id": channel_id,
+                            "index": index,
+                            "discord_channel_id": discord_channel_id,
+                            "request_id": request_id
+                        },
+                        ensure_ascii=False
+                    )
+                )
                 dynamodb.delete_item(
                     TableName='chzzk-bot-db',
                     Key={
@@ -153,7 +243,21 @@ def middleware(event, context):
 
             # 메시지 전송에 실패한 경우
             if res.status_code != 200:
-                print("send message fail", res.status_code)
+
+                logging.error(
+                    json.dumps(
+                        {
+                            "type": "DISCORD_MESSAGE_SEND_FAIL",
+                            "chzzk_id": channel_id,
+                            "index": index,
+                            "discord_channel_id": discord_channel_id,
+                            "status_code": res.status_code,
+                            "response": res.text,
+                            "request_id": request_id
+                        },
+                        ensure_ascii=False
+                    ),
+                )
                 dynamodb.update_item(
                     TableName='chzzk-bot-db',
                     Key={
@@ -167,18 +271,22 @@ def middleware(event, context):
                         ':noti_fail_count': {'N': str(int(noti.get("noti_fail_count", {"N": "0"})["N"]) + 1)}
                     }
                 )
-                try:
-                    print(res.json())
-                except:
-                    try:
-                        print(res.text)
-                    except:
-                        print("unknown error")
                 result["fail_send_count"] += 1
                 continue
 
             # 성공
-            print("send message success")
+            logging.info(
+                json.dumps(
+                    {
+                        "type": "DISCORD_MESSAGE_SEND_SUCCESS",
+                        "chzzk_id": channel_id,
+                        "index": index,
+                        "discord_channel_id": discord_channel_id,
+                        "request_id": request_id
+                    },
+                    ensure_ascii=False
+                )
+            )
             result["total_send_count"] += 1
             dynamodb.update_item(
                 TableName='chzzk-bot-db',
@@ -198,9 +306,16 @@ def middleware(event, context):
 
 
 def lambda_handler(event, context):
+    request_id = context.aws_request_id
     res = middleware(event, context)
 
-    print("=== res ===")
-    print(json.dumps(res))
-
-    return res
+    logger.info(
+        json.dumps(
+            {
+                "type": "FINAL_RESULT",
+                "result": res,
+                "request_id": request_id
+            },
+            ensure_ascii=False
+        )
+    )
