@@ -62,8 +62,6 @@ def middleware(event, context):
             {
                 "type": "CHANNEL_QUERY_END",
                 "total_channel_count": res["Count"],
-                "index": index,
-                "request_id": request_id
             },
             ensure_ascii=False
         )
@@ -84,9 +82,7 @@ def middleware(event, context):
                     {
                         "type": "GET_CHZZK_END",
                         "channel_id": channel_id,
-                        "index": index,
                         "time": (end_time - start_time).total_seconds(),
-                        "request_id": request_id,
                         "chzzk": {
                             "liveId": chzzk.get("liveId", None),
                             "liveTitle": chzzk.get("liveTitle", None),
@@ -102,9 +98,7 @@ def middleware(event, context):
                     {
                         "type": "GET_CHZZK_ERROR",
                         "channel_id": channel_id,
-                        "index": index,
-                        "error": str(e),
-                        "request_id": request_id
+                        "error": str(e)
                     }
                 )
             )
@@ -124,10 +118,8 @@ def middleware(event, context):
                 {
                     "type": "LIVE_START",
                     "chzzk_id": channel_id,
-                    "index": index,
                     "liveId": chzzk['liveId'],
                     "liveTitle": chzzk['liveTitle'],
-                    "request_id": request_id
                 }
             )
         )
@@ -161,9 +153,7 @@ def middleware(event, context):
                 {
                     "type": "NOTI_QUERY_END",
                     "chzzk_id": channel_id,
-                    "index": index,
                     "noti_count": res["Count"],
-                    "request_id": request_id
                 },
                 ensure_ascii=False
             ),
@@ -229,9 +219,7 @@ def middleware(event, context):
                         {
                             "type": "DISCORD_CHANNEL_NOT_FOUND",
                             "chzzk_id": channel_id,
-                            "index": index,
                             "discord_channel_id": discord_channel_id,
-                            "request_id": request_id
                         },
                         ensure_ascii=False
                     )
@@ -254,11 +242,9 @@ def middleware(event, context):
                         {
                             "type": "DISCORD_MESSAGE_SEND_FAIL",
                             "chzzk_id": channel_id,
-                            "index": index,
                             "discord_channel_id": discord_channel_id,
                             "status_code": res.status_code,
                             "response": res.text,
-                            "request_id": request_id
                         },
                         ensure_ascii=False
                     ),
@@ -285,9 +271,7 @@ def middleware(event, context):
                     {
                         "type": "DISCORD_MESSAGE_SEND_SUCCESS",
                         "chzzk_id": channel_id,
-                        "index": index,
                         "discord_channel_id": discord_channel_id,
-                        "request_id": request_id
                     },
                     ensure_ascii=False
                 )
@@ -319,7 +303,6 @@ def lambda_handler(event, context):
             {
                 "type": "FINAL_RESULT",
                 "result": res,
-                "request_id": request_id
             },
             ensure_ascii=False
         )
