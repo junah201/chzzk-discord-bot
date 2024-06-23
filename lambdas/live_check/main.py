@@ -77,7 +77,7 @@ def middleware(event, context):
 
         try:
             start_time = datetime.now()
-            chzzk = get_chzzk(channel_id)
+            chzzk = get_chzzk(channel_id, logger=logger)
             end_time = datetime.now()
             logger.info(
                 json.dumps(
@@ -86,7 +86,12 @@ def middleware(event, context):
                         "channel_id": channel_id,
                         "index": index,
                         "time": (end_time - start_time).total_seconds(),
-                        "request_id": request_id
+                        "request_id": request_id,
+                        "chzzk": {
+                            "liveId": chzzk.get("liveId", None),
+                            "liveTitle": chzzk.get("liveTitle", None),
+                            "status": chzzk.get("status", None)
+                        }
                     },
                     ensure_ascii=False
                 )

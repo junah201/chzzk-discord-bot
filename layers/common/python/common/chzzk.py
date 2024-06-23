@@ -1,5 +1,7 @@
+import json
 from typing import TypedDict
 import requests
+import logging
 
 
 class ChzzkChannel(TypedDict):
@@ -42,12 +44,21 @@ class ChzzkLive(TypedDict):
         return self.__str__()
 
 
-def get_chzzk(channel_id: str) -> ChzzkLive | None:
+def get_chzzk(channel_id: str, logger: logging.Logger | None = None) -> ChzzkLive | None:
     """채널 ID를 통해 치지직 채널 정보를 가져옵니다.
     만약 채널이 존재하지 않는다면 None을 반환합니다.
     """
     # 정규화되지 않은 채널 ID
     if "/" in channel_id:
+        if logger:
+            logger.error(
+                json.dumps(
+                    {
+                        "type": "INVALID_CHZZK_CHANNEL_ID",
+                        "channel_id": channel_id
+                    }
+                )
+            )
         return None
 
     try:
@@ -55,14 +66,47 @@ def get_chzzk(channel_id: str) -> ChzzkLive | None:
             f"https://api.chzzk.naver.com/service/v2/channels/{channel_id}/live-detail",
             headers={
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-            }
+            },
+            timeout=5
         )
+    except requests.exceptions.Timeout as e:
+        if logger:
+            logger.error(
+                json.dumps(
+                    {
+                        "type": "CHZZK_REQUEST_TIMEOUT",
+                        "channel_id": channel_id,
+                        "exception": str(e)
+                    }
+                )
+            )
+        return None
     except Exception as e:
-        print(e)
+        if logger:
+            logger.error(
+                json.dumps(
+                    {
+                        "type": "CHZZK_REQUEST_ERROR",
+                        "channel_id": channel_id,
+                        "exception": str(e)
+                    }
+                )
+            )
         return None
 
     # 채널이 존재하지 않는 경우 or 알 수 없는 오류
     if res.status_code != 200:
+        if logger:
+            logger.error(
+                json.dumps(
+                    {
+                        "type": "CHZZK_INVALID_RESPONSE",
+                        "channel_id": channel_id,
+                        "status_code": res.status_code,
+                        "response": res.text
+                    }
+                )
+            )
         return None
 
     content = res.json()["content"]
