@@ -84,9 +84,9 @@ def middleware(event, context):
                         "channel_id": channel_id,
                         "time": (end_time - start_time).total_seconds(),
                         "chzzk": {
-                            "liveId": chzzk.get("liveId", None),
-                            "liveTitle": chzzk.get("liveTitle", None),
-                            "status": chzzk.get("status", None)
+                            "liveId": (chzzk or {}).get("liveId", None),
+                            "liveTitle": (chzzk or {}).get("liveTitle", None),
+                            "status": (chzzk or {}).get("status", None)
                         }
                     },
                     ensure_ascii=False
