@@ -2,6 +2,7 @@ import json
 from typing import TypedDict
 import requests
 import logging
+from user_agent import generate_user_agent
 
 
 class ChzzkChannel(TypedDict):
@@ -65,9 +66,9 @@ def get_chzzk(channel_id: str, logger: logging.Logger | None = None) -> ChzzkLiv
         res = requests.get(
             f"https://api.chzzk.naver.com/service/v2/channels/{channel_id}/live-detail",
             headers={
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+                "User-Agent": generate_user_agent(os="win", device_type="desktop"),
             },
-            timeout=5
+            timeout=2
         )
     except requests.exceptions.Timeout as e:
         if logger:
