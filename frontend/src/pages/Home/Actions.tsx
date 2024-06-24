@@ -18,6 +18,7 @@ const Actions = () => {
         component="a"
         href="https://api.chzzk.junah.dev/invite"
         target="_blank"
+        rel="nofollow"
         variant="contained"
         color="primary"
         size="large"
