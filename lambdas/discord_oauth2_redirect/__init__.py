@@ -1,19 +1,21 @@
-"""
-Discord OAuth2 Redirect
-"""
-
 import os
 import json
-from datetime import datetime
-
+import logging
 import requests
+
+from shared import middleware
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
 DISCORD_CLIENT_ID = os.environ.get("DISCORD_CLIENT_ID")
 DISCORD_CLIENT_SECRET = os.environ.get("DISCORD_CLIENT_SECRET")
 
 
-def middleware(event, context):
+@middleware(logger)
+def handler(event, context):
     body = json.loads(event.get("body", "{}"))
     code = body.get("code", None)
 
@@ -39,36 +41,23 @@ def middleware(event, context):
     )
 
     if res.status_code != 200:
+        logger.error(
+            json.dumps(
+                {
+                    "type": "INVALID_CODE",
+                    "status_code": res.status_code,
+                    "response": res.text
+                }
+            )
+        )
         return {
             "statusCode": 401,
-            "headers": {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
             "body": json.dumps({"message": "code is invalid"}),
         }
 
     data = res.json()
-    print("=== token response ===")
-    print(json.dumps(data))
 
     return {
         "statusCode": 200,
-        "headers": {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-        },
         "body": json.dumps(data)
     }
-
-
-def lambda_handler(event, context):
-    print("=== event ===")
-    print(json.dumps(event))
-
-    res = middleware(event, context)
-
-    print("=== response ===")
-    print(json.dumps(res))
-
-    return res

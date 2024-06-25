@@ -1,18 +1,28 @@
-"""
-로그인되어 있는 디스코드 사용자의 정보를 가져옵니다.
-"""
-
 import json
-
+import logging
 import requests
 
+from shared import middleware
 
-def middleware(event, context):
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+
+@middleware(logger)
+def handler(event, context):
     # get authorization header
     headers = event.get("headers", {})
     token = headers.get("Authorization", None)
 
     if token is None:
+        logger.info(
+            json.dumps(
+                {
+                    "type": "MISSING_TOKEN",
+                }
+            )
+        )
         return {
             "statusCode": 401,
             "body": json.dumps({"message": "token is required"}),
@@ -26,36 +36,23 @@ def middleware(event, context):
     )
 
     if res.status_code != 200:
+        logger.error(
+            json.dumps(
+                {
+                    "type": "INVALID_TOKEN",
+                    "status_code": res.status_code,
+                    "response": res.text
+                }
+            )
+        )
         return {
             "statusCode": 401,
-            "headers": {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
             "body": json.dumps({"message": "token is invalid"}),
         }
 
     data = res.json()
-    print("=== discord response ===")
-    print(json.dumps(data))
 
     return {
         "statusCode": 200,
-        "headers": {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-        },
         "body": json.dumps(data)
     }
-
-
-def lambda_handler(event, context):
-    print("=== event ===")
-    print(json.dumps(event))
-
-    res = middleware(event, context)
-
-    print("=== response ===")
-    print(json.dumps(res))
-
-    return res

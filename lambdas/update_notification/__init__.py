@@ -1,15 +1,17 @@
-"""
-저장된 알림의 커스텀 메시지를 수정합니다.
-"""
-
 import json
-
 import boto3
+import logging
+
+from shared import middleware
 
 dynamodb = boto3.client('dynamodb')
 
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
-def middleware(event, context):
+
+@middleware(logger)
+def handler(event, context):
     # get authorization header
     headers = event.get("headers", {})
     token = headers.get("Authorization", None)
@@ -73,15 +75,3 @@ def middleware(event, context):
             'Access-Control-Allow-Origin': '*'
         },
     }
-
-
-def lambda_handler(event, context):
-    print("=== event ===")
-    print(json.dumps(event))
-
-    res = middleware(event, context)
-
-    print("=== response ===")
-    print(json.dumps(res))
-
-    return res

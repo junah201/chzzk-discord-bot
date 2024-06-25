@@ -3,19 +3,19 @@ DynamoDB에 알림 데이터를 저장합니다.
 """
 
 import json
-
-try:
-    from common import *
-except ImportError:
-    # for local test
-    from layers.common.python.common import *
-
 import boto3
+import logging
+
+from shared import get_channel, get_chzzk, middleware
 
 dynamodb = boto3.client('dynamodb')
 
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
-def middleware(event, context):
+
+@middleware(logger)
+def handler(event, context):
     # get authorization header
     headers = event.get("headers", {})
     token = headers.get("Authorization", None)
@@ -32,10 +32,6 @@ def middleware(event, context):
         if i is None:
             return {
                 "statusCode": 400,
-                "headers": {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
-                },
                 "body": json.dumps({"message": "token, chzzk_id, channel_id, custom_message are required"}),
             }
 
@@ -44,10 +40,6 @@ def middleware(event, context):
     if not channel_data:
         return {
             "statusCode": 400,
-            "headers": {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
             "body": json.dumps({"message": "해당 디스코드 채널을 찾을 수 없습니다."}),
         }
 
@@ -56,10 +48,6 @@ def middleware(event, context):
     if not chzzk:
         return {
             "statusCode": 400,
-            "headers": {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
             "body": json.dumps({"message": "해당 치지직 채널을 찾을 수 없습니다."}),
         }
 
@@ -96,10 +84,6 @@ def middleware(event, context):
         if res["ResponseMetadata"]["HTTPStatusCode"] != 200:
             return {
                 "statusCode": 500,
-                "headers": {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
-                },
                 "body": json.dumps({"message": "치지직 채널 정보 등록에 실패했습니다."}),
             }
 
@@ -119,10 +103,6 @@ def middleware(event, context):
     if res.get('Items', []):
         return {
             "statusCode": 400,
-            "headers": {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
             "body": json.dumps({"message": f"이미 {channel_data['name']}에 등록된 채널({chzzk['channel']['channelName']})입니다."}),
         }
 
@@ -144,20 +124,4 @@ def middleware(event, context):
 
     return {
         "statusCode": 204,
-        "headers": {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-        },
     }
-
-
-def lambda_handler(event, context):
-    print("=== event ===")
-    print(json.dumps(event))
-
-    res = middleware(event, context)
-
-    print("=== response ===")
-    print(json.dumps(res))
-
-    return res

@@ -1,12 +1,10 @@
 from datetime import datetime
 
 import boto3
+import json
 
-try:
-    from common import *
-except ImportError:
-    # for local test
-    from layers.common.python.common import *
+from shared.discord import INTERACTION_CALLBACK_TYPE
+
 
 dynamodb = boto3.client('dynamodb')
 

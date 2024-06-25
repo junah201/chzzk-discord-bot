@@ -4,13 +4,19 @@
 """
 
 import json
-
 import boto3
+import logging
+
+from shared import middleware
 
 dynamodb = boto3.client('dynamodb')
 
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
-def middleware(event, context):
+
+@middleware(logger)
+def handler(event, context):
     body = json.loads(event.get("body", "{}"))
 
     chzzk_id = body.get("chzzk_id", None)
@@ -57,20 +63,4 @@ def middleware(event, context):
 
     return {
         "statusCode": 204,
-        "headers": {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-        },
     }
-
-
-def lambda_handler(event, context):
-    print("=== event ===")
-    print(json.dumps(event))
-
-    res = middleware(event, context)
-
-    print("=== response ===")
-    print(json.dumps(res))
-
-    return res

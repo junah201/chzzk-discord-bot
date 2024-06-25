@@ -1,27 +1,20 @@
-"""
-특정 ID의 디스코드 서버의 채널 목록을 가져옵니다.
-만약 해당 서버가 존재하지 않거나 접근할 수 없는 경우 404를 반환합니다.
-"""
-
 import os
 import json
-
-try:
-    from common import *
-except ImportError:
-    # for local test
-    from layers.common.python.common import *
-
-
+import logging
 import requests
+
+from shared import middleware
+from shared.discord import CHANNEL_TYPE
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
 
 
-def middleware(event, context):
-    # get authorization header
-    headers = event.get("headers", {})
-
+@middleware(logger)
+def handler(event, context):
     guild_id = event.get("pathParameters", {}).get("guild_id", None)
 
     res = requests.get(
@@ -35,17 +28,20 @@ def middleware(event, context):
     if res.status_code == 404:
         return {
             "statusCode": 404,
-            "headers": {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
             "body": json.dumps({"message": "guild not found"}),
         }
 
     data = res.json()
-    print("=== discord response ===")
-    print(res.status_code)
-    print(json.dumps(data))
+    logger.info(
+        json.dumps(
+            {
+                "type": "GET_GUILD_CHANNELS",
+                "guild_id": guild_id,
+                "status_code": res.status_code,
+                "response": res.text
+            }
+        )
+    )
 
     if res.status_code == 403:
         return {
@@ -84,26 +80,7 @@ def middleware(event, context):
         if channel["type"] in [CHANNEL_TYPE.GUILD_TEXT, CHANNEL_TYPE.GUILD_NEWS]
     ]
 
-    print("=== filtered channels ===")
-    print(json.dumps(channels))
-
     return {
         "statusCode": 200,
-        "headers": {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-        },
         "body": json.dumps(channels)
     }
-
-
-def lambda_handler(event, context):
-    print("=== event ===")
-    print(json.dumps(event))
-
-    res = middleware(event, context)
-
-    print("=== response ===")
-    print(json.dumps(res))
-
-    return res

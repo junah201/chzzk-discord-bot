@@ -3,11 +3,9 @@ import json
 
 import boto3
 
-try:
-    from common import *
-except ImportError:
-    # for local test
-    from layers.common.python.common import *
+from shared.chzzk import get_chzzk
+from shared.discord import INTERACTION_CALLBACK_TYPE, CHANNEL_TYPE
+
 
 dynamodb = boto3.client('dynamodb')
 
