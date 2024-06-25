@@ -117,10 +117,30 @@ def handler(event, context):
         )
 
         if res.status_code != 200:
+            logger.error(
+                json.dumps(
+                    {
+                        "type": "CHZZK_FOLLOW_ERROR",
+                        "status_code": res.status_code,
+                        "text": res.text
+                    },
+                    ensure_ascii=False
+                )
+            )
             return {
                 "statusCode": 500,
                 "body": json.dumps({"message": "치지직 채널 팔로우에 실패했습니다. 다시 시도해주세요."}),
             }
+
+        logger.info(
+            json.dumps(
+                {
+                    "type": "CHZZK_FOLLOW_SUCCESS",
+                    "channel_id": chzzk_id
+                },
+                ensure_ascii=False
+            )
+        )
 
     # 이미 등록된 알림인지 확인
     res = dynamodb.query(

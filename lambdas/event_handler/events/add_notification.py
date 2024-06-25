@@ -3,6 +3,7 @@ import json
 import requests
 import boto3
 from user_agent import generate_user_agent
+import logging
 
 from shared.chzzk import get_chzzk
 from shared.discord import INTERACTION_CALLBACK_TYPE, CHANNEL_TYPE
@@ -10,6 +11,9 @@ from shared.discord import INTERACTION_CALLBACK_TYPE, CHANNEL_TYPE
 
 dynamodb = boto3.client('dynamodb')
 table = boto3.resource('dynamodb').Table('chzzk-bot-db')
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 def handler(event, context):
@@ -154,7 +158,18 @@ def handler(event, context):
             timeout=2
         )
 
+        # 팔로우 실패
         if res.status_code != 200:
+            logger.error(
+                json.dumps(
+                    {
+                        "type": "CHZZK_FOLLOW_ERROR",
+                        "status_code": res.status_code,
+                        "text": res.text
+                    },
+                    ensure_ascii=False
+                )
+            )
             return {
                 "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
                 "data": {
@@ -172,6 +187,17 @@ def handler(event, context):
                     ],
                 },
             }
+
+        # 팔로우 성공
+        logger.info(
+            json.dumps(
+                {
+                    "type": "CHZZK_FOLLOW_SUCCESS",
+                    "channel_id": chzzk_id
+                },
+                ensure_ascii=False
+            )
+        )
 
     res = dynamodb.query(
         TableName='chzzk-bot-db',
