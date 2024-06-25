@@ -46,6 +46,14 @@ functions:
     description: live check V2
     timeout: 270
 
+  naver_session_renew:
+    handler: lambdas/naver_session_renew.handler
+    name: naver_session_renew_v2
+    description: 네이버 계정 세션 갱신
+    timeout: 60
+    events:
+      - schedule: rate(12 hours)
+
   discord_oauth2_redirect:
     handler: lambdas/discord_oauth2_redirect.handler
     name: discord_oauth2_redirect_v2
