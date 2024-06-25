@@ -1,0 +1,279 @@
+service: chzzk
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: python3.10
+  region: ap-northeast-2
+  profile: chzzk
+  logRetentionInDays: 14
+  architecture: x86_64
+  memorySize: 128
+  timeout: 10
+  versionFunctions: false
+  stage: prodV2
+  environment:
+    DISCORD_PUBLIC_KEY: ${env:DISCORD_PUBLIC_KEY}
+    DISCORD_TOKEN: ${env:DISCORD_TOKEN}
+    DISCORD_CLIENT_ID: ${env:DISCORD_CLIENT_ID}
+    DISCORD_CLIENT_SECRET: ${env:DISCORD_CLIENT_SECRET}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource: "arn:aws:dynamodb:*:*:*"
+    - Effect: Allow
+      Action:
+        - kms:Decrypt
+      Resource: arn:aws:kms:*:*:*
+
+functions:
+  event_handler:
+    handler: lambdas/event_handler.handler
+    name: event_handler_v2
+    description: Handle event from discord (slash command, interaction)
+    events:
+      - http:
+          path: event
+          method: post
+          cors: true
+    layers:
+      - arn:aws:lambda:ap-northeast-2:897699718511:layer:pynacl_layer:111
+
+  live_check:
+    handler: lambdas/live_check.handler
+    name: live_check_v2
+    description: live check V2
+    timeout: 270
+
+  discord_oauth2_redirect:
+    handler: lambdas/discord_oauth2_redirect.handler
+    name: discord_oauth2_redirect_v2
+    description: Handle OAuth2 redirect from discord
+    events:
+      - http:
+          path: oauth/token
+          method: post
+          cors: true
+
+  discord_me:
+    handler: lambdas/discord_me.handler
+    name: discord_me_v2
+    description: Get user information from discord
+    events:
+      - http:
+          path: discord/me
+          method: get
+          cors: true
+
+  discord_guilds:
+    handler: lambdas/discord_guilds.handler
+    name: discord_guilds_v2
+    description: Get guilds information from discord
+    events:
+      - http:
+          path: discord/guilds
+          method: get
+          cors: true
+
+  get_guild_channels:
+    handler: lambdas/get_guild_channels.handler
+    name: get_guild_channels_v2
+    description: 특정 ID의 디스코드 서버의 채널 목록을 가져옵니다. 만약 해당 서버가 존재하지 않거나 접근할 수 없는 경우 404를 반환합니다.
+    events:
+      - http:
+          path: discord/{guild_id}/channels
+          method: get
+          cors: true
+
+  post_notification:
+    handler: lambdas/post_notification.handler
+    name: post_notification_v2
+    description: 치지직 알림을 추가합니다.
+    events:
+      - http:
+          path: notifications
+          method: post
+          cors: true
+
+  get_notification_by_guild_id:
+    handler: lambdas/get_notification_by_guild_id.handler
+    name: get_notification_by_guild_id_v2
+    description: 특정 ID의 디스코드 서버의 알림 목록을 가져옵니다. 데이터가 없을 경우 빈 리스트를 반환합니다.
+    events:
+      - http:
+          path: notifications/{guild_id}
+          method: get
+          cors: true
+
+  delete_notification:
+    handler: lambdas/delete_notification.handler
+    name: delete_notification_v2
+    description: 알림을 삭제합니다. 만약 해당 알림이 없으면 404를 반환합니다.
+    events:
+      - http:
+          path: notifications
+          method: delete
+          cors: true
+
+  send_test_notification:
+    handler: lambdas/send_test_notification.handler
+    name: send_test_notification_v2
+    description: 테스트 알림을 보냅니다.
+    events:
+      - http:
+          path: notifications/test
+          method: post
+          cors: true
+
+  update_notification:
+    handler: lambdas/update_notification.handler
+    name: update_notification_v2
+    description: 알림을 수정합니다. 만약 해당 알림이 없으면 404를 반환합니다.
+    events:
+      - http:
+          path: notifications
+          method: put
+          cors: true
+
+package:
+  include:
+    - "lambdas/**"
+    - "shared/**"
+    - "requirements.txt"
+  exclude:
+    - "node_modules/**"
+    - "venv/**"
+    - ".git/**"
+    - ".github/**"
+    - "terraform/**"
+    - "frontend/**"
+    - "serverless.yml"
+    - ".serverless/**"
+
+resources:
+  Resources:
+    ApiGatewayRestApi:
+      Type: AWS::ApiGateway::RestApi
+      Properties:
+        Name: Chzzk-API
+        Description: API for chzzk.junah.dev
+
+    ApiGatewayCustomDomain:
+      Type: AWS::ApiGateway::DomainName
+      Properties:
+        DomainName: api.chzzk.junah.dev
+        RegionalCertificateArn: arn:aws:acm:ap-northeast-2:897699718511:certificate/86908885-faea-49f8-bed6-299f402ff4d4
+        EndpointConfiguration:
+          Types:
+            - REGIONAL
+        SecurityPolicy: TLS_1_2
+
+    ApiGatewayBasePathMapping:
+      Type: AWS::ApiGateway::BasePathMapping
+      Properties:
+        DomainName:
+          Ref: ApiGatewayCustomDomain
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        Stage: prodV2
+
+    LiveCheckTriggerFor1:
+      Type: AWS::Events::Rule
+      Properties:
+        Name: live_check_trigger_for_1
+        Description: Live check trigger for index 1
+        ScheduleExpression: cron(2-59/5 * ? * * *)
+        State: ENABLED
+        Targets:
+          - Arn:
+              Fn::GetAtt:
+                - LiveUnderscorecheckLambdaFunction
+                - Arn
+            Id: live_check_trigger_for_1
+
+    PermissionForEventsToInvokeLambda:
+      Type: AWS::Lambda::Permission
+      Properties:
+        FunctionName:
+          Ref: LiveUnderscorecheckLambdaFunction
+        Action: lambda:InvokeFunction
+        Principal: events.amazonaws.com
+        SourceArn:
+          Fn::GetAtt:
+            - LiveCheckTriggerFor1
+            - Arn
+
+    # TODO : Import DynamoDB Table from original resources
+    # DynamoDBTable:
+    #   Type: AWS::DynamoDB::Table
+    #   Properties:
+    #     TableName: chzzk-bot-db
+    #     BillingMode: PAY_PER_REQUEST
+    #     AttributeDefinitions:
+    #       - AttributeName: PK
+    #         AttributeType: S
+    #       - AttributeName: SK
+    #         AttributeType: S
+    #       - AttributeName: guild_id
+    #         AttributeType: S
+    #       - AttributeName: type
+    #         AttributeType: S
+    #       - AttributeName: index
+    #         AttributeType: N
+    #     KeySchema:
+    #       - AttributeName: PK
+    #         KeyType: HASH
+    #       - AttributeName: SK
+    #         KeyType: RANGE
+    #     GlobalSecondaryIndexes:
+    #       - IndexName: GSI-SK
+    #         KeySchema:
+    #           - AttributeName: SK
+    #             KeyType: HASH
+    #           - AttributeName: PK
+    #             KeyType: RANGE
+    #         Projection:
+    #           ProjectionType: KEYS_ONLY
+    #       - IndexName: GSI-GuildID
+    #         KeySchema:
+    #           - AttributeName: guild_id
+    #             KeyType: HASH
+    #           - AttributeName: PK
+    #             KeyType: RANGE
+    #         Projection:
+    #           ProjectionType: INCLUDE
+    #         NonKeyAttributes:
+    #           - SK
+    #           - channel_id
+    #           - channel_name
+    #           - custom_message
+    #           - disable_button
+    #           - disable_embed
+    #           - last_noti_at
+    #           - last_noti_status
+    #       - IndexName: GSI-type
+    #         KeySchema:
+    #           - AttributeName: type
+    #             KeyType: HASH
+    #         Projection:
+    #           ProjectionType: INCLUDE
+    #         NonKeyAttributes:
+    #           - PK
+    #           - lastLiveId
+    #       - IndexName: GSI-index
+    #         KeySchema:
+    #           - AttributeName: index
+    #             KeyType: HASH
+    #           - AttributeName: PK
+    #             KeyType: RANGE
+    #         Projection:
+    #           ProjectionType: ALL
+
+custom:
+  pythonRequirements:
+    slim: true
+
+plugins:
+  - serverless-python-requirements
+  - serverless-dotenv-plugin

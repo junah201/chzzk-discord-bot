@@ -1,0 +1,4 @@
+requests == 2.28.1
+user_agent
+pydantic == 2.6.4
+pydantic-core == 2.16.3
