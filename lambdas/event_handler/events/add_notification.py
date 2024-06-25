@@ -1,13 +1,15 @@
 from datetime import datetime
 import json
-
+import requests
 import boto3
+from user_agent import generate_user_agent
 
 from shared.chzzk import get_chzzk
 from shared.discord import INTERACTION_CALLBACK_TYPE, CHANNEL_TYPE
 
 
 dynamodb = boto3.client('dynamodb')
+table = boto3.resource('dynamodb').Table('chzzk-bot-db')
 
 
 def handler(event, context):
@@ -92,6 +94,7 @@ def handler(event, context):
         }
     )
 
+    index = int(chzzk_id, 16) % 7
     # 치지직 채널 정보가 등록되어 있는지 확인
     if not res.get('Items', []):
         res = dynamodb.put_item(
@@ -105,7 +108,7 @@ def handler(event, context):
                 'channelName': {'S': chzzk['channel']['channelName']},
                 'channelImageUrl': {'S': chzzk['channel']['channelImageUrl'] or ""},
                 "type": {"S": "CHZZK"},
-                "index": {"N": f"{int(chzzk_id, 16) % 7}"}
+                "index": {"N": f"{index}"}
             }
         )
 
@@ -122,6 +125,48 @@ def handler(event, context):
                             "footer": {
                                 "text": "치직"
                             },
+                            "timestamp": datetime.now().isoformat()
+                        },
+                    ],
+                },
+            }
+
+    # 네이버 계정 가져오기
+    naver = table.get_item(
+        Key={
+            "PK": f"NAVER#{index}",
+            "SK": f"NAVER#{index}"
+        }
+    )
+
+    # 팔로우 요청
+    if naver.get("Item"):
+        naver = naver["Item"]
+        NID_AUT = naver.get("NID_AUT")
+        NID_SES = naver.get("NID_SES")
+
+        res = requests.post(
+            f"https://api.chzzk.naver.com/service/v1/channels/{chzzk_id}/follow",
+            headers={
+                "User-Agent": generate_user_agent(os="win", device_type="desktop"),
+                "Cookie": f"NID_AUT={NID_AUT}; NID_SES={NID_SES}"
+            },
+            timeout=2
+        )
+
+        if res.status_code != 200:
+            return {
+                "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
+                "data": {
+                    "embeds": [
+                        {
+                            "title": f"알림 등록 실패",
+                            "description": f"**{chzzk['channel']['channelName']}**님의 방송 알림 등록에 실패했습니다. 다시 시도해주세요. (`FOLLOW_ERROR`)",
+                            "color": 0xF01D15,
+                            "footer": {
+                                "text": "치직"
+                            },
+                            "url": f"https://chzzk.naver.com/{chzzk_id}",
                             "timestamp": datetime.now().isoformat()
                         },
                     ],

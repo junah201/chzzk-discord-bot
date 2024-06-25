@@ -6,9 +6,13 @@ import json
 import boto3
 import logging
 
+import requests
+from user_agent import generate_user_agent
+
 from shared import get_channel, get_chzzk, middleware
 
 dynamodb = boto3.client('dynamodb')
+table = boto3.resource('dynamodb').Table('chzzk-bot-db')
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -51,6 +55,8 @@ def handler(event, context):
             "body": json.dumps({"message": "해당 치지직 채널을 찾을 수 없습니다."}),
         }
 
+    index = int(chzzk_id, 16) % 7
+
     # 치지직 채널 정보가 등록되어 있는지 확인
     res = dynamodb.query(
         TableName='chzzk-bot-db',
@@ -76,7 +82,7 @@ def handler(event, context):
                 'channelName': {'S': chzzk['channel']['channelName']},
                 'channelImageUrl': {'S': chzzk['channel']['channelImageUrl'] or ""},
                 "type": {"S": "CHZZK"},
-                "index": {"N": f"{int(chzzk_id, 16) % 7}"}
+                "index": {"N": f"{index}"}
             }
         )
 
@@ -85,6 +91,35 @@ def handler(event, context):
             return {
                 "statusCode": 500,
                 "body": json.dumps({"message": "치지직 채널 정보 등록에 실패했습니다."}),
+            }
+
+    # 네이버 계정 가져오기
+    naver = table.get_item(
+        Key={
+            "PK": f"NAVER#{index}",
+            "SK": f"NAVER#{index}"
+        }
+    )
+
+    # 팔로우 요청
+    if naver.get('Item'):
+        naver = naver["Item"]
+        NID_AUT = naver.get("NID_AUT")
+        NID_SES = naver.get("NID_SES")
+
+        res = requests.post(
+            f"https://api.chzzk.naver.com/service/v1/channels/{chzzk_id}/follow",
+            headers={
+                "User-Agent": generate_user_agent(os="win", device_type="desktop"),
+                "Cookie": f"NID_AUT={NID_AUT}; NID_SES={NID_SES}"
+            },
+            timeout=2
+        )
+
+        if res.status_code != 200:
+            return {
+                "statusCode": 500,
+                "body": json.dumps({"message": "치지직 채널 팔로우에 실패했습니다. 다시 시도해주세요."}),
             }
 
     # 이미 등록된 알림인지 확인
