@@ -1,0 +1,5 @@
+*.pyc
+.env
+/node_modules
+/.serverless
+/etc
