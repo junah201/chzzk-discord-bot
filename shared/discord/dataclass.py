@@ -1,5 +1,14 @@
 from dataclasses import dataclass
 
+__all__ = [
+    "INTERACTION_CALLBACK_TYPE",
+    "TYPE",
+    "COMPONENT_TYPE",
+    "TEXT_INPUT_STYLE",
+    "BUTTON_STYLE",
+    "CHANNEL_TYPE"
+]
+
 
 @dataclass
 class INTERACTION_CALLBACK_TYPE:
@@ -20,12 +29,6 @@ class TYPE:
     PING = 1
     BUTTON = 3
     MODAL = 5
-
-
-@dataclass
-class COMMAND_NAME:
-    ADD_NOTIFICATION: str = "알림추가"
-    DELETE_NOTIFICATION: str = "알림삭제"
 
 
 @dataclass

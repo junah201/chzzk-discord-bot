@@ -4,6 +4,14 @@ import requests
 import logging
 from user_agent import generate_user_agent
 
+__all__ = [
+    "ChzzkChannel",
+    "ChzzkLive",
+    "get_chzzk",
+    "Following",
+    ""
+]
+
 
 class ChzzkChannel(TypedDict):
     channelId: str
@@ -45,7 +53,17 @@ class ChzzkLive(TypedDict):
         return self.__str__()
 
 
-def get_chzzk(channel_id: str, logger: logging.Logger | None = None) -> ChzzkLive | None:
+class Streamer(TypedDict):
+    openLive: bool
+
+
+class Following(TypedDict):
+    channel: ChzzkChannel
+    liveInfo: ChzzkLive
+    streamer: Streamer
+
+
+def get_chzzk(channel_id: str, logger: logging.Logger | None = None, retry: int = 2) -> ChzzkLive | None:
     """채널 ID를 통해 치지직 채널 정보를 가져옵니다.
     만약 채널이 존재하지 않는다면 None을 반환합니다.
     """
@@ -62,34 +80,50 @@ def get_chzzk(channel_id: str, logger: logging.Logger | None = None) -> ChzzkLiv
             )
         return None
 
-    try:
-        res = requests.get(
-            f"https://api.chzzk.naver.com/service/v2/channels/{channel_id}/live-detail",
-            headers={
-                "User-Agent": generate_user_agent(os="win", device_type="desktop"),
-            },
-            timeout=2
-        )
-    except requests.exceptions.Timeout as e:
-        if logger:
-            logger.error(
-                json.dumps(
-                    {
-                        "type": "CHZZK_REQUEST_TIMEOUT",
-                        "channel_id": channel_id,
-                        "exception": str(e)
-                    }
-                )
+    # retry
+    for retry in range(1, retry + 1):
+        try:
+            res = requests.get(
+                f"https://api.chzzk.naver.com/service/v2/channels/{channel_id}/live-detail",
+                headers={
+                    "User-Agent": generate_user_agent(os="win", device_type="desktop"),
+                },
+                timeout=1
             )
-        return None
-    except Exception as e:
+            break
+        except requests.exceptions.Timeout as e:
+            if logger:
+                logger.error(
+                    json.dumps(
+                        {
+                            "type": "CHZZK_REQUEST_TIMEOUT",
+                            "channel_id": channel_id,
+                            "exception": str(e),
+                            "retry": retry
+                        }
+                    )
+                )
+        except Exception as e:
+            if logger:
+                logger.error(
+                    json.dumps(
+                        {
+                            "type": "CHZZK_REQUEST_ERROR",
+                            "channel_id": channel_id,
+                            "exception": str(e),
+                            "retry": retry
+                        }
+                    )
+                )
+            continue
+    else:
+        # Break 없이 끝났을 때 -> retry 모두 실패
         if logger:
             logger.error(
                 json.dumps(
                     {
-                        "type": "CHZZK_REQUEST_ERROR",
-                        "channel_id": channel_id,
-                        "exception": str(e)
+                        "type": "CHZZK_REQUEST_FAILED",
+                        "channel_id": channel_id
                     }
                 )
             )
