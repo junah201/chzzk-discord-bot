@@ -1,20 +1,31 @@
 import { ArrowForwardIosOutlined, LaunchOutlined } from '@mui/icons-material';
-import { Box, Avatar, Typography, useTheme, IconButton } from '@mui/material';
+import {
+  Box,
+  Avatar,
+  Typography,
+  useTheme,
+  IconButton,
+  useMediaQuery,
+} from '@mui/material';
 import { Link } from 'react-router-dom';
 
 import { getGuilds } from '@/api/discord';
+import Adfit from '@/components/Adfit';
 import { QUERY } from '@/constants/query';
 import { useCustomQuery } from '@/lib';
 import { Guild } from '@/types';
 
 const Guilds = () => {
   const theme = useTheme();
+  const isMobile = useMediaQuery('(max-width: 1024px)');
 
   const { data } = useCustomQuery([QUERY.KEY.GUILDS], () => getGuilds(), {});
 
   const guilds = data?.data;
 
   if (!guilds) return null;
+
+  const units = ['DAN-WdpYAzcPE5hZQTG9', 'DAN-nnsaHluduZYQ4HQ6'];
 
   return (
     <Box
@@ -24,8 +35,17 @@ const Guilds = () => {
         gap: theme.spacing(1),
       }}
     >
-      {guilds.map((guild) => (
-        <GuildBox guild={guild} />
+      {guilds.map((guild, index) => (
+        <>
+          <GuildBox guild={guild} />
+          {(index + 1) % 5 == 0 && isMobile && (
+            <Adfit
+              unit={units[Math.floor(Math.random() * units.length)]}
+              width={320}
+              height={50}
+            />
+          )}
+        </>
       ))}
       <SupportServer />
     </Box>
