@@ -187,6 +187,31 @@ resources:
           Ref: ApiGatewayRestApi
         Stage: prodV2
 
+    ApiGatewayInviteResource:
+      Type: AWS::ApiGateway::Resource
+      Properties:
+        ParentId:
+          Fn::GetAtt:
+            - ApiGatewayRestApi
+            - RootResourceId
+        PathPart: invite
+        RestApiId:
+          Ref: ApiGatewayRestApi
+
+    ApiGatewayInviteMethod:
+      Type: AWS::ApiGateway::Method
+      Properties:
+        AuthorizationType: NONE
+        HttpMethod: GET
+        Integration:
+          Type: HTTP_PROXY
+          IntegrationHttpMethod: GET
+          Uri: "https://discord.com/api/oauth2/authorize?client_id=1191657232480350238&permissions=8&scope=bot+applications.commands"
+        ResourceId:
+          Ref: ApiGatewayInviteResource
+        RestApiId:
+          Ref: ApiGatewayRestApi
+
     LiveCheckTriggerFor0:
       Type: AWS::Events::Rule
       Properties:
