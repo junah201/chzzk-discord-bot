@@ -1,8 +1,0 @@
-**/.terraform
-
-*.tfstate
-*.tfstate.*
-
-terraform.tfvars
-
-/builds
