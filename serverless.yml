@@ -158,6 +158,7 @@ package:
     - "frontend/**"
     - "serverless.yml"
     - ".serverless/**"
+    - "etc/**"
 
 resources:
   Resources:
@@ -186,12 +187,38 @@ resources:
           Ref: ApiGatewayRestApi
         Stage: prodV2
 
+    LiveCheckTriggerFor0:
+      Type: AWS::Events::Rule
+      Properties:
+        Name: live_check_trigger_for_0
+        Description: Live check trigger for index 0
+        ScheduleExpression: cron(0/5 * ? * * *)
+        State: ENABLED
+        Targets:
+          - Arn:
+              Fn::GetAtt:
+                - LiveUnderscorecheckLambdaFunction
+                - Arn
+            Id: live_check_trigger_for_0
+
+    PermissionForEventsToInvokeLambda0:
+      Type: AWS::Lambda::Permission
+      Properties:
+        FunctionName:
+          Ref: LiveUnderscorecheckLambdaFunction
+        Action: lambda:InvokeFunction
+        Principal: events.amazonaws.com
+        SourceArn:
+          Fn::GetAtt:
+            - LiveCheckTriggerFor0
+            - Arn
+
     LiveCheckTriggerFor1:
       Type: AWS::Events::Rule
       Properties:
         Name: live_check_trigger_for_1
         Description: Live check trigger for index 1
-        ScheduleExpression: cron(2-59/5 * ? * * *)
+        ScheduleExpression: cron(1/5 * ? * * *)
         State: ENABLED
         Targets:
           - Arn:
@@ -200,7 +227,7 @@ resources:
                 - Arn
             Id: live_check_trigger_for_1
 
-    PermissionForEventsToInvokeLambda:
+    PermissionForEventsToInvokeLambda1:
       Type: AWS::Lambda::Permission
       Properties:
         FunctionName:
@@ -210,6 +237,136 @@ resources:
         SourceArn:
           Fn::GetAtt:
             - LiveCheckTriggerFor1
+            - Arn
+
+    LiveCheckTriggerFor2:
+      Type: AWS::Events::Rule
+      Properties:
+        Name: live_check_trigger_for_2
+        Description: Live check trigger for index 2
+        ScheduleExpression: cron(2/5 * ? * * *)
+        State: ENABLED
+        Targets:
+          - Arn:
+              Fn::GetAtt:
+                - LiveUnderscorecheckLambdaFunction
+                - Arn
+            Id: live_check_trigger_for_2
+
+    PermissionForEventsToInvokeLambda2:
+      Type: AWS::Lambda::Permission
+      Properties:
+        FunctionName:
+          Ref: LiveUnderscorecheckLambdaFunction
+        Action: lambda:InvokeFunction
+        Principal: events.amazonaws.com
+        SourceArn:
+          Fn::GetAtt:
+            - LiveCheckTriggerFor2
+            - Arn
+
+    LiveCheckTriggerFor3:
+      Type: AWS::Events::Rule
+      Properties:
+        Name: live_check_trigger_for_3
+        Description: Live check trigger for index 3
+        ScheduleExpression: cron(3/5 * ? * * *)
+        State: ENABLED
+        Targets:
+          - Arn:
+              Fn::GetAtt:
+                - LiveUnderscorecheckLambdaFunction
+                - Arn
+            Id: live_check_trigger_for_3
+
+    PermissionForEventsToInvokeLambda3:
+      Type: AWS::Lambda::Permission
+      Properties:
+        FunctionName:
+          Ref: LiveUnderscorecheckLambdaFunction
+        Action: lambda:InvokeFunction
+        Principal: events.amazonaws.com
+        SourceArn:
+          Fn::GetAtt:
+            - LiveCheckTriggerFor3
+            - Arn
+
+    LiveCheckTriggerFor4:
+      Type: AWS::Events::Rule
+      Properties:
+        Name: live_check_trigger_for_4
+        Description: Live check trigger for index 4
+        ScheduleExpression: cron(4/5 * ? * * *)
+        State: ENABLED
+        Targets:
+          - Arn:
+              Fn::GetAtt:
+                - LiveUnderscorecheckLambdaFunction
+                - Arn
+            Id: live_check_trigger_for_4
+
+    PermissionForEventsToInvokeLambda4:
+      Type: AWS::Lambda::Permission
+      Properties:
+        FunctionName:
+          Ref: LiveUnderscorecheckLambdaFunction
+        Action: lambda:InvokeFunction
+        Principal: events.amazonaws.com
+        SourceArn:
+          Fn::GetAtt:
+            - LiveCheckTriggerFor4
+            - Arn
+
+    LiveCheckTriggerFor5:
+      Type: AWS::Events::Rule
+      Properties:
+        Name: live_check_trigger_for_5
+        Description: Live check trigger for index 5
+        ScheduleExpression: cron(0/5 * ? * * *)
+        State: ENABLED
+        Targets:
+          - Arn:
+              Fn::GetAtt:
+                - LiveUnderscorecheckLambdaFunction
+                - Arn
+            Id: live_check_trigger_for_5
+
+    PermissionForEventsToInvokeLambda5:
+      Type: AWS::Lambda::Permission
+      Properties:
+        FunctionName:
+          Ref: LiveUnderscorecheckLambdaFunction
+        Action: lambda:InvokeFunction
+        Principal: events.amazonaws.com
+        SourceArn:
+          Fn::GetAtt:
+            - LiveCheckTriggerFor5
+            - Arn
+
+    LiveCheckTriggerFor6:
+      Type: AWS::Events::Rule
+      Properties:
+        Name: live_check_trigger_for_6
+        Description: Live check trigger for index 6
+        ScheduleExpression: cron(1/5 * ? * * *)
+        State: ENABLED
+        Targets:
+          - Arn:
+              Fn::GetAtt:
+                - LiveUnderscorecheckLambdaFunction
+                - Arn
+            Id: live_check_trigger_for_6
+
+    PermissionForEventsToInvokeLambda6:
+      Type: AWS::Lambda::Permission
+      Properties:
+        FunctionName:
+          Ref: LiveUnderscorecheckLambdaFunction
+        Action: lambda:InvokeFunction
+        Principal: events.amazonaws.com
+        SourceArn:
+          Fn::GetAtt:
+            - LiveCheckTriggerFor6
             - Arn
 
     # TODO : Import DynamoDB Table from original resources
