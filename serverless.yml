@@ -212,6 +212,31 @@ resources:
         RestApiId:
           Ref: ApiGatewayRestApi
 
+    ApiGatewaySupportServerResource:
+      Type: AWS::ApiGateway::Resource
+      Properties:
+        ParentId:
+          Fn::GetAtt:
+            - ApiGatewayRestApi
+            - RootResourceId
+        PathPart: support-server
+        RestApiId:
+          Ref: ApiGatewayRestApi
+
+    ApiGatewaySupportServerMethod:
+      Type: AWS::ApiGateway::Method
+      Properties:
+        AuthorizationType: NONE
+        HttpMethod: GET
+        Integration:
+          Type: HTTP_PROXY
+          IntegrationHttpMethod: GET
+          Uri: "https://discord.gg/jUuCxtyySK"
+        ResourceId:
+          Ref: ApiGatewaySupportServerResource
+        RestApiId:
+          Ref: ApiGatewayRestApi
+
     LiveCheckTriggerFor0:
       Type: AWS::Events::Rule
       Properties:
