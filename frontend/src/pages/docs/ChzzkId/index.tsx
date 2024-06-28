@@ -24,12 +24,7 @@ export const ChzzkId = () => {
       ) : (
         <>
           <Markdown text={markdown} />
-          <PageButton
-            prevPath="/docs/about"
-            prevText="알림 등록하기"
-            nextPath="/docs/mention"
-            nextText="멘션 사용법"
-          />
+          <PageButton prevPath="/docs/mention" prevText="멘션 사용법" />
           <Copyright />
         </>
       )}

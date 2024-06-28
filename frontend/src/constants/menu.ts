@@ -41,14 +41,14 @@ const menu: Menu[] = [
     url: '/docs/getting-started',
   },
   {
-    id: 'chzzk-id',
-    title: '치지직 ID란?',
-    url: '/docs/chzzk-id',
-  },
-  {
     id: 'mention',
     title: '유저 및 역할 멘션하기',
     url: '/docs/mention',
+  },
+  {
+    id: 'chzzk-id',
+    title: '치지직 ID란?',
+    url: '/docs/chzzk-id',
   },
 ];
 
