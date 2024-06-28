@@ -16,7 +16,7 @@ export const Palette = () => {
       },
       text: {
         primary: '#dfe2ea',
-        secondary: '#c9cedc',
+        secondary: '#8C909A',
         disabled: '#c9cedc',
       },
       background: {

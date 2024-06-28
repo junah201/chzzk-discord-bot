@@ -27,6 +27,31 @@ export const ROUTES = [
     AUTH: true,
   },
   {
+    PATH: '/docs',
+    ELEMENT: Loadable(() => import('@/pages/docs/About')),
+    AUTH: false,
+  },
+  {
+    PATH: '/docs/about',
+    ELEMENT: Loadable(() => import('@/pages/docs/About')),
+    AUTH: false,
+  },
+  {
+    PATH: '/docs/chzzk-id',
+    ELEMENT: Loadable(() => import('@/pages/docs/ChzzkId')),
+    AUTH: false,
+  },
+  {
+    PATH: '/docs/getting-started',
+    ELEMENT: Loadable(() => import('@/pages/docs/GettingStarted')),
+    AUTH: false,
+  },
+  {
+    PATH: '/docs/mention',
+    ELEMENT: Loadable(() => import('@/pages/docs/Mention')),
+    AUTH: false,
+  },
+  {
     PATH: '*',
     ELEMENT: Loadable(() => import('@/pages/NotFound')),
     AUTH: false,

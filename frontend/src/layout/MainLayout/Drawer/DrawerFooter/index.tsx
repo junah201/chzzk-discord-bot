@@ -19,6 +19,7 @@ const DrawerFooter = () => {
       <IconButton
         href="https://api.chzzk.junah.dev/support-server"
         target="_blank"
+        rel="nofollow"
         sx={{
           width: 48,
           height: 48,
