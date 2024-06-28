@@ -30,13 +30,13 @@
 ## 알림 추가
 
 1. [치직 대시보드](https://chzzk.junah.dev/dashboard)에 가서 서버를 선택해주세요.
-2. 치지직 ID를 입력해주세요. ([치지직 ID란?](https://chzzk.junah.dev/docs/chzzk_id.md))
+2. 치지직 ID를 입력해주세요. ([치지직 ID란?](https://chzzk.junah.dev/docs/chzzk-id))
 3. 디스코드 채널을 선택해주세요.
-4. 커스텀 메시지를 입력해주세요. ([유저 및 역할 멘션하기](https://chzzk.junah.dev/docs/.md))
+4. 커스텀 메시지를 입력해주세요. ([유저 및 역할 멘션하기](https://chzzk.junah.dev/docs/mention))
 5. 이후 **치지직 알림 추가** 버튼을 클릭하여 알림을 추가해주세요.
 6. **치지직 알림이 추가되었습니다.** 라는 메시지가 뜨면 정상적으로 추가된 것입니다.
 
-- **해당 치지직 채널을 찾을 수 없습니다.** : 치지직 ID를 정상적으로 입력했는지 확인해주세요. ([치지직 ID란?](https://chzzk.junah.dev/docs/chzzk_id.md))
+- **해당 치지직 채널을 찾을 수 없습니다.** : 치지직 ID를 정상적으로 입력했는지 확인해주세요. ([치지직 ID란?](https://chzzk.junah.dev/docs/chzzk-id))
 - **해당 디스코드 채널을 찾을 수 없습니다.** : 해당 디스코드 채널이 삭제되지 않았고, 치직 봇이 접근할 수 있는지 확인해주세요.
 - **치지직 채널 정보 등록에 실패했습니다.** : 해당 문제는 [서포트 서버](https://api.chzzk.junah.dev/support-server)에서 문의해주세요.
 - **치지직 채널 팔로우에 실패했습니다. 다시 시도해주세요.** : 해당 문제는 [서포트 서버](https://api.chzzk.junah.dev/support-server)에서 문의해주세요.
