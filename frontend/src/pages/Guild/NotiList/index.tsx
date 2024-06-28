@@ -83,9 +83,7 @@ const Noti = ({ noti }: NotiProps) => {
   return (
     <TableRow>
       <TableCell>
-        <Link href={`https://chzzk.naver.com/${chzzk}`} target="_blank">
-          {chzzk}
-        </Link>
+        <Typography color="primary.main">{chzzk}</Typography>
       </TableCell>
       <TableCell>
         <Link
