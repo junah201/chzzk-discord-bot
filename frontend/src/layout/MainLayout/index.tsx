@@ -6,10 +6,13 @@ import Drawer from './Drawer';
 import Header from './Header';
 
 import Adfit from '@/components/Adfit';
+import RouteChangeTracker from '@/lib/ReactGA4';
 
 const MainLayout = () => {
   const [open, setOpen] = useState(false);
   const isMobile = useMediaQuery('(max-width: 1024px)');
+
+  RouteChangeTracker();
 
   return (
     <Box sx={{ display: 'flex', width: '100%', minHeight: '100vh' }}>
