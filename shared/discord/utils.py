@@ -2,6 +2,8 @@ from typing import Tuple
 import requests
 import json
 import os
+import time
+
 
 DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
 
@@ -44,17 +46,30 @@ def get_channel(channel_id, token=DISCORD_TOKEN) -> dict | None:
     return res.json()
 
 
-def is_admin(guild_id: str | int, token: str = None) -> Tuple[bool, requests.Response]:
+def is_admin(guild_id: str | int, token: str = None, retry: int = 2) -> Tuple[bool, requests.Response]:
     """
     해당 유저가 관리자 권한을 가진 서버인지 확인합니다.
     """
-    res = requests.get(
-        "https://discord.com/api/users/@me/guilds",
-        headers={
-            "Authorization": token
-        }
-    )
-    if res.status_code != 200:
+    for retry_count in range(1, retry + 1):
+        res = requests.get(
+            "https://discord.com/api/users/@me/guilds",
+            headers={
+                "Authorization": token
+            }
+        )
+
+        # rate limit
+        if res.status_code == 429:
+            data = res.json()
+            time.sleep(data["retry_after"] + 0.1)
+            continue
+
+        if res.status_code != 200:
+            return False, res
+
+        break
+    else:
+        # Break 없이 끝났을 때 -> retry 모두 실패
         return False, res
 
     data = res.json()
