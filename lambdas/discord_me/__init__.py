@@ -51,6 +51,16 @@ def handler(event, context):
         }
 
     data = res.json()
+    logger.info(
+        json.dumps(
+            {
+                "type": "GET_USER",
+                "status_code": res.status_code,
+                "response": data
+            },
+            ensure_ascii=False
+        )
+    )
 
     return {
         "statusCode": 200,

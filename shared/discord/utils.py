@@ -1,4 +1,3 @@
-import logging
 from typing import Tuple
 import requests
 import json
@@ -45,7 +44,7 @@ def get_channel(channel_id, token=DISCORD_TOKEN) -> dict | None:
     return res.json()
 
 
-def is_admin(guild_id: str | int, token: str = None, logger: logging.Logger | None = None) -> Tuple[bool, requests.Response]:
+def is_admin(guild_id: str | int, token: str = None) -> Tuple[bool, requests.Response]:
     """
     해당 유저가 관리자 권한을 가진 서버인지 확인합니다.
     """
@@ -56,16 +55,6 @@ def is_admin(guild_id: str | int, token: str = None, logger: logging.Logger | No
         }
     )
     if res.status_code != 200:
-        if logger:
-            logger.error(
-                json.dumps(
-                    {
-                        "type": "ADMIN_CHECK_FAILED",
-                        "status_code": res.status_code,
-                        "response": res.text
-                    }
-                )
-            )
         return False, res
 
     data = res.json()
