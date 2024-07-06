@@ -8,14 +8,16 @@ import { useCustomMutation } from '@/lib';
 interface DeleteButtonProps {
   channel_id: string;
   chzzk_id: string;
+  guildId: string;
 }
 
-const DeleteButton = ({ channel_id, chzzk_id }: DeleteButtonProps) => {
+const DeleteButton = ({ guildId, channel_id, chzzk_id }: DeleteButtonProps) => {
   const { mutate, isLoading } = useCustomMutation(
     () =>
       deleteNotification({
         channel_id,
         chzzk_id,
+        guild_id: guildId,
       }),
     {
       SuccessMessage: `${chzzk_id} 알림이 삭제되었습니다.`,

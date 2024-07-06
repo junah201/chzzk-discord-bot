@@ -17,6 +17,15 @@ export const INPUT = Object.freeze({
       },
     },
   }),
+  GUILD_ID: Object.freeze({
+    name: 'guild_id',
+    rules: {
+      required: {
+        value: true,
+        message: '필수 입력 항목입니다.',
+      },
+    },
+  }),
   CUSTOM_MESSAGE: Object.freeze({
     name: 'custom_message',
     rules: {},

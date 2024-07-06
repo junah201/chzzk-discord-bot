@@ -8,9 +8,10 @@ import { Notification } from '@/types';
 
 interface ModalButtonProps {
   noti: Notification;
+  guildId: string;
 }
 
-const ModalButton = ({ noti }: ModalButtonProps) => {
+const ModalButton = ({ noti, guildId }: ModalButtonProps) => {
   const confirm = useConfirm();
 
   return (
@@ -19,7 +20,7 @@ const ModalButton = ({ noti }: ModalButtonProps) => {
         onClick={() => {
           confirm({
             title: `${noti.PK.split('#')[1]} 수정하기`,
-            content: <UpdateModal noti={noti} />,
+            content: <UpdateModal noti={noti} guildId={guildId} />,
             cancellationButtonProps: {
               sx: {
                 display: 'none',

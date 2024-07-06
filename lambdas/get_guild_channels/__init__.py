@@ -13,7 +13,7 @@ logger.setLevel(logging.INFO)
 DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
 
 
-@middleware(logger)
+@middleware(logger, admin_check=True)
 def handler(event, context):
     guild_id = event.get("pathParameters", {}).get("guild_id", None)
 

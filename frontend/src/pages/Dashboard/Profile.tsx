@@ -15,10 +15,7 @@ import { useCustomQuery } from '@/lib';
 const Profile = () => {
   const theme = useTheme();
 
-  const { data } = useCustomQuery([QUERY.KEY.ME], () => getMe(), {
-    staleTime: Infinity,
-    cacheTime: Infinity,
-  });
+  const { data } = useCustomQuery([QUERY.KEY.ME], () => getMe(), {});
 
   const user = data?.data;
 
@@ -75,6 +72,7 @@ const Profile = () => {
           <Link
             href="https://api.chzzk.junah.dev/invite"
             target="_blank"
+            rel="noreferrer"
             sx={{
               textDecoration: 'underline',
             }}

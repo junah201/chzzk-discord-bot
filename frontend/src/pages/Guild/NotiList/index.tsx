@@ -30,11 +30,7 @@ const NotiList = ({ guildId }: NotiListProps) => {
   const { data, isLoading } = useCustomQuery(
     [QUERY.KEY.NOTIFICATIONS, { guildId }],
     () => getNotificationsByGuildId(guildId),
-    {
-      onError: () => {},
-      retry: 0,
-      cacheTime: 1000 * 60 * 60 * 24,
-    }
+    {}
   );
 
   const notificaitons = data?.data;
@@ -65,7 +61,7 @@ const NotiList = ({ guildId }: NotiListProps) => {
         </TableHead>
         <TableBody>
           {notificaitons?.map((noti) => (
-            <Noti noti={noti} />
+            <Noti noti={noti} guildId={guildId} />
           ))}
         </TableBody>
       </Table>
@@ -75,9 +71,10 @@ const NotiList = ({ guildId }: NotiListProps) => {
 
 interface NotiProps {
   noti: Notification;
+  guildId: string;
 }
 
-const Noti = ({ noti }: NotiProps) => {
+const Noti = ({ noti, guildId }: NotiProps) => {
   const chzzk = noti.PK.replace('CHZZK#', '');
 
   return (
@@ -115,13 +112,21 @@ const Noti = ({ noti }: NotiProps) => {
         <TableCell></TableCell>
       )}
       <TableCell align="center">
-        <TestButton chzzk_id={chzzk} channel_id={noti.channel_id} />
+        <TestButton
+          chzzk_id={chzzk}
+          channel_id={noti.channel_id}
+          guildId={guildId}
+        />
       </TableCell>
       <TableCell align="center">
-        <ModalButton noti={noti} />
+        <ModalButton noti={noti} guildId={guildId} />
       </TableCell>
       <TableCell align="center">
-        <DeleteButton chzzk_id={chzzk} channel_id={noti.channel_id} />
+        <DeleteButton
+          guildId={guildId}
+          chzzk_id={chzzk}
+          channel_id={noti.channel_id}
+        />
       </TableCell>
     </TableRow>
   );

@@ -9,11 +9,13 @@ import { Notification } from '@/types';
 
 interface DetailModalProps {
   noti: Notification;
+  guildId: string;
 }
 
-const DetailModal = ({ noti }: DetailModalProps) => {
+const DetailModal = ({ noti, guildId }: DetailModalProps) => {
   const { control, handleSubmit } = useForm<RegisterField, any>({
     defaultValues: {
+      [INPUT.GUILD_ID.name]: guildId,
       [INPUT.CHZZK_ID.name]: noti.PK.split('#')[1],
       [INPUT.CHANNEL_ID.name]: noti.channel_id,
       [INPUT.CUSTOM_MESSAGE.name]: noti.custom_message,

@@ -7,14 +7,16 @@ import { useCustomMutation } from '@/lib';
 interface TestButtonProps {
   channel_id: string;
   chzzk_id: string;
+  guildId: string;
 }
 
-const TestButton = ({ channel_id, chzzk_id }: TestButtonProps) => {
+const TestButton = ({ channel_id, chzzk_id, guildId }: TestButtonProps) => {
   const { mutate, isLoading } = useCustomMutation(
     () =>
       sendTestNotification({
         channel_id,
         chzzk_id,
+        guild_id: guildId,
       }),
     {
       SuccessMessage: `테스트 알림이 전송되었습니다.`,

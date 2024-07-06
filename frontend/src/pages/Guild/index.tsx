@@ -17,11 +17,7 @@ const GuildDetail = () => {
   const { data, isLoading, isError } = useCustomQuery(
     [QUERY.KEY.CHANNELS, { guildId }],
     () => getChannels(guildId),
-    {
-      onError: () => {},
-      retry: 0,
-      cacheTime: 1000 * 60 * 60 * 24,
-    }
+    {}
   );
 
   const channels = data?.data;
@@ -38,7 +34,7 @@ const GuildDetail = () => {
         gap: theme.spacing(1),
       }}
     >
-      <AddForm channels={channels} />
+      <AddForm channels={channels} guildId={guildId} />
       <NotiList guildId={guildId} />
     </Box>
   );

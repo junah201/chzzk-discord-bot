@@ -8,7 +8,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-@middleware(logger)
+@middleware(logger, admin_check=False)
 def handler(event, context):
     # get authorization header
     headers = event.get("headers", {})

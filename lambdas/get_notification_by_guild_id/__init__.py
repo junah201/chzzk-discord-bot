@@ -10,7 +10,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-@middleware(logger)
+@middleware(logger, admin_check=True)
 def handler(event, context):
     guild_id = event.get("pathParameters", {}).get("guild_id", None)
 

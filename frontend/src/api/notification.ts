@@ -1,12 +1,13 @@
 import { API_ROUTE, ACCESS_TOEKN } from '@/constants';
 import { Axios } from '@/lib/Axios';
-import { User, Guild, Notification } from '@/types';
+import { Notification } from '@/types';
 
 const { VITE_API_URL } = import.meta.env;
 
 const AuthAxios = new Axios(true, VITE_API_URL, ACCESS_TOEKN);
 
 interface NotificationCreate {
+  guild_id: string;
   channel_id: string;
   chzzk_id: string;
   custom_message: string;
@@ -27,6 +28,7 @@ export const getNotificationsByGuildId = async (guildId: string) => {
 };
 
 interface NotificationDelete {
+  guild_id: string;
   channel_id: string;
   chzzk_id: string;
 }

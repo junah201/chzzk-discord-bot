@@ -9,13 +9,15 @@ import { Channel } from '@/types';
 
 interface AddFormProps {
   channels: Channel[];
+  guildId: string;
 }
 
-const AddForm = ({ channels }: AddFormProps) => {
+const AddForm = ({ channels, guildId }: AddFormProps) => {
   const theme = useTheme();
 
   const { control, handleSubmit } = useForm<RegisterField, any>({
     defaultValues: {
+      [INPUT.GUILD_ID.name]: guildId,
       [INPUT.CHZZK_ID.name]: '',
       [INPUT.CHANNEL_ID.name]: null,
       [INPUT.CUSTOM_MESSAGE.name]: '',

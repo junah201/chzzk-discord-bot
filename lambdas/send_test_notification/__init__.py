@@ -14,7 +14,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-@middleware(logger)
+@middleware(logger, admin_check=True)
 def handler(event, context):
     body = json.loads(event.get("body", "{}"))
 

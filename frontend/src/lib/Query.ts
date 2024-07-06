@@ -30,9 +30,9 @@ export const useCustomQuery = <DataT = any>(
 
   const query = useQuery(queryKey, queryFn, {
     keepPreviousData: options.keepPreviousData || false,
-    retry: options.retry || 1,
-    staleTime: options.staleTime || 0,
-    cacheTime: options.cacheTime || 5 * 60 * 1000,
+    retry: 0,
+    staleTime: options.staleTime || Infinity,
+    cacheTime: options.cacheTime || Infinity,
     onSuccess: (res) => {
       if (options.SuccessMessage) {
         enqueueSnackbar(options.SuccessMessage, {
