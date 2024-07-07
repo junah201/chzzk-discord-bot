@@ -6,7 +6,7 @@ provider:
   runtime: python3.10
   region: ap-northeast-2
   profile: chzzk
-  logRetentionInDays: 14
+  logRetentionInDays: 30
   architecture: x86_64
   memorySize: 128
   timeout: 10
@@ -212,30 +212,30 @@ resources:
         RestApiId:
           Ref: ApiGatewayRestApi
 
-    ApiGatewayInviteAdminResource:
-      Type: AWS::ApiGateway::Resource
-      Properties:
-        ParentId:
-          Fn::GetAtt:
-            - ApiGatewayRestApi
-            - RootResourceId
-        PathPart: invite/admin
-        RestApiId:
-          Ref: ApiGatewayRestApi
+    # ApiGatewayInviteAdminResource:
+    #   Type: AWS::ApiGateway::Resource
+    #   Properties:
+    #     ParentId:
+    #       Fn::GetAtt:
+    #         - ApiGatewayInviteResource
+    #         - arn
+    #     PathPart: admin
+    #     RestApiId:
+    #       Ref: ApiGatewayRestApi
 
-    ApiGatewayInviteAdminMethod:
-      Type: AWS::ApiGateway::Method
-      Properties:
-        AuthorizationType: NONE
-        HttpMethod: GET
-        Integration:
-          Type: HTTP_PROXY
-          IntegrationHttpMethod: GET
-          Uri: "https://discord.com/api/oauth2/authorize?client_id=1191657232480350238&permissions=8&scope=bot"
-        ResourceId:
-          Ref: ApiGatewayInviteResource
-        RestApiId:
-          Ref: ApiGatewayRestApi
+    # ApiGatewayInviteAdminMethod:
+    #   Type: AWS::ApiGateway::Method
+    #   Properties:
+    #     AuthorizationType: NONE
+    #     HttpMethod: GET
+    #     Integration:
+    #       Type: HTTP_PROXY
+    #       IntegrationHttpMethod: GET
+    #       Uri: "https://discord.com/api/oauth2/authorize?client_id=1191657232480350238&permissions=8&scope=bot"
+    #     ResourceId:
+    #       Ref: ApiGatewayInviteAdminResource
+    #     RestApiId:
+    #       Ref: ApiGatewayRestApi
 
     ApiGatewaySupportServerResource:
       Type: AWS::ApiGateway::Resource
