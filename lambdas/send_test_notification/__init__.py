@@ -76,7 +76,7 @@ def handler(event, context):
                     "icon_url": chzzk['channel']['channelImageUrl'] or "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png?type=f120_120_na"
                 },
                 "footer": {
-                    "text": "치직"
+                    "text": "chzzk.junah.dev"
                 },
                 "url": f"https://chzzk.naver.com/live/{chzzk_id}",
                 "timestamp": datetime.now().isoformat()
