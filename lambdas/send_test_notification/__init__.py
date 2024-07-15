@@ -104,7 +104,19 @@ def handler(event, context):
 
     # 채널이 존재하지 않는 경우
     if res.status_code == 404:
-        print("channel not found")
+        logger.error(
+            json.dumps(
+                {
+                    "type": "DISCORD_CHANNEL_NOT_FOUND",
+                    "status_code": res.status_code,
+                    "response": res.text,
+                    "channel_id": discord_channel_id,
+                    "chzzk_id": chzzk_id,
+                    "data": data
+                },
+                ensure_ascii=False
+            )
+        )
         dynamodb.delete_item(
             TableName='chzzk-bot-db',
             Key={
@@ -119,15 +131,36 @@ def handler(event, context):
 
     # 메시지 전송에 실패한 경우
     if res.status_code != 200:
-        print("send message fail", res.status_code)
-        print(res.json())
+        logger.error(
+            json.dumps(
+                {
+                    "type": "SEND_MESSAGE_FAIL",
+                    "status_code": res.status_code,
+                    "response": res.text,
+                    "channel_id": discord_channel_id,
+                    "chzzk_id": chzzk_id,
+                    "data": data
+                },
+                ensure_ascii=False
+            )
+        )
         return {
             "statusCode": 500,
             "body": json.dumps({"message": f"테스트 알림 전송에 실패했습니다. 치직 봇이 해당 채널에 메시지를 보낼 권한이 있는지 확인해주세요. ({res.json()})"}),
         }
 
     # 성공
-    print("send message success")
+    logger.info(
+        json.dumps(
+            {
+                "type": "SEND_MESSAGE_SUCCESS",
+                "channel_id": discord_channel_id,
+                "chzzk_id": chzzk_id,
+                "data": data
+            },
+            ensure_ascii=False
+        )
+    )
     return {
         "statusCode": 200,
         "body": json.dumps({"message": "테스트 알림을 성공적으로 전송했습니다."}),
