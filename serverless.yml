@@ -6,7 +6,7 @@ provider:
   runtime: python3.10
   region: ap-northeast-2
   profile: chzzk
-  logRetentionInDays: 30
+  logRetentionInDays: 7
   architecture: x86_64
   memorySize: 128
   timeout: 10
