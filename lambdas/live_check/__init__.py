@@ -2,13 +2,19 @@ import json
 import logging
 import traceback
 from datetime import datetime
-from typing import Tuple
 
 import boto3
 import requests
 from user_agent import generate_user_agent
 
-from shared import *
+from shared import (
+    BUTTON_STYLE,
+    COMPONENT_TYPE,
+    Following,
+    get_chzzk,
+    middleware,
+    send_message,
+)
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -21,7 +27,7 @@ def get_follows(NID_AUT: str, NID_SES: str) -> list[Following]:
     page = 0
     total_page = 1
 
-    follows = list()
+    follows = []
 
     while page < total_page:
         res = requests.get(
