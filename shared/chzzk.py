@@ -1,7 +1,8 @@
 import json
-from typing import TypedDict
-import requests
 import logging
+from typing import TypedDict
+
+import requests
 from user_agent import generate_user_agent
 
 __all__ = [

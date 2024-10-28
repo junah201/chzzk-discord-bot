@@ -4,8 +4,9 @@
 """
 
 import json
-import boto3
 import logging
+
+import boto3
 
 from shared import middleware
 

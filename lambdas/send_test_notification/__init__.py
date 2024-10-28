@@ -1,12 +1,11 @@
-import logging
 import json
+import logging
 from datetime import datetime
-
-from shared import send_message, get_chzzk, middleware
-from shared.discord import COMPONENT_TYPE, BUTTON_STYLE
 
 import boto3
 
+from shared import get_chzzk, middleware, send_message
+from shared.discord import BUTTON_STYLE, COMPONENT_TYPE
 
 dynamodb = boto3.client('dynamodb')
 
@@ -53,7 +52,7 @@ def handler(event, context):
     item = res["Items"][0]
 
     data = {
-        "content": f"관리자의 요청에 따라 전송된 테스트 알림입니다." + "\n\n" + item.get("custom_message", {}).get("S", "")
+        "content": "관리자의 요청에 따라 전송된 테스트 알림입니다." + "\n\n" + item.get("custom_message", {}).get("S", "")
     }
     if not item.get("disable_embed", {"BOOL": False})["BOOL"]:
         data["embeds"] = [

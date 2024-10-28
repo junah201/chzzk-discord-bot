@@ -3,9 +3,9 @@ DynamoDB에 알림 데이터를 저장합니다.
 """
 
 import json
-import boto3
 import logging
 
+import boto3
 import requests
 from user_agent import generate_user_agent
 

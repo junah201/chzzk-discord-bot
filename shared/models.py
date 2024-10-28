@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
 __all__ = [
     "ValidationError"

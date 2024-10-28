@@ -1,12 +1,11 @@
 import json
-import os
 import logging
+import os
 
-from nacl.signing import VerifyKey
 from nacl.exceptions import BadSignatureError
+from nacl.signing import VerifyKey
 
 from shared import INTERACTION_CALLBACK_TYPE, TYPE, middleware
-
 
 DISCORD_PUBLIC_KEY = os.environ.get("DISCORD_PUBLIC_KEY")
 

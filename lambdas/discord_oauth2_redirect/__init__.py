@@ -1,10 +1,10 @@
-import os
 import json
 import logging
+import os
+
 import requests
 
 from shared import middleware
-
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)

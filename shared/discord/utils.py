@@ -1,9 +1,8 @@
-from typing import Tuple
-import requests
 import json
 import os
 import time
 
+import requests
 
 DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
 
@@ -46,7 +45,7 @@ def get_channel(channel_id, token=DISCORD_TOKEN) -> dict | None:
     return res.json()
 
 
-def is_admin(guild_id: str | int, token: str = None, retry: int = 2) -> Tuple[bool, requests.Response]:
+def is_admin(guild_id: str | int, token: str = None, retry: int = 2) -> tuple[bool, requests.Response]:
     """
     해당 유저가 관리자 권한을 가진 서버인지 확인합니다.
     """

@@ -1,14 +1,14 @@
-import traceback
 import json
+import logging
+import traceback
 from datetime import datetime
 from typing import Tuple
-import requests
-from shared import *
 
 import boto3
-import logging
-
+import requests
 from user_agent import generate_user_agent
+
+from shared import *
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -25,7 +25,7 @@ def get_follows(NID_AUT: str, NID_SES: str) -> list[Following]:
 
     while page < total_page:
         res = requests.get(
-            f"https://api.chzzk.naver.com/service/v1/channels/followings",
+            "https://api.chzzk.naver.com/service/v1/channels/followings",
             params={
                 "page": page,
                 "size": 505,
@@ -314,7 +314,7 @@ def send_notification(chzzk_id: str):
             },
             UpdateExpression='SET last_noti_status = :last_noti_status, last_noti_at = :last_noti_at, noti_fail_count = :noti_fail_count',
             ExpressionAttributeValues={
-                ':last_noti_status': {'S': f"SUCCESS"},
+                ':last_noti_status': {'S': "SUCCESS"},
                 ':last_noti_at': {'S': datetime.now().isoformat()},
                 ':noti_fail_count': {'N': "0"}
             }

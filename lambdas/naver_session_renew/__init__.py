@@ -1,10 +1,12 @@
 import json
-import boto3
 import logging
+import time
+
+import boto3
 import requests
 from user_agent import generate_user_agent
+
 from shared import dynamo_to_python
-import time
 
 dynamodb = boto3.client('dynamodb')
 
@@ -38,7 +40,7 @@ def handler(event, context):
         NID_SES = item.get("NID_SES")
 
         res = requests.get(
-            f"https://comm-api.game.naver.com/nng_main/v1/user/getUserStatus",
+            "https://comm-api.game.naver.com/nng_main/v1/user/getUserStatus",
             headers={
                 "User-Agent": generate_user_agent(os="win", device_type="desktop"),
                 "Cookie": f"NID_AUT={NID_AUT}; NID_SES={NID_SES}"

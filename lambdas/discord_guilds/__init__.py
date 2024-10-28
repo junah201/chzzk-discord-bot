@@ -1,5 +1,6 @@
 import json
 import logging
+
 import requests
 
 from shared import middleware

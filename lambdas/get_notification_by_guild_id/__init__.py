@@ -1,8 +1,9 @@
 import json
-import boto3
 import logging
 
-from shared import middleware, dynamo_to_python
+import boto3
+
+from shared import dynamo_to_python, middleware
 
 dynamodb = boto3.client('dynamodb')
 
