@@ -51,6 +51,7 @@ export interface Notification {
   custom_message: string;
   disable_embed: boolean;
   disable_button: boolean;
+  disable_notification: boolean;
   last_noti_at: Date;
   last_noti_status: string;
 }

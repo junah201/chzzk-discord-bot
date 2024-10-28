@@ -38,6 +38,10 @@ export const INPUT = Object.freeze({
     name: 'disable_button',
     rules: {},
   }),
+  DISABLE_NOTIFICATION: Object.freeze({
+    name: 'disable_notification',
+    rules: {},
+  }),
 });
 
 export type RegisterTypes = (typeof INPUT)[keyof typeof INPUT]['name'];

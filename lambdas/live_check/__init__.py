@@ -195,6 +195,10 @@ def send_notification(chzzk_id: str):
         data = {
             "content": noti.get("custom_message", {}).get("S", ""),
         }
+
+        if noti.get("disable_notification", {"BOOL": False})["BOOL"]:
+            continue
+
         if not noti.get("disable_embed", {"BOOL": False})["BOOL"]:
             data["embeds"] = [
                 {
@@ -222,6 +226,7 @@ def send_notification(chzzk_id: str):
                     "timestamp": datetime.now().isoformat()
                 },
             ]
+
         if not noti.get("disable_button", {"BOOL": False})["BOOL"]:
             data["components"] = [
                 {

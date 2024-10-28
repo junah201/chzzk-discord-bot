@@ -21,6 +21,7 @@ const DetailModal = ({ noti, guildId }: DetailModalProps) => {
       [INPUT.CUSTOM_MESSAGE.name]: noti.custom_message,
       [INPUT.DISABLE_EMBED.name]: noti.disable_embed,
       [INPUT.DISABLE_BUTTON.name]: noti.disable_button,
+      [INPUT.DISABLE_NOTIFICATION.name]: noti.disable_notification,
     },
   });
 
@@ -80,6 +81,12 @@ const DetailModal = ({ noti, guildId }: DetailModalProps) => {
         <ControlInput
           {...INPUT.DISABLE_BUTTON}
           label="바로가기 버튼 비활성화"
+          type="checkbox"
+          control={control}
+        />
+        <ControlInput
+          {...INPUT.DISABLE_NOTIFICATION}
+          label="알림 비활성화"
           type="checkbox"
           control={control}
         />

@@ -31,6 +31,7 @@ def handler(event, context):
     custom_message = body.get("custom_message", None)
     disable_embed = body.get("disable_embed", False)
     disable_button = body.get("disable_button", False)
+    disable_notification = body.get("disable_notification", False)
 
     for i in [token, chzzk_id, channel_id, custom_message]:
         if i is None:
@@ -173,6 +174,7 @@ def handler(event, context):
             "type": {"S": "NOTI"},
             "disable_embed": {'BOOL': disable_embed},
             "disable_button": {'BOOL': disable_button},
+            "disable_notification": {'BOOL': disable_notification},
             "index": {"N": "-1"}
         }
     )

@@ -24,6 +24,7 @@ def handler(event, context):
     custom_message = body.get("custom_message", None)
     disable_embed = body.get("disable_embed", False)
     disable_button = body.get("disable_button", False)
+    disable_notification = body.get("disable_notification", False)
 
     for i in [token, chzzk_id, channel_id, custom_message]:
         if i is None:
@@ -63,6 +64,7 @@ def handler(event, context):
     item["custom_message"] = {"S": custom_message}
     item["disable_embed"] = {"BOOL": disable_embed}
     item["disable_button"] = {"BOOL": disable_button}
+    item["disable_notification"] = {"BOOL": disable_notification}
 
     res = dynamodb.put_item(
         TableName='chzzk-bot-db',
