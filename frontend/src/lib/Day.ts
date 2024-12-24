@@ -26,6 +26,6 @@ dayjs.updateLocale('ko', {
   },
 });
 
-export const fromNow = (date: Date) => {
+export const fromNow = (date: Date | string) => {
   return dayjs(date).fromNow();
 };

@@ -77,10 +77,18 @@ interface NotiProps {
 const Noti = ({ noti, guildId }: NotiProps) => {
   const chzzk = noti.PK.replace('CHZZK#', '');
 
+  const last_noti_at = noti.last_noti_at
+    ? dayjs(noti.last_noti_at).add(9, 'hour').format('YYYY-MM-DD HH:mm:ss')
+    : null;
+
   return (
     <TableRow>
       <TableCell>
-        <Typography color="primary.main">{chzzk}</Typography>
+        <Typography color="primary.main">
+          <Link href={`https://chzzk.naver.com/live/${chzzk}`} target="_blank">
+            {chzzk}
+          </Link>
+        </Typography>
       </TableCell>
       <TableCell>
         <Link
@@ -90,13 +98,10 @@ const Noti = ({ noti, guildId }: NotiProps) => {
           #{noti.channel_name}
         </Link>
       </TableCell>
-      {noti.last_noti_at ? (
+      {last_noti_at ? (
         <TableCell align="center">
-          <Tooltip
-            title={dayjs(noti.last_noti_at).format('YYYY-MM-DD HH:mm:ss')}
-            placement="top"
-          >
-            <Typography>{fromNow(noti.last_noti_at)}</Typography>
+          <Tooltip title={last_noti_at} placement="top">
+            <Typography>{fromNow(last_noti_at)}</Typography>
           </Tooltip>
           <Typography
             color={
