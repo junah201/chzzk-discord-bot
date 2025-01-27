@@ -1,5 +1,5 @@
 import { CloseOutlined } from '@mui/icons-material';
-import { Stack, IconButton, Box } from '@mui/material';
+import { IconButton, Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
 import DrawerHeaderStyled from './DrawerHeaderStyled';

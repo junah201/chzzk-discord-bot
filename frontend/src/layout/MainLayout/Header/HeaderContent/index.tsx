@@ -1,5 +1,5 @@
 import { MenuOutlined } from '@mui/icons-material';
-import { Box, Button, IconButton, List, useMediaQuery } from '@mui/material';
+import { Box, Button, IconButton, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { Link } from 'react-router-dom';
 

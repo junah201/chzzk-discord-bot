@@ -172,7 +172,7 @@ resources:
       Type: AWS::ApiGateway::DomainName
       Properties:
         DomainName: api.chzzk.junah.dev
-        RegionalCertificateArn: arn:aws:acm:ap-northeast-2:897699718511:certificate/86908885-faea-49f8-bed6-299f402ff4d4
+        RegionalCertificateArn: arn:aws:acm:ap-northeast-2:897699718511:certificate/cc97a8de-224c-4914-aa4f-6a1aa40b3831
         EndpointConfiguration:
           Types:
             - REGIONAL
@@ -509,6 +509,131 @@ resources:
     #             KeyType: RANGE
     #         Projection:
     #           ProjectionType: ALL
+
+    ReactAppS3Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: chzzk.junah.dev
+        VersioningConfiguration:
+          Status: Suspended
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          BlockPublicPolicy: false
+          IgnorePublicAcls: false
+          RestrictPublicBuckets: false
+        WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: index.html
+
+    ReactAppS3BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket:
+          Ref: ReactAppS3Bucket
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Sid: PublicReadGetObject
+              Effect: Allow
+              Principal: "*"
+              Action: "s3:GetObject"
+              Resource:
+                Fn::Join:
+                  - ""
+                  - - "arn:aws:s3:::"
+                    - Ref: ReactAppS3Bucket
+                    - "/*"
+
+    ReactAppCloudFrontDistribution:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Enabled: true
+          Origins:
+            - DomainName:
+                Fn::Join:
+                  - ""
+                  - - Ref: ReactAppS3Bucket
+                    - ".s3-website."
+                    - Ref: AWS::Region
+                    - ".amazonaws.com"
+              Id: ReactAppOrigin
+              CustomOriginConfig:
+                HTTPPort: 80
+                HTTPSPort: 443
+                OriginProtocolPolicy: http-only
+                OriginSSLProtocols:
+                  - TLSv1
+                  - TLSv1.1
+                  - TLSv1.2
+          DefaultCacheBehavior:
+            TargetOriginId: ReactAppOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachedMethods:
+              - GET
+              - HEAD
+            ForwardedValues:
+              QueryString: false
+              Cookies:
+                Forward: none
+          DefaultRootObject: index.html
+          Aliases:
+            - chzzk.junah.dev
+          ViewerCertificate:
+            AcmCertificateArn: arn:aws:acm:us-east-1:897699718511:certificate/52a635af-fe70-4dbd-b19c-decff9302fac
+            SslSupportMethod: sni-only
+            MinimumProtocolVersion: TLSv1.2_2018
+          HttpVersion: http2and3
+          PriceClass: PriceClass_200
+
+    GitHubOIDCProvider:
+      Type: AWS::IAM::OIDCProvider
+      Properties:
+        Url: "https://token.actions.githubusercontent.com"
+        ClientIdList:
+          - "sts.amazonaws.com"
+        ThumbprintList:
+          - "6938fd4d98bab03faadb97b34396831e3780aea1"
+          - "1c58a3a8518e8759bf075b76b750d4f2df264fcd"
+
+    GithubActionsRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: GithubActionsRole
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: sts:AssumeRoleWithWebIdentity
+              Principal:
+                Federated:
+                  - Fn::GetAtt: [GitHubOIDCProvider, Arn]
+              Condition:
+                StringEquals:
+                  token.actions.githubusercontent.com:sub: "repo:junah201/chzzk-discord-bot:environment:Production"
+        Policies:
+          - PolicyName: GithubActionsPolicy
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - s3:GetObject
+                    - s3:PutObject
+                    - s3:DeleteObject
+                    - s3:ListBucket
+                  Resource:
+                    - Fn::Sub: "arn:aws:s3:::${ReactAppS3Bucket}"
+                    - Fn::Sub: "arn:aws:s3:::${ReactAppS3Bucket}/*"
+                - Effect: Allow
+                  Action:
+                    - cloudfront:CreateInvalidation
+                  Resource:
+                    - Fn::Sub: "arn:aws:cloudfront::${AWS::AccountId}:distribution/${ReactAppCloudFrontDistribution}"
 
 custom:
   pythonRequirements:
