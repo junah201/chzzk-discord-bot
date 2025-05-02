@@ -52,6 +52,16 @@ export const ROUTES = [
     AUTH: false,
   },
   {
+    PATH: '/terms',
+    ELEMENT: Loadable(() => import('@/pages/Terms')),
+    AUTH: false,
+  },
+  {
+    PATH: '/privacy',
+    ELEMENT: Loadable(() => import('@/pages/Privacy')),
+    AUTH: false,
+  },
+  {
     PATH: '*',
     ELEMENT: Loadable(() => import('@/pages/NotFound')),
     AUTH: false,
