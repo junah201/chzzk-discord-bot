@@ -1,20 +1,14 @@
 import type { Config } from './config.interface';
 
-const config: Config = {
+export default (): Config => ({
   aws: {
     region: 'ap-northeast-2',
   },
   discord: {
     apiBaseUrl: 'https://discord.com/api/v10',
-    token: (() => {
-      if (!process.env.DISCORD_BOT_TOKEN) {
-        throw new Error(
-          'DISCORD_BOT_TOKEN is not defined in environment variables',
-        );
-      }
-      return process.env.DISCORD_BOT_TOKEN;
-    })(),
+    token: process.env.DISCORD_BOT_TOKEN || '',
+    clientId: process.env.DISCORD_CLIENT_ID || '',
+    clientSecret: process.env.DISCORD_CLIENT_SECRET || '',
+    publicKey: process.env.DISCORD_PUBLIC_KEY || '',
   },
-} as const;
-
-export default (): Config => config;
+});

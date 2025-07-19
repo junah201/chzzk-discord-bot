@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { AxiosService } from './axios.service';
 
+@Global()
 @Module({
   imports: [ConfigModule],
   providers: [AxiosService],

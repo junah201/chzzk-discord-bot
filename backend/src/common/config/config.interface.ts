@@ -5,5 +5,8 @@ export interface Config {
   discord: {
     apiBaseUrl: string;
     token: string;
+    clientId: string;
+    clientSecret: string;
+    publicKey: string;
   };
 }

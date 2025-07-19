@@ -1,0 +1,52 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Channel {
+  flags: Int!
+  guild_id: String!
+  id: String!
+  last_message_id: String!
+  name: String!
+  nsfw: Boolean!
+  parent_id: String!
+  permission_overwrites: [String!]!
+  position: Int!
+  rate_limit_per_user: Int!
+  topic: String
+  type: Int!
+}
+
+type Guild {
+  features: [String!]!
+  icon: String!
+  id: String!
+  name: String!
+  owner: Boolean!
+  permissions: String!
+  permissions_new: String!
+}
+
+type Query {
+  channels(guildId: String!): [Channel!]!
+  guilds: [Guild!]!
+  me: User!
+}
+
+type User {
+  accent_color: String
+  avatar: String!
+  banner: String!
+  banner_color: String
+  discriminator: String!
+  email: String!
+  flags: Int!
+  global_name: String!
+  id: String!
+  locale: String!
+  mfa_enabled: Boolean!
+  premium_type: Int!
+  public_flags: Int!
+  username: String!
+  verified: Boolean!
+}

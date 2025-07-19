@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
   ForbiddenException,
 } from '@nestjs/common';
+import { GqlExecutionContext } from '@nestjs/graphql';
 import { isAxiosError } from 'axios';
 
 import { AxiosService } from '@/common/axios/axios.service';
@@ -15,12 +16,12 @@ export class DiscordAdminGuard implements CanActivate {
   constructor(private readonly axiosService: AxiosService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const gqlContext = GqlExecutionContext.create(context);
+    const ctx = gqlContext.getContext();
+    const args = gqlContext.getArgs();
 
-    // Extracting the token from the Authorization header
-    const token = request.headers['authorization']?.split(' ')[1];
-    const guildId =
-      request.params.guildId || request.query.guildId || request.body.guildId;
+    const token = ctx.req?.headers?.authorization?.split(' ')[1] as string;
+    const guildId = args?.guildId ?? null;
 
     if (!token) {
       throw new UnauthorizedException('Authorization token is required');

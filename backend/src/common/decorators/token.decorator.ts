@@ -1,4 +1,8 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import {
+  createParamDecorator,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 
 export const TokenEntity = createParamDecorator(
@@ -7,9 +11,20 @@ export const TokenEntity = createParamDecorator(
     const authHeader =
       request.headers['authorization'] || request.headers['Authorization'];
 
-    if (!authHeader) return null;
+    if (!authHeader) {
+      throw new UnauthorizedException('Authorization header is required');
+    }
 
-    const [, token] = authHeader.split(' ');
-    return token ?? null;
+    if (typeof authHeader !== 'string') {
+      throw new UnauthorizedException('Invalid Authorization header format');
+    }
+
+    let token: string = authHeader;
+
+    if (authHeader.startsWith('Bearer ')) {
+      token = authHeader.slice(7);
+    }
+
+    return token;
   },
 );

@@ -18,6 +18,22 @@ export class AxiosService {
         'Content-Type': 'application/json',
       },
     });
+
+    this.instance.interceptors.response.use(
+      (response) => response,
+
+      (error) => {
+        if (error.response) {
+          const status = error.response.status;
+          // 400번대 에러는 throw 하지 않고, 정상 응답처럼 처리
+          if (status >= 400 && status < 500) {
+            return Promise.resolve(error.response);
+          }
+        }
+        // 그 외 에러는 그대로 throw
+        return Promise.reject(error);
+      },
+    );
   }
 
   get<T = any>(endPoint: string, headers = {}) {
