@@ -7,4 +7,4 @@ import { DynamodbService } from './dynamodb.service';
   providers: [DynamodbService],
   exports: [DynamodbService],
 })
-export class DynamoModule {}
+export class DynamodbModule {}
