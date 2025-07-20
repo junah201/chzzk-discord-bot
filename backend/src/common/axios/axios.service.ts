@@ -2,16 +2,28 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
 
-type Params = Record<string, string | number>;
+type Params = Record<string, string | number | boolean | null>;
 type Data = Record<string, any>;
+type InterfaceType = 'discord' | 'chzzk';
 
 @Injectable()
 export class AxiosService {
-  private instance: AxiosInstance;
+  private instances: Map<InterfaceType, AxiosInstance> = new Map();
 
   constructor(private readonly configService: ConfigService) {
-    this.instance = axios.create({
-      baseURL: this.configService.get<string>('discord.apiBaseUrl'),
+    this.createInstance(
+      'discord',
+      this.configService.get<string>('discord.apiBaseUrl') as string,
+    );
+    this.createInstance(
+      'chzzk',
+      this.configService.get<string>('chzzk.apiBaseUrl') as string,
+    );
+  }
+
+  private createInstance(name: InterfaceType, baseURL: string) {
+    const instance = axios.create({
+      baseURL,
       timeout: 5000,
       headers: {
         Accept: 'application/json',
@@ -19,33 +31,38 @@ export class AxiosService {
       },
     });
 
-    this.instance.interceptors.response.use(
+    instance.interceptors.response.use(
       (response) => response,
-
       (error) => {
-        if (error.response) {
-          const status = error.response.status;
-          // 400번대 에러는 throw 하지 않고, 정상 응답처럼 처리
-          if (status >= 400 && status < 500) {
-            return Promise.resolve(error.response);
-          }
+        if (
+          error.response &&
+          error.response.status >= 400 &&
+          error.response.status < 500
+        ) {
+          return Promise.resolve(error.response);
         }
-        // 그 외 에러는 그대로 throw
         return Promise.reject(error);
       },
     );
+
+    this.instances.set(name, instance);
   }
 
-  get<T = any>(endPoint: string, headers = {}) {
-    return this.instance<T>({
+  get<T = any>(service: InterfaceType, endPoint: string, headers = {}) {
+    return this.instances.get(service)!.request<T>({
       method: 'GET',
       url: endPoint,
       headers,
     });
   }
 
-  getByParams<T = any>(endPoint: string, params: Params, headers = {}) {
-    return this.instance<T>({
+  getByParams<T = any>(
+    service: InterfaceType,
+    endPoint: string,
+    params: Params,
+    headers = {},
+  ) {
+    return this.instances.get(service)!.request<T>({
       method: 'GET',
       url: endPoint,
       params: params,
@@ -53,8 +70,13 @@ export class AxiosService {
     });
   }
 
-  post<T = any>(endPoint: string, data: Data, headers = {}) {
-    return this.instance<T>({
+  post<T = any>(
+    service: InterfaceType,
+    endPoint: string,
+    data: Data,
+    headers = {},
+  ) {
+    return this.instances.get(service)!.request<T>({
       method: 'POST',
       url: endPoint,
       data,
@@ -62,8 +84,13 @@ export class AxiosService {
     });
   }
 
-  postFormUnlencoded<T = any>(endPoint: string, data: Data, headers = {}) {
-    return this.instance<T>({
+  postFormUnlencoded<T = any>(
+    service: InterfaceType,
+    endPoint: string,
+    data: Data,
+    headers = {},
+  ) {
+    return this.instances.get(service)!.request<T>({
       method: 'POST',
       url: endPoint,
       headers: {

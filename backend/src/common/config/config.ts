@@ -11,4 +11,7 @@ export default (): Config => ({
     clientSecret: process.env.DISCORD_CLIENT_SECRET || '',
     publicKey: process.env.DISCORD_PUBLIC_KEY || '',
   },
+  chzzk: {
+    apiBaseUrl: 'https://api.chzzk.naver.com/service/v2',
+  },
 });

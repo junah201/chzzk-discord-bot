@@ -8,6 +8,7 @@ import { DynamodbModule } from '@/common/dynamodb/dynamodb.module';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ChzzkModule } from './chzzk/chzzk.module';
 import { AxiosModule } from './common/axios/axios.module';
 import { JsonLoggerModule } from './common/logger/json.logger.module';
 import { DiscordModule } from './discord/discord.module';
@@ -37,9 +38,9 @@ import { DiscordModule } from './discord/discord.module';
     JsonLoggerModule,
     DynamodbModule,
     AxiosModule,
-
     // Feature modules
     DiscordModule,
+    ChzzkModule,
   ],
   controllers: [AppController],
   providers: [AppService],

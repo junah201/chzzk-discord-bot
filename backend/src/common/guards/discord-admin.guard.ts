@@ -40,9 +40,13 @@ export class DiscordAdminGuard implements CanActivate {
 
     while (retries < this.MAX_RETRIES) {
       try {
-        const res = await this.axiosService.get('/users/@me/guilds', {
-          Authorization: token,
-        });
+        const res = await this.axiosService.get(
+          'discord',
+          '/users/@me/guilds',
+          {
+            Authorization: token,
+          },
+        );
 
         if (res.status === 429) {
           const retryAfter = res.data.retry_after || 1;

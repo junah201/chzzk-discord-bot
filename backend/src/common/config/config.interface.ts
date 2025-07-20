@@ -9,4 +9,7 @@ export interface Config {
     clientSecret: string;
     publicKey: string;
   };
+  chzzk: {
+    apiBaseUrl: string;
+  };
 }

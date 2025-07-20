@@ -1,8 +1,14 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { AxiosService } from '@/common/axios/axios.service';
 
+import { IChannel } from './models/channel.model';
 import { IGuild } from './models/guild.model';
 import { IToken } from './models/token.model';
 import { IUser } from './models/user.model';
@@ -16,7 +22,7 @@ export class DiscordService {
   ) {}
 
   async getMe(token: string): Promise<IUser> {
-    const res = await this.axiosService.get<IUser>('/users/@me', {
+    const res = await this.axiosService.get<IUser>('discord', '/users/@me', {
       Authorization: `Bearer ${token}`,
     });
 
@@ -40,9 +46,13 @@ export class DiscordService {
   }
 
   async getGuilds(token: string) {
-    const res = await this.axiosService.get<IGuild[]>('/users/@me/guilds', {
-      Authorization: `Bearer ${token}`,
-    });
+    const res = await this.axiosService.get<IGuild[]>(
+      'discord',
+      '/users/@me/guilds',
+      {
+        Authorization: `Bearer ${token}`,
+      },
+    );
 
     if (res.status !== 200) {
       this.logger.log('Failed to fetch user guilds', {
@@ -64,11 +74,15 @@ export class DiscordService {
   }
 
   async getChannelsByGuildId(guildId: string, token: string) {
-    const res = await this.axiosService.get(`/guilds/${guildId}/channels`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const res = await this.axiosService.get(
+      `discord`,
+      `/guilds/${guildId}/channels`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
 
     if (res.status !== 200) {
       this.logger.log('Failed to fetch channels', {
@@ -89,8 +103,39 @@ export class DiscordService {
     return res.data;
   }
 
+  async getChannelById(channel_id: string, token?: string) {
+    const res = await this.axiosService.get<IChannel>(
+      'discord',
+      `/channels/${channel_id}`,
+      {
+        Authorization: `Bot ${token || this.configService.get('discord.token')}`,
+      },
+    );
+
+    if (res.status !== 200) {
+      this.logger.log('Failed to fetch channel', {
+        type: 'INVALID_CHANNEL_ID',
+        status_code: res.status,
+        response: res.data,
+        func: this.getChannelById.name,
+      });
+      throw new NotFoundException(
+        `해당 디스코드 채널(id=${channel_id})을 찾을 수 없습니다.`,
+      );
+    }
+
+    this.logger.log('Successfully fetched channel', {
+      type: 'GET_CHANNEL',
+      status_code: res.status,
+      response: res.data,
+    });
+
+    return res.data;
+  }
+
   async oauth2Token(code: string) {
     const res = await this.axiosService.postFormUnlencoded<IToken>(
+      'discord',
       '/oauth2/token',
       {
         client_id: this.configService.get('discord.clientId'),
