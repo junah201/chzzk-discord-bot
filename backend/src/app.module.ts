@@ -3,15 +3,15 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 
+import { ChzzkAPIModule } from '@/chzzk-api/chzzk-api.module';
+import { AxiosModule } from '@/common/axios/axios.module';
 import config from '@/common/config/config';
 import { DynamodbModule } from '@/common/dynamodb/dynamodb.module';
+import { JsonLoggerModule } from '@/common/logger/json.logger.module';
+import { DiscordModule } from '@/discord/discord.module';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ChzzkModule } from './chzzk/chzzk.module';
-import { AxiosModule } from './common/axios/axios.module';
-import { JsonLoggerModule } from './common/logger/json.logger.module';
-import { DiscordModule } from './discord/discord.module';
 
 @Module({
   imports: [
@@ -40,7 +40,7 @@ import { DiscordModule } from './discord/discord.module';
     AxiosModule,
     // Feature modules
     DiscordModule,
-    ChzzkModule,
+    ChzzkAPIModule,
   ],
   controllers: [AppController],
   providers: [AppService],
