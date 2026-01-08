@@ -4,3 +4,4 @@
 /.serverless
 /etc
 /.terraform
+/.pnpm-store
