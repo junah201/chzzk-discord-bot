@@ -1,0 +1,107 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css");
+
+@import "tailwindcss";
+
+:root {
+  --font-size: 16px;
+  --background: #0a0b0f;
+  --foreground: #e8eaed;
+  --radius: 0.75rem;
+
+  --card: #13151b;
+  --card-foreground: #e8eaed;
+  --popover: #13151b;
+  --popover-foreground: #e8eaed;
+
+  --primary: #00e570;
+  --primary-foreground: #0a0b0f;
+
+  --secondary: #1a1c24;
+  --secondary-foreground: #e8eaed;
+  --muted: #1a1c24;
+  --muted-foreground: #8b8d98;
+  --accent: #00e570;
+  --accent-foreground: #0a0b0f;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: transparent;
+  --ring: #00e570;
+
+  --sidebar: #13151b;
+  --sidebar-foreground: #e8eaed;
+  --sidebar-primary: #00e570;
+  --sidebar-primary-foreground: #0a0b0f;
+  --sidebar-accent: #1a1c24;
+  --sidebar-accent-foreground: #e8eaed;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #00e570;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family:
+      "Pretendard Variable",
+      -apple-system,
+      BlinkMacSystemFont,
+      system-ui,
+      Roboto,
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--foreground);
+    -webkit-box-shadow: 0 0 0px 1000px var(--background) inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+}
