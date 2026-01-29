@@ -2,5 +2,4 @@
 .env
 /node_modules
 /.serverless
-/etc
-/.terraform
+/.pnpm-store
