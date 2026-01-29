@@ -159,8 +159,6 @@ package:
     - "serverless.yml"
     - ".serverless/**"
     - "etc/**"
-    - ".devcontainer/**"
-    - ".pnpm-store/**"
 
 resources:
   Resources:
@@ -519,58 +517,69 @@ resources:
         VersioningConfiguration:
           Status: Suspended
         PublicAccessBlockConfiguration:
-          BlockPublicAcls: true
-          BlockPublicPolicy: true
-          IgnorePublicAcls: true
-          RestrictPublicBuckets: true
+          BlockPublicAcls: false
+          BlockPublicPolicy: false
+          IgnorePublicAcls: false
+          RestrictPublicBuckets: false
+        WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: index.html
 
     ReactAppS3BucketPolicy:
       Type: AWS::S3::BucketPolicy
       Properties:
-        Bucket: !Ref ReactAppS3Bucket
+        Bucket:
+          Ref: ReactAppS3Bucket
         PolicyDocument:
           Version: "2012-10-17"
           Statement:
-            - Sid: AllowCloudFrontOnly
+            - Sid: PublicReadGetObject
               Effect: Allow
-              Principal:
-                Service: cloudfront.amazonaws.com
-              Action: s3:GetObject
-              Resource: !Sub "${ReactAppS3Bucket.Arn}/*"
-              Condition:
-                StringEquals:
-                  AWS:SourceArn: !Sub >
-                    arn:aws:cloudfront::${AWS::AccountId}:distribution/${ReactAppCloudFrontDistribution}
+              Principal: "*"
+              Action: "s3:GetObject"
+              Resource:
+                Fn::Join:
+                  - ""
+                  - - "arn:aws:s3:::"
+                    - Ref: ReactAppS3Bucket
+                    - "/*"
 
     ReactAppCloudFrontDistribution:
       Type: AWS::CloudFront::Distribution
       Properties:
         DistributionConfig:
           Enabled: true
-
-          CustomErrorResponses:
-            - ErrorCode: 403
-              ResponseCode: 200
-              ResponsePagePath: /index.html
-            - ErrorCode: 404
-              ResponseCode: 200
-              ResponsePagePath: /index.html
-
           Origins:
-            - DomainName: !GetAtt ReactAppS3Bucket.RegionalDomainName
+            - DomainName:
+                Fn::Join:
+                  - ""
+                  - - Ref: ReactAppS3Bucket
+                    - ".s3-website."
+                    - Ref: AWS::Region
+                    - ".amazonaws.com"
               Id: ReactAppOrigin
-              OriginAccessControlId: !Ref ReactAppCloudFrontOAC
-              S3OriginConfig: {}
+              CustomOriginConfig:
+                HTTPPort: 80
+                HTTPSPort: 443
+                OriginProtocolPolicy: http-only
+                OriginSSLProtocols:
+                  - TLSv1
+                  - TLSv1.1
+                  - TLSv1.2
           DefaultCacheBehavior:
             TargetOriginId: ReactAppOrigin
             ViewerProtocolPolicy: redirect-to-https
             AllowedMethods:
               - GET
               - HEAD
+              - OPTIONS
             CachedMethods:
               - GET
               - HEAD
-            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+            ForwardedValues:
+              QueryString: false
+              Cookies:
+                Forward: none
           DefaultRootObject: index.html
           Aliases:
             - chzzk.junah.dev
@@ -579,16 +588,7 @@ resources:
             SslSupportMethod: sni-only
             MinimumProtocolVersion: TLSv1.2_2018
           HttpVersion: http2and3
-          PriceClass: PriceClass_All
-
-    ReactAppCloudFrontOAC:
-      Type: AWS::CloudFront::OriginAccessControl
-      Properties:
-        OriginAccessControlConfig:
-          Name: ReactAppCloudFrontOAC
-          OriginAccessControlOriginType: s3
-          SigningBehavior: always
-          SigningProtocol: sigv4
+          PriceClass: PriceClass_200
 
     GitHubOIDCProvider:
       Type: AWS::IAM::OIDCProvider
