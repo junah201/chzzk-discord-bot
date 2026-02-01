@@ -6,7 +6,7 @@ import { motion, type HTMLMotionProps } from "motion/react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg font-medium transition-all focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 overflow-hidden group",
+  "relative inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 overflow-hidden group",
   {
     variants: {
       variant: {
@@ -16,9 +16,9 @@ const buttonVariants = cva(
         ghost: "bg-transparent hover:bg-accent text-foreground",
       },
       size: {
-        default: "px-6 py-2.5 text-base",
-        md: "px-6 py-3 text-base",
-        lg: "px-8 py-4 text-lg",
+        default: "px-6 py-2.5 text-base  rounded-lg",
+        md: "px-6 py-3 text-base  rounded-xl",
+        lg: "px-8 py-4 text-base  rounded-xl",
       },
       effect: {
         none: "",
