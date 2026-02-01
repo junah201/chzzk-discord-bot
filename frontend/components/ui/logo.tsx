@@ -5,6 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { motion, type HTMLMotionProps } from "motion/react";
 import { Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
+import routeMap from "@/constants/route-map";
 
 const logoVariants = cva(
   "inline-flex items-center gap-2 group transition-all",
@@ -63,6 +64,7 @@ const Logo = React.forwardRef<HTMLAnchorElement, LogoProps>(
     return (
       <motion.a
         ref={ref}
+        href={routeMap.HOME}
         className={cn(logoVariants({ size, className }))}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
