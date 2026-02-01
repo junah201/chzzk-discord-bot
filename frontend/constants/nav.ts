@@ -5,7 +5,7 @@ export const navLinks = [
   },
   {
     label: "통계",
-    href: "#stats",
+    href: "#metrics",
   },
   {
     label: "문서",

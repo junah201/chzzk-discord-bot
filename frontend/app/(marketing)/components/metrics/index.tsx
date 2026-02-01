@@ -49,7 +49,7 @@ export function Metrics() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section id="stats" className="py-20 sm:py-32 relative overflow-hidden">
+    <section id="metrics" className="py-20 sm:py-32 relative overflow-hidden">
       <GlowEffect
         variant="static"
         className="top-1/2 left-0 w-96 h-96 -translate-y-1/2"
@@ -95,7 +95,7 @@ export function Metrics() {
           </p>
         </motion.div>
 
-        {/* Stats Grid */}
+        {/* Metrics Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 max-w-6xl mx-auto">
           {metrics.map((metric, index) => (
             <MetricCard key={metric.label} metric={metric} index={index} />
