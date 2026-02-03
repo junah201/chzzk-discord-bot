@@ -1,6 +1,5 @@
+import { IS_PROD } from "@/constants/env";
 import Cookies from "js-cookie";
-
-const isProd = process.env.NODE_ENV === "production";
 
 export const setCookie = (
   key: string,
@@ -9,8 +8,8 @@ export const setCookie = (
 ): void => {
   Cookies.set(key, value, {
     path: "/",
-    secure: isProd,
-    sameSite: isProd ? "strict" : "lax",
+    secure: IS_PROD,
+    sameSite: IS_PROD ? "strict" : "lax",
     ...options,
   });
 };

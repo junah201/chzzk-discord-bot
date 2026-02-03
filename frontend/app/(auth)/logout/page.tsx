@@ -7,13 +7,13 @@ import { LinkButton } from "@/components/ui/link-button";
 import routeMap from "@/constants/route-map";
 import { LogoCard } from "@/components/ui/logo-card";
 import { removeCookie } from "@/lib/cookie";
-import { ACCESS_TOEKN } from "@/constants/cookies";
+import { ACCESS_TOKEN } from "@/constants/cookies";
 import { useEffect } from "react";
 import { redirect } from "next/navigation";
 
 export default function LogoutPage() {
   const handleLogout = () => {
-    removeCookie(ACCESS_TOEKN.key);
+    removeCookie(ACCESS_TOKEN.key);
   };
 
   useEffect(() => {

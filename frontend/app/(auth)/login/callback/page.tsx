@@ -6,8 +6,22 @@ import { Loader2 } from "lucide-react";
 import { LinkButton } from "@/components/ui/link-button";
 import routeMap from "@/constants/route-map";
 import { LogoCard } from "@/components/ui/logo-card";
+import { useSearchParams } from "next/navigation";
+import { useAuth } from "@/hooks/use-auth";
+import { useEffect } from "react";
 
 export default function LoginCallbackPage() {
+  const searchParams = useSearchParams();
+  const { verifySession } = useAuth();
+
+  useEffect(() => {
+    const code = searchParams.get("code");
+
+    if (code) {
+      verifySession(code);
+    }
+  }, [searchParams, verifySession]);
+
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
       <div className="relative z-10 w-full max-w-md px-4">

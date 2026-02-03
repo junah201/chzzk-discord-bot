@@ -4,25 +4,20 @@ import { useEffect } from "react";
 import { motion } from "motion/react";
 import { LogIn, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DISCORD_OAUTH_URL } from "@/constants/links";
 import { Loader2 } from "lucide-react";
 import { LogoCard } from "@/components/ui/logo-card";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function RedirectingToLogin() {
-  const handleManualRedirect = () => {
-    const isDev = process.env.NODE_ENV === "development";
-    if (!isDev) {
-      window.location.href = DISCORD_OAUTH_URL;
-    }
-  };
+  const { redirectToDiscord } = useAuth();
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      handleManualRedirect();
-    }, 1500);
+      redirectToDiscord();
+    }, 1000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [redirectToDiscord]);
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
@@ -71,7 +66,7 @@ export default function RedirectingToLogin() {
             className="space-y-4"
           >
             <Button
-              onClick={handleManualRedirect}
+              onClick={redirectToDiscord}
               size="lg"
               className="w-full group"
             >
@@ -82,7 +77,7 @@ export default function RedirectingToLogin() {
             <p className="text-sm text-muted-foreground">
               자동으로 리디렉션되지 않나요?{" "}
               <button
-                onClick={handleManualRedirect}
+                onClick={redirectToDiscord}
                 className="text-primary hover:text-primary/80 underline transition-colors"
               >
                 여기를 클릭하세요
