@@ -1,3 +1,5 @@
+import routeMap from "./route-map";
+
 export const navLinks = [
   {
     label: "기능",
@@ -9,6 +11,6 @@ export const navLinks = [
   },
   {
     label: "문서",
-    href: "#docs",
+    href: routeMap.DOCS.HOME,
   },
 ] as const;

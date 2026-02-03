@@ -5,6 +5,7 @@ import { ArrowRight, BookOpen, Sparkles } from "lucide-react";
 import { LinkButton } from "@/components/ui/link-button";
 import { Logo } from "@/components/ui/logo";
 import { GlowEffect } from "@/components/ui/glow-effect";
+import routeMap from "@/constants/route-map";
 
 export function Hero() {
   return (
@@ -78,7 +79,7 @@ export function Hero() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <LinkButton
-              href="#invite"
+              href={routeMap.REDIRECTS.INVITE}
               variant="primary"
               effect="glow"
               size="lg"
@@ -88,7 +89,7 @@ export function Hero() {
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </LinkButton>
             <LinkButton
-              href="#docs"
+              href={routeMap.DOCS.HOME}
               variant="secondary"
               size="lg"
               className="w-full sm:w-auto"
