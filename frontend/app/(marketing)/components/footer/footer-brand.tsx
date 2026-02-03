@@ -1,13 +1,14 @@
 "use client";
 
 import { Logo } from "@/components/ui/logo";
+import { GITHUB_REPO_URL } from "@/constants/links";
 import { Github, Mail } from "lucide-react";
 import { motion } from "motion/react";
 
 const socialLinks = [
   {
     icon: Github,
-    href: "https://github.com/junah201/chzzk-discord-bot",
+    href: GITHUB_REPO_URL,
     label: "GitHub",
   },
   { icon: Mail, href: "mailto:junah.dev+chzzk@gmail.com", label: "Email" },

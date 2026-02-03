@@ -1,5 +1,7 @@
 "use client";
 
+import { GITHUB_USER_URL } from "@/constants/links";
+
 export function FooterBottom() {
   const currentYear = new Date().getFullYear();
   const startYear = 2024;
@@ -12,7 +14,7 @@ export function FooterBottom() {
           <p className="text-sm text-muted-foreground">
             &copy; {startYear}-{currentYear}{" "}
             <a
-              href="https://github.com/junah201"
+              href={GITHUB_USER_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold hover:text-primary transition-colors"
