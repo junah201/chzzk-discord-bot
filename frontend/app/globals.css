@@ -84,6 +84,12 @@
     @apply border-border outline-ring/50;
   }
 
+  html {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-family:
@@ -103,5 +109,25 @@
     -webkit-text-fill-color: var(--foreground);
     -webkit-box-shadow: 0 0 0px 1000px var(--background) inset;
     transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* Custom scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border/40 rounded-full;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-border/80;
   }
 }
