@@ -13,6 +13,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cva": "^0.0.0",
+    "js-cookie": "^3.0.5",
     "lucide-react": "^0.563.0",
     "motion": "^12.29.2",
     "next": "16.1.6",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
