@@ -14,6 +14,11 @@ export const routeMap = {
     INVITE: "/invite/",
     SUPPORT_SERVER: "/support-server/",
   },
+  AUTH: {
+    LOGIN: "/login/",
+    LOGIN_CALLBACK: "/login/callback/",
+    LOGOUT: "/logout/",
+  },
 };
 
 export default routeMap;
