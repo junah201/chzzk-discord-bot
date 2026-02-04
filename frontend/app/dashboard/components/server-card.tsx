@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LinkButton } from "@/components/ui/link-button";
 import routeMap from "@/constants/route-map";
 import { Guild } from "@/types/api";
+import { Users } from "lucide-react";
 
 interface ServerCardProps {
   server: Guild;
@@ -27,6 +28,12 @@ export function ServerCard({ server }: ServerCardProps) {
             <CardTitle className="text-xl truncate group-hover:text-primary transition-colors">
               {server.name}
             </CardTitle>
+          </div>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Users className="w-4 h-4" />
+            <span>
+              {(server.approximate_member_count ?? 0).toLocaleString()} 멤버
+            </span>
           </div>
         </div>
       </CardHeader>
