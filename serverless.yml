@@ -1,3 +1,5 @@
+# "org" ensures this Service is used with the correct Serverless Framework License Key.
+org: junah
 service: chzzk
 useDotenv: true
 
@@ -154,11 +156,11 @@ package:
     - "venv/**"
     - ".git/**"
     - ".github/**"
-    - "terraform/**"
     - "frontend/**"
     - "serverless.yml"
     - ".serverless/**"
-    - "etc/**"
+    - ".pnpm-store/**"
+    - ".devcontainer/**"
 
 resources:
   Resources:
@@ -211,31 +213,6 @@ resources:
           Ref: ApiGatewayInviteResource
         RestApiId:
           Ref: ApiGatewayRestApi
-
-    # ApiGatewayInviteAdminResource:
-    #   Type: AWS::ApiGateway::Resource
-    #   Properties:
-    #     ParentId:
-    #       Fn::GetAtt:
-    #         - ApiGatewayInviteResource
-    #         - arn
-    #     PathPart: admin
-    #     RestApiId:
-    #       Ref: ApiGatewayRestApi
-
-    # ApiGatewayInviteAdminMethod:
-    #   Type: AWS::ApiGateway::Method
-    #   Properties:
-    #     AuthorizationType: NONE
-    #     HttpMethod: GET
-    #     Integration:
-    #       Type: HTTP_PROXY
-    #       IntegrationHttpMethod: GET
-    #       Uri: "https://discord.com/api/oauth2/authorize?client_id=1191657232480350238&permissions=8&scope=bot"
-    #     ResourceId:
-    #       Ref: ApiGatewayInviteAdminResource
-    #     RestApiId:
-    #       Ref: ApiGatewayRestApi
 
     ApiGatewaySupportServerResource:
       Type: AWS::ApiGateway::Resource
@@ -510,6 +487,7 @@ resources:
     #         Projection:
     #           ProjectionType: ALL
 
+    # S3 Bucket for React App Hosting
     ReactAppS3Bucket:
       Type: AWS::S3::Bucket
       Properties:
@@ -569,17 +547,11 @@ resources:
           DefaultCacheBehavior:
             TargetOriginId: ReactAppOrigin
             ViewerProtocolPolicy: redirect-to-https
-            AllowedMethods:
-              - GET
-              - HEAD
-              - OPTIONS
-            CachedMethods:
-              - GET
-              - HEAD
-            ForwardedValues:
-              QueryString: false
-              Cookies:
-                Forward: none
+            Compress: true
+            AllowedMethods: [GET, HEAD, OPTIONS]
+            CachedMethods: [GET, HEAD, OPTIONS]
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+          WebACLId: arn:aws:wafv2:us-east-1:897699718511:global/webacl/CreatedByCloudFront-b31a1830/c075eed8-3d5d-46c7-b38c-55c99c498408
           DefaultRootObject: index.html
           Aliases:
             - chzzk.junah.dev
@@ -588,7 +560,89 @@ resources:
             SslSupportMethod: sni-only
             MinimumProtocolVersion: TLSv1.2_2018
           HttpVersion: http2and3
-          PriceClass: PriceClass_200
+          PriceClass: PriceClass_All
+
+    # S3 & CloudFront for Next.js App hosting
+    NextAppS3Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: dev.chzzk.junah.dev
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          BlockPublicPolicy: true
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: true
+        BucketEncryption:
+          ServerSideEncryptionConfiguration:
+            - ServerSideEncryptionByDefault:
+                SSEAlgorithm: AES256
+
+    NextAppOAC:
+      Type: AWS::CloudFront::OriginAccessControl
+      Properties:
+        OriginAccessControlConfig:
+          Name: dev.chzzk.junah.dev-oac
+          OriginAccessControlOriginType: s3
+          SigningBehavior: always
+          SigningProtocol: sigv4
+          Description: OAC for Next.js App (dev)
+
+    NextAppBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref NextAppS3Bucket
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: cloudfront.amazonaws.com
+              Action: s3:GetObject
+              Resource: !Sub arn:aws:s3:::${NextAppS3Bucket}/*
+              Condition:
+                StringEquals:
+                  AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${NextAppDistribution}
+
+    NextAppDistribution:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Enabled: true
+          HttpVersion: http2and3
+          DefaultRootObject: index.html
+          PriceClass: PriceClass_All
+
+          CustomErrorResponses:
+            - ErrorCode: 403
+              ResponseCode: 200
+              ResponsePagePath: /index.html
+            - ErrorCode: 404
+              ResponseCode: 200
+              ResponsePagePath: /index.html
+
+          Origins:
+            - Id: NextAppOrigin
+              DomainName: !GetAtt NextAppS3Bucket.RegionalDomainName
+              S3OriginConfig:
+                OriginAccessIdentity: ""
+              OriginAccessControlId: !GetAtt NextAppOAC.Id
+
+          DefaultCacheBehavior:
+            TargetOriginId: NextAppOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            Compress: true
+            AllowedMethods: [GET, HEAD, OPTIONS]
+            CachedMethods: [GET, HEAD, OPTIONS]
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+
+          WebACLId: arn:aws:wafv2:us-east-1:897699718511:global/webacl/CreatedByCloudFront-c4033b9c/0274cd61-dfc3-49fb-8d9c-dd2b1d03770a
+          Aliases:
+            - dev.chzzk.junah.dev
+
+          ViewerCertificate:
+            AcmCertificateArn: arn:aws:acm:us-east-1:897699718511:certificate/52a635af-fe70-4dbd-b19c-decff9302fac
+            SslSupportMethod: sni-only
+            MinimumProtocolVersion: TLSv1.2_2021
 
     GitHubOIDCProvider:
       Type: AWS::IAM::OIDCProvider
@@ -629,16 +683,18 @@ resources:
                   Resource:
                     - Fn::Sub: "arn:aws:s3:::${ReactAppS3Bucket}"
                     - Fn::Sub: "arn:aws:s3:::${ReactAppS3Bucket}/*"
+                    - Fn::Sub: "arn:aws:s3:::${NextAppS3Bucket}"
+                    - Fn::Sub: "arn:aws:s3:::${NextAppS3Bucket}/*"
                 - Effect: Allow
                   Action:
                     - cloudfront:CreateInvalidation
                   Resource:
                     - Fn::Sub: "arn:aws:cloudfront::${AWS::AccountId}:distribution/${ReactAppCloudFrontDistribution}"
+                    - Fn::Sub: "arn:aws:cloudfront::${AWS::AccountId}:distribution/${NextAppDistribution}"
 
 custom:
   pythonRequirements:
     slim: true
 
 plugins:
-  - serverless-python-requirements
   - serverless-dotenv-plugin
