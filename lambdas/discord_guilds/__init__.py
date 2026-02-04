@@ -4,6 +4,7 @@ import logging
 import requests
 
 from shared import middleware
+from shared.utils import pick
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -32,7 +33,10 @@ def handler(event, context):
         "https://discord.com/api/users/@me/guilds",
         headers={
             "Authorization": token
-        }
+        },
+        params={
+            "with_counts": "true"
+        },
     )
 
     if res.status_code != 200:
@@ -53,8 +57,10 @@ def handler(event, context):
     data = res.json()
 
     # 관리자권한을 가진 서버만 필터링합니다.
+    ALLOWED_KEYS = {'id', 'name', 'icon',
+                    "description", 'approximate_member_count'}
     guilds = [
-        guild
+        pick(guild, ALLOWED_KEYS)
         for guild in data
         if (guild["permissions"] & 0x8) == 0x8
     ]

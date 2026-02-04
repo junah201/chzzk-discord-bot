@@ -86,6 +86,16 @@ functions:
           method: get
           cors: true
 
+  discord_guild_by_id:
+    handler: lambdas/discord_guild_by_id.handler
+    name: discord_guild_by_id_v2
+    description: Get guild information by ID from discord
+    events:
+      - http:
+          path: discord/{guild_id}
+          method: get
+          cors: true
+
   get_guild_channels:
     handler: lambdas/get_guild_channels.handler
     name: get_guild_channels_v2

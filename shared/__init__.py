@@ -12,6 +12,7 @@ from .discord import (
 )
 from .dynamodb import dynamo_to_python, python_to_dynamo
 from .middleware import middleware
+from .utils import pick, omit
 
 __all__ = [
     # middleware.py
@@ -34,4 +35,7 @@ __all__ = [
     'delete_message',
     'send_message',
     'get_channel',
+    # utils.py
+    'pick',
+    'omit',
 ]
