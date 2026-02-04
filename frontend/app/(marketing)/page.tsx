@@ -6,7 +6,7 @@ import { GridPattern } from "@/components/ui/grid-pattern";
 export default function Home() {
   return (
     <div>
-      <GridPattern position="fixed" mask="fade" className="z-0" />
+      <GridPattern position="fixed" mask="fade" />
       <div className="flex-1">
         <Hero />
         <Features />

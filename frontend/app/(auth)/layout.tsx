@@ -8,7 +8,7 @@ export default function AuthLayout({
 }>) {
   return (
     <main className="flex min-h-screen bg-background text-foreground">
-      <GridPattern position="fixed" mask="fade" className="z-0" />
+      <GridPattern position="fixed" mask="fade" />
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {/* 왼쪽 상단: Primary Color */}
         <GlowEffect
