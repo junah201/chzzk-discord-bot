@@ -12,7 +12,9 @@ logger.setLevel(logging.INFO)
 DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
 DISCORD_CLIENT_ID = os.environ.get("DISCORD_CLIENT_ID")
 DISCORD_CLIENT_SECRET = os.environ.get("DISCORD_CLIENT_SECRET")
-
+PROD_REDIRECT_URI = "https://chzzk.junah.dev/login"
+DEV_REDIRECT_URI = "http://dev.chzzk.junah.dev/login/callback"
+LOCAL_REDIRECT_URI = "http://localhost:3000/login/callback"
 
 @middleware(logger)
 def handler(event, context):
@@ -25,6 +27,21 @@ def handler(event, context):
             "body": json.dumps({"message": "code is required"}),
         }
 
+    headers = event.get("headers", {})
+    origin = headers.get("origin") or headers.get("Origin") or ""
+
+    if "localhost" in origin:
+        redirect_uri = LOCAL_REDIRECT_URI
+        env_label = "Localhost"
+    elif "dev.chzzk.junah.dev" in origin:
+        redirect_uri = DEV_REDIRECT_URI
+        env_label = "Dev"
+    else:
+        redirect_uri = PROD_REDIRECT_URI
+        env_label = "Production"
+
+    logger.info(f"[{env_label}] Request detected. Origin: {origin}, Using URI: {redirect_uri}")
+
     res = requests.post(
         url="https://discord.com/api/v10/oauth2/token",
         headers={
@@ -35,7 +52,7 @@ def handler(event, context):
             'client_secret': DISCORD_CLIENT_SECRET,
             'grant_type': 'authorization_code',
             'code': code,
-            'redirect_uri': "https://chzzk.junah.dev/login",
+            'redirect_uri': redirect_uri,
             'scope': 'identify, email, guilds'
         }
     )
