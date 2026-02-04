@@ -41,7 +41,7 @@ export default function Profile() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        align="end"
+        align="center"
         alignOffset={-8}
         side="top"
         sideOffset={8}
