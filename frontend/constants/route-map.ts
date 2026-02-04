@@ -19,6 +19,9 @@ export const routeMap = {
     LOGIN_CALLBACK: "/login/callback/",
     LOGOUT: "/logout/",
   },
+  DASHBOARD: {
+    HOME: "/dashboard/",
+  },
 };
 
 export default routeMap;

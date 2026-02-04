@@ -1,10 +1,9 @@
 import axios from "axios";
 import { ACCESS_TOKEN } from "@/constants/cookies";
 import { getCookie } from "@/lib/cookie";
-import { getRequiredEnv } from "./env";
 
 export const apiClient = axios.create({
-  baseURL: getRequiredEnv("NEXT_PUBLIC_API_URL"),
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",

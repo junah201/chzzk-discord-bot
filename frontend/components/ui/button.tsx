@@ -14,16 +14,19 @@ const buttonVariants = cva(
         secondary:
           "bg-secondary text-secondary-foreground border border-border hover:border-primary/50",
         ghost: "bg-transparent hover:bg-accent text-foreground",
+        outline:
+          "bg-transparent border border-border hover:bg-muted text-foreground",
       },
       size: {
         default: "px-6 py-2.5 text-base  rounded-lg",
         md: "px-6 py-3 text-base  rounded-xl",
         lg: "px-8 py-4 text-base  rounded-xl",
+        icon: "p-2 rounded-lg",
       },
       effect: {
         none: "",
         gradient:
-          "before:absolute before:inset-0 before:bg-gradient-to-r before:from-primary before:via-emerald-400 before:to-primary before:opacity-0 before:group-hover:opacity-100 before:transition-opacity",
+          "before:absolute before:inset-0 before:bg-linear-to-r before:from-primary before:via-emerald-400 before:to-primary before:opacity-0 before:group-hover:opacity-100 before:transition-opacity",
         glow: "",
       },
     },
@@ -64,7 +67,7 @@ const ButtonInnerContent = ({
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
       />
     )}
-    <span className="relative z-10 flex items-center justify-center gap-2">
+    <span className="relative z-10 flex w-full min-w-0 items-center justify-center gap-2">
       {children}
     </span>
     {effect === "gradient" && (

@@ -5,13 +5,12 @@ import { authMutations } from "@/queries/auth";
 import { ACCESS_TOKEN } from "@/constants/cookies";
 import routeMap from "@/constants/route-map";
 import { setCookie } from "@/lib/cookie";
-import { getRequiredEnv } from "@/lib/env";
 
 export const useAuth = () => {
   const router = useRouter();
 
   const loginWithDiscord = () => {
-    window.location.href = getRequiredEnv("NEXT_PUBLIC_DISCORD_OAUTH_URL");
+    window.location.href = process.env.NEXT_PUBLIC_DISCORD_OAUTH_URL as string;
   };
 
   const loginMutation = useMutation({
@@ -24,7 +23,7 @@ export const useAuth = () => {
       });
 
       toast.success("로그인되었습니다. 환영합니다!");
-      router.replace(routeMap.HOME);
+      router.replace(routeMap.DASHBOARD.HOME);
     },
     onError: (error) => {
       console.error("Login Failed", error);

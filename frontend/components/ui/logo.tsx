@@ -37,7 +37,7 @@ const iconVariants = cva("text-primary relative", {
 });
 
 const textVariants = cva(
-  "font-bold bg-gradient-to-r from-primary to-emerald-400 bg-clip-text text-transparent",
+  "font-bold bg-linear-to-r from-primary to-emerald-400 bg-clip-text text-transparent",
   {
     variants: {
       size: {

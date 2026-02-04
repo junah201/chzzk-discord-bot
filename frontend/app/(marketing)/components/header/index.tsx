@@ -4,6 +4,7 @@ import { LinkButton } from "@/components/ui/link-button";
 import { Logo } from "@/components/ui/logo";
 import { NavLink } from "@/components/ui/nav-link";
 import { navLinks } from "@/constants/nav";
+import routeMap from "@/constants/route-map";
 import { useScrollThreshold } from "@/hooks/use-scroll-threshold";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
@@ -30,7 +31,7 @@ export default function Header() {
             {navLinks.map((link) => (
               <NavLink key={link.href} {...link} />
             ))}
-            <LinkButton href="/login" variant="primary">
+            <LinkButton href={routeMap.DASHBOARD.HOME} variant="primary">
               대시보드 로그인
             </LinkButton>
           </div>

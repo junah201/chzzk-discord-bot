@@ -22,6 +22,8 @@ export const discordQueries = {
     queryOptions({
       queryKey: keys.guilds(),
       queryFn: () => apiClient.get<Guild[]>("/discord/guilds"),
+      staleTime: Infinity,
+      gcTime: 1000 * 60 * 60,
     }),
 
   // 채널 목록 (파라미터 받는 경우)
