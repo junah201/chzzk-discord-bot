@@ -8,9 +8,17 @@ import routeMap from "@/constants/route-map";
 import { LogoCard } from "@/components/ui/logo-card";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
 export default function LoginCallbackPage() {
+  return (
+    <Suspense>
+      <ClientLoginCallbackPage />
+    </Suspense>
+  );
+}
+
+function ClientLoginCallbackPage() {
   const searchParams = useSearchParams();
   const { verifySession } = useAuth();
 
