@@ -16,8 +16,6 @@ export const discordQueries = {
       queryFn: () => apiClient.get<User>("/discord/me"),
       staleTime: 1000 * 60 * 5,
     }),
-
-  // 길드 목록
   guilds: () =>
     queryOptions({
       queryKey: keys.guilds(),
@@ -25,8 +23,12 @@ export const discordQueries = {
       staleTime: Infinity,
       gcTime: 1000 * 60 * 60,
     }),
-
-  // 채널 목록 (파라미터 받는 경우)
+  guild: (guildId: string | null) =>
+    queryOptions({
+      queryKey: [...keys.guilds(), guildId],
+      queryFn: () => apiClient.get<Guild>(`/discord/${guildId}`),
+      enabled: !!guildId,
+    }),
   channels: (guildId: string) =>
     queryOptions({
       queryKey: keys.channels(guildId),

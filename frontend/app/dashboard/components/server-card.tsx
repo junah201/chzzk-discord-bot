@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LinkButton } from "@/components/ui/link-button";
+import routeMap from "@/constants/route-map";
 import { Guild } from "@/types/api";
 
 interface ServerCardProps {
@@ -32,7 +33,7 @@ export function ServerCard({ server }: ServerCardProps) {
 
       <CardContent className="mt-auto">
         <LinkButton
-          href={`/dashboard/server/${server.id}`}
+          href={routeMap.DASHBOARD.SERVER(server.id)}
           variant="outline"
           className="w-full"
           whileHover={{ scale: 1.02 }}

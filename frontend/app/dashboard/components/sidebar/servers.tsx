@@ -3,6 +3,7 @@ import { discordQueries } from "@/queries/discord";
 import { useQuery } from "@tanstack/react-query";
 import { SidebarItem } from "./sidebar-item";
 import { SidebarItemSkeleton } from "./sidebar-item-skeleton";
+import routeMap from "@/constants/route-map";
 
 export default function Servers() {
   const { data, isLoading } = useQuery(discordQueries.guilds());
@@ -17,25 +18,23 @@ export default function Servers() {
 
       <div className="flex-1 overflow-y-auto space-y-1 px-3 flex flex-col">
         {data?.data.map((server) => (
-          <>
-            <SidebarItem
-              href={`/dashboard/server/${server.id}`}
-              key={server.id}
-              startSlot={
-                <Avatar className="w-8 h-8 border-2 border-border">
-                  <AvatarImage
-                    src={`https://cdn.discordapp.com/icons/${server.id}/${server.icon}.webp?size=64`}
-                    alt={server.name}
-                  />
-                  <AvatarFallback className="text-primary text-xs">
-                    {server.name.slice(0, 2)}
-                  </AvatarFallback>
-                </Avatar>
-              }
-            >
-              {server.name}
-            </SidebarItem>
-          </>
+          <SidebarItem
+            href={routeMap.DASHBOARD.SERVER(server.id)}
+            key={server.id}
+            startSlot={
+              <Avatar className="w-8 h-8 border-2 border-border">
+                <AvatarImage
+                  src={`https://cdn.discordapp.com/icons/${server.id}/${server.icon}.webp?size=64`}
+                  alt={server.name}
+                />
+                <AvatarFallback className="text-primary text-xs">
+                  {server.name.slice(0, 2)}
+                </AvatarFallback>
+              </Avatar>
+            }
+          >
+            {server.name}
+          </SidebarItem>
         ))}
         {isLoading &&
           Array.from({ length: 5 }).map((_, index) => (

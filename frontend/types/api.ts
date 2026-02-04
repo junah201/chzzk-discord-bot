@@ -19,11 +19,9 @@ export interface User {
 export interface Guild {
   id: string;
   name: string;
-  icon: string;
-  owner: boolean;
-  permissions: number;
-  permissions_new: string;
-  features: string[];
+  icon: string | null;
+  description: string | null;
+  approximate_member_count: number | null;
 }
 
 export interface Channel {

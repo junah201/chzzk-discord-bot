@@ -18,7 +18,7 @@ const buttonVariants = cva(
           "bg-transparent border border-border hover:bg-muted text-foreground",
       },
       size: {
-        default: "px-6 py-2.5 text-base  rounded-lg",
+        default: "px-6 py-2.5 text-base rounded-lg",
         md: "px-6 py-3 text-base  rounded-xl",
         lg: "px-8 py-4 text-base  rounded-xl",
         icon: "p-2 rounded-lg",
