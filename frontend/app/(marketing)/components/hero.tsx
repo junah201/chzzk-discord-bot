@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { ArrowRight, BookOpen, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, LayoutDashboard, Sparkles } from "lucide-react";
 import { LinkButton } from "@/components/ui/link-button";
 import { Logo } from "@/components/ui/logo";
 import { GlowEffect } from "@/components/ui/glow-effect";
@@ -89,13 +89,13 @@ export function Hero() {
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </LinkButton>
             <LinkButton
-              href={routeMap.DOCS.HOME}
+              href={routeMap.DASHBOARD.HOME}
               variant="secondary"
               size="lg"
               className="w-full sm:w-auto"
             >
-              <BookOpen className="w-5 h-5" />
-              문서 보기
+              <LayoutDashboard className="w-5 h-5" />
+              대시보드
             </LinkButton>
           </motion.div>
 
