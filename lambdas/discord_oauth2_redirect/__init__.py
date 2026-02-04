@@ -13,7 +13,7 @@ DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
 DISCORD_CLIENT_ID = os.environ.get("DISCORD_CLIENT_ID")
 DISCORD_CLIENT_SECRET = os.environ.get("DISCORD_CLIENT_SECRET")
 PROD_REDIRECT_URI = "https://chzzk.junah.dev/login"
-DEV_REDIRECT_URI = "http://dev.chzzk.junah.dev/login/callback"
+DEV_REDIRECT_URI = "https://dev.chzzk.junah.dev/login/callback"
 LOCAL_REDIRECT_URI = "http://localhost:3000/login/callback"
 
 @middleware(logger)
