@@ -1,5 +1,5 @@
 *.pyc
-.env
+/.env
 /node_modules
 /.serverless
 /.pnpm-store
