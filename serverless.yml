@@ -603,6 +603,29 @@ resources:
                 StringEquals:
                   AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${NextAppDistribution}
 
+    RewriteFunction:
+      Type: AWS::CloudFront::Function
+      Properties:
+        Name: dev-chzzk-junah-dev-rewrite
+        AutoPublish: true
+        FunctionConfig:
+          Comment: Rewrite directory index to index.html
+          Runtime: cloudfront-js-1.0
+        FunctionCode: |
+          function handler(event) {
+            var request = event.request;
+            var uri = request.uri;
+
+            if (uri.endsWith('/')) {
+              request.uri += 'index.html';
+            }
+            else if (!uri.includes('.')) {
+              request.uri += '/index.html';
+            }
+
+            return request;
+          }
+
     NextAppDistribution:
       Type: AWS::CloudFront::Distribution
       Properties:
@@ -634,6 +657,9 @@ resources:
             AllowedMethods: [GET, HEAD, OPTIONS]
             CachedMethods: [GET, HEAD, OPTIONS]
             CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+            FunctionAssociations:
+              - EventType: viewer-request
+                FunctionARN: !GetAtt RewriteFunction.FunctionMetadata.FunctionARN
 
           WebACLId: arn:aws:wafv2:us-east-1:897699718511:global/webacl/CreatedByCloudFront-c4033b9c/0274cd61-dfc3-49fb-8d9c-dd2b1d03770a
           Aliases:
