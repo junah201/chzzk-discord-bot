@@ -1,5 +1,3 @@
 from pydantic import ValidationError
 
-__all__ = [
-    "ValidationError"
-]
+__all__ = ["ValidationError"]

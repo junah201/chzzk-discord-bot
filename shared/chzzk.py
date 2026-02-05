@@ -5,13 +5,7 @@ from typing import TypedDict
 import requests
 from user_agent import generate_user_agent
 
-__all__ = [
-    "ChzzkChannel",
-    "ChzzkLive",
-    "get_chzzk",
-    "Following",
-    ""
-]
+__all__ = ["ChzzkChannel", "ChzzkLive", "get_chzzk", "Following", ""]
 
 
 class ChzzkChannel(TypedDict):
@@ -64,7 +58,9 @@ class Following(TypedDict):
     streamer: Streamer
 
 
-def get_chzzk(channel_id: str, logger: logging.Logger | None = None, retry: int = 2) -> ChzzkLive | None:
+def get_chzzk(
+    channel_id: str, logger: logging.Logger | None = None, retry: int = 2
+) -> ChzzkLive | None:
     """채널 ID를 통해 치지직 채널 정보를 가져옵니다.
     만약 채널이 존재하지 않는다면 None을 반환합니다.
     """
@@ -73,10 +69,7 @@ def get_chzzk(channel_id: str, logger: logging.Logger | None = None, retry: int 
         if logger:
             logger.error(
                 json.dumps(
-                    {
-                        "type": "INVALID_CHZZK_CHANNEL_ID",
-                        "channel_id": channel_id
-                    }
+                    {"type": "INVALID_CHZZK_CHANNEL_ID", "channel_id": channel_id}
                 )
             )
         return None
@@ -89,7 +82,7 @@ def get_chzzk(channel_id: str, logger: logging.Logger | None = None, retry: int 
                 headers={
                     "User-Agent": generate_user_agent(os="win", device_type="desktop"),
                 },
-                timeout=1
+                timeout=1,
             )
             break
         except requests.exceptions.Timeout as e:
@@ -100,7 +93,7 @@ def get_chzzk(channel_id: str, logger: logging.Logger | None = None, retry: int 
                             "type": "CHZZK_REQUEST_TIMEOUT",
                             "channel_id": channel_id,
                             "exception": str(e),
-                            "retry": retry
+                            "retry": retry,
                         }
                     )
                 )
@@ -112,7 +105,7 @@ def get_chzzk(channel_id: str, logger: logging.Logger | None = None, retry: int 
                             "type": "CHZZK_REQUEST_ERROR",
                             "channel_id": channel_id,
                             "exception": str(e),
-                            "retry": retry
+                            "retry": retry,
                         }
                     )
                 )
@@ -121,12 +114,7 @@ def get_chzzk(channel_id: str, logger: logging.Logger | None = None, retry: int 
         # Break 없이 끝났을 때 -> retry 모두 실패
         if logger:
             logger.error(
-                json.dumps(
-                    {
-                        "type": "CHZZK_REQUEST_FAILED",
-                        "channel_id": channel_id
-                    }
-                )
+                json.dumps({"type": "CHZZK_REQUEST_FAILED", "channel_id": channel_id})
             )
         return None
 
@@ -139,7 +127,7 @@ def get_chzzk(channel_id: str, logger: logging.Logger | None = None, retry: int 
                         "type": "CHZZK_INVALID_RESPONSE",
                         "channel_id": channel_id,
                         "status_code": res.status_code,
-                        "response": res.text
+                        "response": res.text,
                     }
                 )
             )

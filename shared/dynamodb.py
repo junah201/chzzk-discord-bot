@@ -7,7 +7,7 @@ def dynamo_to_python(dynamodb_object: dict) -> dict:
     res = dict()
     for k, v in dynamodb_object.items():
         dynamodb_type = list(v.keys())[0]
-        if dynamodb_type == 'N':
+        if dynamodb_type == "N":
             res[k] = int(deserializer.deserialize(v))
         else:
             res[k] = deserializer.deserialize(v)
@@ -17,7 +17,4 @@ def dynamo_to_python(dynamodb_object: dict) -> dict:
 
 def python_to_dynamo(python_object: dict) -> dict:
     serializer = TypeSerializer()
-    return {
-        k: serializer.serialize(v)
-        for k, v in python_object.items()
-    }
+    return {k: serializer.serialize(v) for k, v in python_object.items()}

@@ -19,39 +19,28 @@ def middleware(logger: logging.Logger | None = None, admin_check: bool = False):
                 token = headers.get("Authorization", None)
 
                 if token is None:
-                    logger.info(
-                        json.dumps(
-                            {
-                                "type": "MISSING_TOKEN"
-                            }
-                        )
-                    )
+                    logger.info(json.dumps({"type": "MISSING_TOKEN"}))
                     return {
                         "statusCode": 401,
                         "body": json.dumps({"message": "token is required"}),
                         "headers": {
-                            'Content-Type': 'application/json',
-                            'Access-Control-Allow-Origin': '*'
+                            "Content-Type": "application/json",
+                            "Access-Control-Allow-Origin": "*",
                         },
                     }
 
-                guild_id = (event.get("pathParameters", {}) or {}).get("guild_id", None) or (json.loads(
-                    event.get("body", "{}")) or {}).get("guild_id", None)
+                guild_id = (event.get("pathParameters", {}) or {}).get(
+                    "guild_id", None
+                ) or (json.loads(event.get("body", "{}")) or {}).get("guild_id", None)
 
                 if guild_id is None:
-                    logger.info(
-                        json.dumps(
-                            {
-                                "type": "MISSING_GUILD_ID"
-                            }
-                        )
-                    )
+                    logger.info(json.dumps({"type": "MISSING_GUILD_ID"}))
                     return {
                         "statusCode": 400,
                         "body": json.dumps({"message": "guild_id is required"}),
                         "headers": {
-                            'Content-Type': 'application/json',
-                            'Access-Control-Allow-Origin': '*'
+                            "Content-Type": "application/json",
+                            "Access-Control-Allow-Origin": "*",
                         },
                     }
 
@@ -63,17 +52,21 @@ def middleware(logger: logging.Logger | None = None, admin_check: bool = False):
                             {
                                 "type": "NOT_ADMIN",
                                 "guild_id": guild_id,
-                                "status_code": res.status_code if res is not None else None,
-                                "response": res.text if res is not None else None
+                                "status_code": res.status_code
+                                if res is not None
+                                else None,
+                                "response": res.text if res is not None else None,
                             }
                         )
                     )
                     return {
                         "statusCode": 400,
-                        "body": json.dumps({"message": "해당 서버에 대한 관리자 권한이 없습니다."}),
+                        "body": json.dumps(
+                            {"message": "해당 서버에 대한 관리자 권한이 없습니다."}
+                        ),
                         "headers": {
-                            'Content-Type': 'application/json',
-                            'Access-Control-Allow-Origin': '*'
+                            "Content-Type": "application/json",
+                            "Access-Control-Allow-Origin": "*",
                         },
                     }
 
@@ -82,22 +75,19 @@ def middleware(logger: logging.Logger | None = None, admin_check: bool = False):
             except Exception as e:
                 logger.error(
                     json.dumps(
-                        {
-                            'error': str(e),
-                            'traceback': traceback.format_exc()
-                        },
-                        ensure_ascii=False
+                        {"error": str(e), "traceback": traceback.format_exc()},
+                        ensure_ascii=False,
                     )
                 )
                 res = {
-                    'statusCode': 500,
-                    'body': json.dumps(str(e), ensure_ascii=False),
+                    "statusCode": 500,
+                    "body": json.dumps(str(e), ensure_ascii=False),
                 }
 
             res = res or {}
-            res['headers'] = res.get('headers', {})
-            res['headers']['Access-Control-Allow-Origin'] = '*'
-            res['headers']['Content-Type'] = 'application/json'
+            res["headers"] = res.get("headers", {})
+            res["headers"]["Access-Control-Allow-Origin"] = "*"
+            res["headers"]["Content-Type"] = "application/json"
             return res
 
         return inner

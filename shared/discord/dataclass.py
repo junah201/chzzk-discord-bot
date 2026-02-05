@@ -6,7 +6,7 @@ __all__ = [
     "COMPONENT_TYPE",
     "TEXT_INPUT_STYLE",
     "BUTTON_STYLE",
-    "CHANNEL_TYPE"
+    "CHANNEL_TYPE",
 ]
 
 

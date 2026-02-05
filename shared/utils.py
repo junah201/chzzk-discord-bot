@@ -1,7 +1,8 @@
-from typing import Dict, Any, Iterable
+from collections.abc import Iterable
+from typing import Any
 
 
-def pick(data: Dict[str, Any], keys: Iterable[str]) -> Dict[str, Any]:
+def pick(data: dict[str, Any], keys: Iterable[str]) -> dict[str, Any]:
     """
     딕셔너리에서 지정된 키(keys)만 추출하여 새로운 딕셔너리를 반환합니다.
     데이터에 해당 키가 없으면 무시합니다.
@@ -15,7 +16,7 @@ def pick(data: Dict[str, Any], keys: Iterable[str]) -> Dict[str, Any]:
     return {k: data[k] for k in keys if k in data}
 
 
-def omit(data: Dict[str, Any], keys: Iterable[str]) -> Dict[str, Any]:
+def omit(data: dict[str, Any], keys: Iterable[str]) -> dict[str, Any]:
     """
     딕셔너리에서 지정된 키(keys)를 제외한 나머지 데이터를 반환합니다.
 
