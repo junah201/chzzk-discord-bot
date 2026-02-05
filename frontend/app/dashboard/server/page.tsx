@@ -3,10 +3,10 @@
 import { Suspense } from "react";
 
 import { useQuery } from "@tanstack/react-query";
-import { discordQueries } from "@/queries/discord";
 import ServerHeaderSkeleton from "./components/server-header-skeleton";
 import ServerHeader from "./components/server-header";
 import { useSearchParams } from "next/navigation";
+import { useGuildOptions } from "@/hooks/use-guild-options";
 
 export default function ServerDetailPage() {
   return (
@@ -21,7 +21,7 @@ function ClientServerDetailPage() {
   const serverId = searchParams.get("id");
 
   const { data: serverData, isLoading: isServerLoading } = useQuery(
-    discordQueries.guild(serverId),
+    useGuildOptions(serverId),
   );
 
   return (
