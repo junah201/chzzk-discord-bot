@@ -10,6 +10,7 @@ import { removeCookie } from "@/lib/cookie";
 import { ACCESS_TOKEN } from "@/constants/cookies";
 import { useEffect } from "react";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 export default function LogoutPage() {
   const handleLogout = () => {
@@ -79,12 +80,12 @@ export default function LogoutPage() {
 
             <p className="text-sm text-muted-foreground">
               다시 이용하시려면{" "}
-              <a
+              <Link
                 href={routeMap.AUTH.LOGIN}
                 className="text-primary hover:text-primary/80 underline transition-colors"
               >
                 로그인
-              </a>
+              </Link>
               해주세요.
             </p>
           </motion.div>

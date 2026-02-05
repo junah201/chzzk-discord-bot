@@ -2,6 +2,7 @@ import { DocsContainer } from "@/components/docs/docs-ui";
 import { PolicyCallout } from "@/components/policy";
 import routeMap from "@/constants/route-map";
 import { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "알림 등록하기 - 치직 문서",
@@ -13,9 +14,9 @@ export default function NotificationsPage() {
       <h2>대시보드에서 알림 추가</h2>
       <ol>
         <li>
-          <a href={routeMap.HOME} target="_blank">
+          <Link href={routeMap.HOME} target="_blank">
             치직 대시보드
-          </a>
+          </Link>
           에 접속하여 디스코드 계정으로 로그인합니다.
         </li>
         <li>관리자 권한이 있는 서버를 선택합니다.</li>
@@ -47,9 +48,9 @@ export default function NotificationsPage() {
           <strong>[추가하기]</strong> 버튼을 눌러 설정을 저장합니다.
         </li>
         <PolicyCallout variant="warning" title="알림 추가에 실패했나요?">
-          <a href={routeMap.DOCS.TROUBLESHOOTING} target="_blank">
+          <Link href={routeMap.DOCS.TROUBLESHOOTING} target="_blank">
             문제 해결 가이드
-          </a>
+          </Link>
           를 참고해주세요.
         </PolicyCallout>
         <li>
@@ -62,9 +63,9 @@ export default function NotificationsPage() {
           메시지가 오면 성공입니다!
         </li>
         <PolicyCallout variant="warning" title="메시지가 오지 않나요?">
-          <a href={routeMap.DOCS.TROUBLESHOOTING} target="_blank">
+          <Link href={routeMap.DOCS.TROUBLESHOOTING} target="_blank">
             문제 해결 가이드
-          </a>
+          </Link>
           를 참고해주세요.
         </PolicyCallout>
       </ol>

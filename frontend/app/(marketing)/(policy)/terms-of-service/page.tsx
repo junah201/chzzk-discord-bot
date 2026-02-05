@@ -1,5 +1,7 @@
 import { PolicyLayout, PolicySection } from "@/components/policy";
+import routeMap from "@/constants/route-map";
 import { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "치직 - 서비스 이용약관",
@@ -62,14 +64,13 @@ export default function TermsOfService() {
           </li>
           <li>
             <strong>치직 대시보드:</strong>{" "}
-            <a
-              href="https://chzzk.junah.dev"
+            <Link
+              href={routeMap.HOME}
               className="text-primary hover:underline"
               target="_blank"
-              rel="noreferrer"
             >
               https://chzzk.junah.dev
-            </a>{" "}
+            </Link>{" "}
             도메인을 통해 서비스 설정 및 관리를 지원하는 웹사이트를 의미합니다.
           </li>
         </ul>

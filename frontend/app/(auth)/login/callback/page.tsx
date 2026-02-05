@@ -9,6 +9,7 @@ import { LogoCard } from "@/components/ui/logo-card";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { Suspense, useEffect } from "react";
+import Link from "next/link";
 
 export default function LoginCallbackPage() {
   return (
@@ -84,12 +85,12 @@ function ClientLoginCallbackPage() {
 
             <p className="text-sm text-muted-foreground">
               화면이 멈춰있거나 반응이 없나요?{" "}
-              <a
+              <Link
                 href={routeMap.AUTH.LOGIN}
                 className="text-primary hover:text-primary/80 underline transition-colors"
               >
                 다시 시도하기
-              </a>
+              </Link>
             </p>
           </motion.div>
 

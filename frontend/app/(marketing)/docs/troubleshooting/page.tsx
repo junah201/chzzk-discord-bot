@@ -2,6 +2,7 @@ import { DocsContainer } from "@/components/docs/docs-ui";
 import { PolicyCallout } from "@/components/policy";
 import routeMap from "@/constants/route-map";
 import { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "문제 해결 - 치직 문서",
@@ -37,9 +38,9 @@ export default function TroubleshootingPage() {
       >
         <ul>
           <li>
-            <a href={routeMap.DOCS.INSTALLATION}>시작하기 문서</a>의 디스코드
-            채널 권한 설정 부분을 참고하여, 치직 봇에게 충분한 권한이 있는지
-            확인해주세요.
+            <Link href={routeMap.DOCS.INSTALLATION}>시작하기 문서</Link>의
+            디스코드 채널 권한 설정 부분을 참고하여, 치직 봇에게 충분한 권한이
+            있는지 확인해주세요.
           </li>
         </ul>
       </PolicyCallout>
@@ -79,9 +80,9 @@ export default function TroubleshootingPage() {
       <h2>문의하기</h2>
       <PolicyCallout variant="info" className="my-0">
         위 방법으로 해결되지 않는다면{" "}
-        <a href={routeMap.REDIRECTS.SUPPORT_SERVER} target="_blank">
+        <Link href={routeMap.REDIRECTS.SUPPORT_SERVER} target="_blank">
           서포트 서버
-        </a>
+        </Link>
         에 방문하여 문의해주세요.
       </PolicyCallout>
     </DocsContainer>

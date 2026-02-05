@@ -1,6 +1,7 @@
 "use client";
 
 import routeMap from "@/constants/route-map";
+import Link from "next/link";
 
 const footerLinks = [
   {
@@ -40,12 +41,12 @@ export const FooterNav = () => {
           <ul className="space-y-3">
             {section.links.map((link) => (
               <li key={link.name}>
-                <a
+                <Link
                   href={link.href}
                   className="text-muted-foreground hover:text-primary transition-colors inline-block"
                 >
                   {link.name}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

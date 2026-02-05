@@ -9,6 +9,7 @@ import {
   PolicyTr,
 } from "@/components/policy";
 import { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "메시지 커스텀 - 치직 문서",
@@ -176,7 +177,12 @@ export default function CustomizationPage() {
               <code>[치직 대시보드](https://chzzk.junah.dev)</code>
             </PolicyTd>
             <PolicyTd>
-              <a href="https://chzzk.junah.dev">치직 대시보드</a>
+              <Link
+                href="https://chzzk.junah.dev"
+                className="text-primary hover:underline"
+              >
+                치직 대시보드
+              </Link>
             </PolicyTd>
           </PolicyTr>
         </PolicyTbody>

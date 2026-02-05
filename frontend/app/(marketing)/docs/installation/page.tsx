@@ -2,6 +2,7 @@ import { DocsContainer } from "@/components/docs/docs-ui";
 import { PolicyCallout } from "@/components/policy";
 import routeMap from "@/constants/route-map";
 import { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "시작하기 - 치직 문서",
@@ -17,9 +18,9 @@ export default function InstallationPage() {
       <h2>서버에 치직 봇 초대하기</h2>
       <ol>
         <li>
-          <a href={routeMap.REDIRECTS.INVITE} target="_blank">
+          <Link href={routeMap.REDIRECTS.INVITE} target="_blank">
             봇 초대링크
-          </a>
+          </Link>
           를 클릭합니다.
         </li>
         <li>
