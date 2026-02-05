@@ -6,7 +6,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, User, Settings, LogOut } from "lucide-react";
 import Link from "next/link";
@@ -22,10 +22,6 @@ export default function Profile() {
         >
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <Avatar className="w-10 h-10 border-2 border-primary/30 group-hover:border-primary transition-colors">
-              <AvatarImage
-                src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop"
-                alt="User"
-              />
               <AvatarFallback className="bg-primary/20 text-primary font-semibold">
                 JH
               </AvatarFallback>
