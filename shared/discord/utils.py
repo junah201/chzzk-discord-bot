@@ -40,7 +40,7 @@ def get_channel(channel_id, token=DISCORD_TOKEN) -> dict | None:
 
 
 def is_admin(
-    guild_id: str | int, token: str = None, retry: int = 5
+    guild_id: str | int, token: str = None, retry: int = 3
 ) -> tuple[bool, requests.Response]:
     """
     해당 유저가 관리자 권한을 가진 서버인지 확인합니다.

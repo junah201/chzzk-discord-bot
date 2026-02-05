@@ -47,28 +47,53 @@ def middleware(logger: logging.Logger | None = None, admin_check: bool = False):
                 is_admin_result, res = is_admin(guild_id, token)
 
                 if is_admin_result is False:
-                    logger.info(
-                        json.dumps(
-                            {
-                                "type": "NOT_ADMIN",
-                                "guild_id": guild_id,
-                                "status_code": res.status_code
-                                if res is not None
-                                else None,
-                                "response": res.text if res is not None else None,
-                            }
+                    if res.status_code == 429:
+                        logger.info(
+                            json.dumps(
+                                {
+                                    "type": "RATE_LIMITED",
+                                    "guild_id": guild_id,
+                                    "status_code": res.status_code,
+                                    "response": res.text,
+                                }
+                            )
                         )
-                    )
-                    return {
-                        "statusCode": 400,
-                        "body": json.dumps(
-                            {"message": "해당 서버에 대한 관리자 권한이 없습니다."}
-                        ),
-                        "headers": {
-                            "Content-Type": "application/json",
-                            "Access-Control-Allow-Origin": "*",
-                        },
-                    }
+                        return {
+                            "statusCode": 429,
+                            "body": json.dumps(
+                                {
+                                    **res.json(),
+                                    "message": "너무 많은 요청을 보냈습니다. 잠시 후 다시 시도해주세요.",
+                                }
+                            ),
+                            "headers": {
+                                "Content-Type": "application/json",
+                                "Access-Control-Allow-Origin": "*",
+                            },
+                        }
+                    else:
+                        logger.info(
+                            json.dumps(
+                                {
+                                    "type": "NOT_ADMIN",
+                                    "guild_id": guild_id,
+                                    "status_code": res.status_code
+                                    if res is not None
+                                    else None,
+                                    "response": res.text if res is not None else None,
+                                }
+                            )
+                        )
+                        return {
+                            "statusCode": 400,
+                            "body": json.dumps(
+                                {"message": "해당 서버에 대한 관리자 권한이 없습니다."}
+                            ),
+                            "headers": {
+                                "Content-Type": "application/json",
+                                "Access-Control-Allow-Origin": "*",
+                            },
+                        }
 
             try:
                 res = func(event, context)
