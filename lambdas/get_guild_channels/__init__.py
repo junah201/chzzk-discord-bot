@@ -19,9 +19,7 @@ def handler(event, context):
 
     res = requests.get(
         f"https://discord.com/api/v10/guilds/{guild_id}/channels",
-        headers={
-            "Authorization": f"Bot {DISCORD_TOKEN}"
-        }
+        headers={"Authorization": f"Bot {DISCORD_TOKEN}"},
     )
 
     # 해당 서버가 존재하지 않거나 접근할 수 없는 경우
@@ -38,7 +36,7 @@ def handler(event, context):
                 "type": "GET_GUILD_CHANNELS",
                 "guild_id": guild_id,
                 "status_code": res.status_code,
-                "response": res.text
+                "response": res.text,
             }
         )
     )
@@ -47,8 +45,8 @@ def handler(event, context):
         return {
             "statusCode": 403,
             "headers": {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
             },
             "body": json.dumps({"message": "you don't have permission"}),
         }
@@ -57,8 +55,8 @@ def handler(event, context):
         return {
             "statusCode": 401,
             "headers": {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
             },
             "body": json.dumps({"message": "token is invalid"}),
         }
@@ -67,8 +65,8 @@ def handler(event, context):
         return {
             "statusCode": 400,
             "headers": {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
             },
             "body": json.dumps({"message": "unknown error"}),
         }
@@ -80,7 +78,4 @@ def handler(event, context):
         if channel["type"] in [CHANNEL_TYPE.GUILD_TEXT, CHANNEL_TYPE.GUILD_NEWS]
     ]
 
-    return {
-        "statusCode": 200,
-        "body": json.dumps(channels)
-    }
+    return {"statusCode": 200, "body": json.dumps(channels)}

@@ -10,7 +10,7 @@ import boto3
 
 from shared import middleware
 
-dynamodb = boto3.client('dynamodb')
+dynamodb = boto3.client("dynamodb")
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -36,30 +36,26 @@ def handler(event, context):
         }
 
     res = dynamodb.query(
-        TableName='chzzk-bot-db',
-        KeyConditionExpression='PK = :pk_val AND SK = :sk_val',
+        TableName="chzzk-bot-db",
+        KeyConditionExpression="PK = :pk_val AND SK = :sk_val",
         ExpressionAttributeValues={
-            ':pk_val': {'S': f"CHZZK#{chzzk_id}"},
-            ':sk_val': {'S': f"NOTI#{channel_id}"}
-        }
+            ":pk_val": {"S": f"CHZZK#{chzzk_id}"},
+            ":sk_val": {"S": f"NOTI#{channel_id}"},
+        },
     )
 
-    if res.get('Count') == 0:
+    if res.get("Count") == 0:
         return {
             "statusCode": 404,
             "body": json.dumps({"message": "해당 알림을 찾을 수 없습니다."}),
         }
 
     dynamodb.delete_item(
-        TableName='chzzk-bot-db',
+        TableName="chzzk-bot-db",
         Key={
-            'PK': {
-                'S': f"CHZZK#{chzzk_id}"
-            },
-            'SK': {
-                'S': f"NOTI#{channel_id}"
-            },
-        }
+            "PK": {"S": f"CHZZK#{chzzk_id}"},
+            "SK": {"S": f"NOTI#{channel_id}"},
+        },
     )
 
     return {

@@ -19,8 +19,8 @@ from shared import (
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-dynamodb = boto3.client('dynamodb')
-table = boto3.resource('dynamodb').Table('chzzk-bot-db')
+dynamodb = boto3.client("dynamodb")
+table = boto3.resource("dynamodb").Table("chzzk-bot-db")
 
 
 def get_follows(NID_AUT: str, NID_SES: str) -> list[Following]:
@@ -37,12 +37,12 @@ def get_follows(NID_AUT: str, NID_SES: str) -> list[Following]:
                 "size": 505,
                 "sortType": "FOLLOW",
                 "subscription": False,
-                "followerCount": False
+                "followerCount": False,
             },
             headers={
                 "User-Agent": generate_user_agent(os="win", device_type="desktop"),
-                "Cookie": f"NID_AUT={NID_AUT}; NID_SES={NID_SES}"
-            }
+                "Cookie": f"NID_AUT={NID_AUT}; NID_SES={NID_SES}",
+            },
         )
         data = res.json()
         total_page = data.get("content", {}).get("totalPage", 0)
@@ -57,9 +57,9 @@ def get_follows(NID_AUT: str, NID_SES: str) -> list[Following]:
                         "type": "GET_FOLLOWING_ERROR",
                         "status_code": res.status_code,
                         "text": res.text,
-                        "page": page
+                        "page": page,
                     },
-                    ensure_ascii=False
+                    ensure_ascii=False,
                 )
             )
             continue
@@ -70,7 +70,7 @@ def get_follows(NID_AUT: str, NID_SES: str) -> list[Following]:
                     "type": "GET_FOLLOWING_SUCCESS",
                     "page": page,
                     "total_page": total_page,
-                    "count": len(data.get("content", {}).get("followingList", []))
+                    "count": len(data.get("content", {}).get("followingList", [])),
                 }
             )
         )
@@ -83,12 +83,7 @@ def send_notification(chzzk_id: str):
     noti_send_cnt = 0
     noti_fail_cnt = 0
 
-    res = table.get_item(
-        Key={
-            "PK": f"CHZZK#{chzzk_id}",
-            "SK": f"CHZZK#{chzzk_id}"
-        }
-    )
+    res = table.get_item(Key={"PK": f"CHZZK#{chzzk_id}", "SK": f"CHZZK#{chzzk_id}"})
     item = res.get("Item", None)
 
     if not item:
@@ -97,7 +92,7 @@ def send_notification(chzzk_id: str):
                 {
                     "type": "GET_DYNAMODB_ERROR",
                     "chzzk_id": chzzk_id,
-                    "ResponseMetadata": res.get("ResponseMetadata", None)
+                    "ResponseMetadata": res.get("ResponseMetadata", None),
                 }
             )
         )
@@ -118,20 +113,16 @@ def send_notification(chzzk_id: str):
                     "chzzk": {
                         "liveId": (chzzk or {}).get("liveId", None),
                         "liveTitle": (chzzk or {}).get("liveTitle", None),
-                        "status": (chzzk or {}).get("status", None)
-                    }
+                        "status": (chzzk or {}).get("status", None),
+                    },
                 },
-                ensure_ascii=False
+                ensure_ascii=False,
             )
         )
     except Exception as e:
         logger.error(
             json.dumps(
-                {
-                    "type": "GET_CHZZK_ERROR",
-                    "channel_id": chzzk_id,
-                    "error": str(e)
-                }
+                {"type": "GET_CHZZK_ERROR", "channel_id": chzzk_id, "error": str(e)}
             )
         )
         return live_start_cnt, noti_send_cnt, noti_fail_cnt
@@ -139,13 +130,13 @@ def send_notification(chzzk_id: str):
     if not chzzk:
         return live_start_cnt, noti_send_cnt, noti_fail_cnt
 
-    if str(chzzk['liveId']) == str(last_live_id):
+    if str(chzzk["liveId"]) == str(last_live_id):
         logger.debug(
             json.dumps(
                 {
                     "type": "LIVE_NOT_CHANGED",
                     "chzzk_id": chzzk_id,
-                    "liveId": chzzk['liveId'],
+                    "liveId": chzzk["liveId"],
                 }
             )
         )
@@ -157,31 +148,31 @@ def send_notification(chzzk_id: str):
             {
                 "type": "LIVE_START",
                 "chzzk_id": chzzk_id,
-                "liveId": chzzk['liveId'],
-                "liveTitle": chzzk['liveTitle'],
+                "liveId": chzzk["liveId"],
+                "liveTitle": chzzk["liveTitle"],
             }
         )
     )
     dynamodb.update_item(
-        TableName='chzzk-bot-db',
+        TableName="chzzk-bot-db",
         Key={
-            'PK': {"S": f"CHZZK#{chzzk_id}"},
-            'SK': {"S": f"CHZZK#{chzzk_id}"},
+            "PK": {"S": f"CHZZK#{chzzk_id}"},
+            "SK": {"S": f"CHZZK#{chzzk_id}"},
         },
-        UpdateExpression='SET lastLiveId = :live_id, lastLiveTitle = :live_title',
+        UpdateExpression="SET lastLiveId = :live_id, lastLiveTitle = :live_title",
         ExpressionAttributeValues={
-            ':live_id': {'N': f"{chzzk['liveId']}"},
-            ':live_title': {'S': chzzk['liveTitle']}
-        }
+            ":live_id": {"N": f"{chzzk['liveId']}"},
+            ":live_title": {"S": chzzk["liveTitle"]},
+        },
     )
 
     res = dynamodb.query(
-        TableName='chzzk-bot-db',
-        KeyConditionExpression='PK = :pk_val AND begins_with(SK, :sk_val)',
+        TableName="chzzk-bot-db",
+        KeyConditionExpression="PK = :pk_val AND begins_with(SK, :sk_val)",
         ExpressionAttributeValues={
-            ':pk_val': {'S': f"CHZZK#{chzzk_id}"},
-            ':sk_val': {'S': 'NOTI#'}
-        }
+            ":pk_val": {"S": f"CHZZK#{chzzk_id}"},
+            ":sk_val": {"S": "NOTI#"},
+        },
     )
 
     logger.info(
@@ -191,7 +182,7 @@ def send_notification(chzzk_id: str):
                 "chzzk_id": chzzk_id,
                 "noti_count": res["Count"],
             },
-            ensure_ascii=False
+            ensure_ascii=False,
         ),
     )
 
@@ -212,24 +203,24 @@ def send_notification(chzzk_id: str):
                     "description": f"{chzzk['channel']['channelName']} 님이 방송을 시작했습니다.",
                     "color": 0x02E895,
                     "fields": [
-                        {
-                            "name": '카테고리',
-                            "value": chzzk['liveCategoryValue']
-                        }
+                        {"name": "카테고리", "value": chzzk["liveCategoryValue"]}
                     ],
                     "image": {
-                        "url": (chzzk['liveImageUrl'] or chzzk['channel']['channelImageUrl'] or "").replace("_{type}", "_1080"),
+                        "url": (
+                            chzzk["liveImageUrl"]
+                            or chzzk["channel"]["channelImageUrl"]
+                            or ""
+                        ).replace("_{type}", "_1080"),
                     },
                     "author": {
                         "name": f"{chzzk['channel']['channelName']}",
                         "url": f"https://chzzk.naver.com/live/{chzzk_id}",
-                        "icon_url": chzzk['channel']['channelImageUrl'] or "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png?type=f120_120_na"
+                        "icon_url": chzzk["channel"]["channelImageUrl"]
+                        or "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png?type=f120_120_na",
                     },
-                    "footer": {
-                        "text": "chzzk.junah.dev"
-                    },
+                    "footer": {"text": "chzzk.junah.dev"},
                     "url": f"https://chzzk.naver.com/live/{chzzk_id}",
-                    "timestamp": datetime.now().isoformat()
+                    "timestamp": datetime.now().isoformat(),
                 },
             ]
 
@@ -242,16 +233,13 @@ def send_notification(chzzk_id: str):
                             "type": COMPONENT_TYPE.BUTTON,
                             "label": "바로가기",
                             "style": BUTTON_STYLE.LINK,
-                            "url": f"https://chzzk.naver.com/live/{chzzk_id}"
+                            "url": f"https://chzzk.naver.com/live/{chzzk_id}",
                         }
-                    ]
+                    ],
                 },
             ]
 
-        res = send_message(
-            channel_id=discord_channel_id,
-            data=data
-        )
+        res = send_message(channel_id=discord_channel_id, data=data)
 
         # 채널이 존재하지 않는 경우
         if res.status_code == 404:
@@ -263,15 +251,12 @@ def send_notification(chzzk_id: str):
                         "chzzk_id": chzzk_id,
                         "discord_channel_id": discord_channel_id,
                     },
-                    ensure_ascii=False
+                    ensure_ascii=False,
                 )
             )
             dynamodb.delete_item(
-                TableName='chzzk-bot-db',
-                Key={
-                    'PK': noti.get('PK'),
-                    'SK': noti.get('SK')
-                }
+                TableName="chzzk-bot-db",
+                Key={"PK": noti.get("PK"), "SK": noti.get("SK")},
             )
             continue
 
@@ -287,21 +272,20 @@ def send_notification(chzzk_id: str):
                         "status_code": res.status_code,
                         "response": res.text,
                     },
-                    ensure_ascii=False
+                    ensure_ascii=False,
                 ),
             )
             dynamodb.update_item(
-                TableName='chzzk-bot-db',
-                Key={
-                    'PK': noti.get('PK'),
-                    'SK': noti.get('SK')
-                },
-                UpdateExpression='SET last_noti_status = :last_noti_status, last_noti_at = :last_noti_at, noti_fail_count = :noti_fail_count',
+                TableName="chzzk-bot-db",
+                Key={"PK": noti.get("PK"), "SK": noti.get("SK")},
+                UpdateExpression="SET last_noti_status = :last_noti_status, last_noti_at = :last_noti_at, noti_fail_count = :noti_fail_count",
                 ExpressionAttributeValues={
-                    ':last_noti_status': {'S': f"FAIL_{res.status_code}"},
-                    ':last_noti_at': {'S': datetime.now().isoformat()},
-                    ':noti_fail_count': {'N': str(int(noti.get("noti_fail_count", {"N": "0"})["N"]) + 1)}
-                }
+                    ":last_noti_status": {"S": f"FAIL_{res.status_code}"},
+                    ":last_noti_at": {"S": datetime.now().isoformat()},
+                    ":noti_fail_count": {
+                        "N": str(int(noti.get("noti_fail_count", {"N": "0"})["N"]) + 1)
+                    },
+                },
             )
             continue
 
@@ -314,21 +298,18 @@ def send_notification(chzzk_id: str):
                     "chzzk_id": chzzk_id,
                     "discord_channel_id": discord_channel_id,
                 },
-                ensure_ascii=False
+                ensure_ascii=False,
             )
         )
         dynamodb.update_item(
-            TableName='chzzk-bot-db',
-            Key={
-                'PK': noti.get('PK'),
-                'SK': noti.get('SK')
-            },
-            UpdateExpression='SET last_noti_status = :last_noti_status, last_noti_at = :last_noti_at, noti_fail_count = :noti_fail_count',
+            TableName="chzzk-bot-db",
+            Key={"PK": noti.get("PK"), "SK": noti.get("SK")},
+            UpdateExpression="SET last_noti_status = :last_noti_status, last_noti_at = :last_noti_at, noti_fail_count = :noti_fail_count",
             ExpressionAttributeValues={
-                ':last_noti_status': {'S': "SUCCESS"},
-                ':last_noti_at': {'S': datetime.now().isoformat()},
-                ':noti_fail_count': {'N': "0"}
-            }
+                ":last_noti_status": {"S": "SUCCESS"},
+                ":last_noti_at": {"S": datetime.now().isoformat()},
+                ":noti_fail_count": {"N": "0"},
+            },
         )
 
     return live_start_cnt, noti_send_cnt, noti_fail_cnt
@@ -339,12 +320,7 @@ def handler(event, context):
     index = int(event.get("resources", [])[0][-1])
     request_id = context.aws_request_id
 
-    res = table.get_item(
-        Key={
-            "PK": f"NAVER#{index}",
-            "SK": f"NAVER#{index}"
-        }
-    )
+    res = table.get_item(Key={"PK": f"NAVER#{index}", "SK": f"NAVER#{index}"})
     naver = res.get("Item")
 
     NID_AUT = naver.get("NID_AUT")
@@ -352,15 +328,14 @@ def handler(event, context):
 
     follows = get_follows(NID_AUT, NID_SES)
     live_channels: list[str] = [
-        f["channel"]["channelId"]
-        for f in follows if f["streamer"]["openLive"] == True
+        f["channel"]["channelId"] for f in follows if f["streamer"]["openLive"] == True
     ]
     logger.info(
         json.dumps(
             {
                 "type": "GET_FOLLOWINGS_SUCCESS",
                 "follows_count": len(follows),
-                "live_count": len(live_channels)
+                "live_count": len(live_channels),
             }
         )
     )
@@ -371,8 +346,7 @@ def handler(event, context):
 
     for chzzk_id in live_channels:
         try:
-            live_start_cnt, noti_send_cnt, noti_fail_cnt = send_notification(
-                chzzk_id)
+            live_start_cnt, noti_send_cnt, noti_fail_cnt = send_notification(chzzk_id)
             total_live_start_cnt += live_start_cnt
             total_noti_send_cnt += noti_send_cnt
             total_noti_fail_cnt += noti_fail_cnt
@@ -398,7 +372,7 @@ def handler(event, context):
                 "total_live_channels_count": len(live_channels),
                 "total_live_start_cnt": total_live_start_cnt,
                 "total_noti_send_cnt": total_noti_send_cnt,
-                "total_noti_fail_cnt": total_noti_fail_cnt
+                "total_noti_fail_cnt": total_noti_fail_cnt,
             }
         )
     )
@@ -413,7 +387,7 @@ def handler(event, context):
                 "total_live_channels_count": len(live_channels),
                 "total_live_start_cnt": total_live_start_cnt,
                 "total_noti_send_cnt": total_noti_send_cnt,
-                "total_noti_fail_cnt": total_noti_fail_cnt
+                "total_noti_fail_cnt": total_noti_fail_cnt,
             }
-        )
+        ),
     }

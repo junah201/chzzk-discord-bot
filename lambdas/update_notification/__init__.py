@@ -5,7 +5,7 @@ import boto3
 
 from shared import middleware
 
-dynamodb = boto3.client('dynamodb')
+dynamodb = boto3.client("dynamodb")
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -31,31 +31,32 @@ def handler(event, context):
             return {
                 "statusCode": 400,
                 "headers": {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
                 },
-                "body": json.dumps({"message": "token, chzzk_id, channel_id, custom_message are required"}),
+                "body": json.dumps(
+                    {
+                        "message": "token, chzzk_id, channel_id, custom_message are required"
+                    }
+                ),
             }
 
     res = dynamodb.query(
-        TableName='chzzk-bot-db',
-        KeyConditionExpression='#pk = :pk_val AND #sk = :sk_val',
-        ExpressionAttributeNames={
-            '#pk': 'PK',
-            '#sk': 'SK'
-        },
+        TableName="chzzk-bot-db",
+        KeyConditionExpression="#pk = :pk_val AND #sk = :sk_val",
+        ExpressionAttributeNames={"#pk": "PK", "#sk": "SK"},
         ExpressionAttributeValues={
-            ':pk_val': {'S': f"CHZZK#{chzzk_id}"},
-            ':sk_val': {'S': f"NOTI#{channel_id}"}
-        }
+            ":pk_val": {"S": f"CHZZK#{chzzk_id}"},
+            ":sk_val": {"S": f"NOTI#{channel_id}"},
+        },
     )
 
     if res["Count"] < 1:
         return {
             "statusCode": 404,
             "headers": {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
             },
             "body": json.dumps({"message": "해당 알림을 찾을 수 없습니다."}),
         }
@@ -66,15 +67,12 @@ def handler(event, context):
     item["disable_button"] = {"BOOL": disable_button}
     item["disable_notification"] = {"BOOL": disable_notification}
 
-    res = dynamodb.put_item(
-        TableName='chzzk-bot-db',
-        Item=item
-    )
+    res = dynamodb.put_item(TableName="chzzk-bot-db", Item=item)
 
     return {
         "statusCode": 204,
         "headers": {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
         },
     }

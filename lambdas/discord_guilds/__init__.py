@@ -31,12 +31,8 @@ def handler(event, context):
 
     res = requests.get(
         "https://discord.com/api/users/@me/guilds",
-        headers={
-            "Authorization": token
-        },
-        params={
-            "with_counts": "true"
-        },
+        headers={"Authorization": token},
+        params={"with_counts": "true"},
     )
 
     if res.status_code != 200:
@@ -45,7 +41,7 @@ def handler(event, context):
                 {
                     "type": "INVALID_TOKEN",
                     "status_code": res.status_code,
-                    "response": res.text
+                    "response": res.text,
                 }
             )
         )
@@ -57,15 +53,11 @@ def handler(event, context):
     data = res.json()
 
     # 관리자권한을 가진 서버만 필터링합니다.
-    ALLOWED_KEYS = {'id', 'name', 'icon',
-                    "description", 'approximate_member_count'}
+    ALLOWED_KEYS = {"id", "name", "icon", "description", "approximate_member_count"}
     guilds = [
         pick(guild, ALLOWED_KEYS)
         for guild in data
         if (guild["permissions"] & 0x8) == 0x8
     ]
 
-    return {
-        "statusCode": 200,
-        "body": json.dumps(guilds)
-    }
+    return {"statusCode": 200, "body": json.dumps(guilds)}

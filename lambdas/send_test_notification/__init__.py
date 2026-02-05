@@ -7,7 +7,7 @@ import boto3
 from shared import get_chzzk, middleware, send_message
 from shared.discord import BUTTON_STYLE, COMPONENT_TYPE
 
-dynamodb = boto3.client('dynamodb')
+dynamodb = boto3.client("dynamodb")
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -35,12 +35,12 @@ def handler(event, context):
         }
 
     res = dynamodb.query(
-        TableName='chzzk-bot-db',
-        KeyConditionExpression='PK = :pk_val AND begins_with(SK, :sk_val)',
+        TableName="chzzk-bot-db",
+        KeyConditionExpression="PK = :pk_val AND begins_with(SK, :sk_val)",
         ExpressionAttributeValues={
-            ':pk_val': {'S': f"CHZZK#{chzzk_id}"},
-            ':sk_val': {'S': f"NOTI#{discord_channel_id}"}
-        }
+            ":pk_val": {"S": f"CHZZK#{chzzk_id}"},
+            ":sk_val": {"S": f"NOTI#{discord_channel_id}"},
+        },
     )
 
     if res["Count"] < 1:
@@ -52,7 +52,9 @@ def handler(event, context):
     item = res["Items"][0]
 
     data = {
-        "content": "관리자의 요청에 따라 전송된 테스트 알림입니다." + "\n\n" + item.get("custom_message", {}).get("S", "")
+        "content": "관리자의 요청에 따라 전송된 테스트 알림입니다."
+        + "\n\n"
+        + item.get("custom_message", {}).get("S", "")
     }
     if not item.get("disable_embed", {"BOOL": False})["BOOL"]:
         data["embeds"] = [
@@ -60,25 +62,23 @@ def handler(event, context):
                 "title": f"{chzzk['liveTitle']}",
                 "description": f"{chzzk['channel']['channelName']} 님이 방송을 시작했습니다.",
                 "color": 0x02E895,
-                "fields": [
-                    {
-                        "name": '카테고리',
-                        "value": chzzk['liveCategoryValue']
-                    }
-                ],
+                "fields": [{"name": "카테고리", "value": chzzk["liveCategoryValue"]}],
                 "image": {
-                    "url": (chzzk['liveImageUrl'] or chzzk['channel']['channelImageUrl'] or "").replace("_{type}", "_1080"),
+                    "url": (
+                        chzzk["liveImageUrl"]
+                        or chzzk["channel"]["channelImageUrl"]
+                        or ""
+                    ).replace("_{type}", "_1080"),
                 },
                 "author": {
                     "name": f"{chzzk['channel']['channelName']}",
                     "url": f"https://chzzk.naver.com/live/{chzzk_id}",
-                    "icon_url": chzzk['channel']['channelImageUrl'] or "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png?type=f120_120_na"
+                    "icon_url": chzzk["channel"]["channelImageUrl"]
+                    or "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png?type=f120_120_na",
                 },
-                "footer": {
-                    "text": "chzzk.junah.dev"
-                },
+                "footer": {"text": "chzzk.junah.dev"},
                 "url": f"https://chzzk.naver.com/live/{chzzk_id}",
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             },
         ]
     if not item.get("disable_button", {"BOOL": False})["BOOL"]:
@@ -90,16 +90,13 @@ def handler(event, context):
                         "type": COMPONENT_TYPE.BUTTON,
                         "label": "바로가기",
                         "style": BUTTON_STYLE.LINK,
-                        "url": f"https://chzzk.naver.com/live/{chzzk_id}"
+                        "url": f"https://chzzk.naver.com/live/{chzzk_id}",
                     }
-                ]
+                ],
             },
         ]
 
-    res = send_message(
-        channel_id=discord_channel_id,
-        data=data
-    )
+    res = send_message(channel_id=discord_channel_id, data=data)
 
     # 채널이 존재하지 않는 경우
     if res.status_code == 404:
@@ -111,17 +108,13 @@ def handler(event, context):
                     "response": res.text,
                     "channel_id": discord_channel_id,
                     "chzzk_id": chzzk_id,
-                    "data": data
+                    "data": data,
                 },
-                ensure_ascii=False
+                ensure_ascii=False,
             )
         )
         dynamodb.delete_item(
-            TableName='chzzk-bot-db',
-            Key={
-                'PK': item.get('PK'),
-                'SK': item.get('SK')
-            }
+            TableName="chzzk-bot-db", Key={"PK": item.get("PK"), "SK": item.get("SK")}
         )
         return {
             "statusCode": 404,
@@ -138,14 +131,18 @@ def handler(event, context):
                     "response": res.text,
                     "channel_id": discord_channel_id,
                     "chzzk_id": chzzk_id,
-                    "data": data
+                    "data": data,
                 },
-                ensure_ascii=False
+                ensure_ascii=False,
             )
         )
         return {
             "statusCode": 500,
-            "body": json.dumps({"message": f"테스트 알림 전송에 실패했습니다. 치직 봇이 해당 채널에 메시지를 보낼 권한이 있는지 확인해주세요. ({res.json()})"}),
+            "body": json.dumps(
+                {
+                    "message": f"테스트 알림 전송에 실패했습니다. 치직 봇이 해당 채널에 메시지를 보낼 권한이 있는지 확인해주세요. ({res.json()})"
+                }
+            ),
         }
 
     # 성공
@@ -155,9 +152,9 @@ def handler(event, context):
                 "type": "SEND_MESSAGE_SUCCESS",
                 "channel_id": discord_channel_id,
                 "chzzk_id": chzzk_id,
-                "data": data
+                "data": data,
             },
-            ensure_ascii=False
+            ensure_ascii=False,
         )
     )
     return {

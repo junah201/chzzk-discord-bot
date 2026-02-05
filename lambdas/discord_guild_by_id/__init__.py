@@ -25,12 +25,8 @@ def handler(event, context):
 
     res = requests.get(
         f"https://discord.com/api/v10/guilds/{guild_id}",
-        headers={
-            "Authorization": f"Bot {DISCORD_TOKEN}"
-        },
-        params={
-            "with_counts": "true"
-        },
+        headers={"Authorization": f"Bot {DISCORD_TOKEN}"},
+        params={"with_counts": "true"},
     )
 
     if res.status_code == 404:
@@ -46,7 +42,7 @@ def handler(event, context):
                 "type": "GET_GUILD_BY_ID",
                 "guild_id": guild_id,
                 "status_code": res.status_code,
-                "response": res.text
+                "response": res.text,
             }
         )
     )
@@ -67,17 +63,11 @@ def handler(event, context):
         return {
             "statusCode": 400,
             "headers": {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
             },
             "body": json.dumps({"message": "unknown error"}),
         }
 
-    ALLOWED_KEYS = {'id', 'name', 'icon',
-                    "description", 'approximate_member_count'}
-    return {
-        "statusCode": 200,
-        "body": json.dumps(
-            pick(data, ALLOWED_KEYS)
-        )
-    }
+    ALLOWED_KEYS = {"id", "name", "icon", "description", "approximate_member_count"}
+    return {"statusCode": 200, "body": json.dumps(pick(data, ALLOWED_KEYS))}

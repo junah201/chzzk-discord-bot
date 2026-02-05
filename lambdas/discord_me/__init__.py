@@ -29,10 +29,7 @@ def handler(event, context):
         }
 
     res = requests.get(
-        "https://discord.com/api/users/@me",
-        headers={
-            "Authorization": token
-        }
+        "https://discord.com/api/users/@me", headers={"Authorization": token}
     )
 
     if res.status_code != 200:
@@ -41,7 +38,7 @@ def handler(event, context):
                 {
                     "type": "INVALID_TOKEN",
                     "status_code": res.status_code,
-                    "response": res.text
+                    "response": res.text,
                 }
             )
         )
@@ -53,16 +50,9 @@ def handler(event, context):
     data = res.json()
     logger.info(
         json.dumps(
-            {
-                "type": "GET_USER",
-                "status_code": res.status_code,
-                "response": data
-            },
-            ensure_ascii=False
+            {"type": "GET_USER", "status_code": res.status_code, "response": data},
+            ensure_ascii=False,
         )
     )
 
-    return {
-        "statusCode": 200,
-        "body": json.dumps(data)
-    }
+    return {"statusCode": 200, "body": json.dumps(data)}
