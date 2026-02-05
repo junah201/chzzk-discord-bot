@@ -37,5 +37,7 @@ export const discordQueries = {
       queryKey: keys.channels(guildId),
       queryFn: () => api.get<Channel[]>(`/discord/${guildId}/channels`),
       enabled: !!guildId,
+      staleTime: Infinity,
+      gcTime: 1000 * 60 * 60,
     }),
 };
