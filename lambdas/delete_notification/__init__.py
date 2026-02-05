@@ -9,6 +9,7 @@ import logging
 import boto3
 
 from shared import middleware
+from shared.exceptions import BadRequestError
 
 dynamodb = boto3.client("dynamodb")
 
@@ -23,17 +24,8 @@ def handler(event, context):
     chzzk_id = body.get("chzzk_id", None)
     channel_id = body.get("channel_id", None)
 
-    if channel_id is None:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"message": "channel_id is required"}),
-        }
-
-    if chzzk_id is None:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"message": "chzzk_id is required"}),
-        }
+    if not channel_id or not chzzk_id:
+        raise BadRequestError()
 
     res = dynamodb.query(
         TableName="chzzk-bot-db",

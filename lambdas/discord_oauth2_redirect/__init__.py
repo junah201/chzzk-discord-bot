@@ -5,6 +5,7 @@ import os
 import requests
 
 from shared import middleware
+from shared.exceptions import BadRequestError, UnauthorizedError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -20,10 +21,14 @@ def handler(event, context):
     code = body.get("code", None)
 
     if code is None:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"message": "code is required"}),
-        }
+        logger.info(
+            json.dumps(
+                {
+                    "type": "MISSING_CODE",
+                }
+            )
+        )
+        raise BadRequestError()
 
     headers = event.get("headers", {})
     origin = headers.get("origin") or headers.get("Origin") or ""
@@ -31,19 +36,12 @@ def handler(event, context):
     if "localhost" in origin:
         redirect_uri = "http://localhost:3000/login/callback"
         scope = "identify, email, guilds, guilds.members.read"
-        env_label = "Localhost"
     elif "dev.chzzk.junah.dev" in origin:
         redirect_uri = "https://dev.chzzk.junah.dev/login/callback"
         scope = "identify, email, guilds, guilds.members.read"
-        env_label = "Dev"
     else:
         redirect_uri = "https://chzzk.junah.dev/login"
         scope = "identify, email, guilds"
-        env_label = "Production"
-
-    logger.info(
-        f"[{env_label}] Request detected. Origin: {origin}, Using URI: {redirect_uri}"
-    )
 
     res = requests.post(
         url="https://discord.com/api/v10/oauth2/token",
@@ -68,10 +66,7 @@ def handler(event, context):
                 }
             )
         )
-        return {
-            "statusCode": 401,
-            "body": json.dumps({"message": "code is invalid"}),
-        }
+        raise UnauthorizedError()
 
     data = res.json()
 

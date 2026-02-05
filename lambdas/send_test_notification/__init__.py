@@ -6,6 +6,7 @@ import boto3
 
 from shared import get_chzzk, middleware, send_message
 from shared.discord import BUTTON_STYLE, COMPONENT_TYPE
+from shared.exceptions import BadRequestError
 
 dynamodb = boto3.client("dynamodb")
 
@@ -20,11 +21,8 @@ def handler(event, context):
     chzzk_id = body.get("chzzk_id", None)
     discord_channel_id = body.get("channel_id", None)
 
-    if chzzk_id is None or discord_channel_id is None:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"message": "chzzk_id, channel_id are required"}),
-        }
+    if not all([chzzk_id, discord_channel_id]):
+        raise BadRequestError()
 
     # 치지직 채널이 있는지 확인
     chzzk = get_chzzk(chzzk_id)

@@ -10,6 +10,7 @@ import requests
 from user_agent import generate_user_agent
 
 from shared import get_channel, get_chzzk, middleware
+from shared.exceptions import BadRequestError
 
 dynamodb = boto3.client("dynamodb")
 table = boto3.resource("dynamodb").Table("chzzk-bot-db")
@@ -33,16 +34,8 @@ def handler(event, context):
     disable_button = body.get("disable_button", False)
     disable_notification = body.get("disable_notification", False)
 
-    for i in [token, chzzk_id, channel_id, custom_message]:
-        if i is None:
-            return {
-                "statusCode": 400,
-                "body": json.dumps(
-                    {
-                        "message": "token, chzzk_id, channel_id, custom_message are required"
-                    }
-                ),
-            }
+    if not all([token, chzzk_id, channel_id, custom_message]):
+        raise BadRequestError()
 
     # 디스코드 채널 정보 확인
     channel_data = get_channel(channel_id)

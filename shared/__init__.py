@@ -13,6 +13,16 @@ from .discord import (
 from .dynamodb import dynamo_to_python, python_to_dynamo
 from .middleware import middleware
 from .utils import omit, pick
+from .exceptions import (
+    BaseException,
+    BadRequestError,
+    BotForbiddenError,
+    BotNotJoinedError,
+    RateLimitError,
+    ServerNotFoundError,
+    UnauthorizedError,
+    UserNotAdminError,
+)
 
 __all__ = [
     # middleware.py
@@ -38,4 +48,13 @@ __all__ = [
     # utils.py
     "pick",
     "omit",
+    # exceptions.py
+    "BaseException",
+    "BadRequestError",
+    "UnauthorizedError",
+    "UserNotAdminError",
+    "BotForbiddenError",
+    "BotNotJoinedError",
+    "ServerNotFoundError",
+    "RateLimitError",
 ]

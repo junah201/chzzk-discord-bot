@@ -4,6 +4,7 @@ import logging
 import boto3
 
 from shared import middleware
+from shared.exceptions import BadRequestError
 
 dynamodb = boto3.client("dynamodb")
 
@@ -26,20 +27,8 @@ def handler(event, context):
     disable_button = body.get("disable_button", False)
     disable_notification = body.get("disable_notification", False)
 
-    for i in [token, chzzk_id, channel_id, custom_message]:
-        if i is None:
-            return {
-                "statusCode": 400,
-                "headers": {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                },
-                "body": json.dumps(
-                    {
-                        "message": "token, chzzk_id, channel_id, custom_message are required"
-                    }
-                ),
-            }
+    if not all([token, chzzk_id, channel_id, custom_message]):
+        raise BadRequestError()
 
     res = dynamodb.query(
         TableName="chzzk-bot-db",

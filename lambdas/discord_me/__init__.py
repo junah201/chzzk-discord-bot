@@ -4,6 +4,7 @@ import logging
 import requests
 
 from shared import middleware
+from shared.exceptions import UnauthorizedError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -23,10 +24,7 @@ def handler(event, context):
                 }
             )
         )
-        return {
-            "statusCode": 401,
-            "body": json.dumps({"message": "token is required"}),
-        }
+        raise UnauthorizedError()
 
     res = requests.get(
         "https://discord.com/api/users/@me", headers={"Authorization": token}
@@ -42,10 +40,7 @@ def handler(event, context):
                 }
             )
         )
-        return {
-            "statusCode": 401,
-            "body": json.dumps({"message": "token is invalid"}),
-        }
+        raise UnauthorizedError()
 
     data = res.json()
     logger.info(

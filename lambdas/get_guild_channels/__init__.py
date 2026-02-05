@@ -6,6 +6,12 @@ import requests
 
 from shared import middleware
 from shared.discord import CHANNEL_TYPE
+from shared.exceptions import (
+    BotNotJoinedError,
+    DiscordApiError,
+    ServerNotFoundError,
+    UnauthorizedError,
+)
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -24,10 +30,7 @@ def handler(event, context):
 
     # 해당 서버가 존재하지 않거나 접근할 수 없는 경우
     if res.status_code == 404:
-        return {
-            "statusCode": 404,
-            "body": json.dumps({"message": "guild not found"}),
-        }
+        raise ServerNotFoundError()
 
     data = res.json()
     logger.info(
@@ -42,34 +45,13 @@ def handler(event, context):
     )
 
     if res.status_code == 403:
-        return {
-            "statusCode": 403,
-            "headers": {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-            },
-            "body": json.dumps({"message": "you don't have permission"}),
-        }
+        raise BotNotJoinedError()
 
     if res.status_code == 401:
-        return {
-            "statusCode": 401,
-            "headers": {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-            },
-            "body": json.dumps({"message": "token is invalid"}),
-        }
+        raise UnauthorizedError()
 
     if res.status_code != 200:
-        return {
-            "statusCode": 400,
-            "headers": {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-            },
-            "body": json.dumps({"message": "unknown error"}),
-        }
+        raise DiscordApiError(res)
 
     # 채팅 채널 목록을 필터링합니다. (채널이 텍스트 채널 혹은 공지 채널이여야 합니다.)
     channels = [
