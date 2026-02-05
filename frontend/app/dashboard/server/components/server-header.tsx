@@ -2,6 +2,7 @@
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { routeMap } from "@/constants/route-map";
+import { getDiscordIconUrl } from "@/lib/urls";
 import { Guild } from "@/types/api";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "motion/react";
@@ -12,10 +13,6 @@ interface ServerHeaderProps {
 }
 
 export default function ServerHeader({ server }: ServerHeaderProps) {
-  const iconUrl = server.icon
-    ? `https://cdn.discordapp.com/icons/${server.id}/${server.icon}.webp?size=64`
-    : undefined;
-
   return (
     <div className="border-b border-border bg-background/95 backdrop-blur-lg">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -34,7 +31,10 @@ export default function ServerHeader({ server }: ServerHeaderProps) {
 
           <div className="flex items-center gap-4 mt-2">
             <Avatar className="w-20 h-20 border-2 border-primary/30">
-              <AvatarImage src={iconUrl} alt={server.name} />
+              <AvatarImage
+                src={getDiscordIconUrl(server.id, server.icon)}
+                alt={server.name}
+              />
               <AvatarFallback className="bg-primary/20 text-primary text-2xl font-semibold">
                 {server.name.slice(0, 2)}
               </AvatarFallback>

@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LinkButton } from "@/components/ui/link-button";
 import routeMap from "@/constants/route-map";
+import { getDiscordIconUrl } from "@/lib/urls";
 import { Guild } from "@/types/api";
 import { Users } from "lucide-react";
 
@@ -10,16 +11,15 @@ interface ServerCardProps {
 }
 
 export function ServerCard({ server }: ServerCardProps) {
-  const iconUrl = server.icon
-    ? `https://cdn.discordapp.com/icons/${server.id}/${server.icon}.webp?size=64`
-    : undefined;
-
   return (
     <Card className="bg-card border-border transition-all duration-300 group hover:border-primary/50 h-full flex flex-col">
       <CardHeader>
         <div className="flex items-center gap-4">
           <Avatar className="w-16 h-16 border-2 border-border transition-colors">
-            <AvatarImage src={iconUrl} alt={server.name} />
+            <AvatarImage
+              src={getDiscordIconUrl(server.id, server.icon)}
+              alt={server.name}
+            />
             <AvatarFallback className="bg-primary/20 text-primary text-lg font-semibold">
               {server.name.slice(0, 2)}
             </AvatarFallback>

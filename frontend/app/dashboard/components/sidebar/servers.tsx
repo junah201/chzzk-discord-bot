@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { SidebarItem } from "./sidebar-item";
 import { SidebarItemSkeleton } from "./sidebar-item-skeleton";
 import routeMap from "@/constants/route-map";
+import { getDiscordIconUrl } from "@/lib/urls";
 
 export default function Servers() {
   const { data, isLoading } = useQuery(discordQueries.guilds());
@@ -24,7 +25,7 @@ export default function Servers() {
             startSlot={
               <Avatar className="w-8 h-8 border-2 border-border">
                 <AvatarImage
-                  src={`https://cdn.discordapp.com/icons/${server.id}/${server.icon}.webp?size=64`}
+                  src={getDiscordIconUrl(server.id, server.icon)}
                   alt={server.name}
                 />
                 <AvatarFallback className="text-primary text-xs">
