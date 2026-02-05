@@ -35,6 +35,9 @@ export default function NotificationsPage() {
           <div className="bg-secondary p-3 rounded-md font-mono text-xs break-all border border-border">
             https://chzzk.naver.com/
             <span className="text-primary font-bold">bb382c2c0cc9fa7c86</span>
+            <br />
+            https://chzzk.naver.com/live/
+            <span className="text-primary font-bold">bb382c2c0cc9fa7c86</span>
           </div>
           <p className="mt-2 text-sm text-muted-foreground">
             위 예시에서는 <code>bb382c2c0cc9fa7c86</code> 복사해서 붙여넣으세요.
