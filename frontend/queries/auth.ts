@@ -1,4 +1,4 @@
-import { apiClient } from "@/lib/api-client";
+import { api } from "@/lib/api-client";
 
 interface LoginResponse {
   token_type: string;
@@ -9,6 +9,5 @@ interface LoginResponse {
 }
 
 export const authMutations = {
-  login: (code: string) =>
-    apiClient.post<LoginResponse>("/oauth/token", { code }),
+  login: (code: string) => api.post<LoginResponse>("/oauth/token", { code }),
 };

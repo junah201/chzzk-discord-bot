@@ -17,7 +17,7 @@ export default function Servers() {
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-1 px-3 flex flex-col">
-        {data?.data.map((server) => (
+        {data?.map((server) => (
           <SidebarItem
             href={routeMap.DASHBOARD.SERVER(server.id)}
             key={server.id}

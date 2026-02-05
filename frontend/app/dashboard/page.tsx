@@ -11,7 +11,7 @@ import { ServerCardSkeleton } from "./components/server-card-skeleton";
 export default function Dashboard() {
   const { data, isLoading } = useQuery(discordQueries.guilds());
 
-  const servers = data?.data || [];
+  const servers = data || [];
 
   return (
     <div className="min-h-screen bg-background">

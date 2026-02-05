@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
+import { api } from "@/lib/api-client";
 import { Notification } from "@/types/api";
 
 export const keys = {
@@ -11,7 +11,7 @@ export const notificationQueries = {
   listByGuildId: (guildId: string) =>
     queryOptions({
       queryKey: keys.listByGuildId(guildId),
-      queryFn: () => apiClient.get<Notification[]>(`/notifications/${guildId}`),
+      queryFn: () => api.get<Notification[]>(`/notifications/${guildId}`),
       staleTime: 1000 * 60 * 5,
     }),
 };

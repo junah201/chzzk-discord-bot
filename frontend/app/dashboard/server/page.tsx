@@ -29,7 +29,7 @@ function ClientServerDetailPage() {
       {isServerLoading ? (
         <ServerHeaderSkeleton />
       ) : (
-        <ServerHeader server={serverData!.data} />
+        <ServerHeader server={serverData!} />
       )}
     </>
   );

@@ -16,9 +16,9 @@ export const useAuth = () => {
   const loginMutation = useMutation({
     mutationFn: authMutations.login,
     onSuccess: (res) => {
-      const expires = new Date(Date.now() + res.data.expires_in * 1000);
+      const expires = new Date(Date.now() + res.expires_in * 1000);
 
-      setCookie(ACCESS_TOKEN.key, res.data.access_token, {
+      setCookie(ACCESS_TOKEN.key, res.access_token, {
         expires: expires,
       });
 
