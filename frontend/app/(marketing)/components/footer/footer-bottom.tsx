@@ -1,6 +1,7 @@
 "use client";
 
 import { GITHUB_USER_URL } from "@/constants/links";
+import Link from "next/link";
 
 export function FooterBottom() {
   const currentYear = new Date().getFullYear();
@@ -34,13 +35,13 @@ export function FooterBottom() {
 
         {/* Right Links */}
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <a href="#status" className="hover:text-primary transition-colors">
+          <Link href="#status" className="hover:text-primary transition-colors">
             서비스 상태
-          </a>
+          </Link>
           <span className="text-border">•</span>
-          <a href="#changelog" className="hover:text-primary transition-colors">
+          <Link href="#changelog" className="hover:text-primary transition-colors">
             변경사항
-          </a>
+          </Link>
           <span className="text-border">•</span>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />

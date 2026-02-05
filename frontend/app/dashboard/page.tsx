@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "motion/react";
 import { ServerCard } from "./components/server-card";
 import { ServerCardSkeleton } from "./components/server-card-skeleton";
+import Link from "next/link";
 
 export default function Dashboard() {
   const { data, isLoading } = useQuery(discordQueries.guilds());
@@ -60,14 +61,14 @@ export default function Dashboard() {
               </PolicyCallout>
               <PolicyCallout title="도움이 필요하신가요?">
                 도움이 필요하신 경우,{" "}
-                <a
+                <Link
                   href={routeMap.REDIRECTS.SUPPORT_SERVER}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary underline"
                 >
                   서포트 서버
-                </a>
+                </Link>
                 에 방문하여 문의해주세요.
               </PolicyCallout>
             </motion.div>

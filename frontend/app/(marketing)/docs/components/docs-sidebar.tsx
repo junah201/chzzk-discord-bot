@@ -17,8 +17,6 @@ const NAV_ITEMS = [
 export function DocsSidebar() {
   const pathname = usePathname();
 
-  console.log(pathname);
-
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}

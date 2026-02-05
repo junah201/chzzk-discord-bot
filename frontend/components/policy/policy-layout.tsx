@@ -7,6 +7,7 @@ import { useScrollSpy } from "@/hooks/use-scroll-spy";
 import { GridPattern } from "@/components/ui/grid-pattern";
 import { GlowEffect } from "@/components/ui/glow-effect";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface Section {
   id: string;
@@ -67,7 +68,7 @@ export function PolicyLayout({
                 </h3>
                 <nav className="space-y-2">
                   {sections.map((section) => (
-                    <a
+                    <Link
                       key={section.id}
                       href={`#${section.id}`}
                       className={cn(
@@ -81,7 +82,7 @@ export function PolicyLayout({
                       )}
                     >
                       {section.title}
-                    </a>
+                    </Link>
                   ))}
                 </nav>
               </motion.div>
