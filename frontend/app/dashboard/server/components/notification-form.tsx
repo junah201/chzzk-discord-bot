@@ -12,56 +12,64 @@ interface NotificationFormProps {
   serverId: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: Control<any>;
+  isEdit?: boolean;
 }
 
 export default function NotificationForm({
   serverId,
   control,
+  isEdit = false,
 }: NotificationFormProps) {
   const { data } = useQuery(discordQueries.channels(serverId));
   const channels = data || [];
 
   return (
     <div className="flex flex-col gap-4">
-      <Input
-        type="text"
-        control={control}
-        name="chzzk_id"
-        label="치지직 ID"
-        placeholder="bb382c2c0cc9fa7c86"
-        rules={{ required: "치지직 채널의 고유 ID를 입력해주세요" }}
-        helperText={
-          <>
-            치지직 ID를 찾는 방법은{" "}
-            <Link href={routeMap.DOCS.NOTIFICATIONS}>방송 알림 문서</Link>를
-            참고하세요.
-          </>
-        }
-      />
-      <Input
-        type="select"
-        control={control}
-        name="channel_id"
-        label="디스코드 채널"
-        rules={{ required: "디스코드 채널을 선택해주세요" }}
-        helperText={
-          <>
-            새롭게 추가한 채널이 목록에 보이지 않는다면, 페이지를
-            <a
-              href=""
-              onClick={() => location.reload()}
-              className="underline hover:text-primary/80 mx-1"
-            >
-              새로고침
-            </a>
-            해보세요
-          </>
-        }
-        options={channels.map((channel) => ({
-          label: `#${channel.name}`,
-          value: channel.id,
-        }))}
-      />
+      {!isEdit && (
+        <>
+          <Input
+            type="text"
+            control={control}
+            name="chzzk_id"
+            label="치지직 ID"
+            placeholder="bb382c2c0cc9fa7c86"
+            rules={{ required: "치지직 채널의 고유 ID를 입력해주세요" }}
+            helperText={
+              <>
+                치지직 ID를 찾는 방법은{" "}
+                <Link href={routeMap.DOCS.NOTIFICATIONS}>방송 알림 문서</Link>를
+                참고하세요.
+              </>
+            }
+            disabled={isEdit}
+          />
+          <Input
+            type="select"
+            control={control}
+            name="channel_id"
+            label="디스코드 채널"
+            rules={{ required: "디스코드 채널을 선택해주세요" }}
+            helperText={
+              <>
+                새롭게 추가한 채널이 목록에 보이지 않는다면, 페이지를
+                <a
+                  href=""
+                  onClick={() => location.reload()}
+                  className="underline hover:text-primary/80 mx-1"
+                >
+                  새로고침
+                </a>
+                해보세요
+              </>
+            }
+            options={channels.map((channel) => ({
+              label: `#${channel.name}`,
+              value: channel.id,
+            }))}
+            disabled={isEdit}
+          />
+        </>
+      )}
       <Input
         type="textarea"
         control={control}

@@ -57,7 +57,7 @@ const LinkButton = ({
   }
 
   return (
-    <Link href={href} legacyBehavior passHref>
+    <Link href={href} passHref>
       <motion.a {...commonProps} />
     </Link>
   );

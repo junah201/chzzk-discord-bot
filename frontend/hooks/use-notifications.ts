@@ -17,6 +17,7 @@ interface NotificationCreate extends NotificationBase {
 const ROUTES = {
   BASE: "/notifications",
   LIST: (guildId: string) => `/notifications/${guildId}`,
+  TEST: "/notifications/test",
 };
 
 export const useNotificationActions = (guildId: string) => {
@@ -48,9 +49,17 @@ export const useNotificationActions = (guildId: string) => {
     },
   });
 
+  const testMutation = useMutation({
+    mutationFn: (data: NotificationBase) => api.post(ROUTES.TEST, data),
+    onSuccess: () => {
+      toast.success("테스트 알림이 전송되었습니다.");
+    },
+  });
+
   return {
     add: addMutation,
     remove: deleteMutation,
     update: updateMutation,
+    test: testMutation,
   };
 };

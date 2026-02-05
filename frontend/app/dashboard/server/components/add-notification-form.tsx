@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { useNotificationActions } from "@/hooks/use-notifications";
+import { Loader2, Plus } from "lucide-react";
 
 interface AddNotificationFormProps {
   serverId: string;
@@ -31,7 +32,7 @@ export default function AddNotificationForm({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.1 }}
+      transition={{ delay: 0.05, duration: 0.4 }}
     >
       <div className="flex items-center justify-between mb-2">
         <div>
@@ -54,7 +55,13 @@ export default function AddNotificationForm({
             )}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
+            disabled={add.isPending}
           >
+            {add.isPending ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Plus className="w-3.5 h-3.5" />
+            )}
             알림 추가
           </Button>
         </CardContent>

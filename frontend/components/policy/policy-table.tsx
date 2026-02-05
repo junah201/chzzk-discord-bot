@@ -58,5 +58,7 @@ export function PolicyTr({ children, className }: PolicyTableProps) {
 }
 
 export function PolicyTd({ children, className }: PolicyTableProps) {
-  return <td className={cn("px-4 py-3 align-top", className)}>{children}</td>;
+  return (
+    <td className={cn("px-4 py-3 align-center", className)}>{children}</td>
+  );
 }

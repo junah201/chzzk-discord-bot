@@ -12,6 +12,7 @@ export const notificationQueries = {
     queryOptions({
       queryKey: keys.listByGuildId(guildId),
       queryFn: () => api.get<Notification[]>(`/notifications/${guildId}`),
-      staleTime: 1000 * 60 * 5,
+      staleTime: Infinity,
+      gcTime: 1000 * 60 * 60,
     }),
 };

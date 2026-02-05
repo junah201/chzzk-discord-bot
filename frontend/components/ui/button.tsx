@@ -18,8 +18,8 @@ const buttonVariants = cva(
           "bg-transparent border border-border hover:bg-muted text-foreground",
       },
       size: {
-        default: "px-6 py-2.5 text-base rounded-lg",
-        md: "px-6 py-3 text-base  rounded-xl",
+        sm: "h-9 px-3 rounded-md text-sm",
+        md: "px-6 py-2.5 text-base rounded-lg",
         lg: "px-8 py-4 text-base  rounded-xl",
         icon: "p-2 rounded-lg",
       },
@@ -32,7 +32,7 @@ const buttonVariants = cva(
     },
     defaultVariants: {
       variant: "primary",
-      size: "default",
+      size: "md",
       effect: "none",
     },
   },

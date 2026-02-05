@@ -42,6 +42,7 @@ export interface Channel {
 export interface Notification {
   PK: string;
   SK: string;
+  chzzk_id?: string;
   guild_id: string;
   channel_id: string;
   channel_name: string;
@@ -49,6 +50,6 @@ export interface Notification {
   disable_embed: boolean;
   disable_button: boolean;
   disable_notification: boolean;
-  last_noti_at: Date;
+  last_noti_at: string | null;
   last_noti_status: string;
 }
