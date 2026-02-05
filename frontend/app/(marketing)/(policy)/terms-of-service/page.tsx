@@ -14,28 +14,28 @@ export const metadata: Metadata = {
   },
 };
 
+const SECTIONS = [
+  { id: "purpose", title: "목적" },
+  { id: "definition", title: "용어의 정의" },
+  { id: "agreement", title: "약관의 효력 및 변경" },
+  { id: "rights-duties", title: "권리와 의무" },
+  { id: "service-interruption", title: "서비스 제공 및 중단" },
+  { id: "liability", title: "책임 제한 및 면책" },
+];
+
+const NOTICE = {
+  title: "치직 서비스 이용약관",
+  description:
+    "본 약관은 @junah201이 제공하는 치직 서비스 이용과 관련하여 회사와 이용자 간의 권리, 의무 및 책임사항을 규정합니다.",
+};
+
 export default function TermsOfService() {
-  const sections = [
-    { id: "purpose", title: "목적" },
-    { id: "definition", title: "용어의 정의" },
-    { id: "agreement", title: "약관의 효력 및 변경" },
-    { id: "rights-duties", title: "권리와 의무" },
-    { id: "service-interruption", title: "서비스 제공 및 중단" },
-    { id: "liability", title: "책임 제한 및 면책" },
-  ];
-
-  const notice = {
-    title: "치직 서비스 이용약관",
-    description:
-      "본 약관은 @junah201이 제공하는 치직 서비스 이용과 관련하여 회사와 이용자 간의 권리, 의무 및 책임사항을 규정합니다.",
-  };
-
   return (
     <PolicyLayout
       title="서비스 이용약관"
       lastUpdated="2026년 02월 03일"
-      notice={notice}
-      sections={sections}
+      notice={NOTICE}
+      sections={SECTIONS}
     >
       <PolicySection id="purpose" index={1} title="목적">
         <p>

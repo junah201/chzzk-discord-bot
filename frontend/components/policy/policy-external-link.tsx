@@ -29,7 +29,7 @@ export function PolicyExternalLink({
       <a
         href={href}
         target="_blank"
-        rel="noreferrer"
+        rel="noreferrer noopener external"
         className="text-xs text-muted-foreground hover:text-primary hover:underline flex items-center gap-1"
       >
         {label} <ExternalLink className="w-3 h-3" />

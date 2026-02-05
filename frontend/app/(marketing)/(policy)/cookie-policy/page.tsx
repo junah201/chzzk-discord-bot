@@ -1,5 +1,6 @@
 import {
   PolicyCallout,
+  PolicyExternalLink,
   PolicyLayout,
   PolicySection,
   PolicyTable,
@@ -23,28 +24,49 @@ export const metadata: Metadata = {
   },
 };
 
+const SECTIONS = [
+  { id: "what-is-cookie", title: "쿠키란 무엇인가요?" },
+  { id: "purpose", title: "쿠키 사용 목적" },
+  { id: "cookie-list", title: "사용하는 쿠키 목록" },
+  { id: "control", title: "쿠키 관리 및 거부 방법" },
+];
+
+const NOTICE = {
+  title: "쿠키 정책",
+  description:
+    "치직 서비스가 사용자 경험을 개선하기 위해 쿠키 및 유사 기술을 사용하는 방식을 설명합니다.",
+};
+
+const COOKIE_GUIDES = [
+  {
+    title: "Google Chrome",
+    href: "https://support.google.com/chrome/answer/95647?hl=ko",
+    label: "Chrome 쿠키 설정 가이드",
+  },
+  {
+    title: "Mozilla Firefox",
+    href: "https://support.mozilla.org/ko/kb/cookies-information-websites-store-on-your-computer",
+    label: "Firefox 쿠키 설정 가이드",
+  },
+  {
+    title: "Apple Safari",
+    href: "https://support.apple.com/ko-kr/guide/safari/sfri11471/mac",
+    label: "Safari 쿠키 설정 가이드",
+  },
+  {
+    title: "Microsoft Edge",
+    href: "https://support.microsoft.com/ko-kr/windows/microsoft-edge%EC%97%90%EC%84%9C-%EC%BF%A0%ED%82%A4-%EA%B4%80%EB%A6%AC-%EB%B3%B4%EA%B8%B0-%ED%97%88%EC%9A%A9-%EC%B0%A8%EB%8B%A8-%EC%82%AD%EC%A0%9C-%EB%B0%8F-%EC%82%AC%EC%9A%A9-168dab11-0753-043d-7c16-ede5947fc64d",
+    label: "Edge 쿠키 설정 가이드",
+  },
+];
+
 export default function CookiePolicy() {
-  const lastUpdated = "2026년 02월 01일";
-
-  const sections = [
-    { id: "what-is-cookie", title: "쿠키란 무엇인가요?" },
-    { id: "purpose", title: "쿠키 사용 목적" },
-    { id: "cookie-list", title: "사용하는 쿠키 목록" },
-    { id: "control", title: "쿠키 관리 및 거부 방법" },
-  ];
-
-  const notice = {
-    title: "쿠키 정책",
-    description:
-      "치직 서비스가 사용자 경험을 개선하기 위해 쿠키 및 유사 기술을 사용하는 방식을 설명합니다.",
-  };
-
   return (
     <PolicyLayout
       title="쿠키 정책"
-      lastUpdated={lastUpdated}
-      notice={notice}
-      sections={sections}
+      lastUpdated="2026년 02월 01일"
+      notice={NOTICE}
+      sections={SECTIONS}
     >
       {/* 01. 쿠키란 무엇인가요? */}
       <PolicySection id="what-is-cookie" index={1} title="쿠키란 무엇인가요?">
@@ -159,37 +181,12 @@ export default function CookiePolicy() {
           access-token 쿠키를 차단하면 인증이 불가능하여 서비스를 이용하실 수
           없습니다.
         </PolicyCallout>
+        <p>브라우저별 쿠키 설정 가이드</p>
 
-        <div className="bg-secondary/30 p-4 rounded-lg border border-border/50">
-          <h4 className="font-semibold mb-3 text-sm">
-            브라우저별 쿠키 설정 가이드
-          </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
-            <a
-              href="https://support.google.com/chrome/answer/95647?hl=ko"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2 p-2 hover:bg-secondary rounded-md transition-colors"
-            >
-              🔵 Chrome 설정
-            </a>
-            <a
-              href="https://support.apple.com/ko-kr/guide/safari/sfri11471/mac"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2 p-2 hover:bg-secondary rounded-md transition-colors"
-            >
-              🔵 Safari 설정
-            </a>
-            <a
-              href="https://support.microsoft.com/ko-kr/windows/microsoft-edge%EC%97%90%EC%84%9C-%EC%BF%A0%ED%82%A4-%EA%B4%80%EB%A6%AC-%EB%B3%B4%EA%B8%B0-%ED%97%88%EC%9A%A9-%EC%B0%A8%EB%8B%A8-%EC%82%AD%EC%A0%9C-%EB%B0%8F-%EC%82%AC%EC%9A%A9-168dab11-0753-043d-7c16-ede5947fc64d"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2 p-2 hover:bg-secondary rounded-md transition-colors"
-            >
-              🔵 Edge 설정
-            </a>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {COOKIE_GUIDES.map((guide) => (
+            <PolicyExternalLink key={guide.title} {...guide} />
+          ))}
         </div>
       </PolicySection>
     </PolicyLayout>

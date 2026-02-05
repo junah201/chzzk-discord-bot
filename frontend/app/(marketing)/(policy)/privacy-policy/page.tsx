@@ -24,54 +24,54 @@ export const metadata: Metadata = {
   },
 };
 
+const SECTIONS = [
+  { id: "collection", title: "수집하는 정보 및 보유기간" },
+  { id: "rights", title: "정보주체의 권리 및 행사 방법" },
+  { id: "destruction", title: "개인정보 파기 절차 및 방법" },
+  { id: "cpo", title: "개인정보 보호책임자 및 담당부서" },
+  { id: "remedy", title: "권익침해 구제방법" },
+];
+
+const NOTICE = {
+  title: "개인정보 처리방침",
+  description:
+    "치직 서비스는 이용자의 개인정보를 소중히 다루며, 정보통신망법 및 개인정보보호법을 준수합니다.",
+};
+
+const REMEDY_AGENCIES = [
+  {
+    title: "개인정보분쟁조정위원회",
+    description: "📞 (국번없이) 1833-6972",
+    href: "https://www.kopico.go.kr",
+    label: "www.kopico.go.kr",
+  },
+  {
+    title: "개인정보침해신고센터",
+    description: "📞 (국번없이) 118",
+    href: "https://privacy.kisa.or.kr",
+    label: "privacy.kisa.or.kr",
+  },
+  {
+    title: "대검찰청",
+    description: "📞 (국번없이) 1301",
+    href: "https://www.spo.go.kr",
+    label: "www.spo.go.kr",
+  },
+  {
+    title: "경찰청",
+    description: "📞 (국번없이) 182",
+    href: "https://ecrm.cyber.go.kr",
+    label: "ecrm.cyber.go.kr",
+  },
+];
+
 export default function PrivacyPolicy() {
-  const sections = [
-    { id: "collection", title: "수집하는 정보 및 보유기간" },
-    { id: "rights", title: "정보주체의 권리 및 행사 방법" },
-    { id: "destruction", title: "개인정보 파기 절차 및 방법" },
-    { id: "cpo", title: "개인정보 보호책임자 및 담당부서" },
-    { id: "remedy", title: "권익침해 구제방법" },
-  ];
-
-  const notice = {
-    title: "개인정보 처리방침",
-    description:
-      "치직 서비스는 이용자의 개인정보를 소중히 다루며, 정보통신망법 및 개인정보보호법을 준수합니다.",
-  };
-
-  const REMEDY_AGENCIES = [
-    {
-      title: "개인정보분쟁조정위원회",
-      description: "📞 (국번없이) 1833-6972",
-      href: "https://www.kopico.go.kr",
-      label: "www.kopico.go.kr",
-    },
-    {
-      title: "개인정보침해신고센터",
-      description: "📞 (국번없이) 118",
-      href: "https://privacy.kisa.or.kr",
-      label: "privacy.kisa.or.kr",
-    },
-    {
-      title: "대검찰청",
-      description: "📞 (국번없이) 1301",
-      href: "https://www.spo.go.kr",
-      label: "www.spo.go.kr",
-    },
-    {
-      title: "경찰청",
-      description: "📞 (국번없이) 182",
-      href: "https://ecrm.cyber.go.kr",
-      label: "ecrm.cyber.go.kr",
-    },
-  ];
-
   return (
     <PolicyLayout
       title="개인정보 처리방침"
       lastUpdated="2025년 03월 08일"
-      notice={notice}
-      sections={sections}
+      notice={NOTICE}
+      sections={SECTIONS}
     >
       <PolicySection
         id="collection"
