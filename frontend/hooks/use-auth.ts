@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { authMutations } from "@/queries/auth";
 import { ACCESS_TOKEN } from "@/constants/cookies";
 import routeMap from "@/constants/route-map";
-import { setCookie } from "@/lib/cookie";
+import { removeCookie, setCookie } from "@/lib/cookie";
 
 export const useAuth = () => {
   const router = useRouter();
@@ -31,8 +31,15 @@ export const useAuth = () => {
     },
   });
 
+  const logout = () => {
+    removeCookie(ACCESS_TOKEN.key);
+    toast.success("로그아웃되었습니다.");
+    router.replace(routeMap.HOME);
+  };
+
   return {
     redirectToDiscord: loginWithDiscord,
     verifySession: loginMutation.mutate,
+    logout,
   };
 };
