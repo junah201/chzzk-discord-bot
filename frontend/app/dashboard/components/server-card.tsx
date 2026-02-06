@@ -13,9 +13,9 @@ interface ServerCardProps {
 export function ServerCard({ server }: ServerCardProps) {
   return (
     <Card className="bg-card border-border transition-all duration-300 group hover:border-primary/50 h-full flex flex-col">
-      <CardHeader>
-        <div className="flex items-center gap-4">
-          <Avatar className="w-16 h-16 border-2 border-border transition-colors">
+      <CardHeader className="w-full min-w-0">
+        <div className="flex items-center gap-4 w-full min-w-0">
+          <Avatar className="w-16 h-16 border-2 border-border transition-colors shrink-0">
             <AvatarImage
               src={getDiscordIconUrl(server.id, server.icon)}
               alt={server.name}
@@ -29,7 +29,7 @@ export function ServerCard({ server }: ServerCardProps) {
               {server.name}
             </CardTitle>
           </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
+          <div className="flex items-center gap-2 text-muted-foreground shrink-0">
             <Users className="w-4 h-4" />
             <span>
               {(server.approximate_member_count ?? 0).toLocaleString()} 멤버
