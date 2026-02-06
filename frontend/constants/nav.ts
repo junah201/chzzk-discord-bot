@@ -11,6 +11,6 @@ export const navLinks = [
   },
   {
     label: "문서",
-    href: routeMap.DOCS.HOME,
+    href: routeMap.DOCS.INSTALLATION,
   },
 ] as const;

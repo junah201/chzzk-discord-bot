@@ -6,6 +6,9 @@ import { motion, type HTMLMotionProps } from "motion/react";
 import { Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import routeMap from "@/constants/route-map";
+import Link from "next/link";
+
+const MotionLink = motion.create(Link);
 
 const logoVariants = cva(
   "inline-flex items-center gap-2 group transition-all",
@@ -62,7 +65,7 @@ export interface LogoProps
 const Logo = React.forwardRef<HTMLAnchorElement, LogoProps>(
   ({ className, size, showText = true, ...props }, ref) => {
     return (
-      <motion.a
+      <MotionLink
         ref={ref}
         href={routeMap.HOME}
         className={cn(logoVariants({ size, className }))}
@@ -75,7 +78,7 @@ const Logo = React.forwardRef<HTMLAnchorElement, LogoProps>(
           <Zap className={cn(iconVariants({ size }))} fill="currentColor" />
         </div>
         {showText && <span className={cn(textVariants({ size }))}>치직</span>}
-      </motion.a>
+      </MotionLink>
     );
   },
 );

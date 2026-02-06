@@ -14,6 +14,8 @@ export interface LinkButtonProps
   external?: boolean;
 }
 
+const MotionLink = motion.create(Link);
+
 const isExternalUrl = (url: string) => {
   return (
     url.startsWith("http://") ||
@@ -56,11 +58,7 @@ const LinkButton = ({
     );
   }
 
-  return (
-    <Link href={href} passHref>
-      <motion.a {...commonProps} />
-    </Link>
-  );
+  return <MotionLink href={href} {...commonProps}></MotionLink>;
 };
 
 LinkButton.displayName = "LinkButton";
