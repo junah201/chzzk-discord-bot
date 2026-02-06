@@ -53,3 +53,8 @@ export interface Notification {
   last_noti_at: string | null;
   last_noti_status: string;
 }
+
+export interface APIError {
+  code: string;
+  message: string;
+}

@@ -11,6 +11,7 @@ import { useGuildOptions } from "@/hooks/use-guild-options";
 import SetupGuideCallout from "./components/setup-guide-callout";
 import NotificationManager from "./components/notification-manager";
 import TestGuideCallout from "./components/test-guide-callout";
+import ServerBotGuard from "./components/server-bot-guard";
 
 export default function ServerDetailPage() {
   return (
@@ -29,7 +30,7 @@ function ClientServerDetailPage() {
   );
 
   return (
-    <>
+    <ServerBotGuard>
       {isServerLoading ? (
         <ServerHeaderSkeleton />
       ) : (
@@ -43,6 +44,6 @@ function ClientServerDetailPage() {
         <NotificationManager serverId={serverId!} />
         <TestGuideCallout />
       </div>
-    </>
+    </ServerBotGuard>
   );
 }

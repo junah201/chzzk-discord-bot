@@ -7,7 +7,8 @@ export const keys = {
   user: () => [...keys.all, "user"] as const,
   guilds: () => [...keys.all, "guilds"] as const,
   guild: (guildId: string | null) => [...keys.guilds(), guildId] as const,
-  channels: (guildId: string) => [...keys.all, "channels", guildId] as const,
+  channels: (guildId: string | null) =>
+    [...keys.all, "channels", guildId] as const,
 };
 
 export const discordQueries = {
@@ -32,7 +33,7 @@ export const discordQueries = {
       staleTime: Infinity,
       gcTime: 1000 * 60 * 60,
     }),
-  channels: (guildId: string) =>
+  channels: (guildId: string | null) =>
     queryOptions({
       queryKey: keys.channels(guildId),
       queryFn: () => api.get<Channel[]>(`/discord/${guildId}/channels`),

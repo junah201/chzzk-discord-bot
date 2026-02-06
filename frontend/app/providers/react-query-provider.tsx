@@ -61,7 +61,14 @@ export default function ReactQueryProvider({
       new QueryClient({
         defaultOptions: {
           queries: {
-            retry: false,
+            retry: (failureCount, error) => {
+              if (isAxiosError(error) && error.response?.status === 429) {
+                return failureCount < 2;
+              }
+
+              return false;
+            },
+            retryDelay: 500,
             refetchOnWindowFocus: false,
           },
         },
