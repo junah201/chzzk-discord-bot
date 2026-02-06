@@ -260,6 +260,13 @@ def send_notification(chzzk_id: str):
             )
             continue
 
+        update_attr_values = {
+            ":name": {"S": chzzk["channel"]["channelName"]},
+            ":url": {"S": chzzk["channel"]["channelImageUrl"] or ""},
+            ":cid": {"S": f"{chzzk_id}"},
+            ":last_noti_at": {"S": datetime.now().isoformat()},
+        }
+
         # 메시지 전송에 실패한 경우
         if res.status_code != 200:
             noti_fail_cnt += 1
@@ -278,13 +285,13 @@ def send_notification(chzzk_id: str):
             dynamodb.update_item(
                 TableName="chzzk-bot-db",
                 Key={"PK": noti.get("PK"), "SK": noti.get("SK")},
-                UpdateExpression="SET last_noti_status = :last_noti_status, last_noti_at = :last_noti_at, noti_fail_count = :noti_fail_count",
+                UpdateExpression="SET last_noti_status = :last_noti_status, last_noti_at = :last_noti_at, noti_fail_count = :noti_fail_count, chzzk_name = :name, chzzk_image_url = :url, chzzk_id = :cid",
                 ExpressionAttributeValues={
                     ":last_noti_status": {"S": f"FAIL_{res.status_code}"},
-                    ":last_noti_at": {"S": datetime.now().isoformat()},
                     ":noti_fail_count": {
                         "N": str(int(noti.get("noti_fail_count", {"N": "0"})["N"]) + 1)
                     },
+                    **update_attr_values,
                 },
             )
             continue
@@ -304,11 +311,11 @@ def send_notification(chzzk_id: str):
         dynamodb.update_item(
             TableName="chzzk-bot-db",
             Key={"PK": noti.get("PK"), "SK": noti.get("SK")},
-            UpdateExpression="SET last_noti_status = :last_noti_status, last_noti_at = :last_noti_at, noti_fail_count = :noti_fail_count",
+            UpdateExpression="SET last_noti_status = :last_noti_status, last_noti_at = :last_noti_at, noti_fail_count = :noti_fail_count, chzzk_name = :name, chzzk_image_url = :url, chzzk_id = :cid",
             ExpressionAttributeValues={
                 ":last_noti_status": {"S": "SUCCESS"},
-                ":last_noti_at": {"S": datetime.now().isoformat()},
                 ":noti_fail_count": {"N": "0"},
+                **update_attr_values,
             },
         )
 
@@ -328,7 +335,7 @@ def handler(event, context):
 
     follows = get_follows(NID_AUT, NID_SES)
     live_channels: list[str] = [
-        f["channel"]["channelId"] for f in follows if f["streamer"]["openLive"] == True
+        f["channel"]["channelId"] for f in follows if f["streamer"]["openLive"]
     ]
     logger.info(
         json.dumps(
