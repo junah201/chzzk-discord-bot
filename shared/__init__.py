@@ -11,11 +11,9 @@ from .discord import (
     send_message,
 )
 from .dynamodb import dynamo_to_python, python_to_dynamo
-from .middleware import middleware
-from .utils import omit, pick
 from .exceptions import (
-    BaseException,
     BadRequestError,
+    BaseException,
     BotForbiddenError,
     BotNotJoinedError,
     RateLimitError,
@@ -23,6 +21,8 @@ from .exceptions import (
     UnauthorizedError,
     UserNotAdminError,
 )
+from .middleware import middleware
+from .utils import omit, pick
 
 __all__ = [
     # middleware.py
