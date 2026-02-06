@@ -6,6 +6,12 @@ export const getChzzkLiveUrl = (chzzkId: string) => {
   return `https://chzzk.naver.com/live/${chzzkId}`;
 };
 
+export const getChzzkChannelImageUrl = (chzzkImageUrl: string | undefined) => {
+  if (!chzzkImageUrl)
+    return "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png?type=f120_120_na";
+  return chzzkImageUrl;
+};
+
 export const getDiscordChannelUrl = (guildId: string, channelId: string) => {
   return `https://discord.com/channels/${guildId}/${channelId}`;
 };

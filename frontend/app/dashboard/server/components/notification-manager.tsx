@@ -14,7 +14,11 @@ import {
   PolicyTr,
   PolicyTd,
 } from "@/components/policy";
-import { getChzzkChannelUrl, getDiscordChannelUrl } from "@/lib/urls";
+import {
+  getChzzkChannelImageUrl,
+  getChzzkChannelUrl,
+  getDiscordChannelUrl,
+} from "@/lib/urls";
 import {
   Tooltip,
   TooltipContent,
@@ -25,6 +29,7 @@ import { useNotificationActions } from "@/hooks/use-notifications";
 import DeleteNotificationDialog from "./delete-notification-dialog";
 import EditNotificationDialog from "./edit-notification-dialog";
 import { ExternalLink, Loader2, Send } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface NotificationManagerProps {
   serverId: string;
@@ -123,8 +128,16 @@ function NotificationRow({ notification: n }: { notification: Notification }) {
 
   return (
     <PolicyTr className="group hover:bg-muted/40 transition-colors">
-      {/* 1. 치지직 채널 정보 */}
-      <PolicyTd className="pl-6 py-4">
+      <PolicyTd className="pl-6 py-4 flex items-center gap-2">
+        <Avatar className="w-10 h-10 border border-border transition-colors">
+          <AvatarImage
+            src={getChzzkChannelImageUrl(n.chzzk_image_url)}
+            alt={n.chzzk_name || chzzkId}
+          />
+          <AvatarFallback className="bg-primary/20 text-primary text-lg font-semibold">
+            {(n.chzzk_name || chzzkId).slice(0, 2)}
+          </AvatarFallback>
+        </Avatar>
         <div className="flex flex-col">
           <a
             href={getChzzkChannelUrl(chzzkId)}
@@ -132,7 +145,7 @@ function NotificationRow({ notification: n }: { notification: Notification }) {
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 font-medium text-foreground hover:text-primary transition-colors w-fit"
           >
-            {n.channel_name || chzzkId}
+            {n.chzzk_name || "치지직 채널"}
             <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-50 transition-opacity" />
           </a>
           <span className="text-xs text-muted-foreground font-mono mt-0.5">
