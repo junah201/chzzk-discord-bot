@@ -5,13 +5,13 @@ from typing import TypedDict
 import requests
 from user_agent import generate_user_agent
 
-__all__ = ["ChzzkChannel", "ChzzkLive", "get_chzzk", "Following", ""]
+__all__ = ["ChzzkChannel", "ChzzkLive", "get_chzzk", "Following"]
 
 
 class ChzzkChannel(TypedDict):
     channelId: str
     channelName: str
-    channelImageUrl: str
+    channelImageUrl: str | None
     verifiedMark: bool
 
 

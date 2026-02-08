@@ -160,7 +160,7 @@ def handler(event, context):
             "SK": {"S": f"NOTI#{channel_id}"},
             "chzzk_id": {"S": f"{chzzk_id}"},
             "chzzk_name": {"S": chzzk["channel"]["channelName"]},
-            "chzzk_image_url": {"S": chzzk["channel"]["channelImageUrl"]},
+            "chzzk_image_url": {"S": chzzk["channel"]["channelImageUrl"] or ""},
             "channel_id": {"S": f"{channel_id}"},
             "channel_name": {"S": channel_data.get("name", "")},
             "guild_id": {"S": channel_data.get("guild_id", "")},
