@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "./providers";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 export const metadata: Metadata = {
   title: "치직 - 놓치지 않는 방송 알림, 치직",
@@ -20,18 +21,17 @@ export const metadata: Metadata = {
     "치지직 연동",
     "실시간 알림 봇",
   ],
-  manifest: "https://dev.chzzk.junah.dev/manifest.json",
   icons: {
     icon: [
-      { url: "https://dev.chzzk.junah.dev/favicon-16.png", sizes: "16x16" },
-      { url: "https://dev.chzzk.junah.dev/favicon-32.png", sizes: "32x32" },
-      { url: "https://dev.chzzk.junah.dev/favicon-48.png", sizes: "48x48" },
-      { url: "https://dev.chzzk.junah.dev/favicon-96x96.png", sizes: "96x96" },
-      { url: "https://dev.chzzk.junah.dev/favicon-192.png", sizes: "192x192" },
-      { url: "https://dev.chzzk.junah.dev/favicon-512.png", sizes: "512x512" },
+      { url: "https://chzzk.junah.dev/favicon-16.png", sizes: "16x16" },
+      { url: "https://chzzk.junah.dev/favicon-32.png", sizes: "32x32" },
+      { url: "https://chzzk.junah.dev/favicon-48.png", sizes: "48x48" },
+      { url: "https://chzzk.junah.dev/favicon-96x96.png", sizes: "96x96" },
+      { url: "https://chzzk.junah.dev/favicon-192.png", sizes: "192x192" },
+      { url: "https://chzzk.junah.dev/favicon-512.png", sizes: "512x512" },
     ],
     apple: {
-      url: "https://dev.chzzk.junah.dev/favicon-180.png",
+      url: "https://chzzk.junah.dev/favicon-180.png",
       sizes: "180x180",
     },
   },
@@ -40,15 +40,6 @@ export const metadata: Metadata = {
     siteName: "치직",
     description:
       "좋아하는 스트리머의 방송 시작을 디스코드로 실시간 알림받으세요. 간편한 설정, 빠른 알림, 완벽한 통합.",
-    images: [
-      {
-        url: "https://chzzk.junah.dev/preview.png",
-        width: 1100,
-        height: 740,
-        alt: "치직",
-        type: "image/png",
-      },
-    ],
     locale: "ko_KR",
     type: "website",
   },
@@ -56,7 +47,6 @@ export const metadata: Metadata = {
     title: "치직 - 놓치지 않는 방송 알림, 치직",
     description:
       "좋아하는 스트리머의 방송 시작을 디스코드로 실시간 알림받으세요. 간편한 설정, 빠른 알림, 완벽한 통합.",
-    images: ["https://chzzk.junah.dev/preview.png"],
     card: "summary_large_image",
   },
 };
@@ -72,6 +62,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
+      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ""} />
       <body>
         <Providers>{children}</Providers>
       </body>

@@ -6,9 +6,15 @@ import { StatusPageLayout } from "@/components/layouts/status-page-layout";
 import { StatusIcon } from "@/components/layouts/status-icon";
 import { LinkButton } from "@/components/ui/link-button";
 import { SUPPORT_SERVER_INVITE_URL } from "@/constants/links";
+import { sendGAEvent } from "@next/third-parties/google";
 
 export default function SupportRedirectPage() {
   useEffect(() => {
+    sendGAEvent("event", "click_support_discord", {
+      location: "redirect_page",
+      method: "auto_redirect",
+    });
+
     const timer = setTimeout(() => {
       window.location.replace(SUPPORT_SERVER_INVITE_URL);
     }, 500);
@@ -39,6 +45,12 @@ export default function SupportRedirectPage() {
           variant="secondary"
           size="lg"
           className="w-full max-w-sm"
+          onClick={() => {
+            sendGAEvent("event", "click_support_discord", {
+              location: "redirect_page",
+              method: "manual_click",
+            });
+          }}
         >
           <MessageCircle className="w-5 h-5 mr-2" />
           바로 이동하기

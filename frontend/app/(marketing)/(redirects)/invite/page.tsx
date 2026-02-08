@@ -6,9 +6,15 @@ import { StatusPageLayout } from "@/components/layouts/status-page-layout";
 import { StatusIcon } from "@/components/layouts/status-icon";
 import { LinkButton } from "@/components/ui/link-button";
 import { BOT_INVITE_URL } from "@/constants/links";
+import { sendGAEvent } from "@next/third-parties/google";
 
 export default function InviteRedirectPage() {
   useEffect(() => {
+    sendGAEvent("event", "click_invite_bot", {
+      location: "redirect_page",
+      method: "auto_redirect",
+    });
+
     const timer = setTimeout(() => {
       window.location.replace(BOT_INVITE_URL);
     }, 500);
@@ -39,6 +45,12 @@ export default function InviteRedirectPage() {
           href={BOT_INVITE_URL}
           size="lg"
           className="w-full max-w-sm animate-pulse"
+          onClick={() => {
+            sendGAEvent("event", "click_invite_bot", {
+              location: "redirect_page",
+              method: "manual_click",
+            });
+          }}
         >
           <ExternalLink className="w-5 h-5 mr-2" />
           이동하지 않으면 클릭하세요
