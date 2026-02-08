@@ -167,10 +167,13 @@ package:
     - ".git/**"
     - ".github/**"
     - "frontend/**"
+    - "docs/**"
+    - "scripts/**"
     - "serverless.yml"
     - ".serverless/**"
     - ".pnpm-store/**"
     - ".devcontainer/**"
+    - ".ruff_cache/**"
 
 resources:
   Resources:
@@ -502,81 +505,6 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: chzzk.junah.dev
-        VersioningConfiguration:
-          Status: Suspended
-        PublicAccessBlockConfiguration:
-          BlockPublicAcls: false
-          BlockPublicPolicy: false
-          IgnorePublicAcls: false
-          RestrictPublicBuckets: false
-        WebsiteConfiguration:
-          IndexDocument: index.html
-          ErrorDocument: index.html
-
-    ReactAppS3BucketPolicy:
-      Type: AWS::S3::BucketPolicy
-      Properties:
-        Bucket:
-          Ref: ReactAppS3Bucket
-        PolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Sid: PublicReadGetObject
-              Effect: Allow
-              Principal: "*"
-              Action: "s3:GetObject"
-              Resource:
-                Fn::Join:
-                  - ""
-                  - - "arn:aws:s3:::"
-                    - Ref: ReactAppS3Bucket
-                    - "/*"
-
-    ReactAppCloudFrontDistribution:
-      Type: AWS::CloudFront::Distribution
-      Properties:
-        DistributionConfig:
-          Enabled: true
-          Origins:
-            - DomainName:
-                Fn::Join:
-                  - ""
-                  - - Ref: ReactAppS3Bucket
-                    - ".s3-website."
-                    - Ref: AWS::Region
-                    - ".amazonaws.com"
-              Id: ReactAppOrigin
-              CustomOriginConfig:
-                HTTPPort: 80
-                HTTPSPort: 443
-                OriginProtocolPolicy: http-only
-                OriginSSLProtocols:
-                  - TLSv1
-                  - TLSv1.1
-                  - TLSv1.2
-          DefaultCacheBehavior:
-            TargetOriginId: ReactAppOrigin
-            ViewerProtocolPolicy: redirect-to-https
-            Compress: true
-            AllowedMethods: [GET, HEAD, OPTIONS]
-            CachedMethods: [GET, HEAD, OPTIONS]
-            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
-          WebACLId: arn:aws:wafv2:us-east-1:897699718511:global/webacl/CreatedByCloudFront-b31a1830/c075eed8-3d5d-46c7-b38c-55c99c498408
-          DefaultRootObject: index.html
-          Aliases:
-            - chzzk.junah.dev
-          ViewerCertificate:
-            AcmCertificateArn: arn:aws:acm:us-east-1:897699718511:certificate/52a635af-fe70-4dbd-b19c-decff9302fac
-            SslSupportMethod: sni-only
-            MinimumProtocolVersion: TLSv1.2_2018
-          HttpVersion: http2and3
-          PriceClass: PriceClass_All
-
-    # S3 & CloudFront for Next.js App hosting
-    NextAppS3Bucket:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: dev.chzzk.junah.dev
         PublicAccessBlockConfiguration:
           BlockPublicAcls: true
           BlockPublicPolicy: true
@@ -587,20 +515,20 @@ resources:
             - ServerSideEncryptionByDefault:
                 SSEAlgorithm: AES256
 
-    NextAppOAC:
+    ProdAppOAC:
       Type: AWS::CloudFront::OriginAccessControl
       Properties:
         OriginAccessControlConfig:
-          Name: dev.chzzk.junah.dev-oac
+          Name: chzzk.junah.dev-oac
           OriginAccessControlOriginType: s3
           SigningBehavior: always
           SigningProtocol: sigv4
-          Description: OAC for Next.js App (dev)
+          Description: OAC for Next.js App
 
-    NextAppBucketPolicy:
+    ProdAppBucketPolicy:
       Type: AWS::S3::BucketPolicy
       Properties:
-        Bucket: !Ref NextAppS3Bucket
+        Bucket: !Ref ReactAppS3Bucket
         PolicyDocument:
           Version: "2012-10-17"
           Statement:
@@ -608,15 +536,58 @@ resources:
               Principal:
                 Service: cloudfront.amazonaws.com
               Action: s3:GetObject
-              Resource: !Sub arn:aws:s3:::${NextAppS3Bucket}/*
+              Resource: !Sub arn:aws:s3:::${ReactAppS3Bucket}/*
               Condition:
                 StringEquals:
-                  AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${NextAppDistribution}
+                  AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${ReactAppCloudFrontDistribution}
+
+    ReactAppCloudFrontDistribution:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Enabled: true
+          HttpVersion: http2and3
+          DefaultRootObject: index.html
+          PriceClass: PriceClass_All
+
+          CustomErrorResponses:
+            - ErrorCode: 403
+              ResponseCode: 200
+              ResponsePagePath: /index.html
+            - ErrorCode: 404
+              ResponseCode: 200
+              ResponsePagePath: /index.html
+
+          Origins:
+            - Id: DevAppOrigin
+              DomainName: !GetAtt ReactAppS3Bucket.RegionalDomainName
+              S3OriginConfig:
+                OriginAccessIdentity: ""
+              OriginAccessControlId: !GetAtt ProdAppOAC.Id
+
+          DefaultCacheBehavior:
+            TargetOriginId: DevAppOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            Compress: true
+            AllowedMethods: [GET, HEAD, OPTIONS]
+            CachedMethods: [GET, HEAD, OPTIONS]
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+            FunctionAssociations:
+              - EventType: viewer-request
+                FunctionARN: !GetAtt RewriteFunction.FunctionMetadata.FunctionARN
+
+          WebACLId: arn:aws:wafv2:us-east-1:897699718511:global/webacl/CreatedByCloudFront-b31a1830/c075eed8-3d5d-46c7-b38c-55c99c498408
+          Aliases:
+            - chzzk.junah.dev
+          ViewerCertificate:
+            AcmCertificateArn: arn:aws:acm:us-east-1:897699718511:certificate/52a635af-fe70-4dbd-b19c-decff9302fac
+            SslSupportMethod: sni-only
+            MinimumProtocolVersion: TLSv1.2_2021
 
     RewriteFunction:
       Type: AWS::CloudFront::Function
       Properties:
-        Name: dev-chzzk-junah-dev-rewrite
+        Name: chzzk-junah-dev-rewrite
         AutoPublish: true
         FunctionConfig:
           Comment: Rewrite directory index to index.html
@@ -635,50 +606,6 @@ resources:
 
             return request;
           }
-
-    NextAppDistribution:
-      Type: AWS::CloudFront::Distribution
-      Properties:
-        DistributionConfig:
-          Enabled: true
-          HttpVersion: http2and3
-          DefaultRootObject: index.html
-          PriceClass: PriceClass_All
-
-          CustomErrorResponses:
-            - ErrorCode: 403
-              ResponseCode: 200
-              ResponsePagePath: /index.html
-            - ErrorCode: 404
-              ResponseCode: 200
-              ResponsePagePath: /index.html
-
-          Origins:
-            - Id: NextAppOrigin
-              DomainName: !GetAtt NextAppS3Bucket.RegionalDomainName
-              S3OriginConfig:
-                OriginAccessIdentity: ""
-              OriginAccessControlId: !GetAtt NextAppOAC.Id
-
-          DefaultCacheBehavior:
-            TargetOriginId: NextAppOrigin
-            ViewerProtocolPolicy: redirect-to-https
-            Compress: true
-            AllowedMethods: [GET, HEAD, OPTIONS]
-            CachedMethods: [GET, HEAD, OPTIONS]
-            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
-            FunctionAssociations:
-              - EventType: viewer-request
-                FunctionARN: !GetAtt RewriteFunction.FunctionMetadata.FunctionARN
-
-          WebACLId: arn:aws:wafv2:us-east-1:897699718511:global/webacl/CreatedByCloudFront-c4033b9c/0274cd61-dfc3-49fb-8d9c-dd2b1d03770a
-          Aliases:
-            - dev.chzzk.junah.dev
-
-          ViewerCertificate:
-            AcmCertificateArn: arn:aws:acm:us-east-1:897699718511:certificate/52a635af-fe70-4dbd-b19c-decff9302fac
-            SslSupportMethod: sni-only
-            MinimumProtocolVersion: TLSv1.2_2021
 
     GitHubOIDCProvider:
       Type: AWS::IAM::OIDCProvider
@@ -719,14 +646,11 @@ resources:
                   Resource:
                     - Fn::Sub: "arn:aws:s3:::${ReactAppS3Bucket}"
                     - Fn::Sub: "arn:aws:s3:::${ReactAppS3Bucket}/*"
-                    - Fn::Sub: "arn:aws:s3:::${NextAppS3Bucket}"
-                    - Fn::Sub: "arn:aws:s3:::${NextAppS3Bucket}/*"
                 - Effect: Allow
                   Action:
                     - cloudfront:CreateInvalidation
                   Resource:
                     - Fn::Sub: "arn:aws:cloudfront::${AWS::AccountId}:distribution/${ReactAppCloudFrontDistribution}"
-                    - Fn::Sub: "arn:aws:cloudfront::${AWS::AccountId}:distribution/${NextAppDistribution}"
 
 custom:
   pythonRequirements:

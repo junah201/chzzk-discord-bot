@@ -46,8 +46,8 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync frontend/out s3://dev.chzzk.junah.dev --delete
+          aws s3 sync frontend/out s3://chzzk.junah.dev --delete
 
       - name: Create CloudFront Invalidation
         run: |
-          aws cloudfront create-invalidation --distribution-id E1OYFKAHEEGMXM --paths "/*"
+          aws cloudfront create-invalidation --distribution-id E9O0PBRANS4UW --paths "/*"

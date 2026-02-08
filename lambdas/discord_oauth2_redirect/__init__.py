@@ -40,8 +40,8 @@ def handler(event, context):
         redirect_uri = "https://dev.chzzk.junah.dev/login/callback"
         scope = "identify, email, guilds, guilds.members.read"
     else:
-        redirect_uri = "https://chzzk.junah.dev/login"
-        scope = "identify, email, guilds"
+        redirect_uri = "https://chzzk.junah.dev/login/callback"
+        scope = "identify, email, guilds, guilds.members.read"
 
     res = requests.post(
         url="https://discord.com/api/v10/oauth2/token",
