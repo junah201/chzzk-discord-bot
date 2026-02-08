@@ -163,7 +163,7 @@ package:
     - "requirements.txt"
   exclude:
     - "node_modules/**"
-    - "venv/**"
+    - ".venv/**"
     - ".git/**"
     - ".github/**"
     - "frontend/**"
@@ -653,6 +653,8 @@ resources:
 
 custom:
   pythonRequirements:
+    useUv: true
+    installer: uv
     slim: true
 
 plugins:
