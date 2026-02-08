@@ -24,3 +24,16 @@ export const getDiscordIconUrl = (
   if (!iconHash) return undefined;
   return `https://cdn.discordapp.com/icons/${serverId}/${iconHash}.webp?size=${size}`;
 };
+
+export const getDiscordUserAvatarUrl = (
+  userId: string | undefined,
+  avatarHash: string | null | undefined,
+  size: 64 | 128 | 256 | 512 = 64,
+) => {
+  if (!userId) return undefined;
+  if (!avatarHash)
+    return `https://cdn.discordapp.com/embed/avatars/${
+      parseInt(userId, 10) % 5
+    }.png?size=${size}`;
+  return `https://cdn.discordapp.com/avatars/${userId}/${avatarHash}.webp?size=${size}`;
+};
