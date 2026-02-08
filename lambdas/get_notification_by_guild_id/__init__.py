@@ -17,7 +17,7 @@ def handler(event, context):
 
     res = dynamodb.query(
         TableName="chzzk-bot-db",
-        IndexName="GSI-GuildID",
+        IndexName="GSI-GuildID-v2",
         KeyConditionExpression="guild_id = :guild_id",
         ExpressionAttributeValues={":guild_id": {"S": f"{guild_id}"}},
     )
