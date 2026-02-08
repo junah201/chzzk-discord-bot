@@ -32,7 +32,7 @@ export default function Header() {
               <NavLink key={link.href} {...link} />
             ))}
             <LinkButton href={routeMap.DASHBOARD.HOME} variant="primary">
-              대시보드 로그인
+              대시보드로 이동
             </LinkButton>
           </div>
         </div>
