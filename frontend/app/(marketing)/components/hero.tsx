@@ -80,6 +80,7 @@ export function Hero() {
           >
             <LinkButton
               href={routeMap.REDIRECTS.INVITE}
+              target="_blank"
               variant="primary"
               effect="glow"
               size="lg"

@@ -8,6 +8,7 @@ export default function SidebarUtilities() {
       <SidebarItem
         icon={MessageSquare}
         href={routeMap.REDIRECTS.SUPPORT_SERVER}
+        target="_blank"
       >
         서포트 서버
       </SidebarItem>

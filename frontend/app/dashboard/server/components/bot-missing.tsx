@@ -38,6 +38,7 @@ export default function BotMissingPage() {
     >
       <LinkButton
         href={routeMap.REDIRECTS.INVITE}
+        target="_blank"
         size="lg"
         className="w-full group"
       >

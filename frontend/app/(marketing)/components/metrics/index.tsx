@@ -8,6 +8,7 @@ import { Metric } from "./metric.interface";
 import { MetricCard } from "./metric-card";
 import { GlowEffect } from "@/components/ui/glow-effect";
 import { LinkButton } from "@/components/ui/link-button";
+import routeMap from "@/constants/route-map";
 
 const metrics: Metric[] = [
   {
@@ -113,7 +114,8 @@ export function Metrics() {
             지금 바로 치직을 시작하고 커뮤니티에 참여하세요
           </p>
           <LinkButton
-            href="#invite"
+            href={routeMap.REDIRECTS.INVITE}
+            target="_blank"
             variant="primary"
             effect="glow"
             size="lg"
