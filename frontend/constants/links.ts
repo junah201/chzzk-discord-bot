@@ -4,3 +4,4 @@ export const SUPPORT_SERVER_INVITE_URL =
   "https://discord.com/invite/jUuCxtyySK";
 export const GITHUB_USER_URL = "https://github.com/junah201";
 export const GITHUB_REPO_URL = `${GITHUB_USER_URL}/chzzk-discord-bot`;
+export const GITHUB_REPO_CHANGELOG_URL = `${GITHUB_REPO_URL}/commits/main`;

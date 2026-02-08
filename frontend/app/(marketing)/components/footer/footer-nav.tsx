@@ -23,9 +23,12 @@ const footerLinks = [
   {
     title: "지원",
     links: [
-      { name: "도움말", href: "#help" },
-      { name: "FAQ", href: "#faq" },
-      { name: "문의하기", href: "#contact" },
+      {
+        name: "서포트 서버",
+        href: routeMap.REDIRECTS.SUPPORT_SERVER,
+        target: "_blank",
+      },
+      { name: "FAQ", href: routeMap.DOCS.TROUBLESHOOTING },
     ],
   },
 ] as const;
