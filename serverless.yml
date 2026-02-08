@@ -5,7 +5,7 @@ useDotenv: true
 
 provider:
   name: aws
-  runtime: python3.10
+  runtime: python3.12
   region: ap-northeast-2
   profile: chzzk
   logRetentionInDays: 7

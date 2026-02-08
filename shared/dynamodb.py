@@ -4,7 +4,7 @@ from boto3.dynamodb.types import TypeDeserializer, TypeSerializer
 def dynamo_to_python(dynamodb_object: dict) -> dict:
     deserializer = TypeDeserializer()
 
-    res = dict()
+    res = {}
     for k, v in dynamodb_object.items():
         dynamodb_type = list(v.keys())[0]
         if dynamodb_type == "N":

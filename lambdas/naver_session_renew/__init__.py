@@ -26,7 +26,7 @@ def handler(event, context):
     items = [dynamo_to_python(item) for item in res.get("Items", [])]
     items.sort(key=lambda x: x.get("PK"))
 
-    result = list()
+    result = []
 
     for item in items:
         NID_AUT = item.get("NID_AUT")

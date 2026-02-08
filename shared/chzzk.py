@@ -75,7 +75,7 @@ def get_chzzk(
         return None
 
     # retry
-    for retry in range(1, retry + 1):
+    for _retry in range(1, retry + 1):
         try:
             res = requests.get(
                 f"https://api.chzzk.naver.com/service/v2/channels/{channel_id}/live-detail",
@@ -93,7 +93,7 @@ def get_chzzk(
                             "type": "CHZZK_REQUEST_TIMEOUT",
                             "channel_id": channel_id,
                             "exception": str(e),
-                            "retry": retry,
+                            "retry": _retry,
                         }
                     )
                 )
@@ -105,7 +105,7 @@ def get_chzzk(
                             "type": "CHZZK_REQUEST_ERROR",
                             "channel_id": channel_id,
                             "exception": str(e),
-                            "retry": retry,
+                            "retry": _retry,
                         }
                     )
                 )
