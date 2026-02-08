@@ -167,7 +167,6 @@ package:
     - ".git/**"
     - ".github/**"
     - "frontend/**"
-    - "docs/**"
     - "scripts/**"
     - "serverless.yml"
     - ".serverless/**"
