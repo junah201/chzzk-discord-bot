@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "./providers";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { GoogleAdSense } from "./google-adsense";
 
 export const metadata: Metadata = {
   title: "치직 - 놓치지 않는 방송 알림, 치직",
@@ -49,6 +50,10 @@ export const metadata: Metadata = {
       "좋아하는 스트리머의 방송 시작을 디스코드로 실시간 알림받으세요. 간편한 설정, 빠른 알림, 완벽한 통합.",
     card: "summary_large_image",
   },
+  other: {
+    "google-adsense-account":
+      process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT_ID || "",
+  },
 };
 
 export const viewport = {
@@ -63,6 +68,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ""} />
+      <GoogleAdSense />
       <body>
         <Providers>{children}</Providers>
       </body>
