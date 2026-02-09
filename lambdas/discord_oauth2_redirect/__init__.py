@@ -39,8 +39,11 @@ def handler(event, context):
     elif "dev.chzzk.junah.dev" in origin:
         redirect_uri = "https://dev.chzzk.junah.dev/login/callback"
         scope = "identify, email, guilds, guilds.members.read"
-    else:
+    elif "chzzk.junah.dev" in origin:
         redirect_uri = "https://chzzk.junah.dev/login/callback"
+        scope = "identify, email, guilds, guilds.members.read"
+    else:
+        redirect_uri = "https://junah.dev/login/callback"
         scope = "identify, email, guilds, guilds.members.read"
 
     res = requests.post(

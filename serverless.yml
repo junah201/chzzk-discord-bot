@@ -578,8 +578,9 @@ resources:
           WebACLId: arn:aws:wafv2:us-east-1:897699718511:global/webacl/CreatedByCloudFront-b31a1830/c075eed8-3d5d-46c7-b38c-55c99c498408
           Aliases:
             - chzzk.junah.dev
+            - junah.dev
           ViewerCertificate:
-            AcmCertificateArn: arn:aws:acm:us-east-1:897699718511:certificate/52a635af-fe70-4dbd-b19c-decff9302fac
+            AcmCertificateArn: arn:aws:acm:us-east-1:897699718511:certificate/0abbf59d-1025-48cf-9e41-c16f39b17c42
             SslSupportMethod: sni-only
             MinimumProtocolVersion: TLSv1.2_2021
 
