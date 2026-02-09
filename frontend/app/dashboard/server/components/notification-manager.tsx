@@ -206,6 +206,7 @@ function NotificationRow({ notification: n }: { notification: Notification }) {
         <Button
           size="sm"
           variant="secondary"
+          disabled={test.isPending}
           onClick={() =>
             test.mutate({
               guild_id: n.guild_id,
@@ -214,7 +215,11 @@ function NotificationRow({ notification: n }: { notification: Notification }) {
             })
           }
         >
-          <Send className="h-4 w-4" />
+          {test.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Send className="h-4 w-4" />
+          )}
           테스트 알림 보내기
         </Button>
       </PolicyTd>
