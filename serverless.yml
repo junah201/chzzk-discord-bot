@@ -39,8 +39,6 @@ functions:
           path: event
           method: post
           cors: true
-    layers:
-      - arn:aws:lambda:ap-northeast-2:897699718511:layer:pynacl_layer:111
 
   live_check:
     handler: lambdas/live_check.handler
