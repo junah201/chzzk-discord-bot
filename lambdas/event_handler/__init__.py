@@ -6,6 +6,7 @@ from nacl.exceptions import BadSignatureError
 from nacl.signing import VerifyKey
 
 from shared import INTERACTION_CALLBACK_TYPE, TYPE, middleware
+from shared.discord.dataclass import BUTTON_STYLE, COMPONENT_TYPE
 
 DISCORD_PUBLIC_KEY = os.environ.get("DISCORD_PUBLIC_KEY")
 
@@ -47,10 +48,23 @@ def handler(event, context):
         "data": {
             "embeds": [
                 {
-                    "title": "슬래시 명령어 지원 종료 안내",
-                    "description": "**2024.07.06**부터 치직 봇은 슬래시 명령어 지원을 종료하게 되었습니다. 앞으로는 [치직 봇 웹사이트](https://chzzk.junah.dev)를 통해 알림을 추가, 삭제, 수정하실 수 있습니다. 추가적인 도움이 필요하시다면, [치직 봇 공식 서버](https://api.chzzk.junah.dev/support-server)에서 문의해 주세요. 감사합니다!",
+                    "title": "웹 대시보드에서 알림 관리하기",
+                    "description": "알림 추가, 수정, 삭제 등 모든 관리는 **웹 대시보드**에서 간편하게 가능합니다.\n\n아래 버튼을 눌러 대시보드로 이동해 보세요!",
                     "color": 0x02E895,
-                    "footer": {"text": "치직 chzzk.junah.dev"},
+                    "footer": {"text": "chzzk.junah.dev"},
+                }
+            ],
+            "components": [
+                {
+                    "type": COMPONENT_TYPE.ACTION_ROW,
+                    "components": [
+                        {
+                            "type": COMPONENT_TYPE.BUTTON,
+                            "style": BUTTON_STYLE.LINK,
+                            "label": "웹 대시보드 바로가기",
+                            "url": "https://chzzk.junah.dev",
+                        }
+                    ],
                 }
             ],
         },
