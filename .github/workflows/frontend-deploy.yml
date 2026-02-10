@@ -17,6 +17,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     environment: Production
+
+    defaults:
+      run:
+        working-directory: ./frontend
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,14 +34,10 @@ jobs:
           package_json_file: frontend/package.json
 
       - name: Install dependencies
-        run: |
-          cd frontend
-          pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: |
-          cd frontend
-          pnpm run build
+        run: pnpm run build
 
       - name: Get AWS Access Token via OIDC
         uses: aws-actions/configure-aws-credentials@v4
@@ -46,7 +47,7 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync frontend/out s3://chzzk.junah.dev --delete
+          aws s3 sync out s3://chzzk.junah.dev --delete
 
       - name: Create CloudFront Invalidation
         run: |
