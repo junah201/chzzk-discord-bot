@@ -1,7 +1,9 @@
 import json
 import logging
+
 import boto3
 from botocore.exceptions import ClientError
+
 from shared import middleware
 from shared.exceptions import BadRequestError
 
@@ -9,6 +11,7 @@ dynamodb = boto3.client("dynamodb")
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
 
 @middleware(logger, admin_check=True)
 def handler(event, context):
@@ -45,14 +48,16 @@ def handler(event, context):
         )
 
     except ClientError as e:
-        if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
+        if e.response["Error"]["Code"] == "ConditionalCheckFailedException":
             return {
                 "statusCode": 404,
                 "headers": {
                     "Content-Type": "application/json",
                     "Access-Control-Allow-Origin": "*",
                 },
-                "body": json.dumps({"message": "알림 설정을 찾을 수 없거나 권한이 없습니다."}),
+                "body": json.dumps(
+                    {"message": "알림 설정을 찾을 수 없거나 권한이 없습니다."}
+                ),
             }
         raise e
 
