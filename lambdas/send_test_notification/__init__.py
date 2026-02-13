@@ -19,6 +19,7 @@ def handler(event, context):
     body = json.loads(event.get("body", "{}"))
 
     chzzk_id = body.get("chzzk_id", None)
+    guild_id = body.get("guild_id", None)
     discord_channel_id = body.get("channel_id", None)
 
     if not all([chzzk_id, discord_channel_id]):
@@ -34,10 +35,12 @@ def handler(event, context):
 
     res = dynamodb.query(
         TableName="chzzk-bot-db",
-        KeyConditionExpression="PK = :pk_val AND begins_with(SK, :sk_val)",
+        KeyConditionExpression="PK = :pk_val AND SK = :sk_val",
+        FilterExpression="guild_id = :guild_id",
         ExpressionAttributeValues={
             ":pk_val": {"S": f"CHZZK#{chzzk_id}"},
             ":sk_val": {"S": f"NOTI#{discord_channel_id}"},
+            ":guild_id": {"S": guild_id},
         },
     )
 

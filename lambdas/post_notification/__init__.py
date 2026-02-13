@@ -28,13 +28,14 @@ def handler(event, context):
     body = json.loads(event.get("body", "{}"))
 
     chzzk_id = body.get("chzzk_id", None)
+    guild_id = body.get("guild_id", None)
     channel_id = body.get("channel_id", None)
     custom_message = body.get("custom_message", None)
     disable_embed = body.get("disable_embed", False)
     disable_button = body.get("disable_button", False)
     disable_notification = body.get("disable_notification", False)
 
-    if not all([token, chzzk_id, channel_id, custom_message]):
+    if not all([token, chzzk_id, channel_id, custom_message, guild_id]):
         raise BadRequestError()
 
     # 디스코드 채널 정보 확인
@@ -43,6 +44,15 @@ def handler(event, context):
         return {
             "statusCode": 400,
             "body": json.dumps({"message": "해당 디스코드 채널을 찾을 수 없습니다."}),
+        }
+
+    # 해당 디스코드 채널이 해당 서버에 속해있는지 확인
+    if channel_data.get("guild_id") != guild_id:
+        return {
+            "statusCode": 400,
+            "body": json.dumps(
+                {"message": "해당 디스코드 채널이 서버에 속해있지 않습니다."}
+            ),
         }
 
     # 치지직 채널이 있는지 확인
@@ -138,9 +148,11 @@ def handler(event, context):
         TableName="chzzk-bot-db",
         KeyConditionExpression="#pk = :pk_val AND #sk = :sk_val",
         ExpressionAttributeNames={"#pk": "PK", "#sk": "SK"},
+        FilterExpression="guild_id = :guild_id",
         ExpressionAttributeValues={
             ":pk_val": {"S": f"CHZZK#{chzzk_id}"},
             ":sk_val": {"S": f"NOTI#{channel_id}"},
+            ":guild_id": {"S": guild_id},
         },
     )
     if res.get("Items", []):

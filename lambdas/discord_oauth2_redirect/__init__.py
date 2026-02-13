@@ -6,6 +6,7 @@ import requests
 
 from shared import middleware
 from shared.exceptions import BadRequestError, UnauthorizedError
+from shared.utils import pick
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -33,13 +34,13 @@ def handler(event, context):
     headers = event.get("headers", {})
     origin = headers.get("origin") or headers.get("Origin") or ""
 
-    if "localhost" in origin:
+    if origin.startswith("http://localhost"):
         redirect_uri = "http://localhost:3000/login/callback"
         scope = "identify, email, guilds, guilds.members.read"
-    elif "dev.chzzk.junah.dev" in origin:
+    elif origin.startswith("https://dev.chzzk.junah.dev"):
         redirect_uri = "https://dev.chzzk.junah.dev/login/callback"
         scope = "identify, email, guilds, guilds.members.read"
-    elif "chzzk.junah.dev" in origin:
+    elif origin.startswith("https://dev.junah.dev"):
         redirect_uri = "https://chzzk.junah.dev/login/callback"
         scope = "identify, email, guilds, guilds.members.read"
     else:
@@ -71,6 +72,7 @@ def handler(event, context):
         )
         raise UnauthorizedError()
 
-    data = res.json()
-
-    return {"statusCode": 200, "body": json.dumps(data)}
+    return {
+        "statusCode": 200,
+        "body": json.dumps(pick(res.json(), {"access_token", "scope", "expires_in"})),
+    }

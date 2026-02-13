@@ -1,8 +1,7 @@
 import json
 import logging
-
 import boto3
-
+from botocore.exceptions import ClientError
 from shared import middleware
 from shared.exceptions import BadRequestError
 
@@ -11,52 +10,51 @@ dynamodb = boto3.client("dynamodb")
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-
 @middleware(logger, admin_check=True)
 def handler(event, context):
-    # get authorization header
-    headers = event.get("headers", {})
-    token = headers.get("Authorization", None)
-
     body = json.loads(event.get("body", "{}"))
 
-    chzzk_id = body.get("chzzk_id", None)
-    channel_id = body.get("channel_id", None)
-    custom_message = body.get("custom_message", None)
+    chzzk_id = body.get("chzzk_id")
+    guild_id = body.get("guild_id")
+    channel_id = body.get("channel_id")
+    custom_message = body.get("custom_message", "")
+
     disable_embed = body.get("disable_embed", False)
     disable_button = body.get("disable_button", False)
     disable_notification = body.get("disable_notification", False)
 
-    if not all([token, chzzk_id, channel_id, custom_message]):
+    if not all([chzzk_id, channel_id, custom_message]):
         raise BadRequestError()
 
-    res = dynamodb.query(
-        TableName="chzzk-bot-db",
-        KeyConditionExpression="#pk = :pk_val AND #sk = :sk_val",
-        ExpressionAttributeNames={"#pk": "PK", "#sk": "SK"},
-        ExpressionAttributeValues={
-            ":pk_val": {"S": f"CHZZK#{chzzk_id}"},
-            ":sk_val": {"S": f"NOTI#{channel_id}"},
-        },
-    )
-
-    if res["Count"] < 1:
-        return {
-            "statusCode": 404,
-            "headers": {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
+    try:
+        dynamodb.update_item(
+            TableName="chzzk-bot-db",
+            Key={
+                "PK": {"S": f"CHZZK#{chzzk_id}"},
+                "SK": {"S": f"NOTI#{channel_id}"},
             },
-            "body": json.dumps({"message": "해당 알림을 찾을 수 없습니다."}),
-        }
+            UpdateExpression="SET custom_message = :cm, disable_embed = :de, disable_button = :db, disable_notification = :dn",
+            ConditionExpression="guild_id = :gid",
+            ExpressionAttributeValues={
+                ":cm": {"S": custom_message},
+                ":de": {"BOOL": disable_embed},
+                ":db": {"BOOL": disable_button},
+                ":dn": {"BOOL": disable_notification},
+                ":gid": {"S": guild_id},
+            },
+        )
 
-    item = res["Items"][0]
-    item["custom_message"] = {"S": custom_message}
-    item["disable_embed"] = {"BOOL": disable_embed}
-    item["disable_button"] = {"BOOL": disable_button}
-    item["disable_notification"] = {"BOOL": disable_notification}
-
-    res = dynamodb.put_item(TableName="chzzk-bot-db", Item=item)
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
+            return {
+                "statusCode": 404,
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                },
+                "body": json.dumps({"message": "알림 설정을 찾을 수 없거나 권한이 없습니다."}),
+            }
+        raise e
 
     return {
         "statusCode": 204,

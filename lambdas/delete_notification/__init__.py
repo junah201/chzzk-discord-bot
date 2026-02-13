@@ -1,12 +1,8 @@
-"""
-알림을 삭제합니다.
-만약 해당 알림이 없으면 404를 반환합니다.
-"""
-
 import json
 import logging
 
 import boto3
+from botocore.exceptions import ClientError
 
 from shared import middleware
 from shared.exceptions import BadRequestError
@@ -21,34 +17,49 @@ logger.setLevel(logging.INFO)
 def handler(event, context):
     body = json.loads(event.get("body", "{}"))
 
-    chzzk_id = body.get("chzzk_id", None)
-    channel_id = body.get("channel_id", None)
+    chzzk_id = body.get("chzzk_id")
+    guild_id = body.get("guild_id")
+    channel_id = body.get("channel_id")
 
-    if not channel_id or not chzzk_id:
+    if not all([chzzk_id, guild_id, channel_id]):
         raise BadRequestError()
 
-    res = dynamodb.query(
-        TableName="chzzk-bot-db",
-        KeyConditionExpression="PK = :pk_val AND SK = :sk_val",
-        ExpressionAttributeValues={
-            ":pk_val": {"S": f"CHZZK#{chzzk_id}"},
-            ":sk_val": {"S": f"NOTI#{channel_id}"},
-        },
-    )
+    try:
+        dynamodb.delete_item(
+            TableName="chzzk-bot-db",
+            Key={
+                "PK": {"S": f"CHZZK#{chzzk_id}"},
+                "SK": {"S": f"NOTI#{channel_id}"},
+            },
+            ConditionExpression="guild_id = :guild_id",
+            ExpressionAttributeValues={
+                ":guild_id": {"S": guild_id},
+            },
+        )
+    except ClientError as e:
+        if e.response["Error"]["Code"] == "ConditionalCheckFailedException":
+            return {
+                "statusCode": 404,
+                "body": json.dumps(
+                    {"message": "알림을 찾을 수 없거나 권한이 없습니다."}
+                ),
+            }
 
-    if res.get("Count") == 0:
+        logger.error(
+            json.dumps(
+                {
+                    "type": "DELETE_NOTIFICATION_ERROR",
+                    "chzzk_id": chzzk_id,
+                    "guild_id": guild_id,
+                    "channel_id": channel_id,
+                    "error": str(e),
+                }
+            )
+        )
         return {
-            "statusCode": 404,
-            "body": json.dumps({"message": "해당 알림을 찾을 수 없습니다."}),
+            "statusCode": 500,
+            "body": json.dumps({"message": "서버 오류가 발생했습니다."}),
         }
-
-    dynamodb.delete_item(
-        TableName="chzzk-bot-db",
-        Key={
-            "PK": {"S": f"CHZZK#{chzzk_id}"},
-            "SK": {"S": f"NOTI#{channel_id}"},
-        },
-    )
 
     return {
         "statusCode": 204,
