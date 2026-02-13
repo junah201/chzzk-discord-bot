@@ -51,15 +51,26 @@ def handler(event, context):
         if e.response["Error"]["Code"] == "ConditionalCheckFailedException":
             return {
                 "statusCode": 404,
-                "headers": {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                },
                 "body": json.dumps(
                     {"message": "알림 설정을 찾을 수 없거나 권한이 없습니다."}
                 ),
             }
-        raise e
+
+        logger.error(
+            json.dumps(
+                {
+                    "type": "UPDATE_NOTIFICATION_ERROR",
+                    "chzzk_id": chzzk_id,
+                    "guild_id": guild_id,
+                    "channel_id": channel_id,
+                    "error": str(e),
+                }
+            )
+        )
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"message": "알림 설정 업데이트 중 오류가 발생했습니다."}),
+        }
 
     return {
         "statusCode": 204,
