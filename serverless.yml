@@ -22,8 +22,14 @@ provider:
   iamRoleStatements:
     - Effect: Allow
       Action:
-        - dynamodb:*
-      Resource: "arn:aws:dynamodb:*:*:*"
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:Query
+      Resource:
+        - "arn:aws:dynamodb:ap-northeast-2:897699718511:table/chzzk-bot-db"
+        - "arn:aws:dynamodb:ap-northeast-2:897699718511:table/chzzk-bot-db/index/*"
     - Effect: Allow
       Action:
         - kms:Decrypt
