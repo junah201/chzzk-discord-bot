@@ -40,7 +40,7 @@ def handler(event, context):
     elif origin.startswith("https://dev.chzzk.junah.dev"):
         redirect_uri = "https://dev.chzzk.junah.dev/login/callback"
         scope = "identify, email, guilds, guilds.members.read"
-    elif origin.startswith("https://dev.junah.dev"):
+    elif origin.startswith("https://chzzk.junah.dev"):
         redirect_uri = "https://chzzk.junah.dev/login/callback"
         scope = "identify, email, guilds, guilds.members.read"
     else:
