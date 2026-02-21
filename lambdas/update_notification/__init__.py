@@ -26,7 +26,7 @@ def handler(event, context):
     disable_button = body.get("disable_button", False)
     disable_notification = body.get("disable_notification", False)
 
-    if not all([chzzk_id, channel_id, custom_message]):
+    if not all([chzzk_id, guild_id, channel_id, custom_message]):
         raise BadRequestError()
 
     try:

@@ -22,7 +22,7 @@ def handler(event, context):
     guild_id = body.get("guild_id", None)
     discord_channel_id = body.get("channel_id", None)
 
-    if not all([chzzk_id, discord_channel_id]):
+    if not all([chzzk_id, guild_id, discord_channel_id]):
         raise BadRequestError()
 
     # 치지직 채널이 있는지 확인

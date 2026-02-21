@@ -1,7 +1,3 @@
-"""
-DynamoDB에 알림 데이터를 저장합니다.
-"""
-
 import json
 import logging
 
@@ -30,12 +26,12 @@ def handler(event, context):
     chzzk_id = body.get("chzzk_id", None)
     guild_id = body.get("guild_id", None)
     channel_id = body.get("channel_id", None)
-    custom_message = body.get("custom_message", None)
+    custom_message = body.get("custom_message", "")
     disable_embed = body.get("disable_embed", False)
     disable_button = body.get("disable_button", False)
     disable_notification = body.get("disable_notification", False)
 
-    if not all([token, chzzk_id, channel_id, custom_message, guild_id]):
+    if not all([token, chzzk_id, channel_id, guild_id]):
         raise BadRequestError()
 
     # 디스코드 채널 정보 확인
