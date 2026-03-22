@@ -21,13 +21,21 @@ export const CheckboxInput = (props: BasicInputProps) => {
     rules,
     type,
     placeholder,
+    value,
+    onChange,
     ...rest
   } = props;
 
   return (
     <FieldLabel>
       <Field orientation="horizontal">
-        <Checkbox id={name} name={name} {...rest} />
+        <Checkbox
+          id={name}
+          name={name}
+          checked={value}
+          onCheckedChange={onChange}
+          {...rest}
+        />
         <FieldContent>
           {label && (
             <FieldTitle
