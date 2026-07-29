@@ -125,6 +125,8 @@ def handler(event, context):
                 json.dumps(
                     {
                         "type": "CHZZK_FOLLOW_ERROR",
+                        "chzzk_id": chzzk_id,
+                        "index": index,
                         "status_code": res.status_code,
                         "text": res.text,
                     },
