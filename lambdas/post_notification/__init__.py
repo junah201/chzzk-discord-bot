@@ -134,7 +134,8 @@ def handler(event, context):
             return {
                 "statusCode": 500,
                 "body": json.dumps(
-                    {"message": "치지직 채널 팔로우에 실패했습니다. 다시 시도해주세요."}
+                    {"message": f"치지직 채널 팔로우에 실패했습니다. 관리자에게 문의해주세요. ({index})"},
+                    ensure_ascii=False,
                 ),
             }
 
