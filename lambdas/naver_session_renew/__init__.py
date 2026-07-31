@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import time
 
 import boto3
@@ -7,6 +8,11 @@ import requests
 from user_agent import generate_user_agent
 
 from shared import dynamo_to_python
+from shared.discord.utils import send_message
+
+DISCORD_NAVER_SESSION_RENEW_EXPIRED_CHANNEL_ID = os.environ.get(
+    "DISCORD_NAVER_SESSION_RENEW_EXPIRED_CHANNEL_ID"
+)
 
 dynamodb = boto3.client("dynamodb")
 
@@ -60,6 +66,50 @@ def handler(event, context):
                 Key={"PK": {"S": item.get("PK")}, "SK": {"S": item.get("SK")}},
                 UpdateExpression="SET NID_SES = :val",
                 ExpressionAttributeValues={":val": {"S": NEW_NID_SES}},
+            )
+        else:
+            logger.error(
+                json.dumps(
+                    {
+                        "type": "NAVER_SESSION_RENEW_EXPIRED",
+                        "PK": item.get("PK"),
+                        "NID_AUT": NID_AUT,
+                        "NID_SES": NID_SES,
+                    }
+                )
+            )
+            send_message(
+                channel_id=DISCORD_NAVER_SESSION_RENEW_EXPIRED_CHANNEL_ID,
+                data={
+                    "embeds": [
+                        {
+                            "title": "NAVER_SESSION_RENEW_EXPIRED",
+                            "description": "Naver session renewal failed. The session has expired or an error occurred.",
+                            "color": 0xFF0000,
+                            "fields": [
+                                {
+                                    "name": "PK",
+                                    "value": f"`{item.get('PK')}`",
+                                    "inline": False,
+                                },
+                                {
+                                    "name": "NID_AUT",
+                                    "value": f"`{NID_AUT[:7]}...{NID_AUT[-7:]}`"
+                                    if NID_AUT
+                                    else "`None`",
+                                    "inline": False,
+                                },
+                                {
+                                    "name": "NID_SES",
+                                    "value": f"`{NID_SES[:7]}...{NID_SES[-7:]}`"
+                                    if NID_SES
+                                    else "`None`",
+                                    "inline": False,
+                                },
+                            ],
+                        }
+                    ]
+                },
             )
 
         result.append(

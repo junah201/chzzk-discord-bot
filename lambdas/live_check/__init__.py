@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import traceback
 from datetime import datetime
 
@@ -16,6 +17,10 @@ from shared import (
     send_message,
 )
 
+DISCORD_GET_FOLLOWING_ERROR_CHANNEL_ID = os.environ.get(
+    "DISCORD_GET_FOLLOWING_ERROR_CHANNEL_ID"
+)
+
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -23,7 +28,7 @@ dynamodb = boto3.client("dynamodb")
 table = boto3.resource("dynamodb").Table("chzzk-bot-db")
 
 
-def get_follows(NID_AUT: str, NID_SES: str) -> list[Following]:
+def get_follows(NID_AUT: str, NID_SES: str, index: int) -> list[Following]:
     page = 0
     total_page = 1
 
@@ -61,6 +66,23 @@ def get_follows(NID_AUT: str, NID_SES: str) -> list[Following]:
                     },
                     ensure_ascii=False,
                 )
+            )
+            send_message(
+                channel_id=DISCORD_GET_FOLLOWING_ERROR_CHANNEL_ID,
+                data={
+                    "embeds": [
+                        {
+                            "title": "GET_FOLLOWING_ERROR",
+                            "description": f"Failed to get following list. Status code: {res.status_code}",
+                            "color": 0xFF0000,
+                            "fields": [
+                                {"name": "page", "value": str(page)},
+                                {"name": "text", "value": res.text},
+                                {"name": "index", "value": str(index)},
+                            ],
+                        }
+                    ]
+                },
             )
             continue
 
@@ -333,7 +355,7 @@ def handler(event, context):
     NID_AUT = naver.get("NID_AUT")
     NID_SES = naver.get("NID_SES")
 
-    follows = get_follows(NID_AUT, NID_SES)
+    follows = get_follows(NID_AUT, NID_SES, index)
     live_channels: list[str] = [
         f["channel"]["channelId"] for f in follows if f["streamer"]["openLive"]
     ]
