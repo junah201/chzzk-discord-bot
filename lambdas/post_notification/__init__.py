@@ -66,7 +66,6 @@ def handler(event, context):
     if index == 1:
         index = 7
 
-
     # 치지직 채널 정보가 등록되어 있는지 확인
     res = dynamodb.query(
         TableName="chzzk-bot-db",
@@ -136,7 +135,9 @@ def handler(event, context):
             return {
                 "statusCode": 500,
                 "body": json.dumps(
-                    {"message": f"치지직 채널 팔로우에 실패했습니다. 관리자에게 문의해주세요. ({index})"},
+                    {
+                        "message": f"치지직 채널 팔로우에 실패했습니다. 관리자에게 문의해주세요. ({index})"
+                    },
                     ensure_ascii=False,
                 ),
             }

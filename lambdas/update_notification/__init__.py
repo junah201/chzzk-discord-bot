@@ -69,7 +69,9 @@ def handler(event, context):
         )
         return {
             "statusCode": 500,
-            "body": json.dumps({"message": "알림 설정 업데이트 중 오류가 발생했습니다."}),
+            "body": json.dumps(
+                {"message": "알림 설정 업데이트 중 오류가 발생했습니다."}
+            ),
         }
 
     return {
