@@ -439,32 +439,6 @@ resources:
             - LiveCheckTriggerFor6
             - Arn
 
-    LiveCheckTriggerFor7:
-      Type: AWS::Events::Rule
-      Properties:
-        Name: live_check_trigger_for_7
-        Description: Live check trigger for index 7
-        ScheduleExpression: cron(2/5 * ? * * *)
-        State: ENABLED
-        Targets:
-          - Arn:
-              Fn::GetAtt:
-                - LiveUnderscorecheckLambdaFunction
-                - Arn
-            Id: live_check_trigger_for_7
-
-    PermissionForEventsToInvokeLambda7:
-      Type: AWS::Lambda::Permission
-      Properties:
-        FunctionName:
-          Ref: LiveUnderscorecheckLambdaFunction
-        Action: lambda:InvokeFunction
-        Principal: events.amazonaws.com
-        SourceArn:
-          Fn::GetAtt:
-            - LiveCheckTriggerFor7
-            - Arn
-
     # TODO : Import DynamoDB Table from original resources
     # DynamoDBTable:
     #   Type: AWS::DynamoDB::Table

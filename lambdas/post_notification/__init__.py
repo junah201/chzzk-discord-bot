@@ -61,10 +61,6 @@ def handler(event, context):
 
     # 채널 ID(16진수)를 기반으로 0~6 사이의 샤딩 인덱스를 계산합니다.
     index = int(chzzk_id, 16) % 7
-    # 1번 계정(Index 1)은 치지직 팔로우 한도 초과로 인해 사용이 불가합니다.
-    # 따라서 1번에 할당된 트래픽을 예비 계정인 7번(Index 7)으로 우회하여 처리합니다.
-    if index == 1:
-        index = 7
 
     # 치지직 채널 정보가 등록되어 있는지 확인
     res = dynamodb.query(
@@ -76,7 +72,13 @@ def handler(event, context):
             ":sk_val": {"S": f"CHZZK#{chzzk_id}"},
         },
     )
-    if not res.get("Items", []):
+
+    is_registered = bool(res.get("Items", []))
+
+    if not is_registered and index >= 5:
+        index = 4
+
+    if not is_registered:
         res = dynamodb.put_item(
             TableName="chzzk-bot-db",
             Item={
