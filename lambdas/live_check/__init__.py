@@ -63,6 +63,7 @@ def get_follows(NID_AUT: str, NID_SES: str, index: int) -> list[Following]:
                         "status_code": res.status_code,
                         "text": res.text,
                         "page": page,
+                        "index": index,
                     },
                     ensure_ascii=False,
                 )
@@ -93,6 +94,7 @@ def get_follows(NID_AUT: str, NID_SES: str, index: int) -> list[Following]:
                     "page": page,
                     "total_page": total_page,
                     "count": len(data.get("content", {}).get("followingList", [])),
+                    "index": index,
                 }
             )
         )
