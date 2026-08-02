@@ -18,8 +18,11 @@ def handler(event, context):
     res = dynamodb.query(
         TableName="chzzk-bot-db",
         IndexName="GSI-GuildID-v2",
-        KeyConditionExpression="guild_id = :guild_id",
-        ExpressionAttributeValues={":guild_id": {"S": f"{guild_id}"}},
+        KeyConditionExpression="guild_id = :guild_id AND begins_with(PK, :pk_prefix)",
+        ExpressionAttributeValues={
+            ":guild_id": {"S": f"{guild_id}"},
+            ":pk_prefix": {"S": "NOTI#"}
+        },
     )
 
     result = [dynamo_to_python(item) for item in res.get("Items", [])]
