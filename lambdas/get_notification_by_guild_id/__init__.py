@@ -19,10 +19,14 @@ def handler(event, context):
     res = dynamodb.query(
         TableName="chzzk-bot-db",
         IndexName="GSI-GuildID-v2",
-        KeyConditionExpression="guild_id = :guild_id AND begins_with(PK, :pk_prefix)",
+        KeyConditionExpression="guild_id = :guild_id",
+        FilterExpression="#type = :type_val",
+        ExpressionAttributeNames={
+            "#type": "type",
+        },
         ExpressionAttributeValues={
-            ":guild_id": {"S": f"{guild_id}"},
-            ":pk_prefix": {"S": "NOTI#"},
+            ":guild_id": {"S": str(guild_id)},
+            ":type_val": {"S": "NOTI"},
         },
     )
 
