@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Input } from "@/components/input";
@@ -10,8 +11,15 @@ import { Control } from "react-hook-form";
 
 interface NotificationFormProps {
   serverId: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  control: Control<any>;
+  control: Control<{
+    chzzk_id: string;
+    channel_id: string;
+    guild_id: string;
+    custom_message: string;
+    disable_embed: boolean;
+    disable_button: boolean;
+    disable_notification: boolean;
+  }>;
   isEdit?: boolean;
 }
 
@@ -29,7 +37,7 @@ export default function NotificationForm({
         <>
           <Input
             type="text"
-            control={control}
+            control={control as unknown as Control<any>}
             name="chzzk_id"
             label="치지직 ID"
             placeholder="bb382c2c0cc9fa7c86"
@@ -45,7 +53,7 @@ export default function NotificationForm({
           />
           <Input
             type="select"
-            control={control}
+            control={control as unknown as Control<any>}
             name="channel_id"
             label="디스코드 채널"
             rules={{ required: "디스코드 채널을 선택해주세요" }}
@@ -72,7 +80,7 @@ export default function NotificationForm({
       )}
       <Input
         type="textarea"
-        control={control}
+        control={control as unknown as Control<any>}
         name="custom_message"
         label="커스텀 메시지"
         placeholder="@everyone 새로운 방송이 시작되었습니다! 시청하러 가볼까요?"
@@ -86,21 +94,21 @@ export default function NotificationForm({
       />
       <Input
         type="checkbox"
-        control={control}
+        control={control as unknown as Control<any>}
         name="disable_embed"
         label="임베드 비활성화"
         helperText="방송 알림 임베드를 비활성화합니다"
       />
       <Input
         type="checkbox"
-        control={control}
+        control={control as unknown as Control<any>}
         name="disable_button"
         label="바로가기 버튼 비활성화"
         helperText="방송 알림의 바로가기 버튼을 비활성화합니다"
       />
       <Input
         type="checkbox"
-        control={control}
+        control={control as unknown as Control<any>}
         name="disable_notification"
         label="알림 비활성화"
         helperText="방송 알림의 알림 기능을 비활성화합니다"
