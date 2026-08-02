@@ -78,7 +78,8 @@ def handler(event, context):
                     }
                 )
             )
-            send_message(
+
+            res = send_message(
                 channel_id=DISCORD_NAVER_SESSION_RENEW_EXPIRED_CHANNEL_ID,
                 data={
                     "embeds": [
@@ -110,6 +111,16 @@ def handler(event, context):
                         }
                     ]
                 },
+            )
+            logger.info(
+                json.dumps(
+                    {
+                        "type": "DISCORD_MESSAGE_SENT",
+                        "channel_id": DISCORD_NAVER_SESSION_RENEW_EXPIRED_CHANNEL_ID,
+                        "status_code": res.status_code,
+                        "text": res.text,
+                    }
+                )
             )
 
         result.append(

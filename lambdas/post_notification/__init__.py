@@ -1,12 +1,18 @@
 import json
 import logging
+import os
 
 import boto3
 import requests
 from user_agent import generate_user_agent
 
 from shared import get_channel, get_chzzk, middleware
+from shared.discord.utils import send_message
 from shared.exceptions import BadRequestError
+
+DISCORD_CHZZK_FOLLOW_ERROR_CHANNEL_ID = os.environ.get(
+    "DISCORD_CHZZK_FOLLOW_ERROR_CHANNEL_ID"
+)
 
 dynamodb = boto3.client("dynamodb")
 table = boto3.resource("dynamodb").Table("chzzk-bot-db")
@@ -133,6 +139,23 @@ def handler(event, context):
                     },
                     ensure_ascii=False,
                 )
+            )
+            send_message(
+                channel_id=DISCORD_CHZZK_FOLLOW_ERROR_CHANNEL_ID,
+                data={
+                    "embeds": [
+                        {
+                            "title": "CHZZK_FOLLOW_ERROR",
+                            "description": f"Failed to follow CHZZK channel. Status code: {res.status_code}",
+                            "color": 0xFF0000,
+                            "fields": [
+                                {"name": "chzzk_id", "value": str(chzzk_id)},
+                                {"name": "text", "value": res.text},
+                                {"name": "index", "value": str(index)},
+                            ],
+                        }
+                    ]
+                },
             )
             return {
                 "statusCode": 500,
