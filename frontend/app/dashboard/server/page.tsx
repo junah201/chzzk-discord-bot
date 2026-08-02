@@ -12,6 +12,7 @@ import SetupGuideCallout from "./components/setup-guide-callout";
 import NotificationManager from "./components/notification-manager";
 import TestGuideCallout from "./components/test-guide-callout";
 import ServerBotGuard from "./components/server-bot-guard";
+import NotificationLimitCard from "./components/notification-limit-card";
 
 export default function ServerDetailPage() {
   return (
@@ -36,6 +37,12 @@ function ClientServerDetailPage() {
       ) : (
         <ServerHeader server={serverData!} />
       )}
+      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <NotificationLimitCard
+          currentCount={serverData?.current_count || 0}
+          maxLimit={serverData?.max_limit || 5}
+        />
+      </div>
       <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <AddNotificationForm serverId={serverId!} />
         <SetupGuideCallout />

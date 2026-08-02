@@ -4,7 +4,7 @@ import { LinkButton } from "@/components/ui/link-button";
 import routeMap from "@/constants/route-map";
 import { getDiscordIconUrl } from "@/lib/urls";
 import { Guild } from "@/types/api";
-import { Users } from "lucide-react";
+import { Bell, Users } from "lucide-react";
 
 interface ServerCardProps {
   server: Guild;
@@ -29,10 +29,17 @@ export function ServerCard({ server }: ServerCardProps) {
               {server.name}
             </CardTitle>
           </div>
+
           <div className="flex items-center gap-2 text-muted-foreground shrink-0">
             <Users className="w-4 h-4" />
             <span>
               {(server.approximate_member_count ?? 0).toLocaleString()} 멤버
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-muted-foreground shrink-0">
+            <Bell className="w-4 h-4" />
+            <span>
+              알림: {server.current_count || 0} / {server.max_limit || 5}개
             </span>
           </div>
         </div>

@@ -12,7 +12,9 @@ import Link from "next/link";
 export default function Dashboard() {
   const { data, isLoading } = useQuery(discordQueries.guilds());
 
-  const servers = data || [];
+  const servers = data
+    ? [...data].sort((a, b) => b.current_count - a.current_count)
+    : [];
 
   return (
     <div className="min-h-screen bg-background">

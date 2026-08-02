@@ -22,6 +22,8 @@ export interface Guild {
   icon: string | null;
   description: string | null;
   approximate_member_count: number | null;
+  current_count: number;
+  max_limit: number;
 }
 
 export interface Channel {
