@@ -1,22 +1,18 @@
 import json
 import logging
-import os
 
-import boto3
-import requests
-from user_agent import generate_user_agent
-
-from shared import get_channel, get_chzzk, middleware
-from shared.discord.utils import send_message
+from shared import build_response, get_channel, get_chzzk, middleware
 from shared.exceptions import BadRequestError
-from shared.utils import build_response
 
-DISCORD_CHZZK_FOLLOW_ERROR_CHANNEL_ID = os.environ.get(
-    "DISCORD_CHZZK_FOLLOW_ERROR_CHANNEL_ID"
+from lambdas.post_notification.client import follow_chzzk_channel
+from lambdas.post_notification.service import (
+    check_guild_limit,
+    get_naver_account,
+    is_chzzk_registered,
+    is_notification_exists,
+    register_chzzk_channel,
+    save_notification_and_increment_counter,
 )
-
-dynamodb = boto3.client("dynamodb")
-table = boto3.resource("dynamodb").Table("chzzk-bot-db")
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -24,172 +20,67 @@ logger.setLevel(logging.INFO)
 
 @middleware(logger, admin_check=True)
 def handler(event, context):
-    # get authorization header
     headers = event.get("headers", {})
-    token = headers.get("Authorization", None)
-
+    token = headers.get("Authorization")
     body = json.loads(event.get("body", "{}"))
 
-    chzzk_id = body.get("chzzk_id", None)
-    guild_id = body.get("guild_id", None)
-    channel_id = body.get("channel_id", None)
-    custom_message = body.get("custom_message", "")
-    disable_embed = body.get("disable_embed", False)
-    disable_button = body.get("disable_button", False)
-    disable_notification = body.get("disable_notification", False)
+    chzzk_id = body.get("chzzk_id")
+    guild_id = body.get("guild_id")
+    channel_id = body.get("channel_id")
 
     if not all([token, chzzk_id, channel_id, guild_id]):
         raise BadRequestError()
 
-    # 디스코드 채널 정보 확인
+    # 1. 디스코드 채널 및 서버 소속 검증
     channel_data = get_channel(channel_id)
     if not channel_data:
         return build_response(400, "해당 디스코드 채널을 찾을 수 없습니다.")
 
-    # 해당 디스코드 채널이 해당 서버에 속해있는지 확인
     if channel_data.get("guild_id") != guild_id:
         return build_response(400, "해당 디스코드 채널이 서버에 속해있지 않습니다.")
 
-    # 치지직 채널이 있는지 확인
-    chzzk = get_chzzk(chzzk_id)
-    if not chzzk:
+    # 2. 서버 알림 개수 제한 검증
+    is_valid, err_msg, is_new_guild = check_guild_limit(guild_id)
+    if not is_valid:
+        return build_response(400, err_msg)
+
+    # 3. 치지직 채널 존재 검증
+    chzzk_data = get_chzzk(chzzk_id)
+    if not chzzk_data:
         return build_response(400, "해당 치지직 채널을 찾을 수 없습니다.")
 
-    # 채널 ID(16진수)를 기반으로 0~6 사이의 샤딩 인덱스를 계산합니다.
+    # 4. 치지직 채널 DB 저장 및 샤딩 인덱스 처리
     index = int(chzzk_id, 16) % 7
-
-    # 치지직 채널 정보가 등록되어 있는지 확인
-    res = dynamodb.query(
-        TableName="chzzk-bot-db",
-        KeyConditionExpression="#pk = :pk_val AND #sk = :sk_val",
-        ExpressionAttributeNames={"#pk": "PK", "#sk": "SK"},
-        ExpressionAttributeValues={
-            ":pk_val": {"S": f"CHZZK#{chzzk_id}"},
-            ":sk_val": {"S": f"CHZZK#{chzzk_id}"},
-        },
-    )
-
-    is_registered = bool(res.get("Items", []))
-
-    if not is_registered and index >= 5:
-        index = 4
-
-    if not is_registered:
-        res = dynamodb.put_item(
-            TableName="chzzk-bot-db",
-            Item={
-                "PK": {"S": f"CHZZK#{chzzk_id}"},
-                "SK": {"S": f"CHZZK#{chzzk_id}"},
-                "lastLiveId": {"N": f"{chzzk['liveId']}"},
-                "lastLiveTitle": {"S": chzzk["liveTitle"]},
-                "channelId": {"S": chzzk["channel"]["channelId"]},
-                "channelName": {"S": chzzk["channel"]["channelName"]},
-                "channelImageUrl": {"S": chzzk["channel"]["channelImageUrl"] or ""},
-                "type": {"S": "CHZZK"},
-                "index": {"N": f"{index}"},
-            },
-        )
-
-        # 업로드 실패
-        if res["ResponseMetadata"]["HTTPStatusCode"] != 200:
+    if not is_chzzk_registered(chzzk_id):
+        if index >= 5:
+            index = 4
+        if not register_chzzk_channel(chzzk_id, chzzk_data, index):
             return build_response(500, "치지직 채널 정보 등록에 실패했습니다.")
 
-    # 네이버 계정 가져오기
-    naver = table.get_item(Key={"PK": f"NAVER#{index}", "SK": f"NAVER#{index}"})
-
-    # 팔로우 요청
-    if naver.get("Item"):
-        naver = naver["Item"]
-        NID_AUT = naver.get("NID_AUT")
-        NID_SES = naver.get("NID_SES")
-
-        res = requests.post(
-            f"https://api.chzzk.naver.com/service/v1/channels/{chzzk_id}/follow",
-            headers={
-                "User-Agent": generate_user_agent(os="win", device_type="desktop"),
-                "Cookie": f"NID_AUT={NID_AUT}; NID_SES={NID_SES}",
-            },
-            timeout=2,
-        )
-
-        if res.status_code != 200:
-            logger.error(
-                json.dumps(
-                    {
-                        "type": "CHZZK_FOLLOW_ERROR",
-                        "chzzk_id": chzzk_id,
-                        "index": index,
-                        "status_code": res.status_code,
-                        "text": res.text,
-                    },
-                    ensure_ascii=False,
-                )
-            )
-            send_message(
-                channel_id=DISCORD_CHZZK_FOLLOW_ERROR_CHANNEL_ID,
-                data={
-                    "embeds": [
-                        {
-                            "title": "CHZZK_FOLLOW_ERROR",
-                            "description": f"Failed to follow CHZZK channel. Status code: {res.status_code}",
-                            "color": 0xFF0000,
-                            "fields": [
-                                {"name": "chzzk_id", "value": str(chzzk_id)},
-                                {"name": "text", "value": res.text},
-                                {"name": "index", "value": str(index)},
-                            ],
-                        }
-                    ]
-                },
-            )
+    # 5. 연동 계정 팔로우 수행
+    naver_item = get_naver_account(index)
+    if naver_item:
+        if not follow_chzzk_channel(chzzk_id, index, naver_item):
             return build_response(
-                500,
-                f"치지직 채널 팔로우에 실패했습니다. 관리자에게 문의해주세요. ({index})",
+                500, f"치지직 채널 팔로우에 실패했습니다. 관리자에게 문의해주세요. ({index})"
             )
 
-        logger.info(
-            json.dumps(
-                {"type": "CHZZK_FOLLOW_SUCCESS", "channel_id": chzzk_id},
-                ensure_ascii=False,
-            )
-        )
-
-    # 이미 등록된 알림인지 확인
-    res = dynamodb.query(
-        TableName="chzzk-bot-db",
-        KeyConditionExpression="#pk = :pk_val AND #sk = :sk_val",
-        ExpressionAttributeNames={"#pk": "PK", "#sk": "SK"},
-        FilterExpression="guild_id = :guild_id",
-        ExpressionAttributeValues={
-            ":pk_val": {"S": f"CHZZK#{chzzk_id}"},
-            ":sk_val": {"S": f"NOTI#{channel_id}"},
-            ":guild_id": {"S": guild_id},
-        },
-    )
-    if res.get("Items", []):
+    # 6. 알림 중복 확인
+    if is_notification_exists(chzzk_id, channel_id, guild_id):
         return build_response(
             400,
-            f"이미 {channel_data['name']}에 등록된 채널({chzzk['channel']['channelName']})입니다.",
+            f"이미 {channel_data['name']}에 등록된 채널({chzzk_data['channel']['channelName']})입니다.",
         )
 
-    dynamodb.put_item(
-        TableName="chzzk-bot-db",
-        Item={
-            "PK": {"S": f"CHZZK#{chzzk_id}"},
-            "SK": {"S": f"NOTI#{channel_id}"},
-            "chzzk_id": {"S": f"{chzzk_id}"},
-            "chzzk_name": {"S": chzzk["channel"]["channelName"]},
-            "chzzk_image_url": {"S": chzzk["channel"]["channelImageUrl"] or ""},
-            "channel_id": {"S": f"{channel_id}"},
-            "channel_name": {"S": channel_data.get("name", "")},
-            "guild_id": {"S": channel_data.get("guild_id", "")},
-            "custom_message": {"S": custom_message},
-            "type": {"S": "NOTI"},
-            "disable_embed": {"BOOL": disable_embed},
-            "disable_button": {"BOOL": disable_button},
-            "disable_notification": {"BOOL": disable_notification},
-            "index": {"N": "-1"},
-        },
+    # 7. NOTI 저장 및 GUILD 카운터 증가 (+1)
+    save_notification_and_increment_counter(
+        guild_id,
+        channel_id,
+        channel_data,
+        chzzk_id,
+        chzzk_data,
+        body,
+        is_new_guild,
     )
 
     return build_response(204)

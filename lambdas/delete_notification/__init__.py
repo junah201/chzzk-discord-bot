@@ -9,6 +9,7 @@ from shared.exceptions import BadRequestError
 from shared.utils import build_response
 
 dynamodb = boto3.client("dynamodb")
+table = boto3.resource("dynamodb").Table("chzzk-bot-db")
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -26,6 +27,7 @@ def handler(event, context):
         raise BadRequestError()
 
     try:
+        # 알림 삭제
         dynamodb.delete_item(
             TableName="chzzk-bot-db",
             Key={
@@ -37,6 +39,22 @@ def handler(event, context):
                 ":guild_id": {"S": guild_id},
             },
         )
+
+        # 서버 알림 개수 감소
+        table.update_item(
+            Key={
+                "PK": f"GUILD#{guild_id}",
+                "SK": f"GUILD#{guild_id}",
+            },
+            UpdateExpression="SET current_count = if_not_exists(current_count, :one) - :dec",
+            ConditionExpression="current_count > :zero",
+            ExpressionAttributeValues={
+                ":dec": 1,
+                ":one": 1,
+                ":zero": 0,
+            },
+        )
+
     except ClientError as e:
         if e.response["Error"]["Code"] == "ConditionalCheckFailedException":
             return build_response(404, "알림을 찾을 수 없거나 권한이 없습니다.")

@@ -22,7 +22,7 @@ from .exceptions import (
     UserNotAdminError,
 )
 from .middleware import middleware
-from .utils import omit, pick
+from .utils import omit, pick, build_response
 
 __all__ = [
     # middleware.py
@@ -48,6 +48,7 @@ __all__ = [
     # utils.py
     "pick",
     "omit",
+    "build_response",
     # exceptions.py
     "BaseException",
     "BadRequestError",
