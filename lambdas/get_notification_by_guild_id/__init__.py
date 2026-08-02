@@ -4,6 +4,7 @@ import logging
 import boto3
 
 from shared import dynamo_to_python, middleware
+from shared.utils import build_response
 
 dynamodb = boto3.client("dynamodb")
 
@@ -21,10 +22,10 @@ def handler(event, context):
         KeyConditionExpression="guild_id = :guild_id AND begins_with(PK, :pk_prefix)",
         ExpressionAttributeValues={
             ":guild_id": {"S": f"{guild_id}"},
-            ":pk_prefix": {"S": "NOTI#"}
+            ":pk_prefix": {"S": "NOTI#"},
         },
     )
 
     result = [dynamo_to_python(item) for item in res.get("Items", [])]
 
-    return {"statusCode": 200, "body": json.dumps(result)}
+    return build_response(200, data=result)

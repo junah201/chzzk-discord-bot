@@ -6,7 +6,7 @@ import requests
 
 from shared import middleware
 from shared.exceptions import DiscordApiError, RateLimitError, UnauthorizedError
-from shared.utils import pick
+from shared.utils import build_response, pick
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -78,4 +78,4 @@ def handler(event, context):
         if (guild["permissions"] & 0x8) == 0x8
     ]
 
-    return {"statusCode": 200, "body": json.dumps(guilds)}
+    return build_response(200, data=guilds)

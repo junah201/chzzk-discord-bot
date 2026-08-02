@@ -6,6 +6,7 @@ from botocore.exceptions import ClientError
 
 from shared import middleware
 from shared.exceptions import BadRequestError
+from shared.utils import build_response
 
 dynamodb = boto3.client("dynamodb")
 
@@ -38,12 +39,7 @@ def handler(event, context):
         )
     except ClientError as e:
         if e.response["Error"]["Code"] == "ConditionalCheckFailedException":
-            return {
-                "statusCode": 404,
-                "body": json.dumps(
-                    {"message": "알림을 찾을 수 없거나 권한이 없습니다."}
-                ),
-            }
+            return build_response(404, "알림을 찾을 수 없거나 권한이 없습니다.")
 
         logger.error(
             json.dumps(
@@ -56,11 +52,6 @@ def handler(event, context):
                 }
             )
         )
-        return {
-            "statusCode": 500,
-            "body": json.dumps({"message": "서버 오류가 발생했습니다."}),
-        }
+        return build_response(500, "서버 오류가 발생했습니다.")
 
-    return {
-        "statusCode": 204,
-    }
+    return build_response(204)

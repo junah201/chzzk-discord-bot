@@ -6,6 +6,7 @@ from botocore.exceptions import ClientError
 
 from shared import middleware
 from shared.exceptions import BadRequestError
+from shared.utils import build_response
 
 dynamodb = boto3.client("dynamodb")
 
@@ -67,17 +68,6 @@ def handler(event, context):
                 }
             )
         )
-        return {
-            "statusCode": 500,
-            "body": json.dumps(
-                {"message": "알림 설정 업데이트 중 오류가 발생했습니다."}
-            ),
-        }
+        return build_response(500, "알림 설정 업데이트 중 오류가 발생했습니다.")
 
-    return {
-        "statusCode": 204,
-        "headers": {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-        },
-    }
+    return build_response(204)

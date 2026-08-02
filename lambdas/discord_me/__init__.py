@@ -5,6 +5,7 @@ import requests
 
 from shared import middleware
 from shared.exceptions import UnauthorizedError
+from shared.utils import build_response
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -50,4 +51,4 @@ def handler(event, context):
         )
     )
 
-    return {"statusCode": 200, "body": json.dumps(data)}
+    return build_response(200, data=data)

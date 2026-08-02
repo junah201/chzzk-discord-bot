@@ -11,7 +11,7 @@ from shared.exceptions import (
     DiscordApiError,
     ServerNotFoundError,
 )
-from shared.utils import pick
+from shared.utils import build_response, pick
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -61,4 +61,4 @@ def handler(event, context):
         raise DiscordApiError(res)
 
     ALLOWED_KEYS = {"id", "name", "icon", "description", "approximate_member_count"}
-    return {"statusCode": 200, "body": json.dumps(pick(data, ALLOWED_KEYS))}
+    return build_response(200, data=pick(data, ALLOWED_KEYS))

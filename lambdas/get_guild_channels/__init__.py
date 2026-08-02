@@ -12,6 +12,7 @@ from shared.exceptions import (
     ServerNotFoundError,
     UnauthorizedError,
 )
+from shared.utils import build_response
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -60,4 +61,4 @@ def handler(event, context):
         if channel["type"] in [CHANNEL_TYPE.GUILD_TEXT, CHANNEL_TYPE.GUILD_NEWS]
     ]
 
-    return {"statusCode": 200, "body": json.dumps(channels)}
+    return build_response(200, data=channels)

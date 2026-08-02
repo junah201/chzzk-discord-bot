@@ -1,5 +1,6 @@
 from collections.abc import Iterable
 from typing import Any
+import json
 
 
 def pick(data: dict[str, Any], keys: Iterable[str]) -> dict[str, Any]:
@@ -28,3 +29,23 @@ def omit(data: dict[str, Any], keys: Iterable[str]) -> dict[str, Any]:
 
     keys_set = set(keys)
     return {k: v for k, v in data.items() if k not in keys_set}
+
+
+def build_response(status_code: int, message: str = None, data: dict | list = None):
+    """
+    공통 Lambda HTTP 응답 생성 함수
+    """
+
+    if status_code == 204:
+        return {"statusCode": 204}
+
+    body = {}
+    if message:
+        body["message"] = message
+    if data:
+        body = data
+
+    return {
+        "statusCode": status_code,
+        "body": json.dumps(body, ensure_ascii=False),
+    }

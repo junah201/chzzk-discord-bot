@@ -9,6 +9,7 @@ from user_agent import generate_user_agent
 from shared import get_channel, get_chzzk, middleware
 from shared.discord.utils import send_message
 from shared.exceptions import BadRequestError
+from shared.utils import build_response
 
 DISCORD_CHZZK_FOLLOW_ERROR_CHANNEL_ID = os.environ.get(
     "DISCORD_CHZZK_FOLLOW_ERROR_CHANNEL_ID"
@@ -43,27 +44,16 @@ def handler(event, context):
     # 디스코드 채널 정보 확인
     channel_data = get_channel(channel_id)
     if not channel_data:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"message": "해당 디스코드 채널을 찾을 수 없습니다."}),
-        }
+        return build_response(400, "해당 디스코드 채널을 찾을 수 없습니다.")
 
     # 해당 디스코드 채널이 해당 서버에 속해있는지 확인
     if channel_data.get("guild_id") != guild_id:
-        return {
-            "statusCode": 400,
-            "body": json.dumps(
-                {"message": "해당 디스코드 채널이 서버에 속해있지 않습니다."}
-            ),
-        }
+        return build_response(400, "해당 디스코드 채널이 서버에 속해있지 않습니다.")
 
     # 치지직 채널이 있는지 확인
     chzzk = get_chzzk(chzzk_id)
     if not chzzk:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"message": "해당 치지직 채널을 찾을 수 없습니다."}),
-        }
+        return build_response(400, "해당 치지직 채널을 찾을 수 없습니다.")
 
     # 채널 ID(16진수)를 기반으로 0~6 사이의 샤딩 인덱스를 계산합니다.
     index = int(chzzk_id, 16) % 7
@@ -102,12 +92,7 @@ def handler(event, context):
 
         # 업로드 실패
         if res["ResponseMetadata"]["HTTPStatusCode"] != 200:
-            return {
-                "statusCode": 500,
-                "body": json.dumps(
-                    {"message": "치지직 채널 정보 등록에 실패했습니다."}
-                ),
-            }
+            return build_response(500, "치지직 채널 정보 등록에 실패했습니다.")
 
     # 네이버 계정 가져오기
     naver = table.get_item(Key={"PK": f"NAVER#{index}", "SK": f"NAVER#{index}"})
@@ -157,15 +142,10 @@ def handler(event, context):
                     ]
                 },
             )
-            return {
-                "statusCode": 500,
-                "body": json.dumps(
-                    {
-                        "message": f"치지직 채널 팔로우에 실패했습니다. 관리자에게 문의해주세요. ({index})"
-                    },
-                    ensure_ascii=False,
-                ),
-            }
+            return build_response(
+                500,
+                f"치지직 채널 팔로우에 실패했습니다. 관리자에게 문의해주세요. ({index})",
+            )
 
         logger.info(
             json.dumps(
@@ -187,14 +167,10 @@ def handler(event, context):
         },
     )
     if res.get("Items", []):
-        return {
-            "statusCode": 400,
-            "body": json.dumps(
-                {
-                    "message": f"이미 {channel_data['name']}에 등록된 채널({chzzk['channel']['channelName']})입니다."
-                }
-            ),
-        }
+        return build_response(
+            400,
+            f"이미 {channel_data['name']}에 등록된 채널({chzzk['channel']['channelName']})입니다.",
+        )
 
     dynamodb.put_item(
         TableName="chzzk-bot-db",
@@ -216,6 +192,4 @@ def handler(event, context):
         },
     )
 
-    return {
-        "statusCode": 204,
-    }
+    return build_response(204)

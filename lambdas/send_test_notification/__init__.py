@@ -7,6 +7,7 @@ import boto3
 from shared import get_chzzk, middleware, send_message
 from shared.discord import BUTTON_STYLE, COMPONENT_TYPE
 from shared.exceptions import BadRequestError
+from shared.utils import build_response
 
 dynamodb = boto3.client("dynamodb")
 
@@ -28,10 +29,7 @@ def handler(event, context):
     # 치지직 채널이 있는지 확인
     chzzk = get_chzzk(chzzk_id)
     if not chzzk:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"message": "해당 치지직 채널을 찾을 수 없습니다."}),
-        }
+        return build_response(400, "해당 치지직 채널을 찾을 수 없습니다.")
 
     res = dynamodb.query(
         TableName="chzzk-bot-db",
@@ -45,10 +43,7 @@ def handler(event, context):
     )
 
     if res["Count"] < 1:
-        return {
-            "statusCode": 404,
-            "body": json.dumps({"message": "해당 알림이 존재하지 않습니다."}),
-        }
+        return build_response(404, "해당 알림이 존재하지 않습니다.")
 
     item = res["Items"][0]
 
@@ -117,10 +112,7 @@ def handler(event, context):
         dynamodb.delete_item(
             TableName="chzzk-bot-db", Key={"PK": item.get("PK"), "SK": item.get("SK")}
         )
-        return {
-            "statusCode": 404,
-            "body": json.dumps({"message": "해당 디스코드 채널이 존재하지 않습니다."}),
-        }
+        return build_response(404, "해당 디스코드 채널이 존재하지 않습니다.")
 
     # 메시지 전송에 실패한 경우
     if res.status_code != 200:
@@ -137,14 +129,10 @@ def handler(event, context):
                 ensure_ascii=False,
             )
         )
-        return {
-            "statusCode": 500,
-            "body": json.dumps(
-                {
-                    "message": f"테스트 알림 전송에 실패했습니다. 치직 봇이 해당 채널에 메시지를 보낼 권한이 있는지 확인해주세요. ({res.json()})"
-                }
-            ),
-        }
+        return build_response(
+            500,
+            f"테스트 알림 전송에 실패했습니다. 치직 봇이 해당 채널에 메시지를 보낼 권한이 있는지 확인해주세요. ({res.json()})",
+        )
 
     # 성공
     logger.info(
@@ -158,7 +146,4 @@ def handler(event, context):
             ensure_ascii=False,
         )
     )
-    return {
-        "statusCode": 200,
-        "body": json.dumps({"message": "테스트 알림을 성공적으로 전송했습니다."}),
-    }
+    return build_response(200, "테스트 알림을 성공적으로 전송했습니다.")

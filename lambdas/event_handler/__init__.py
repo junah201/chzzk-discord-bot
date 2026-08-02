@@ -7,6 +7,7 @@ from nacl.signing import VerifyKey
 
 from shared import INTERACTION_CALLBACK_TYPE, TYPE, middleware
 from shared.discord.dataclass import BUTTON_STYLE, COMPONENT_TYPE
+from shared.utils import build_response
 
 DISCORD_PUBLIC_KEY = os.environ.get("DISCORD_PUBLIC_KEY")
 
@@ -40,7 +41,7 @@ def handler(event, context):
     )
 
     if body.get("type") == TYPE.PING:
-        return {"statusCode": 200, "body": json.dumps({"type": 1}, ensure_ascii=False)}
+        return build_response(200, data={"type": 1})
 
     # 슬래시 명령어 지원 종료 (from 2024.07.06)
     res = {
@@ -69,4 +70,4 @@ def handler(event, context):
             ],
         },
     }
-    return {"statusCode": 200, "body": json.dumps(res, ensure_ascii=False)}
+    return build_response(200, data=res)

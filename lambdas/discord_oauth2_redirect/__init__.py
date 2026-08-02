@@ -6,7 +6,7 @@ import requests
 
 from shared import middleware
 from shared.exceptions import BadRequestError, UnauthorizedError
-from shared.utils import pick
+from shared.utils import build_response, pick
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -72,7 +72,6 @@ def handler(event, context):
         )
         raise UnauthorizedError()
 
-    return {
-        "statusCode": 200,
-        "body": json.dumps(pick(res.json(), {"access_token", "scope", "expires_in"})),
-    }
+    return build_response(
+        200, data=pick(res.json(), {"access_token", "scope", "expires_in"})
+    )
