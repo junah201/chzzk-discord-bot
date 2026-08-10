@@ -34,7 +34,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               {isLoading
                 ? Array.from({ length: 12 }).map((_, index) => (
                     <div key={index}>

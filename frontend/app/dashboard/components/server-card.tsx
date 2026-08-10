@@ -29,18 +29,19 @@ export function ServerCard({ server }: ServerCardProps) {
               {server.name}
             </CardTitle>
           </div>
-
-          <div className="flex items-center gap-2 text-muted-foreground shrink-0">
-            <Users className="w-4 h-4" />
-            <span>
-              {(server.approximate_member_count ?? 0).toLocaleString()} 멤버
-            </span>
-          </div>
-          <div className="flex items-center gap-2 text-muted-foreground shrink-0">
-            <Bell className="w-4 h-4" />
-            <span>
-              알림: {server.current_count || 0} / {server.max_limit || 5}개
-            </span>
+          <div className="flex flex-col gap-1 items-end">
+            <div className="flex items-center gap-2 text-muted-foreground shrink-0">
+              <Users className="w-4 h-4" />
+              <span>
+                {(server.approximate_member_count ?? 0).toLocaleString()} 멤버
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground shrink-0">
+              <Bell className="w-4 h-4" />
+              <span>
+                알림: {server.current_count || 0} / {server.max_limit || 5}개
+              </span>
+            </div>
           </div>
         </div>
       </CardHeader>
