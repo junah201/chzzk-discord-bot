@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Bell } from "lucide-react";
 import Link from "next/link";
 import routeMap from "@/constants/route-map";
+import { PolicyCallout } from "@/components/policy/policy-callout";
 
 interface NotificationLimitCardProps {
   currentCount: number;
@@ -16,6 +17,7 @@ export default function NotificationLimitCard({
   currentCount,
   maxLimit,
 }: NotificationLimitCardProps) {
+  const isOverLimit = currentCount > maxLimit;
   const percentage = Math.min(100, (currentCount / maxLimit) * 100);
 
   return (
@@ -36,7 +38,10 @@ export default function NotificationLimitCard({
             </span>
           </div>
 
-          <Progress value={percentage} className="h-2" />
+          <Progress
+            value={percentage}
+            className={`h-2 ${isOverLimit ? "[&>div]:bg-destructive" : ""}`}
+          />
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-border/60">
             <p className="text-sm text-muted-foreground">
@@ -53,6 +58,33 @@ export default function NotificationLimitCard({
           </div>
         </CardContent>
       </Card>
+      {isOverLimit && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <PolicyCallout
+            variant="warning"
+            title="허용된 알림 슬롯 개수를 초과했습니다"
+          >
+            <ul className="mb-0 list-disc pl-5 text-sm">
+              <li>
+                현재 서버에 등록된 알림 개수가 최대 허용 슬롯({maxLimit}
+                개)을 초과하여 설정을 수정하거나 추가할 수 없습니다.
+              </li>
+              <li>
+                기존 등록된 모든 알림은 비활성화되었으며, 알림이 정상적으로
+                전송되지 않습니다.
+              </li>
+              <li>
+                초과된 알림을 정리(삭제)하거나 슬롯을 확장한 후 다시 이용해
+                주세요.
+              </li>
+            </ul>
+          </PolicyCallout>
+        </motion.div>
+      )}
     </motion.div>
   );
 }
