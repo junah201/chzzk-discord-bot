@@ -83,7 +83,7 @@ def handler(event, context):
 
     chunk_size = 100
     for i in range(0, len(guild_ids), chunk_size):
-        chunk_ids = guild_ids[i:i + chunk_size]
+        chunk_ids = guild_ids[i : i + chunk_size]
 
         keys_to_get = [
             {
@@ -94,11 +94,7 @@ def handler(event, context):
         ]
 
         response = dynamodb_client.batch_get_item(
-            RequestItems={
-                table_name: {
-                    "Keys": keys_to_get
-                }
-            }
+            RequestItems={table_name: {"Keys": keys_to_get}}
         )
 
         responses = response.get("Responses", {}).get(table_name, [])

@@ -114,9 +114,7 @@ def save_notification_and_increment_counter(
             "SK": {"S": f"NOTI#{channel_id}"},
             "chzzk_id": {"S": str(chzzk_id)},
             "chzzk_name": {"S": chzzk_data["channel"]["channelName"]},
-            "chzzk_image_url": {
-                "S": chzzk_data["channel"]["channelImageUrl"] or ""
-            },
+            "chzzk_image_url": {"S": chzzk_data["channel"]["channelImageUrl"] or ""},
             "channel_id": {"S": str(channel_id)},
             "channel_name": {"S": channel_data.get("name", "")},
             "guild_id": {"S": guild_id},

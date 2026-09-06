@@ -1,8 +1,10 @@
 import json
 import logging
 import os
+
 import requests
 from user_agent import generate_user_agent
+
 from shared.discord.utils import send_message
 
 DISCORD_CHZZK_FOLLOW_ERROR_CHANNEL_ID = os.environ.get(

@@ -36,7 +36,7 @@ def handler(event, context):
             Key={
                 "PK": {"S": f"GUILD#{guild_id}"},
                 "SK": {"S": f"GUILD#{guild_id}"},
-            }
+            },
         )
 
         guild_item = guild_response.get("Item")
@@ -44,7 +44,7 @@ def handler(event, context):
         if not guild_item:
             return build_response(
                 404,
-                "서버 메타데이터를 찾을 수 없습니다. 서버가 삭제되었거나, 알림 설정이 존재하지 않을 수 있습니다. 새로고침 후 다시 시도해주세요. 만약 계속 실패하면 서포트 서버를 통해 관리자에게 문의해주세요."
+                "서버 메타데이터를 찾을 수 없습니다. 서버가 삭제되었거나, 알림 설정이 존재하지 않을 수 있습니다. 새로고침 후 다시 시도해주세요. 만약 계속 실패하면 서포트 서버를 통해 관리자에게 문의해주세요.",
             )
 
         current_count = int(guild_item.get("current_count", {"N": "0"})["N"])
@@ -54,7 +54,7 @@ def handler(event, context):
             return build_response(
                 400,
                 f"현재 서버에 등록된 알림이 제한 개수({max_limit}개)를 초과하여 설정을 수정할 수 없습니다. "
-                f"초과된 알림({current_count}/{max_limit})을 정리(삭제)한 후 다시 시도해주세요."
+                f"초과된 알림({current_count}/{max_limit})을 정리(삭제)한 후 다시 시도해주세요.",
             )
 
         dynamodb.update_item(

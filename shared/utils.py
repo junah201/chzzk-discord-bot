@@ -1,6 +1,6 @@
+import json
 from collections.abc import Iterable
 from typing import Any
-import json
 
 
 def pick(data: dict[str, Any], keys: Iterable[str]) -> dict[str, Any]:

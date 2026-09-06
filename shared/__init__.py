@@ -22,7 +22,7 @@ from .exceptions import (
     UserNotAdminError,
 )
 from .middleware import middleware
-from .utils import omit, pick, build_response
+from .utils import build_response, omit, pick
 
 __all__ = [
     # middleware.py
