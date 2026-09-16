@@ -47,13 +47,13 @@ export default function NotificationLimitCard({
             <p className="text-sm text-muted-foreground">
               더 많은 알림이 필요하신가요?{" "}
               <Link
-                href={routeMap.REDIRECTS.SUPPORT_SERVER}
+                href={routeMap.PRICING}
                 target="_blank"
                 className="text-primary underline"
               >
-                서포트 서버
+                요금제 페이지
               </Link>
-              에 방문하여 문의해주세요.
+              를 확인해보세요.
             </p>
           </div>
         </CardContent>

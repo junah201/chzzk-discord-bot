@@ -3,6 +3,7 @@ export const routeMap = {
   TERMS_OF_SERVICE: "/terms-of-service/",
   PRIVACY_POLICY: "/privacy-policy/",
   COOKIE_POLICY: "/cookie-policy/",
+  PRICING: "/pricing/",
   DOCS: {
     HOME: "/docs/",
     INSTALLATION: "/docs/installation/",

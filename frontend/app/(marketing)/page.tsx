@@ -1,6 +1,7 @@
 import { Features } from "./components/features";
 import { Hero } from "./components/hero";
 import { Metrics } from "./components/metrics";
+import { Pricing } from "./components/pricing";
 import { GridPattern } from "@/components/ui/grid-pattern";
 
 export default function Home() {
@@ -11,6 +12,7 @@ export default function Home() {
         <Hero />
         <Features />
         <Metrics />
+        <Pricing />
       </div>
     </div>
   );
