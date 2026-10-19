@@ -23,6 +23,8 @@ provider:
     DISCORD_GET_FOLLOWING_ERROR_CHANNEL_ID: "1532712016882438234"
     DISCORD_CHZZK_FOLLOW_ERROR_CHANNEL_ID: "1533371278461898783"
     DISCORD_KOREANBOTS_UPDATE_STATS_ERROR_CHANNEL_ID: "1549682811567607868"
+    ADMIN_DISCORD_PUBLIC_KEY: ${env:ADMIN_DISCORD_PUBLIC_KEY}
+    ADMIN_DISCORD_USER_ID: ${env:ADMIN_DISCORD_USER_ID}
     KOREANBOTS_TOKEN: ${env:KOREANBOTS_TOKEN}
   iamRoleStatements:
     - Effect: Allow
@@ -49,6 +51,16 @@ functions:
     events:
       - http:
           path: event
+          method: post
+          cors: true
+
+  admin_event_handler:
+    handler: lambdas/admin_event_handler.handler
+    name: admin_event_handler
+    description: Handle admin discord bot interactions and subscriptions
+    events:
+      - http:
+          path: admin/event
           method: post
           cors: true
 
@@ -190,6 +202,7 @@ package:
     - ".pnpm-store/**"
     - ".devcontainer/**"
     - ".ruff_cache/**"
+    - ".claude/**"
 
 resources:
   Resources:

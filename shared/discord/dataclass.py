@@ -26,9 +26,12 @@ class INTERACTION_CALLBACK_TYPE:
 
 @dataclass
 class TYPE:
+    # https://docs.discord.com/developers/interactions/receiving-and-responding#interaction-object-interaction-type
     PING = 1
-    BUTTON = 3
-    MODAL = 5
+    APPLICATION_COMMAND = 2
+    MESSAGE_COMPONENT = 3
+    APPLICATION_COMMAND_AUTOCOMPLETE = 4
+    MODAL_SUBMIT = 5
 
 
 @dataclass
@@ -42,6 +45,7 @@ class COMPONENT_TYPE:
     ROLE_SELECT = 6
     MENTIONABLE_SELECT = 7
     CHANNEL_SELECT = 8
+    LABEL = 18
 
 
 @dataclass
