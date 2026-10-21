@@ -53,7 +53,7 @@ def handler(event, context):
 
     try:
         res = session.get(
-            f"https://api.discord.com/api/v10/guilds/{guild_id}",
+            f"https://discord.com/api/v10/guilds/{guild_id}",
             params={"with_counts": "true"},
             timeout=Timeout(connect=3.05, read=5.0),
         )
