@@ -10,6 +10,7 @@ export const routeMap = {
     NOTIFICATIONS: "/docs/notifications/",
     CUSTOMIZATION: "/docs/customization/",
     TROUBLESHOOTING: "/docs/troubleshooting/",
+    CUSTOM_WEBHOOK: "/docs/custom-webhook/",
   },
   REDIRECTS: {
     INVITE: "/invite/",
