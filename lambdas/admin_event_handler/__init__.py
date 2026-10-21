@@ -12,7 +12,7 @@ from nacl.signing import VerifyKey
 
 from shared import INTERACTION_CALLBACK_TYPE, TYPE, middleware
 from shared.discord.dataclass import COMPONENT_TYPE, TEXT_INPUT_STYLE
-from shared.utils import build_response
+from shared.utils import build_response, to_kst_string
 
 ADMIN_DISCORD_PUBLIC_KEY = os.environ.get("ADMIN_DISCORD_PUBLIC_KEY")
 ADMIN_DISCORD_USER_ID = os.environ.get("ADMIN_DISCORD_USER_ID")
@@ -111,7 +111,7 @@ def handler(event, context):
                                     "type": COMPONENT_TYPE.TEXT_INPUT,
                                     "custom_id": "guild_id_input",
                                     "style": TEXT_INPUT_STYLE.SHORT,
-                                    "placeholder": "1553352969628549180",
+                                    "placeholder": "1192328115419099207",
                                     "required": True,
                                 },
                             },
@@ -152,6 +152,31 @@ def handler(event, context):
                                             "description": "한 달 동안 구독이 유지됩니다.",
                                         },
                                     ],
+                                },
+                            },
+                        ],
+                    },
+                },
+            )
+
+        elif command_name == "슬롯동기화":
+            return build_response(
+                200,
+                data={
+                    "type": INTERACTION_CALLBACK_TYPE.MODAL,
+                    "data": {
+                        "custom_id": "sync_slots_modal",
+                        "title": "슬롯 데이터 정합성 동기화",
+                        "components": [
+                            {
+                                "type": COMPONENT_TYPE.LABEL,
+                                "label": "동기화할 대상 서버 ID 입력",
+                                "component": {
+                                    "type": COMPONENT_TYPE.TEXT_INPUT,
+                                    "custom_id": "guild_id_input",
+                                    "style": TEXT_INPUT_STYLE.SHORT,
+                                    "placeholder": "1192328115419099207",
+                                    "required": True,
                                 },
                             },
                         ],
@@ -344,7 +369,7 @@ def handler(event, context):
                         f"- 구매자 ID: `{buyer_id}`\n"
                         f"- 상품: `월 ₩2,000 정기 구독`\n"
                         f"- 슬롯 변경: 기존 **{old_max_limit}개**에서 **{new_max_limit}개**로 늘어났습니다.\n"
-                        f"- 구독 만료일: `{expires_at.strftime('%Y-%m-%d %H:%M:%S')} UTC`"
+                        f"- 구독 만료일: `{to_kst_string(expires_at)} UTC`"
                     )
 
                 return build_response(
@@ -370,6 +395,145 @@ def handler(event, context):
                         "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
                         "data": {
                             "content": f"❌ 처리 중 오류가 발생했습니다: {str(e)}",
+                        },
+                    },
+                )
+
+        elif custom_id == "sync_slots_modal":
+            components = body.get("data", {}).get("components", [])
+            form_values = {}
+            for row in components:
+                item = row.get("component", {})
+                if "value" in item:
+                    form_values[item.get("custom_id")] = item.get("value")
+
+            guild_id = form_values.get("guild_id_input")
+            guild_id_str = str(guild_id)
+            guild_pk = f"GUILD#{guild_id_str}"
+
+            try:
+                # GSI를 통해 해당 guild_id의 모든 아이템 조회 (NOTI 항목 + GUILD 메타데이터)
+                res = dynamodb_client.query(
+                    TableName=table_name,
+                    IndexName="GSI-GuildID-v2",
+                    KeyConditionExpression="guild_id = :guild_id",
+                    ExpressionAttributeValues={
+                        ":guild_id": {"S": guild_id_str},
+                    },
+                )
+
+                items = res.get("Items", [])
+                if not items:
+                    return build_response(
+                        200,
+                        data={
+                            "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
+                            "data": {
+                                "content": f"❌ 해당 서버 정보를 찾을 수 없습니다. (Guild ID: `{guild_id_str}`)",
+                            },
+                        },
+                    )
+
+                noti_count = 0
+                guild_item = None
+
+                for item in items:
+                    item_type = item.get("type", {}).get("S", "")
+                    sk_val = item.get("SK", {}).get("S", "")
+
+                    if item_type == "NOTI":
+                        noti_count += 1
+                    elif item_type == "GUILD" or sk_val == guild_pk:
+                        guild_item = item
+
+                if not guild_item:
+                    return build_response(
+                        200,
+                        data={
+                            "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
+                            "data": {
+                                "content": f"❌ 서버 메타데이터(`GUILD#{guild_id_str}`)를 찾을 수 없습니다.",
+                            },
+                        },
+                    )
+
+
+                max_limit = int(guild_item.get("max_limit", {}).get("N", "5"))
+                old_current_count = int(guild_item.get("current_count", {}).get("N", "0"))
+
+                logger.info(
+                    json.dumps(
+                        {
+                            "type": "SYNC_SLOTS_INFO",
+                            "guild_id": guild_id_str,
+                            "noti_count": noti_count,
+                            "guild_item": guild_item,
+                            "old_current_count": old_current_count,
+                            "max_limit": max_limit,
+                        },
+                        ensure_ascii=False,
+                    )
+                )
+
+                if noti_count == old_current_count:
+                    return build_response(
+                        200,
+                        data={
+                            "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
+                            "data": {
+                                "content": f"**슬롯 데이터 정합성 확인 완료!**\n"
+                                f"- **길드 ID**: `{guild_id_str}`\n"
+                                f"- 실제 등록된 알림 수: **{noti_count}개**\n"
+                                f"- DB 기록된 사용 중인 알림 수: **{old_current_count}개**\n"
+                                f"- 최대 이용 가능 슬롯: **{max_limit}개**",
+                            },
+                        }
+                    )
+
+                # 실제 NOTI 개수로 current_count 업데이트 (정합성 보정)
+                dynamodb_client.update_item(
+                    TableName=table_name,
+                    Key={
+                        "PK": {"S": guild_pk},
+                        "SK": {"S": guild_pk},
+                    },
+                    UpdateExpression="SET current_count = :real_count",
+                    ExpressionAttributeValues={
+                        ":real_count": {"N": str(noti_count)}
+                    },
+                )
+
+                sync_message = (
+                    f"**슬롯 데이터 정합성 보정 완료!**\n"
+                    f"- **길드 ID**: `{guild_id_str}`\n"
+                    f"- **실제 등록된 알림 수**: **{noti_count}개** (기존 DB 기록: {old_current_count}개)\n"
+                    f"- **최대 이용 가능 슬롯**: **{max_limit}개**"
+                )
+
+                return build_response(
+                    200,
+                    data={
+                        "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
+                        "data": {
+                            "content": sync_message,
+                        },
+                    },
+                )
+
+            except Exception as e:
+                logger.error(
+                    json.dumps(
+                        {"type": "SYNC_SLOTS_ERROR", "error": str(e)},
+                        ensure_ascii=False,
+                    )
+                )
+                return build_response(
+                    200,
+                    data={
+                        "type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
+                        "data": {
+                            "content": f"❌ 슬롯 동기화 중 오류가 발생했습니다: {str(e)}",
+                            "flags": 64,
                         },
                     },
                 )
