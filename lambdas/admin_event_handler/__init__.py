@@ -12,7 +12,7 @@ from nacl.signing import VerifyKey
 
 from shared import INTERACTION_CALLBACK_TYPE, TYPE, middleware
 from shared.discord.dataclass import COMPONENT_TYPE, TEXT_INPUT_STYLE
-from shared.notification_dispatcher import activate_webhooks_for_guild
+from shared.notification_dispatcher import activate_subscription_for_guild
 from shared.utils import build_response, to_kst_string
 
 ADMIN_DISCORD_PUBLIC_KEY = os.environ.get("ADMIN_DISCORD_PUBLIC_KEY")
@@ -280,7 +280,6 @@ def handler(event, context):
                             },
                         ]
                     )
-                    activate_webhooks_for_guild(guild_id)
 
                     result_message = (
                         f"**단일 구매 슬롯 추가 완료!**\n"
@@ -364,6 +363,7 @@ def handler(event, context):
                             },
                         ]
                     )
+                    activate_subscription_for_guild(guild_id)
 
                     result_message = (
                         f"**월 정기 구독 등록 완료!**\n"
