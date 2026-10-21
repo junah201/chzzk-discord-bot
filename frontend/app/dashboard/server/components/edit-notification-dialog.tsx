@@ -35,6 +35,7 @@ export default function EditNotificationDialog({
       channel_id: notification.channel_id,
       guild_id: notification.guild_id,
       custom_message: notification.custom_message || "",
+      webhook_url: notification.webhook_url || "",
       disable_embed: notification.disable_embed || false,
       disable_button: notification.disable_button || false,
       disable_notification: notification.disable_notification || false,

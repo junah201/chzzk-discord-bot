@@ -107,24 +107,30 @@ def save_notification_and_increment_counter(
         )
 
     # 2. NOTI 아이템 추가
+    item = {
+        "PK": {"S": f"CHZZK#{chzzk_id}"},
+        "SK": {"S": f"NOTI#{channel_id}"},
+        "chzzk_id": {"S": str(chzzk_id)},
+        "chzzk_name": {"S": chzzk_data["channel"]["channelName"]},
+        "chzzk_image_url": {"S": chzzk_data["channel"]["channelImageUrl"] or ""},
+        "channel_id": {"S": str(channel_id)},
+        "channel_name": {"S": channel_data.get("name", "")},
+        "guild_id": {"S": guild_id},
+        "custom_message": {"S": body.get("custom_message", "")},
+        "type": {"S": "NOTI"},
+        "disable_embed": {"BOOL": body.get("disable_embed", False)},
+        "disable_button": {"BOOL": body.get("disable_button", False)},
+        "disable_notification": {"BOOL": body.get("disable_notification", False)},
+        "index": {"N": "-1"},
+    }
+    webhook_url = body.get("webhook_url", "").strip()
+    if webhook_url:
+        item["webhook_url"] = {"S": webhook_url}
+    item["is_webhook_active"] = {"BOOL": bool(webhook_url)}
+
     dynamodb.put_item(
         TableName="chzzk-bot-db",
-        Item={
-            "PK": {"S": f"CHZZK#{chzzk_id}"},
-            "SK": {"S": f"NOTI#{channel_id}"},
-            "chzzk_id": {"S": str(chzzk_id)},
-            "chzzk_name": {"S": chzzk_data["channel"]["channelName"]},
-            "chzzk_image_url": {"S": chzzk_data["channel"]["channelImageUrl"] or ""},
-            "channel_id": {"S": str(channel_id)},
-            "channel_name": {"S": channel_data.get("name", "")},
-            "guild_id": {"S": guild_id},
-            "custom_message": {"S": body.get("custom_message", "")},
-            "type": {"S": "NOTI"},
-            "disable_embed": {"BOOL": body.get("disable_embed", False)},
-            "disable_button": {"BOOL": body.get("disable_button", False)},
-            "disable_notification": {"BOOL": body.get("disable_notification", False)},
-            "index": {"N": "-1"},
-        },
+        Item=item,
     )
 
     # 3. GUILD.current_count +1 원자적 증가 (Atomic Counter)

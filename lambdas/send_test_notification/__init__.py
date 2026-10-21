@@ -4,10 +4,11 @@ from datetime import datetime
 
 import boto3
 
-from shared import get_chzzk, middleware, send_message
+from shared import get_chzzk, middleware
 from shared.discord import BUTTON_STYLE, COMPONENT_TYPE
 from shared.exceptions import BadRequestError
 from shared.utils import build_response
+from shared.notification_dispatcher import send_notification_message
 
 dynamodb = boto3.client("dynamodb")
 
@@ -92,7 +93,12 @@ def handler(event, context):
             },
         ]
 
-    res = send_message(channel_id=discord_channel_id, data=data)
+    res = send_notification_message(
+        guild_id=guild_id,
+        channel_id=discord_channel_id,
+        data=data,
+        notification_item=item,
+    )
 
     # 채널이 존재하지 않는 경우
     if res.status_code == 404:

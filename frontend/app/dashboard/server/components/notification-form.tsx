@@ -16,6 +16,7 @@ interface NotificationFormProps {
     channel_id: string;
     guild_id: string;
     custom_message: string;
+    webhook_url: string;
     disable_embed: boolean;
     disable_button: boolean;
     disable_notification: boolean;
@@ -41,7 +42,7 @@ export default function NotificationForm({
             name="chzzk_id"
             label="치지직 ID"
             placeholder="bb382c2c0cc9fa7c86"
-            rules={{ required: "치지직 채널의 고유 ID를 입력해주세요" }}
+            rules={{ required: "치지직 채널의 고유 ID를 입력해주세요." }}
             helperText={
               <>
                 치지직 ID를 찾는 방법은{" "}
@@ -56,7 +57,7 @@ export default function NotificationForm({
             control={control as unknown as Control<any>}
             name="channel_id"
             label="디스코드 채널"
-            rules={{ required: "디스코드 채널을 선택해주세요" }}
+            rules={{ required: "디스코드 채널을 선택해주세요." }}
             helperText={
               <>
                 새롭게 추가한 채널이 목록에 보이지 않는다면, 페이지를
@@ -93,6 +94,14 @@ export default function NotificationForm({
         }
       />
       <Input
+        type="text"
+        control={control as unknown as Control<any>}
+        name="webhook_url"
+        label="커스텀 웹훅 URL (구독자 전용)"
+        placeholder="https://discord.com/api/webhooks/..."
+        helperText="알림 메시지에 사용할 사용자 지정 이름과 프로필 이미지를 설정하는 데 사용할 수 있습니다."
+      />
+      <Input
         type="checkbox"
         control={control as unknown as Control<any>}
         name="disable_embed"
@@ -104,14 +113,14 @@ export default function NotificationForm({
         control={control as unknown as Control<any>}
         name="disable_button"
         label="바로가기 버튼 비활성화"
-        helperText="방송 알림의 바로가기 버튼을 비활성화합니다"
+        helperText="방송 알림의 바로가기 버튼을 비활성화합니다."
       />
       <Input
         type="checkbox"
         control={control as unknown as Control<any>}
         name="disable_notification"
         label="알림 비활성화"
-        helperText="방송 알림의 알림 기능을 비활성화합니다"
+        helperText="방송 알림의 알림 기능을 비활성화합니다."
       />
     </div>
   );

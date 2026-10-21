@@ -6,6 +6,10 @@ from botocore.exceptions import ClientError
 
 from shared import middleware
 from shared.exceptions import BadRequestError
+from shared.notification_dispatcher import (
+    is_guild_subscription_active,
+    is_valid_webhook_url,
+)
 from shared.utils import build_response
 
 dynamodb = boto3.client("dynamodb")
@@ -26,9 +30,14 @@ def handler(event, context):
     disable_embed = body.get("disable_embed", False)
     disable_button = body.get("disable_button", False)
     disable_notification = body.get("disable_notification", False)
+    webhook_url = body.get("webhook_url", "").strip()
 
     if not all([chzzk_id, guild_id, channel_id]):
         raise BadRequestError()
+    if webhook_url and not is_valid_webhook_url(webhook_url):
+        raise BadRequestError("유효한 디스코드 웹훅 URL을 입력해주세요.")
+    if webhook_url and not is_guild_subscription_active(guild_id):
+        raise BadRequestError("커스텀 웹훅은 활성 월간 정기 구독 서버에서만 사용할 수 있습니다.")
 
     try:
         guild_response = dynamodb.get_item(
@@ -57,21 +66,34 @@ def handler(event, context):
                 f"초과된 알림({current_count}/{max_limit})을 정리(삭제)한 후 다시 시도해주세요.",
             )
 
+        update_expression = (
+            "SET custom_message = :cm, disable_embed = :de, "
+            "disable_button = :db, disable_notification = :dn"
+        )
+        expression_values = {
+            ":cm": {"S": custom_message},
+            ":de": {"BOOL": disable_embed},
+            ":db": {"BOOL": disable_button},
+            ":dn": {"BOOL": disable_notification},
+            ":gid": {"S": guild_id},
+        }
+        if webhook_url:
+            update_expression += ", webhook_url = :wu, is_webhook_active = :wa"
+            expression_values[":wu"] = {"S": webhook_url}
+            expression_values[":wa"] = {"BOOL": True}
+        else:
+            update_expression += ", is_webhook_active = :wa REMOVE webhook_url"
+            expression_values[":wa"] = {"BOOL": False}
+
         dynamodb.update_item(
             TableName="chzzk-bot-db",
             Key={
                 "PK": {"S": f"CHZZK#{chzzk_id}"},
                 "SK": {"S": f"NOTI#{channel_id}"},
             },
-            UpdateExpression="SET custom_message = :cm, disable_embed = :de, disable_button = :db, disable_notification = :dn",
+            UpdateExpression=update_expression,
             ConditionExpression="guild_id = :gid",
-            ExpressionAttributeValues={
-                ":cm": {"S": custom_message},
-                ":de": {"BOOL": disable_embed},
-                ":db": {"BOOL": disable_button},
-                ":dn": {"BOOL": disable_notification},
-                ":gid": {"S": guild_id},
-            },
+            ExpressionAttributeValues=expression_values,
         )
 
     except ClientError as e:

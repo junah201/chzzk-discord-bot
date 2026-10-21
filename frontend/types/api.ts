@@ -51,6 +51,7 @@ export interface Notification {
   channel_id: string;
   channel_name: string;
   custom_message: string;
+  webhook_url?: string;
   disable_embed: boolean;
   disable_button: boolean;
   disable_notification: boolean;

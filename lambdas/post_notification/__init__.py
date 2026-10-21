@@ -12,6 +12,10 @@ from lambdas.post_notification.service import (
 )
 from shared import build_response, get_channel, get_chzzk, middleware
 from shared.exceptions import BadRequestError
+from shared.notification_dispatcher import (
+    is_guild_subscription_active,
+    is_valid_webhook_url,
+)
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -26,9 +30,14 @@ def handler(event, context):
     chzzk_id = body.get("chzzk_id")
     guild_id = body.get("guild_id")
     channel_id = body.get("channel_id")
+    webhook_url = body.get("webhook_url", "").strip()
 
     if not all([token, chzzk_id, channel_id, guild_id]):
         raise BadRequestError()
+    if webhook_url and not is_valid_webhook_url(webhook_url):
+        raise BadRequestError("유효한 디스코드 웹훅 URL을 입력해주세요.")
+    if webhook_url and not is_guild_subscription_active(guild_id):
+        raise BadRequestError("커스텀 웹훅은 활성 월간 정기 구독 서버에서만 사용할 수 있습니다.")
 
     # 1. 디스코드 채널 및 서버 소속 검증
     channel_data = get_channel(channel_id)

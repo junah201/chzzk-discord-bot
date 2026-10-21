@@ -14,6 +14,7 @@ interface NotificationBase {
 
 interface NotificationCreate extends NotificationBase {
   custom_message: string;
+  webhook_url?: string;
 }
 
 const ROUTES = {

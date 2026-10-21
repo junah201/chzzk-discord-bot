@@ -16,6 +16,7 @@ from shared import (
     middleware,
     send_message,
 )
+from shared.notification_dispatcher import send_notification_message
 
 DISCORD_GET_FOLLOWING_ERROR_CHANNEL_ID = os.environ.get(
     "DISCORD_GET_FOLLOWING_ERROR_CHANNEL_ID"
@@ -263,7 +264,12 @@ def send_notification(chzzk_id: str):
                 },
             ]
 
-        res = send_message(channel_id=discord_channel_id, data=data)
+        res = send_notification_message(
+            guild_id=noti["guild_id"]["S"],
+            channel_id=discord_channel_id,
+            data=data,
+            notification_item=noti,
+        )
 
         # 채널이 존재하지 않는 경우
         if res.status_code == 404:
@@ -278,10 +284,6 @@ def send_notification(chzzk_id: str):
                     ensure_ascii=False,
                 )
             )
-            dynamodb.delete_item(
-                TableName="chzzk-bot-db",
-                Key={"PK": noti.get("PK"), "SK": noti.get("SK")},
-            )
             continue
 
         update_attr_values = {
@@ -292,7 +294,7 @@ def send_notification(chzzk_id: str):
         }
 
         # 메시지 전송에 실패한 경우
-        if res.status_code != 200:
+        if res.status_code not in (200, 204):
             noti_fail_cnt += 1
             logging.error(
                 json.dumps(

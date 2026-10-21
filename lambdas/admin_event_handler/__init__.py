@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Literal
 
 import boto3
@@ -12,6 +12,7 @@ from nacl.signing import VerifyKey
 
 from shared import INTERACTION_CALLBACK_TYPE, TYPE, middleware
 from shared.discord.dataclass import COMPONENT_TYPE, TEXT_INPUT_STYLE
+from shared.notification_dispatcher import activate_webhooks_for_guild
 from shared.utils import build_response, to_kst_string
 
 ADMIN_DISCORD_PUBLIC_KEY = os.environ.get("ADMIN_DISCORD_PUBLIC_KEY")
@@ -226,7 +227,7 @@ def handler(event, context):
                 timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
                 short_uuid = str(uuid.uuid4())[:16]
                 order_sk = f"ORDER#{timestamp}#{short_uuid}"
-                now = datetime.now()
+                now = datetime.now(UTC)
                 purchased_at_str = now.isoformat()
                 old_max_limit = int(item.get("max_limit", 5))
 
@@ -279,6 +280,7 @@ def handler(event, context):
                             },
                         ]
                     )
+                    activate_webhooks_for_guild(guild_id)
 
                     result_message = (
                         f"**단일 구매 슬롯 추가 완료!**\n"
