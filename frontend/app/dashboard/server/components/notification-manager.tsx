@@ -33,10 +33,12 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface NotificationManagerProps {
   serverId: string;
+  isSubscription?: boolean;
 }
 
 export default function NotificationManager({
   serverId,
+  isSubscription = false,
 }: NotificationManagerProps) {
   const { data, isLoading } = useQuery(
     notificationQueries.listByGuildId(serverId),
@@ -66,7 +68,10 @@ export default function NotificationManager({
         ) : notifications.length === 0 ? (
           <NotificationTableEmpty />
         ) : (
-          <NotificationTable notifications={notifications} />
+          <NotificationTable
+            notifications={notifications}
+            isSubscription={isSubscription}
+          />
         )}
       </div>
     </motion.div>
@@ -99,8 +104,10 @@ function NotificationTableEmpty() {
 
 function NotificationTable({
   notifications,
+  isSubscription,
 }: {
   notifications: Notification[];
+  isSubscription?: boolean;
 }) {
   return (
     <PolicyTable className="min-w-full text-left">
@@ -115,14 +122,24 @@ function NotificationTable({
 
       <tbody className="divide-y divide-border bg-background">
         {notifications.map((n) => (
-          <NotificationRow key={`${n.PK}-${n.SK}`} notification={n} />
+          <NotificationRow
+            key={`${n.PK}-${n.SK}`}
+            notification={n}
+            isSubscription={isSubscription}
+          />
         ))}
       </tbody>
     </PolicyTable>
   );
 }
 
-function NotificationRow({ notification: n }: { notification: Notification }) {
+function NotificationRow({
+  notification: n,
+  isSubscription,
+}: {
+  notification: Notification;
+  isSubscription?: boolean;
+}) {
   const { test } = useNotificationActions(n.guild_id);
   const chzzkId = n.chzzk_id || n.PK.split("#")[1] || "unknown";
 
@@ -225,7 +242,10 @@ function NotificationRow({ notification: n }: { notification: Notification }) {
       </PolicyTd>
 
       <PolicyTd>
-        <EditNotificationDialog notification={n} />
+        <EditNotificationDialog
+          notification={n}
+          isSubscription={isSubscription}
+        />
       </PolicyTd>
 
       <PolicyTd>

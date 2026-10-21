@@ -19,10 +19,12 @@ import NotificationForm from "./notification-form";
 
 interface EditNotificationDialogProps {
   notification: Notification;
+  isSubscription?: boolean;
 }
 
 export default function EditNotificationDialog({
   notification,
+  isSubscription = false,
 }: EditNotificationDialogProps) {
   const [open, setOpen] = useState(false);
   const { update } = useNotificationActions(notification.guild_id);
@@ -69,6 +71,7 @@ export default function EditNotificationDialog({
             serverId={notification.guild_id}
             control={control}
             isEdit
+            isSubscription={isSubscription}
           />
         </div>
 

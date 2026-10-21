@@ -10,10 +10,12 @@ import { Loader2, Plus } from "lucide-react";
 
 interface AddNotificationFormProps {
   serverId: string;
+  isSubscription?: boolean;
 }
 
 export default function AddNotificationForm({
   serverId,
+  isSubscription = false,
 }: AddNotificationFormProps) {
   const { add } = useNotificationActions(serverId);
   const { control, handleSubmit, reset } = useForm({
@@ -45,7 +47,11 @@ export default function AddNotificationForm({
       </div>
       <Card className="bg-card border-border transition-all duration-300 group hover:border-primary/50 h-full flex flex-col z-10">
         <CardContent className="flex flex-col gap-4">
-          <NotificationForm serverId={serverId} control={control} />
+          <NotificationForm
+            serverId={serverId}
+            control={control}
+            isSubscription={isSubscription}
+          />
           <Button
             onClick={handleSubmit((data) =>
               add.mutate(data, {

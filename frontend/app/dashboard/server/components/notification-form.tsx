@@ -22,12 +22,14 @@ interface NotificationFormProps {
     disable_notification: boolean;
   }>;
   isEdit?: boolean;
+  isSubscription?: boolean;
 }
 
 export default function NotificationForm({
   serverId,
   control,
   isEdit = false,
+  isSubscription = false,
 }: NotificationFormProps) {
   const { data } = useQuery(discordQueries.channels(serverId));
   const channels = data || [];
@@ -98,8 +100,21 @@ export default function NotificationForm({
         control={control as unknown as Control<any>}
         name="webhook_url"
         label="커스텀 웹훅 URL (구독자 전용)"
+        disabled={!isSubscription}
         placeholder="https://discord.com/api/webhooks/..."
-        helperText="알림 메시지에 사용할 사용자 지정 이름과 프로필 이미지를 설정하는 데 사용할 수 있습니다."
+        helperText={
+          <>
+            치직 봇 기본 이름과 프로필 대신, 원하는 유저명과 프로필 이미지로
+            알림을 꾸밀 수 있습니다. 자세한 설정 방법은{" "}
+            <Link
+              href={routeMap.DOCS.CUSTOM_WEBHOOK}
+              className="underline hover:text-primary/80"
+            >
+              커스텀 웹훅 문서
+            </Link>
+            를 참고하세요.
+          </>
+        }
       />
       <Input
         type="checkbox"

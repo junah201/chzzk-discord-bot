@@ -30,6 +30,8 @@ function ClientServerDetailPage() {
     useGuildOptions(serverId),
   );
 
+  const isSubscription = serverData?.max_limit === 250;
+
   return (
     <ServerBotGuard>
       {isServerLoading ? (
@@ -44,11 +46,17 @@ function ClientServerDetailPage() {
         />
       </div>
       <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <AddNotificationForm serverId={serverId!} />
+        <AddNotificationForm
+          serverId={serverId!}
+          isSubscription={isSubscription}
+        />
         <SetupGuideCallout />
       </div>
       <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 pb-6">
-        <NotificationManager serverId={serverId!} />
+        <NotificationManager
+          serverId={serverId!}
+          isSubscription={isSubscription}
+        />
         <TestGuideCallout />
       </div>
     </ServerBotGuard>
