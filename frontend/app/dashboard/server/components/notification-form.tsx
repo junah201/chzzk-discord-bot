@@ -17,6 +17,7 @@ interface NotificationFormProps {
     guild_id: string;
     custom_message: string;
     webhook_url: string;
+    embed_color: string;
     disable_embed: boolean;
     disable_button: boolean;
     disable_notification: boolean;
@@ -115,6 +116,21 @@ export default function NotificationForm({
             를 참고하세요.
           </>
         }
+      />
+      <Input
+        type="text"
+        control={control as unknown as Control<any>}
+        name="embed_color"
+        label="임베드 색상 (구독자 전용)"
+        disabled={!isSubscription}
+        placeholder="#5865F2 또는 5793266"
+        rules={{
+          pattern: {
+            value: /^(#[0-9a-fA-F]{6}|(?:0|[1-9][0-9]{0,7}))$/,
+            message: "예: #5865F2 또는 5793266 형식으로 입력해주세요.",
+          },
+        }}
+        helperText="방송 알림 임베드의 강조 색상을 설정합니다. 구독이 만료되면 기본 색상으로 표시됩니다."
       />
       <Input
         type="checkbox"

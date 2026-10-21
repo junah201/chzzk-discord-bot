@@ -15,6 +15,7 @@ from shared.exceptions import BadRequestError
 from shared.notification_dispatcher import (
     is_guild_subscription_active,
     is_valid_webhook_url,
+    parse_embed_color,
 )
 
 logger = logging.getLogger()
@@ -31,13 +32,19 @@ def handler(event, context):
     guild_id = body.get("guild_id")
     channel_id = body.get("channel_id")
     webhook_url = body.get("webhook_url", "").strip()
+    embed_color = body.get("embed_color", "").strip()
 
     if not all([token, chzzk_id, channel_id, guild_id]):
         raise BadRequestError()
+    is_subscription_active = is_guild_subscription_active(guild_id)
     if webhook_url and not is_valid_webhook_url(webhook_url):
         raise BadRequestError("유효한 디스코드 웹훅 URL을 입력해주세요.")
-    if webhook_url and not is_guild_subscription_active(guild_id):
+    if webhook_url and not is_subscription_active:
         raise BadRequestError("커스텀 웹훅은 활성 월간 정기 구독 서버에서만 사용할 수 있습니다.")
+    if embed_color and parse_embed_color(embed_color) is None:
+        raise BadRequestError("임베드 색상은 #RRGGBB 형식 또는 0~16777215 사이의 숫자여야 합니다.")
+    if embed_color and not is_subscription_active:
+        raise BadRequestError("커스텀 임베드 색상은 활성 월간 정기 구독 서버에서만 사용할 수 있습니다.")
 
     # 1. 디스코드 채널 및 서버 소속 검증
     channel_data = get_channel(channel_id)

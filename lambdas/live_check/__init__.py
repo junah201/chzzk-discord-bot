@@ -16,7 +16,7 @@ from shared import (
     middleware,
     send_message,
 )
-from shared.notification_dispatcher import send_notification_message
+from shared.notification_dispatcher import get_embed_color, send_notification_message
 
 DISCORD_GET_FOLLOWING_ERROR_CHANNEL_ID = os.environ.get(
     "DISCORD_GET_FOLLOWING_ERROR_CHANNEL_ID"
@@ -226,7 +226,7 @@ def send_notification(chzzk_id: str):
                 {
                     "title": f"{chzzk['liveTitle']}",
                     "description": f"{chzzk['channel']['channelName']} 님이 방송을 시작했습니다.",
-                    "color": 0x02E895,
+                    "color": get_embed_color(noti),
                     "fields": [
                         {"name": "카테고리", "value": chzzk["liveCategoryValue"]}
                     ],

@@ -12,9 +12,13 @@ interface NotificationBase {
   chzzk_id: string;
 }
 
-interface NotificationCreate extends NotificationBase {
+interface NotificationSettings extends NotificationBase {
   custom_message: string;
   webhook_url?: string;
+  embed_color?: string;
+  disable_embed: boolean;
+  disable_button: boolean;
+  disable_notification: boolean;
 }
 
 const ROUTES = {
@@ -27,7 +31,7 @@ export const useNotificationActions = (guildId: string) => {
   const queryClient = useQueryClient();
 
   const addMutation = useMutation({
-    mutationFn: (data: NotificationCreate) =>
+    mutationFn: (data: NotificationSettings) =>
       api.post<Notification>(ROUTES.BASE, data),
     onSuccess: (_, variables) => {
       toast.success("새 알림이 등록되었습니다.");
@@ -87,7 +91,7 @@ export const useNotificationActions = (guildId: string) => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: NotificationBase) =>
+    mutationFn: (data: NotificationSettings) =>
       api.put<Notification>(ROUTES.BASE, data),
     onSuccess: (_, variables) => {
       toast.success("알림이 수정되었습니다.");

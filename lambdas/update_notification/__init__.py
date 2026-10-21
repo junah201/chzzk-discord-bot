@@ -9,6 +9,7 @@ from shared.exceptions import BadRequestError
 from shared.notification_dispatcher import (
     is_guild_subscription_active,
     is_valid_webhook_url,
+    parse_embed_color,
 )
 from shared.utils import build_response
 
@@ -31,6 +32,9 @@ def handler(event, context):
     disable_button = body.get("disable_button", False)
     disable_notification = body.get("disable_notification", False)
     webhook_url = body.get("webhook_url", "").strip()
+    embed_color = body.get("embed_color", "").strip()
+    has_embed_color = "embed_color" in body
+    is_subscription_active = is_guild_subscription_active(guild_id)
 
     if not all([chzzk_id, guild_id, channel_id]):
         raise BadRequestError()
@@ -38,6 +42,10 @@ def handler(event, context):
         raise BadRequestError("유효한 디스코드 웹훅 URL을 입력해주세요.")
     if webhook_url and not is_guild_subscription_active(guild_id):
         raise BadRequestError("커스텀 웹훅은 활성 월간 정기 구독 서버에서만 사용할 수 있습니다.")
+    if embed_color and parse_embed_color(embed_color) is None:
+        raise BadRequestError("임베드 색상은 #RRGGBB 형식 또는 0~16777215 사이의 숫자여야 합니다.")
+    if embed_color and not is_subscription_active:
+        raise BadRequestError("커스텀 임베드 색상은 활성 월간 정기 구독 서버에서만 사용할 수 있습니다.")
 
     try:
         guild_response = dynamodb.get_item(
@@ -66,24 +74,29 @@ def handler(event, context):
                 f"초과된 알림({current_count}/{max_limit})을 정리(삭제)한 후 다시 시도해주세요.",
             )
 
-        update_expression = (
-            "SET custom_message = :cm, disable_embed = :de, "
-            "disable_button = :db, disable_notification = :dn"
-        )
+        set_parts = [
+            "custom_message = :cm",
+            "disable_embed = :de",
+            "disable_button = :db",
+            "disable_notification = :dn",
+            "is_subscription_active = :isa",
+        ]
         expression_values = {
             ":cm": {"S": custom_message},
             ":de": {"BOOL": disable_embed},
             ":db": {"BOOL": disable_button},
             ":dn": {"BOOL": disable_notification},
             ":gid": {"S": guild_id},
+            ":isa": {"BOOL": is_subscription_active},
         }
         if webhook_url:
-            update_expression += ", webhook_url = :wu, is_webhook_active = :wa"
+            set_parts.append("webhook_url = :wu")
             expression_values[":wu"] = {"S": webhook_url}
-            expression_values[":wa"] = {"BOOL": True}
-        else:
-            update_expression += ", is_webhook_active = :wa REMOVE webhook_url"
-            expression_values[":wa"] = {"BOOL": False}
+        if has_embed_color:
+            set_parts.append("embed_color = :ec")
+            expression_values[":ec"] = {"S": embed_color}
+
+        update_expression = "SET " + ", ".join(set_parts)
 
         dynamodb.update_item(
             TableName="chzzk-bot-db",

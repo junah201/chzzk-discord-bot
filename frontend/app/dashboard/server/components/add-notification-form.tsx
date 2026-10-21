@@ -25,6 +25,7 @@ export default function AddNotificationForm({
       guild_id: serverId,
       custom_message: "",
       webhook_url: "",
+      embed_color: "",
       disable_embed: false,
       disable_button: false,
       disable_notification: false,

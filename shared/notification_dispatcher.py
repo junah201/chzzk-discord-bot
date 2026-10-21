@@ -14,12 +14,39 @@ logger = logging.getLogger()
 _DISCORD_WEBHOOK_URL = re.compile(
     r"^https://(?:discord(?:app)?\.com)/api/webhooks/\d+/[\w-]+$"
 )
+_HEX_COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
+DEFAULT_EMBED_COLOR = 0x02E895
 dynamodb = boto3.client("dynamodb")
 table = boto3.resource("dynamodb").Table("chzzk-bot-db")
 
 
 def is_valid_webhook_url(webhook_url: str) -> bool:
     return bool(_DISCORD_WEBHOOK_URL.fullmatch(webhook_url))
+
+
+def parse_embed_color(embed_color: str) -> int | None:
+    """Return a Discord-compatible color integer, or None for an invalid value."""
+    value = embed_color.strip()
+    if _HEX_COLOR.fullmatch(value):
+        return int(value[1:], 16)
+    if value.isdecimal():
+        color = int(value)
+        if 0 <= color <= 0xFFFFFF:
+            return color
+    return None
+
+
+def get_embed_color(notification_item: dict) -> int:
+    """Use a custom color only while the notification has an active subscription."""
+    is_subscription_active = notification_item.get("is_subscription_active", {}).get(
+        "BOOL", False
+    )
+    embed_color = notification_item.get("embed_color", {}).get("S", "")
+    if is_subscription_active:
+        parsed_color = parse_embed_color(embed_color)
+        if parsed_color is not None:
+            return parsed_color
+    return DEFAULT_EMBED_COLOR
 
 
 def is_guild_subscription_active(guild_id: str) -> bool:
@@ -81,12 +108,10 @@ def activate_webhooks_for_guild(guild_id: str) -> None:
     for item in _query_guild_items(guild_id):
         if item.get("type", {}).get("S") != "NOTI":
             continue
-        if not item.get("webhook_url", {}).get("S"):
-            continue
         dynamodb.update_item(
             TableName="chzzk-bot-db",
             Key={"PK": item["PK"], "SK": item["SK"]},
-            UpdateExpression="SET is_webhook_active = :active",
+            UpdateExpression="SET is_subscription_active = :active",
             ExpressionAttributeValues={":active": {"BOOL": True}},
         )
 
@@ -116,12 +141,11 @@ def send_notification_message(
     notification_item: dict,
 ) -> requests.Response:
     webhook_url = notification_item.get("webhook_url", {}).get("S", "")
-    is_webhook_active = notification_item.get("is_webhook_active", {}).get(
+    is_subscription_active = notification_item.get("is_subscription_active", {}).get(
         "BOOL", False
     )
 
-    # 일반 메시지 전송
-    if not (webhook_url and is_webhook_active):
+    if not is_subscription_active or not webhook_url:
         return send_message(channel_id=channel_id, data=data)
 
     # 웹훅 메시지 전송 (유료 구독자 전용)

@@ -1,8 +1,14 @@
 import boto3
+import logging
+import json
+
+from shared.notification_dispatcher import is_guild_subscription_active
+
 
 dynamodb = boto3.client("dynamodb")
 table = boto3.resource("dynamodb").Table("chzzk-bot-db")
 
+logger = logging.getLogger()
 
 def check_guild_limit(guild_id: str) -> tuple[bool, str, bool]:
     """
@@ -93,7 +99,7 @@ def save_notification_and_increment_counter(
     is_new_guild: bool,
 ):
     """신규 GUILD 객체 생성(필요 시), NOTI 아이템 저장 및 current_count 원자적 증가(+1)"""
-    # 1. 신규 서버인 경우 GUILD 기본 메타데이터 객체 생성 (limit: 5)
+    # 신규 서버인 경우 GUILD 기본 메타데이터 객체 생성 (limit: 5)
     if is_new_guild:
         table.put_item(
             Item={
@@ -106,7 +112,7 @@ def save_notification_and_increment_counter(
             }
         )
 
-    # 2. NOTI 아이템 추가
+    # NOTI 아이템 추가
     item = {
         "PK": {"S": f"CHZZK#{chzzk_id}"},
         "SK": {"S": f"NOTI#{channel_id}"},
@@ -124,18 +130,46 @@ def save_notification_and_increment_counter(
         "index": {"N": "-1"},
     }
     webhook_url = body.get("webhook_url", "").strip()
+    embed_color = body.get("embed_color", "").strip()
+
+    if webhook_url or embed_color:
+        is_subscription_active = is_guild_subscription_active(guild_id)
+        item["is_subscription_active"] = {"BOOL": is_subscription_active}
     if webhook_url:
         item["webhook_url"] = {"S": webhook_url}
-    item["is_webhook_active"] = {"BOOL": bool(webhook_url)}
+    if embed_color:
+        item["embed_color"] = {"S": embed_color}
 
-    dynamodb.put_item(
-        TableName="chzzk-bot-db",
-        Item=item,
-    )
+    transaction_items = [
+        {
+            "Put": {
+                "TableName": "chzzk-bot-db",
+                "Item": item,
+                "ConditionExpression": "attribute_not_exists(SK)"
+            }
+        },
+        {
+            "Update": {
+                "TableName": "chzzk-bot-db",
+                "Key": {
+                    "PK": {"S": f"GUILD#{guild_id}"},
+                    "SK": {"S": f"GUILD#{guild_id}"}
+                },
+                "UpdateExpression": "ADD current_count :inc",
+                "ExpressionAttributeValues": {
+                    ":inc": {"N": "1"}
+                }
+            }
+        }
+    ]
 
-    # 3. GUILD.current_count +1 원자적 증가 (Atomic Counter)
-    table.update_item(
-        Key={"PK": f"GUILD#{guild_id}", "SK": f"GUILD#{guild_id}"},
-        UpdateExpression="ADD current_count :inc",
-        ExpressionAttributeValues={":inc": 1},
-    )
+    try:
+        dynamodb.transact_write_items(TransactItems=transaction_items)
+    except dynamodb.exceptions.TransactionCanceledException as e:
+        logger.error(
+            json.dumps(
+                {"type": "SAVE_NOTIFICATION_ERROR", "error": str(e)},
+                ensure_ascii=False,
+            )
+        )
+        raise

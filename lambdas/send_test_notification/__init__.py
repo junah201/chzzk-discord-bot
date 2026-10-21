@@ -8,7 +8,7 @@ from shared import get_chzzk, middleware
 from shared.discord import BUTTON_STYLE, COMPONENT_TYPE
 from shared.exceptions import BadRequestError
 from shared.utils import build_response
-from shared.notification_dispatcher import send_notification_message
+from shared.notification_dispatcher import get_embed_color, send_notification_message
 
 dynamodb = boto3.client("dynamodb")
 
@@ -58,7 +58,7 @@ def handler(event, context):
             {
                 "title": f"{chzzk['liveTitle']}",
                 "description": f"{chzzk['channel']['channelName']} 님이 방송을 시작했습니다.",
-                "color": 0x02E895,
+                "color": get_embed_color(item),
                 "fields": [{"name": "카테고리", "value": chzzk["liveCategoryValue"]}],
                 "image": {
                     "url": (
@@ -121,7 +121,7 @@ def handler(event, context):
         return build_response(404, "해당 디스코드 채널이 존재하지 않습니다.")
 
     # 메시지 전송에 실패한 경우
-    if res.status_code != 200:
+    if res.status_code not in (200, 204):
         logger.error(
             json.dumps(
                 {
@@ -135,9 +135,15 @@ def handler(event, context):
                 ensure_ascii=False,
             )
         )
+
+        try:
+            error_detail = res.json()
+        except Exception:
+            error_detail = res.text
+
         return build_response(
             500,
-            f"테스트 알림 전송에 실패했습니다. 치직 봇이 해당 채널에 메시지를 보낼 권한이 있는지 확인해주세요. ({res.json()})",
+            f"테스트 알림 전송에 실패했습니다. 치직 봇이 해당 채널에 메시지를 보낼 권한이 있는지 확인해주세요. ({error_detail})",
         )
 
     # 성공
