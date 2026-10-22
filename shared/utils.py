@@ -1,8 +1,9 @@
 import json
 from collections.abc import Iterable
-from typing import Any
 from datetime import datetime
+from typing import Any
 from zoneinfo import ZoneInfo
+
 
 def pick(data: dict[str, Any], keys: Iterable[str]) -> dict[str, Any]:
     """
@@ -51,8 +52,10 @@ def build_response(status_code: int, message: str = None, data: dict | list = No
         "body": json.dumps(body, ensure_ascii=False),
     }
 
+
 UTC = ZoneInfo("UTC")
 KST = ZoneInfo("Asia/Seoul")
+
 
 def to_kst_string(utc_dt_input, format_str: str = "%Y-%m-%d %H:%M:%S") -> str:
     """

@@ -1,14 +1,15 @@
-import boto3
-import logging
 import json
+import logging
+
+import boto3
 
 from shared.notification_dispatcher import is_guild_subscription_active
-
 
 dynamodb = boto3.client("dynamodb")
 table = boto3.resource("dynamodb").Table("chzzk-bot-db")
 
 logger = logging.getLogger()
+
 
 def check_guild_limit(guild_id: str) -> tuple[bool, str, bool]:
     """
@@ -145,7 +146,7 @@ def save_notification_and_increment_counter(
             "Put": {
                 "TableName": "chzzk-bot-db",
                 "Item": item,
-                "ConditionExpression": "attribute_not_exists(SK)"
+                "ConditionExpression": "attribute_not_exists(SK)",
             }
         },
         {
@@ -153,14 +154,12 @@ def save_notification_and_increment_counter(
                 "TableName": "chzzk-bot-db",
                 "Key": {
                     "PK": {"S": f"GUILD#{guild_id}"},
-                    "SK": {"S": f"GUILD#{guild_id}"}
+                    "SK": {"S": f"GUILD#{guild_id}"},
                 },
                 "UpdateExpression": "ADD current_count :inc",
-                "ExpressionAttributeValues": {
-                    ":inc": {"N": "1"}
-                }
+                "ExpressionAttributeValues": {":inc": {"N": "1"}},
             }
-        }
+        },
     ]
 
     try:

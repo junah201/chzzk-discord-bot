@@ -7,8 +7,8 @@ import boto3
 from shared import get_chzzk, middleware
 from shared.discord import BUTTON_STYLE, COMPONENT_TYPE
 from shared.exceptions import BadRequestError
-from shared.utils import build_response
 from shared.notification_dispatcher import get_embed_color, send_notification_message
+from shared.utils import build_response
 
 dynamodb = boto3.client("dynamodb")
 

@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import uuid
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Literal
 
 import boto3
@@ -202,7 +202,9 @@ def handler(event, context):
 
             guild_id = form_values.get("guild_id_input")
             buyer_id = form_values.get("buyer_id_input")
-            product_type: Literal["SLOT_5", "SLOT_10", "MONTHLY_SUB_2000"] = form_values.get("product_type_select")
+            product_type: Literal["SLOT_5", "SLOT_10", "MONTHLY_SUB_2000"] = (
+                form_values.get("product_type_select")
+            )
 
             try:
                 guild_pk = f"GUILD#{guild_id}"
@@ -290,7 +292,6 @@ def handler(event, context):
                     )
 
                 elif product_type == "MONTHLY_SUB_2000":
-
                     # 정확히 1달 뒤로 계산 (예: 1월 20일 -> 2월 20일)
                     expires_at = now + relativedelta(months=1)
 
@@ -459,9 +460,10 @@ def handler(event, context):
                         },
                     )
 
-
                 max_limit = int(guild_item.get("max_limit", {}).get("N", "5"))
-                old_current_count = int(guild_item.get("current_count", {}).get("N", "0"))
+                old_current_count = int(
+                    guild_item.get("current_count", {}).get("N", "0")
+                )
 
                 logger.info(
                     json.dumps(
@@ -489,7 +491,7 @@ def handler(event, context):
                                 f"- DB 기록된 사용 중인 알림 수: **{old_current_count}개**\n"
                                 f"- 최대 이용 가능 슬롯: **{max_limit}개**",
                             },
-                        }
+                        },
                     )
 
                 # 실제 NOTI 개수로 current_count 업데이트 (정합성 보정)
@@ -500,9 +502,7 @@ def handler(event, context):
                         "SK": {"S": guild_pk},
                     },
                     UpdateExpression="SET current_count = :real_count",
-                    ExpressionAttributeValues={
-                        ":real_count": {"N": str(noti_count)}
-                    },
+                    ExpressionAttributeValues={":real_count": {"N": str(noti_count)}},
                 )
 
                 sync_message = (

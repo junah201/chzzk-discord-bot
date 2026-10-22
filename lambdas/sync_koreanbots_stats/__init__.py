@@ -8,7 +8,9 @@ from shared.discord.utils import send_message
 
 DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
 KOREANBOTS_TOKEN = os.environ.get("KOREANBOTS_TOKEN")
-DISCORD_KOREANBOTS_UPDATE_STATS_ERROR_CHANNEL_ID = os.environ.get("DISCORD_KOREANBOTS_UPDATE_STATS_ERROR_CHANNEL_ID")
+DISCORD_KOREANBOTS_UPDATE_STATS_ERROR_CHANNEL_ID = os.environ.get(
+    "DISCORD_KOREANBOTS_UPDATE_STATS_ERROR_CHANNEL_ID"
+)
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -82,7 +84,11 @@ def handler(event, context):
                         "color": 0xFF0000,
                         "fields": [
                             {"name": "Bot ID", "value": f"`{bot_id}`", "inline": True},
-                            {"name": "Servers", "value": f"`{server_count}`", "inline": True},
+                            {
+                                "name": "Servers",
+                                "value": f"`{server_count}`",
+                                "inline": True,
+                            },
                             {"name": "Error", "value": f"`{str(e)}`", "inline": False},
                             {
                                 "name": "Response Text",

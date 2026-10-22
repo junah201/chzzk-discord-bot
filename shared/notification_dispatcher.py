@@ -1,7 +1,7 @@
 import json
 import logging
 import re
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Literal
 
 import boto3
@@ -57,12 +57,7 @@ def is_guild_subscription_active(guild_id: str) -> bool:
     guild_pk = f"GUILD#{guild_id_str}"
 
     try:
-        response = table.get_item(
-            Key={
-                "PK": guild_pk,
-                "SK": "SUB#CURRENT"
-            }
-        )
+        response = table.get_item(Key={"PK": guild_pk, "SK": "SUB#CURRENT"})
         sub_item = response.get("Item")
 
         if not sub_item:
@@ -165,8 +160,6 @@ def send_notification_message(
         )
 
     return response
-
-
 
 
 def _send_webhook(webhook_url: str, data: dict) -> requests.Response:
