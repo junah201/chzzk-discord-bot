@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { LogOut, Loader2 } from "lucide-react";
 
@@ -9,8 +8,6 @@ import { LinkButton } from "@/components/ui/link-button";
 import { LogoCard } from "@/components/ui/logo-card";
 import { StatusPageLayout } from "@/components/layouts/status-page-layout";
 import routeMap from "@/constants/route-map";
-import { removeCookie } from "@/lib/cookie";
-import { ACCESS_TOKEN } from "@/constants/cookies";
 import { useAuth } from "@/hooks/use-auth";
 
 export default function LogoutPage() {

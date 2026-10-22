@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { GlowEffect } from "@/components/ui/glow-effect";
 import { Zap, Bell } from "lucide-react";
 import { Metadata } from "next";

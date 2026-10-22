@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { ArrowRight, BookOpen, LayoutDashboard, Sparkles } from "lucide-react";
+import { ArrowRight, LayoutDashboard, Sparkles } from "lucide-react";
 import { LinkButton } from "@/components/ui/link-button";
 import { Logo } from "@/components/ui/logo";
 import { GlowEffect } from "@/components/ui/glow-effect";
