@@ -2,16 +2,22 @@
 
 import { Logo } from "@/components/ui/logo";
 import { GITHUB_REPO_URL } from "@/constants/links";
-import { Github, Mail } from "lucide-react";
+import { routeMap } from "@/constants/route-map";
+import { SiDiscord, SiGithub, SiGmail } from "@icons-pack/react-simple-icons";
 import { motion } from "motion/react";
 
 const socialLinks = [
   {
-    icon: Github,
+    icon: SiGithub,
     href: GITHUB_REPO_URL,
     label: "GitHub",
   },
-  { icon: Mail, href: "mailto:junah.dev+chzzk@gmail.com", label: "Email" },
+  { icon: SiGmail, href: "mailto:junah.dev+chzzk@gmail.com", label: "Email" },
+  {
+    icon: SiDiscord,
+    href: routeMap.REDIRECTS.SUPPORT_SERVER,
+    label: "Discord",
+  },
 ];
 
 export const FooterBrand = () => {
