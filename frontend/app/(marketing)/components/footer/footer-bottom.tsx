@@ -29,23 +29,6 @@ export function FooterBottom() {
             상표입니다.
           </p>
         </div>
-
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <span className="text-border">•</span>
-          <a
-            href={GITHUB_REPO_CHANGELOG_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-primary transition-colors"
-          >
-            변경사항
-          </a>
-          <span className="text-border">•</span>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span>운영 중</span>
-          </div>
-        </div>
       </div>
     </div>
   );
