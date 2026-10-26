@@ -86,8 +86,8 @@ def handler(event, context):
     # 4. 치지직 채널 DB 저장 및 샤딩 인덱스 처리
     index = int(chzzk_id, 16) % 7
     if not is_chzzk_registered(chzzk_id):
-        if index >= 5:
-            index = 4
+        if index >= 4:
+            index = 3
         if not register_chzzk_channel(chzzk_id, chzzk_data, index):
             return build_response(
                 500,
