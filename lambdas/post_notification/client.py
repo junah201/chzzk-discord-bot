@@ -13,7 +13,7 @@ DISCORD_CHZZK_FOLLOW_ERROR_CHANNEL_ID = os.environ.get(
 logger = logging.getLogger()
 
 
-def follow_chzzk_channel(chzzk_id: str, index: int, naver_item: dict) -> bool:
+def follow_chzzk_channel(chzzk_id: str, index: int, naver_item: dict):
     """치지직 채널 팔로우 요청 수행 및 에러 로그 처리"""
     nid_aut = naver_item.get("NID_AUT")
     nid_ses = naver_item.get("NID_SES")
@@ -29,7 +29,12 @@ def follow_chzzk_channel(chzzk_id: str, index: int, naver_item: dict) -> bool:
 
     if res.status_code != 200:
         _log_and_send_follow_error(chzzk_id, index, res)
-        return False
+        try:
+            err_data = res.json()
+            err_message = err_data.get("message", "")
+        except Exception:
+            err_message = ""
+        return False, err_message
 
     logger.info(
         json.dumps(
@@ -37,7 +42,7 @@ def follow_chzzk_channel(chzzk_id: str, index: int, naver_item: dict) -> bool:
             ensure_ascii=False,
         )
     )
-    return True
+    return True, ""
 
 
 def _log_and_send_follow_error(chzzk_id: str, index: int, res: requests.Response):

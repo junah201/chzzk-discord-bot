@@ -97,10 +97,23 @@ def handler(event, context):
     # 5. 연동 계정 팔로우 수행
     naver_item = get_naver_account(index)
     if naver_item:
-        if not follow_chzzk_channel(chzzk_id, index, naver_item):
+        success, err_message = follow_chzzk_channel(chzzk_id, index, naver_item)
+        if not success:
+            if "영구 활동 제한" in err_message:
+                return build_response(
+                    400,
+                    f"서비스 내부 계정이 해당 치지직 채널에서 차단되어 알림을 설정할 수 없습니다. "
+                    f"채널 관리자(스트리머/매니저)에게 차단 해제를 요청해 주세요. ({index})",
+                )
+            elif "최대 팔로우 수를 초과" in err_message:
+                return build_response(
+                    400,
+                    f"현재 서비스 계정의 팔로우 한도가 초과되어 등록할 수 없습니다. "
+                    f"서포트 서버로 문의해 주시면 관리자가 조치해 드리겠습니다. ({index})",
+                )
             return build_response(
                 500,
-                f"치지직 채널 팔로우에 실패했습니다. 서포트 서버를 통해 관리자에게 문의해주세요. ({index})",
+                f"치지직 채널 팔로우 처리에 실패했습니다. 잠시 후 다시 시도한 후에도 동일한 현상이 발생하면 서포트 서버로 문의해 주세요. ({index})",
             )
 
     # 6. 알림 중복 확인
