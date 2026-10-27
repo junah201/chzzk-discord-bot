@@ -7,6 +7,7 @@ from user_agent import generate_user_agent
 
 from shared.discord.utils import send_message
 
+ADMIN_DISCORD_TOKEN = os.environ.get("ADMIN_DISCORD_TOKEN")
 DISCORD_CHZZK_FOLLOW_ERROR_CHANNEL_ID = os.environ.get(
     "DISCORD_CHZZK_FOLLOW_ERROR_CHANNEL_ID"
 )
@@ -75,4 +76,5 @@ def _log_and_send_follow_error(chzzk_id: str, index: int, res: requests.Response
                 }
             ]
         },
+        token=ADMIN_DISCORD_TOKEN,
     )

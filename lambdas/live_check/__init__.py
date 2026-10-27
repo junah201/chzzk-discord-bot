@@ -18,6 +18,7 @@ from shared import (
 )
 from shared.notification_dispatcher import get_embed_color, send_notification_message
 
+ADMIN_DISCORD_TOKEN = os.environ.get("ADMIN_DISCORD_TOKEN")
 DISCORD_GET_FOLLOWING_ERROR_CHANNEL_ID = os.environ.get(
     "DISCORD_GET_FOLLOWING_ERROR_CHANNEL_ID"
 )
@@ -85,6 +86,7 @@ def get_follows(NID_AUT: str, NID_SES: str, index: int) -> list[Following]:
                         }
                     ]
                 },
+                token=ADMIN_DISCORD_TOKEN,
             )
             continue
 

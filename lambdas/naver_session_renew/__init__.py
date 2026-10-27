@@ -10,6 +10,7 @@ from user_agent import generate_user_agent
 from shared import dynamo_to_python
 from shared.discord.utils import send_message
 
+ADMIN_DISCORD_TOKEN = os.environ.get("ADMIN_DISCORD_TOKEN")
 DISCORD_NAVER_SESSION_RENEW_EXPIRED_CHANNEL_ID = os.environ.get(
     "DISCORD_NAVER_SESSION_RENEW_EXPIRED_CHANNEL_ID"
 )
@@ -111,6 +112,7 @@ def handler(event, context):
                         }
                     ]
                 },
+                token=ADMIN_DISCORD_TOKEN,
             )
             logger.info(
                 json.dumps(

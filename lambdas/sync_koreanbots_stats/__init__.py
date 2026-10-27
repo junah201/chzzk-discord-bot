@@ -7,6 +7,7 @@ import requests
 from shared.discord.utils import send_message
 
 DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
+ADMIN_DISCORD_TOKEN = os.environ.get("ADMIN_DISCORD_TOKEN")
 KOREANBOTS_TOKEN = os.environ.get("KOREANBOTS_TOKEN")
 DISCORD_KOREANBOTS_UPDATE_STATS_ERROR_CHANNEL_ID = os.environ.get(
     "DISCORD_KOREANBOTS_UPDATE_STATS_ERROR_CHANNEL_ID"
@@ -101,6 +102,7 @@ def handler(event, context):
                     }
                 ]
             },
+            token=ADMIN_DISCORD_TOKEN,
         )
         return {"statusCode": 500, "error": "Failed to update Koreanbots stats"}
 
@@ -131,4 +133,5 @@ def send_error_alert(title: str, description: str, fields: list):
                 }
             ]
         },
+        token=ADMIN_DISCORD_TOKEN,
     )

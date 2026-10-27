@@ -20,6 +20,7 @@ table = boto3.resource("dynamodb").Table("chzzk-bot-db")
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+ADMIN_DISCORD_TOKEN = os.environ.get("ADMIN_DISCORD_TOKEN")
 DISCORD_CLEANUP_ORPHAN_CHANNEL_ID = os.getenv("DISCORD_CLEANUP_ORPHAN_CHANNEL_ID")
 
 
@@ -208,7 +209,7 @@ def handler(event, context):
 
     # 5. 디스코드 전송
     report_description = (
-        f"**고아 치지직 채널 주간 자동 정리가 완료되었습니다.**\n\n"
+        f"**고아 치지직 채널 자동 정리가 완료되었습니다.**\n\n"
         f"- **탐색된 고아 채널**: {len(orphan_chzzk_ids)}개\n"
         f"- **삭제 성공**: {deleted_success_count}개\n"
         f"- **삭제 실패**: {deleted_fail_count}개\n"
@@ -217,7 +218,7 @@ def handler(event, context):
     embeds_data = {
         "embeds": [
             {
-                "title": "치지직 고아 채널 주간 리포트",
+                "title": "치지직 고아 채널 정리 리포트",
                 "description": report_description,
                 "color": 0x3498DB,
                 "timestamp": datetime.now().isoformat(),
@@ -235,6 +236,7 @@ def handler(event, context):
                 channel_id=int(DISCORD_CLEANUP_ORPHAN_CHANNEL_ID),
                 data=embeds_data,
                 files=files_param,
+                token=ADMIN_DISCORD_TOKEN,
             )
 
             if res.status_code not in (200, 201):

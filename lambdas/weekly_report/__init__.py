@@ -8,6 +8,8 @@ import boto3
 
 from shared.discord.utils import send_message
 
+ADMIN_DISCORD_TOKEN = os.environ.get("ADMIN_DISCORD_TOKEN")
+
 LOG_GROUP_PREFIX = "/aws/lambda/"
 DISCORD_WEEKLY_REPORT_CHANNEL_ID = os.environ.get("DISCORD_WEEKLY_REPORT_CHANNEL_ID")
 DISCORD_WEEKLY_REPORT_ERROR_CHANNEL_ID = os.environ.get(
@@ -316,6 +318,7 @@ def send_report(report: dict):
                 }
             ]
         },
+        token=ADMIN_DISCORD_TOKEN,
     )
 
 
@@ -342,6 +345,7 @@ def send_error_alert(error: Exception):
                     }
                 ]
             },
+            token=ADMIN_DISCORD_TOKEN,
         )
     except Exception as e:
         logger.error(
