@@ -16,6 +16,8 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ruff>=0.6.7",
+    "boto3>=1.43.119",
+    "botocore[crt]>=1.43.119",
 ]
 
 [tool.ruff]
