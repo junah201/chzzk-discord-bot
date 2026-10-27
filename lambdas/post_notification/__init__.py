@@ -84,10 +84,15 @@ def handler(event, context):
         )
 
     # 4. 치지직 채널 DB 저장 및 샤딩 인덱스 처리
-    index = int(chzzk_id, 16) % 7
+    # 가득 차서 더이상 등록할 수 없는 계정 index set
+    full_indices = {3, 4, 7, 8, 9, 10, 14, 15, 16}
+    # 3번, 4번 -> 가득 참
+    # 7번, 8번, 9번, 10번, 14번, 15번, 16번 -> 보호조치 (해제 불가)
+    # 사용가능: 0, 1, 2, 5, 6, 11, 12, 13
+    index = int(chzzk_id, 16) % 17
+    while index in full_indices:
+        index = (index + 1) % 17
     if not is_chzzk_registered(chzzk_id):
-        if index >= 4:
-            index = 3
         if not register_chzzk_channel(chzzk_id, chzzk_data, index):
             return build_response(
                 500,
@@ -115,6 +120,11 @@ def handler(event, context):
                 500,
                 f"치지직 채널 팔로우 처리에 실패했습니다. 잠시 후 다시 시도한 후에도 동일한 현상이 발생하면 서포트 서버로 문의해 주세요. ({index})",
             )
+    else:
+        return build_response(
+            500,
+            f"치지직 채널 팔로우 처리에 실패했습니다. 잠시 후 다시 시도한 후에도 동일한 현상이 발생하면 서포트 서버로 문의해 주세요. ({index})",
+        )
 
     # 6. 알림 중복 확인
     if is_notification_exists(chzzk_id, channel_id, guild_id):
