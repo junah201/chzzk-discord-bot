@@ -114,6 +114,16 @@ def handler(event, context):
             ConditionExpression="guild_id = :gid",
             ExpressionAttributeValues=expression_values,
         )
+        logger.info(
+            json.dumps(
+                {
+                    "type": "UPDATE_NOTIFICATION_SUCCESS",
+                    "chzzk_id": chzzk_id,
+                    "guild_id": guild_id,
+                    "channel_id": channel_id,
+                }
+            )
+        )
 
     except ClientError as e:
         if e.response["Error"]["Code"] == "ConditionalCheckFailedException":
