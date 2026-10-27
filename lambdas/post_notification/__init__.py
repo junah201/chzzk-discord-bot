@@ -85,13 +85,12 @@ def handler(event, context):
 
     # 4. 치지직 채널 DB 저장 및 샤딩 인덱스 처리
     # 가득 차서 더이상 등록할 수 없는 계정 index set
-    full_indices = {3, 4, 7, 8, 9, 10, 14, 15, 16}
+    full_indices = {3, 4}
     # 3번, 4번 -> 가득 참
-    # 7번, 8번, 9번, 10번, 14번, 15번, 16번 -> 보호조치 (해제 불가)
-    # 사용가능: 0, 1, 2, 5, 6, 11, 12, 13
-    index = int(chzzk_id, 16) % 17
+    # 사용가능: 0, 1, 2, 5, 6
+    index = int(chzzk_id, 16) % 7
     while index in full_indices:
-        index = (index + 1) % 17
+        index = (index + 1) % 7
     if not is_chzzk_registered(chzzk_id):
         if not register_chzzk_channel(chzzk_id, chzzk_data, index):
             return build_response(
