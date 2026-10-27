@@ -13,7 +13,7 @@ import routeMap from "@/constants/route-map";
 const metrics: Metric[] = [
   {
     icon: Server,
-    value: 16000,
+    value: 17500,
     label: "활성 서버",
     suffix: "+",
     gradient: "from-primary to-emerald-500",
