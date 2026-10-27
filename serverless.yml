@@ -8,7 +8,7 @@ provider:
   runtime: python3.12
   region: ap-northeast-2
   profile: chzzk
-  logRetentionInDays: 7
+  logRetentionInDays: 14
   architecture: x86_64
   memorySize: 128
   timeout: 10
@@ -24,6 +24,8 @@ provider:
     DISCORD_CHZZK_FOLLOW_ERROR_CHANNEL_ID: "1533371278461898783"
     DISCORD_KOREANBOTS_UPDATE_STATS_ERROR_CHANNEL_ID: "1549682811567607868"
     DISCORD_CLEANUP_ORPHAN_CHANNEL_ID: "1564569823080489012"
+    DISCORD_WEEKLY_REPORT_CHANNEL_ID: "1564687500704874577"
+    DISCORD_WEEKLY_REPORT_ERROR_CHANNEL_ID: "1564687374619901952"
     ADMIN_DISCORD_PUBLIC_KEY: ${env:ADMIN_DISCORD_PUBLIC_KEY}
     ADMIN_DISCORD_USER_ID: ${env:ADMIN_DISCORD_USER_ID}
     KOREANBOTS_TOKEN: ${env:KOREANBOTS_TOKEN}
@@ -44,6 +46,20 @@ provider:
       Action:
         - kms:Decrypt
       Resource: arn:aws:kms:*:*:*
+    - Effect: Allow
+      Action:
+        - logs:StartQuery
+      Resource:
+        - "arn:aws:logs:ap-northeast-2:897699718511:log-group:/aws/lambda/post_notification_v2:*"
+        - "arn:aws:logs:ap-northeast-2:897699718511:log-group:/aws/lambda/delete_notification_v2:*"
+        - "arn:aws:logs:ap-northeast-2:897699718511:log-group:/aws/lambda/update_notification_v2:*"
+        - "arn:aws:logs:ap-northeast-2:897699718511:log-group:/aws/lambda/live_check_v2:*"
+        - "arn:aws:logs:ap-northeast-2:897699718511:log-group:/aws/lambda/sync_koreanbots_stats_v2:*"
+    - Effect: Allow
+      Action:
+        - logs:GetQueryResults
+        - logs:StopQuery
+      Resource: "*"
 
 functions:
   event_handler:
@@ -195,6 +211,16 @@ functions:
     memorySize: 256
     events:
       - schedule: cron(30 20 L * ? *) # 매월 1일 5시 30분 (KST 기준) -> UTC 기준 11:30 PM (전날)
+
+  weekly_report:
+    handler: lambdas/weekly_report.handler
+    name: weekly_report_v2
+    description: Send weekly report to discord channel
+    timeout: 600
+    events:
+      - schedule:
+          rate: cron(0 16 ? * SUN *) # 매주 월요일 01:00 KST = 일요일 16:00 UTC
+          enabled: true
 
 package:
   include:
