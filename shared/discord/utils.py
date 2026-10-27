@@ -16,12 +16,20 @@ def delete_message(channel_id: int, message_id: int):
         raise Exception(f"Failed to delete message: {res.status_code} {res.text}")
 
 
-def send_message(channel_id: int, data: dict, token=DISCORD_TOKEN):
-    res = requests.post(
-        f"https://discord.com/api/v9/channels/{channel_id}/messages",
-        headers={"Authorization": f"Bot {token}", "Content-Type": "application/json"},
-        data=json.dumps(data),
-    )
+def send_message(
+    channel_id: int, data: dict, files: dict | None = None, token=DISCORD_TOKEN
+):
+    url = f"https://discord.com/api/v9/channels/{channel_id}/messages"
+    headers = {"Authorization": f"Bot {token}"}
+    if files:
+        form_data = {}
+        if data:
+            form_data["payload_json"] = json.dumps(data)
+
+        res = requests.post(url, headers=headers, data=form_data, files=files)
+    else:
+        headers["Content-Type"] = "application/json"
+        res = requests.post(url, headers=headers, data=json.dumps(data))
 
     return res
 

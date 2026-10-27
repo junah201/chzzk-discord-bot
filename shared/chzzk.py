@@ -74,7 +74,6 @@ def get_chzzk(
             )
         return None
 
-    # retry
     for _retry in range(1, retry + 1):
         try:
             res = requests.get(
