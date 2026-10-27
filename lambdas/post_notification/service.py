@@ -166,7 +166,12 @@ def save_notification_and_increment_counter(
         dynamodb.transact_write_items(TransactItems=transaction_items)
         logger.info(
             json.dumps(
-                {"type": "SAVE_NOTIFICATION_SUCCESS", "chzzk_id": chzzk_id, "channel_id": channel_id, "guild_id": guild_id},
+                {
+                    "type": "SAVE_NOTIFICATION_SUCCESS",
+                    "chzzk_id": chzzk_id,
+                    "channel_id": channel_id,
+                    "guild_id": guild_id,
+                },
                 ensure_ascii=False,
             )
         )
