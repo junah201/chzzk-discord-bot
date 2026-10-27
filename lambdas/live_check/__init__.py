@@ -350,14 +350,25 @@ def send_notification(chzzk_id: str):
 
 @middleware(logger)
 def handler(event, context):
-    index = int(event.get("resources", [])[0][-1])
-    request_id = context.aws_request_id
+    index = int(event.get("resources", [])[0].split("_")[-1])
 
     res = table.get_item(Key={"PK": f"NAVER#{index}", "SK": f"NAVER#{index}"})
     naver = res.get("Item")
 
     NID_AUT = naver.get("NID_AUT")
     NID_SES = naver.get("NID_SES")
+
+    logger.info(
+        json.dumps(
+            {
+                "type": "LIVE_CHECK_START",
+                "index": index,
+                "NID_AUT": NID_AUT,
+                "NID_SES": NID_SES,
+            },
+            ensure_ascii=False,
+        )
+    )
 
     follows = get_follows(NID_AUT, NID_SES, index)
     live_channels: list[str] = [
@@ -369,7 +380,8 @@ def handler(event, context):
                 "type": "GET_FOLLOWINGS_SUCCESS",
                 "follows_count": len(follows),
                 "live_count": len(live_channels),
-            }
+            },
+            ensure_ascii=False,
         )
     )
 
@@ -400,7 +412,6 @@ def handler(event, context):
             {
                 "type": "LIVE_CHECK_RESULT",
                 "index": index,
-                "request_id": request_id,
                 "total_follows_count": len(follows),
                 "total_live_channels_count": len(live_channels),
                 "total_live_start_cnt": total_live_start_cnt,
@@ -415,7 +426,6 @@ def handler(event, context):
         "body": json.dumps(
             {
                 "index": index,
-                "request_id": request_id,
                 "total_follows_count": len(follows),
                 "total_live_channels_count": len(live_channels),
                 "total_live_start_cnt": total_live_start_cnt,
