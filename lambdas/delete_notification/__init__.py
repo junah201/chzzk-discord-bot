@@ -54,6 +54,17 @@ def handler(event, context):
                 ":zero": 0,
             },
         )
+        logger.info(
+            json.dumps(
+                {
+                    "type": "DELETE_NOTIFICATION_SUCCESS",
+                    "chzzk_id": chzzk_id,
+                    "guild_id": guild_id,
+                    "channel_id": channel_id,
+                },
+                ensure_ascii=False,
+            )
+        )
 
     except ClientError as e:
         if e.response["Error"]["Code"] == "ConditionalCheckFailedException":
