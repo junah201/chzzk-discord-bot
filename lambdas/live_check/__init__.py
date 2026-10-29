@@ -106,7 +106,7 @@ def get_follows(NID_AUT: str, NID_SES: str, index: int) -> list[Following]:
     return follows
 
 
-def send_notification(chzzk_id: str):
+def send_notification(chzzk_id: str, index: int):
     live_start_cnt = 0
     noti_send_cnt = 0
     noti_fail_cnt = 0
@@ -120,6 +120,7 @@ def send_notification(chzzk_id: str):
                 {
                     "type": "GET_DYNAMODB_ERROR",
                     "chzzk_id": chzzk_id,
+                    "index": index,
                     "ResponseMetadata": res.get("ResponseMetadata", None),
                 }
             )
@@ -394,7 +395,9 @@ def handler(event, context):
 
     for chzzk_id in live_channels:
         try:
-            live_start_cnt, noti_send_cnt, noti_fail_cnt = send_notification(chzzk_id)
+            live_start_cnt, noti_send_cnt, noti_fail_cnt = send_notification(
+                chzzk_id, index
+            )
             total_live_start_cnt += live_start_cnt
             total_noti_send_cnt += noti_send_cnt
             total_noti_fail_cnt += noti_fail_cnt
