@@ -40,6 +40,7 @@ provider:
         - dynamodb:DeleteItem
         - dynamodb:Query
         - dynamodb:TransactWriteItems
+        - dynamodb:Scan
       Resource:
         - "arn:aws:dynamodb:ap-northeast-2:897699718511:table/chzzk-bot-db"
         - "arn:aws:dynamodb:ap-northeast-2:897699718511:table/chzzk-bot-db/index/*"
