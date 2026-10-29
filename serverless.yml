@@ -220,6 +220,11 @@ functions:
           rate: cron(0 16 ? * SUN *) # 매주 월요일 01:00 KST = 일요일 16:00 UTC
           enabled: true
 
+  chzzk_unfollow:
+    handler: lambdas/chzzk_unfollow.handler
+    name: chzzk_unfollow_v2
+    description: 치지직 채널 팔로우 해제 (관리자 전용)
+
 package:
   include:
     - "lambdas/**"
