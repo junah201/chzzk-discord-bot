@@ -1,3 +1,6 @@
+import routeMap from "@/constants/route-map";
+import Link from "next/link";
+
 export const pricingPlans = [
   {
     name: "Free",
@@ -52,8 +55,17 @@ export const pricingPlans = [
     features: [
       "슬롯 250개",
       "실시간 알림",
-      "고급 필터링 기능",
-      "커스텀 웹훅 기능 지원",
+      <>
+        <Link
+          href={routeMap.DOCS.CUSTOM_WEBHOOK}
+          className="underline hover:text-primary transition-colors "
+        >
+          커스텀 웹훅
+        </Link>{" "}
+        기능 지원
+      </>,
+      "커스텀 임베드 컬러",
+      "고급 필터링 기능 (지원 예정)",
       "빠른 알림 전송 (우선순위)",
     ],
     badge: "다양한 부가 기능",
@@ -61,4 +73,4 @@ export const pricingPlans = [
     isPopular: false,
     isRecommended: true,
   },
-];
+] as const;
