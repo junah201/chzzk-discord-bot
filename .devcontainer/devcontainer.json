@@ -9,12 +9,20 @@
       "version": "3.12"
     }
   },
+  "containerEnv": {
+    "AWS_DEFAULT_REGION": "ap-northeast-2",
+    "AWS_REGION": "ap-northeast-2"
+  },
+  "mounts": [
+    "source=uv-cache-${localWorkspaceFolderBasename},target=/home/node/.cache/uv,type=volume"
+  ],
   "customizations": {
     "vscode": {
       "extensions": [
         "esbenp.prettier-vscode",
         "amazonwebservices.aws-toolkit-vscode",
-        "redhat.vscode-yaml"
+        "redhat.vscode-yaml",
+        "charliermarsh.ruff"
       ],
       "settings": {
         "editor.formatOnSave": true,
@@ -30,6 +38,6 @@
       }
     }
   },
-  "updateContentCommand": "pnpm install & npm install -g serverless",
+  "updateContentCommand": "npm install -g serverless",
   "remoteUser": "node"
 }

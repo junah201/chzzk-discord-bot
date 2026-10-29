@@ -12,4 +12,12 @@ RUN apt-get update && apt-get install -y \
 # corepack (pnpm)
 RUN corepack enable
 
+# uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+ENV UV_LINK_MODE=copy \
+    UV_COMPILE_BYTECODE=1 \
+    UV_PROJECT_ENVIRONMENT=/workspaces/.venv
+
+RUN mkdir -p /home/node/.cache/uv && chown -R node:node /home/node/.cache
+
 USER node
