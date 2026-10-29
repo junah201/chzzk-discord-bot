@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from datetime import datetime
 
 import requests
 from user_agent import generate_user_agent
@@ -73,6 +74,7 @@ def _log_and_send_follow_error(chzzk_id: str, index: int, res: requests.Response
                         {"name": "text", "value": res.text},
                         {"name": "index", "value": str(index)},
                     ],
+                    "timestamp": datetime.now().isoformat(),
                 }
             ]
         },

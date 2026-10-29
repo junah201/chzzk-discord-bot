@@ -315,6 +315,7 @@ def send_report(report: dict):
                             "inline": False,
                         },
                     ],
+                    "timestamp": datetime.now().isoformat(),
                 }
             ]
         },

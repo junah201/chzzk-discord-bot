@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import time
+from datetime import datetime
 
 import boto3
 import requests
@@ -108,6 +109,7 @@ def handler(event, context):
                                     "inline": False,
                                 },
                             ],
+                            "timestamp": datetime.now().isoformat(),
                         }
                     ]
                 },

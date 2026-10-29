@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from datetime import datetime
 
 import requests
 
@@ -130,6 +131,7 @@ def send_error_alert(title: str, description: str, fields: list):
                     "description": description,
                     "color": 0xFF0000,
                     "fields": fields,
+                    "timestamp": datetime.now().isoformat(),
                 }
             ]
         },

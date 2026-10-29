@@ -83,6 +83,7 @@ def get_follows(NID_AUT: str, NID_SES: str, index: int) -> list[Following]:
                                 {"name": "text", "value": res.text},
                                 {"name": "index", "value": str(index)},
                             ],
+                            "timestamp": datetime.now().isoformat(),
                         }
                     ]
                 },
