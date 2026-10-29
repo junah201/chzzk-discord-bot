@@ -42,17 +42,17 @@ provider:
         - dynamodb:TransactWriteItems
         - dynamodb:Scan
       Resource:
-        - "arn:aws:dynamodb:ap-northeast-2:897699718511:table/chzzk-bot-db"
-        - "arn:aws:dynamodb:ap-northeast-2:897699718511:table/chzzk-bot-db/index/*"
+        - "arn:aws:dynamodb:${aws:region}:${AWS::AccountId}:table/chzzk-bot-db"
+        - "arn:aws:dynamodb:${aws:region}:${AWS::AccountId}:table/chzzk-bot-db/index/*"
     - Effect: Allow
       Action:
         - logs:StartQuery
       Resource:
-        - "arn:aws:logs:ap-northeast-2:897699718511:log-group:/aws/lambda/post_notification_v2:*"
-        - "arn:aws:logs:ap-northeast-2:897699718511:log-group:/aws/lambda/delete_notification_v2:*"
-        - "arn:aws:logs:ap-northeast-2:897699718511:log-group:/aws/lambda/update_notification_v2:*"
-        - "arn:aws:logs:ap-northeast-2:897699718511:log-group:/aws/lambda/live_check_v2:*"
-        - "arn:aws:logs:ap-northeast-2:897699718511:log-group:/aws/lambda/sync_koreanbots_stats_v2:*"
+        - "arn:aws:logs:${aws:region}:${AWS::AccountId}:log-group:/aws/lambda/post_notification_v2:*"
+        - "arn:aws:logs:${aws:region}:${AWS::AccountId}:log-group:/aws/lambda/delete_notification_v2:*"
+        - "arn:aws:logs:${aws:region}:${AWS::AccountId}:log-group:/aws/lambda/update_notification_v2:*"
+        - "arn:aws:logs:${aws:region}:${AWS::AccountId}:log-group:/aws/lambda/live_check_v2:*"
+        - "arn:aws:logs:${aws:region}:${AWS::AccountId}:log-group:/aws/lambda/sync_koreanbots_stats_v2:*"
     - Effect: Allow
       Action:
         - logs:GetQueryResults
