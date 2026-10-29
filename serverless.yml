@@ -45,10 +45,6 @@ provider:
         - "arn:aws:dynamodb:ap-northeast-2:897699718511:table/chzzk-bot-db/index/*"
     - Effect: Allow
       Action:
-        - kms:Decrypt
-      Resource: arn:aws:kms:*:*:*
-    - Effect: Allow
-      Action:
         - logs:StartQuery
       Resource:
         - "arn:aws:logs:ap-northeast-2:897699718511:log-group:/aws/lambda/post_notification_v2:*"
