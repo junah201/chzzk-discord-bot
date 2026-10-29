@@ -58,7 +58,7 @@ def get_follows(NID_AUT: str, NID_SES: str, index: int) -> list[Following]:
         follows.extend(data.get("content", {}).get("followingList", []))
 
         if res.status_code != 200:
-            logging.error(
+            logger.error(
                 json.dumps(
                     {
                         "type": "GET_FOLLOWING_ERROR",
@@ -277,7 +277,7 @@ def send_notification(chzzk_id: str):
         # 채널이 존재하지 않는 경우
         if res.status_code == 404:
             noti_fail_cnt += 1
-            logging.error(
+            logger.error(
                 json.dumps(
                     {
                         "type": "DISCORD_CHANNEL_NOT_FOUND",
@@ -299,7 +299,7 @@ def send_notification(chzzk_id: str):
         # 메시지 전송에 실패한 경우
         if res.status_code not in (200, 204):
             noti_fail_cnt += 1
-            logging.error(
+            logger.error(
                 json.dumps(
                     {
                         "type": "DISCORD_MESSAGE_SEND_FAIL",
@@ -327,7 +327,7 @@ def send_notification(chzzk_id: str):
 
         # 성공
         noti_send_cnt += 1
-        logging.info(
+        logger.info(
             json.dumps(
                 {
                     "type": "DISCORD_MESSAGE_SEND_SUCCESS",
