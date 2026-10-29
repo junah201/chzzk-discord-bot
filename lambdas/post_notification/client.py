@@ -3,9 +3,7 @@ import logging
 import os
 from datetime import datetime
 
-import requests
-from user_agent import generate_user_agent
-
+from shared.chzzk import follow_chzzk_channel
 from shared.discord.utils import send_message
 
 ADMIN_DISCORD_TOKEN = os.environ.get("ADMIN_DISCORD_TOKEN")
@@ -15,39 +13,22 @@ DISCORD_CHZZK_FOLLOW_ERROR_CHANNEL_ID = os.environ.get(
 logger = logging.getLogger()
 
 
-def follow_chzzk_channel(chzzk_id: str, index: int, naver_item: dict):
-    """치지직 채널 팔로우 요청 수행 및 에러 로그 처리"""
+def process_follow(chzzk_id: str, index: int, naver_item: dict):
     nid_aut = naver_item.get("NID_AUT")
     nid_ses = naver_item.get("NID_SES")
 
-    res = requests.post(
-        f"https://api.chzzk.naver.com/service/v1/channels/{chzzk_id}/follow",
-        headers={
-            "User-Agent": generate_user_agent(os="win", device_type="desktop"),
-            "Cookie": f"NID_AUT={nid_aut}; NID_SES={nid_ses}",
-        },
-        timeout=2,
-    )
+    success, status_code, err_message = follow_chzzk_channel(chzzk_id, nid_aut, nid_ses)
 
-    if res.status_code != 200:
-        _log_and_send_follow_error(chzzk_id, index, res)
-        try:
-            err_data = res.json()
-            err_message = err_data.get("message", "")
-        except Exception:
-            err_message = ""
+    if not success:
+        _log_and_send_follow_error(chzzk_id, index, status_code, err_message)
         return False, err_message
 
-    logger.info(
-        json.dumps(
-            {"type": "CHZZK_FOLLOW_SUCCESS", "channel_id": chzzk_id},
-            ensure_ascii=False,
-        )
-    )
     return True, ""
 
 
-def _log_and_send_follow_error(chzzk_id: str, index: int, res: requests.Response):
+def _log_and_send_follow_error(
+    chzzk_id: str, index: int, status_code: int, err_message: str
+):
     """팔로우 실패시 로그 기록 및 디스코드 알림 채널 전송"""
     logger.error(
         json.dumps(
@@ -55,8 +36,8 @@ def _log_and_send_follow_error(chzzk_id: str, index: int, res: requests.Response
                 "type": "CHZZK_FOLLOW_ERROR",
                 "chzzk_id": chzzk_id,
                 "index": index,
-                "status_code": res.status_code,
-                "text": res.text,
+                "status_code": status_code,
+                "err_message": err_message,
             },
             ensure_ascii=False,
         )
@@ -67,11 +48,12 @@ def _log_and_send_follow_error(chzzk_id: str, index: int, res: requests.Response
             "embeds": [
                 {
                     "title": "CHZZK_FOLLOW_ERROR",
-                    "description": f"Failed to follow CHZZK channel. Status code: {res.status_code}",
+                    "description": "치지직 채널 팔로우 처리에 실패했습니다.",
                     "color": 0xFF0000,
                     "fields": [
-                        {"name": "chzzk_id", "value": str(chzzk_id)},
-                        {"name": "text", "value": res.text},
+                        {"name": "chzzk_id", "value": chzzk_id},
+                        {"name": "status_code", "value": str(status_code)},
+                        {"name": "err_message", "value": err_message},
                         {"name": "index", "value": str(index)},
                     ],
                     "timestamp": datetime.now().isoformat(),

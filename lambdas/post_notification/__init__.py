@@ -1,7 +1,7 @@
 import json
 import logging
 
-from lambdas.post_notification.client import follow_chzzk_channel
+from lambdas.post_notification.client import process_follow
 from lambdas.post_notification.service import (
     check_guild_limit,
     get_naver_account,
@@ -101,7 +101,7 @@ def handler(event, context):
     # 5. 연동 계정 팔로우 수행
     naver_item = get_naver_account(index)
     if naver_item:
-        success, err_message = follow_chzzk_channel(chzzk_id, index, naver_item)
+        success, err_message = process_follow(chzzk_id, index, naver_item)
         if not success:
             if "영구 활동 제한" in err_message:
                 return build_response(

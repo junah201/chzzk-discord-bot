@@ -11,7 +11,8 @@ import boto3
 import requests
 from user_agent import generate_user_agent
 
-from shared import send_message
+from shared.chzzk import unfollow_chzzk_channel
+from shared.discord.utils import send_message
 
 TABLE_NAME = "chzzk-bot-db"
 CHZZK_PREFIX = "CHZZK#"
@@ -231,30 +232,16 @@ def confirm_orphans(candidate_ids: list) -> list:
     return confirmed
 
 
-def unfollow_chzzk_channel(
-    channel_id: str, nid_aut: str, nid_ses: str
-) -> tuple[bool, str]:
+def process_unfollow(channel_id: str, nid_aut: str, nid_ses: str) -> tuple[bool, str]:
     """치지직 API를 통해 특정 채널 팔로우를 취소합니다."""
     metrics.incr("chzzk_http_calls")
     started_at = perf_counter()
-    try:
-        res = requests.delete(
-            CHZZK_UNFOLLOW_URL.format(channel_id=channel_id),
-            headers={
-                "User-Agent": generate_user_agent(os="win", device_type="desktop"),
-                "Cookie": f"NID_AUT={nid_aut}; NID_SES={nid_ses}",
-            },
-            timeout=HTTP_TIMEOUT_SEC,
-        )
-        metrics.record("chzzk_unfollow_http", started_at)
-        metrics.incr(f"chzzk_http_status_{res.status_code}")
-        if res.status_code == 200:
-            return True, ""
-        return False, f"HTTP {res.status_code}: {res.text}"
-    except Exception as e:
-        metrics.record("chzzk_unfollow_http", started_at)
-        metrics.incr("chzzk_http_exception")
-        return False, _err(e)
+    success, status_code, err_message = unfollow_chzzk_channel(
+        channel_id, nid_aut, nid_ses
+    )
+    metrics.record("chzzk_unfollow_http", started_at)
+    metrics.incr(f"chzzk_http_status_{status_code}")
+    return success, err_message
 
 
 def delete_channel_item(chzzk_id: str) -> tuple[str, str | None]:
@@ -320,7 +307,7 @@ def process_orphan(
     unfollow_success, unfollow_reason = True, None
     target = get_unfollow_target(channel_info, naver_account_map)
     if target:
-        unfollow_success, unfollow_reason = unfollow_chzzk_channel(*target)
+        unfollow_success, unfollow_reason = process_unfollow(*target)
     else:
         metrics.incr("unfollow_skipped_no_credentials")
 

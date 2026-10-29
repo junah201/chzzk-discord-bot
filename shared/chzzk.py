@@ -1,11 +1,16 @@
 import json
 import logging
-from typing import TypedDict
+from typing import Literal, TypedDict
 
 import requests
 from user_agent import generate_user_agent
 
 __all__ = ["ChzzkChannel", "ChzzkLive", "get_chzzk", "Following"]
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+CHZZK_FOLLOW_URL = "https://api.chzzk.naver.com/service/v1/channels/{channel_id}/follow"
 
 
 class ChzzkChannel(TypedDict):
@@ -139,3 +144,89 @@ def get_chzzk(
         return None
 
     return content
+
+
+def _handle_follow_request(
+    method: Literal["POST", "DELETE"], chzzk_id: str, nid_aut: str, nid_ses: str
+) -> tuple[bool, int, str]:
+    """팔로우/언팔로우 요청 공통 처리 함수. 성공 시 (True, 200, "")를 반환하고, 실패 시 (False, status_code, error_message)를 반환합니다."""
+    action_name = "FOLLOW" if method == "POST" else "UNFOLLOW"
+    url = CHZZK_FOLLOW_URL.format(channel_id=chzzk_id)
+
+    try:
+        res = requests.request(
+            method,
+            url,
+            headers={
+                "User-Agent": generate_user_agent(os="win", device_type="desktop"),
+                "Cookie": f"NID_AUT={nid_aut}; NID_SES={nid_ses}",
+            },
+            timeout=3,
+        )
+        res.raise_for_status()
+    except requests.exceptions.Timeout as e:
+        logger.error(
+            json.dumps(
+                {
+                    "type": f"CHZZK_{action_name}_TIMEOUT",
+                    "chzzk_id": chzzk_id,
+                    "exception": str(e),
+                }
+            )
+        )
+        return False, -1, f"TimeoutError: {str(e)}"
+    except requests.exceptions.ConnectionError as e:
+        logger.error(
+            json.dumps(
+                {
+                    "type": f"CHZZK_{action_name}_CONNECTION_ERROR",
+                    "chzzk_id": chzzk_id,
+                    "exception": str(e),
+                }
+            )
+        )
+        return False, -2, f"ConnectionError: {str(e)}"
+    except requests.exceptions.HTTPError:
+        logger.error(
+            json.dumps(
+                {
+                    "type": f"CHZZK_{action_name}_HTTP_ERROR",
+                    "chzzk_id": chzzk_id,
+                    "status_code": res.status_code,
+                    "text": res.text,
+                }
+            )
+        )
+        try:
+            err_data = res.json()
+            err_message = err_data.get("message", f"HTTPError: {res.status_code}")
+        except Exception:
+            err_message = f"HTTPError: {res.status_code} - {res.text}"
+        return False, res.status_code, err_message
+    except Exception as e:
+        logger.error(
+            json.dumps(
+                {
+                    "type": f"CHZZK_{action_name}_UNKNOWN_ERROR",
+                    "chzzk_id": chzzk_id,
+                    "exception": str(e),
+                }
+            )
+        )
+        return False, -3, f"UnknownError: {str(e)}"
+
+    return True, 200, ""
+
+
+def follow_chzzk_channel(
+    chzzk_id: str, nid_aut: str, nid_ses: str
+) -> tuple[bool, int, str]:
+    """치지직 채널 팔로우 요청을 수행합니다. 성공 시 (True, 200, "")를 반환하고, 실패 시 (False, status_code, error_message)를 반환합니다."""
+    return _handle_follow_request("POST", chzzk_id, nid_aut, nid_ses)
+
+
+def unfollow_chzzk_channel(
+    chzzk_id: str, nid_aut: str, nid_ses: str
+) -> tuple[bool, int, str]:
+    """치지직 채널 언팔로우 요청을 수행합니다. 성공 시 (True, 200, "")를 반환하고, 실패 시 (False, status_code, error_message)를 반환합니다."""
+    return _handle_follow_request("DELETE", chzzk_id, nid_aut, nid_ses)
