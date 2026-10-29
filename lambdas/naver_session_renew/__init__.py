@@ -24,14 +24,13 @@ logger.setLevel(logging.INFO)
 def handler(event, context):
     res = dynamodb.query(
         TableName="chzzk-bot-db",
-        IndexName="GSI-type",
-        KeyConditionExpression="#type = :val",
-        ExpressionAttributeNames={"#type": "type"},
-        ExpressionAttributeValues={":val": {"S": "NAVER"}},
+        KeyConditionExpression="#pk = :val",
+        ExpressionAttributeNames={"#pk": "PK"},
+        ExpressionAttributeValues={":val": {"S": "NAVER#ACCOUNTS"}},
     )
 
     items = [dynamo_to_python(item) for item in res.get("Items", [])]
-    items.sort(key=lambda x: x.get("PK"))
+    items.sort(key=lambda x: x.get("SK"))
 
     result = []
 
@@ -73,7 +72,7 @@ def handler(event, context):
                 json.dumps(
                     {
                         "type": "NAVER_SESSION_RENEW_EXPIRED",
-                        "PK": item.get("PK"),
+                        "SK": item.get("SK"),
                         "NID_AUT": NID_AUT,
                         "NID_SES": NID_SES,
                     }
@@ -90,8 +89,8 @@ def handler(event, context):
                             "color": 0xFF0000,
                             "fields": [
                                 {
-                                    "name": "PK",
-                                    "value": f"`{item.get('PK')}`",
+                                    "name": "SK",
+                                    "value": f"`{item.get('SK')}`",
                                     "inline": False,
                                 },
                                 {
@@ -127,7 +126,7 @@ def handler(event, context):
 
         result.append(
             {
-                "PK": item.get("PK"),
+                "SK": item.get("SK"),
                 "NID_AUT": NID_AUT,
                 "ORIGINAL_NID_SES": f"{NID_SES[:7]}...{NID_SES[-7:]}",
                 "NEW_NID_SES": f"{NEW_NID_SES[:7]}...{NEW_NID_SES[-7:]}"
@@ -135,7 +134,7 @@ def handler(event, context):
                 else NEW_NID_SES,
             }
         )
-        time.sleep(2)
+        time.sleep(1.5)
 
     logger.info(json.dumps({"type": "NAVER_SESSION_RENEW", "result": result}))
 

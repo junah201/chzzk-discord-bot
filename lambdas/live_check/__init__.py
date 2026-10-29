@@ -354,7 +354,7 @@ def send_notification(chzzk_id: str):
 def handler(event, context):
     index = int(event.get("resources", [])[0].split("_")[-1])
 
-    res = table.get_item(Key={"PK": f"NAVER#{index}", "SK": f"NAVER#{index}"})
+    res = table.get_item(Key={"PK": "NAVER#ACCOUNTS", "SK": f"NAVER#{index}"})
     naver = res.get("Item")
 
     NID_AUT = naver.get("NID_AUT")

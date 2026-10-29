@@ -70,7 +70,7 @@ def register_chzzk_channel(chzzk_id: str, chzzk_data: dict, index: int) -> bool:
 
 def get_naver_account(index: int) -> dict | None:
     """네이버 세션 쿠키 정보 조회"""
-    res = table.get_item(Key={"PK": f"NAVER#{index}", "SK": f"NAVER#{index}"})
+    res = table.get_item(Key={"PK": "NAVER#ACCOUNTS", "SK": f"NAVER#{index}"})
     return res.get("Item")
 
 

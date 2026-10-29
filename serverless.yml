@@ -241,7 +241,6 @@ package:
     - ".devcontainer/**"
     - ".ruff_cache/**"
     - ".claude/**"
-    - "*.json"
 
 resources:
   Resources:
@@ -515,53 +514,15 @@ resources:
     #         AttributeType: S
     #       - AttributeName: guild_id
     #         AttributeType: S
-    #       - AttributeName: type
-    #         AttributeType: S
-    #       - AttributeName: index
-    #         AttributeType: N
     #     KeySchema:
     #       - AttributeName: PK
     #         KeyType: HASH
     #       - AttributeName: SK
     #         KeyType: RANGE
     #     GlobalSecondaryIndexes:
-    #       - IndexName: GSI-SK
-    #         KeySchema:
-    #           - AttributeName: SK
-    #             KeyType: HASH
-    #           - AttributeName: PK
-    #             KeyType: RANGE
-    #         Projection:
-    #           ProjectionType: KEYS_ONLY
     #       - IndexName: GSI-GuildID
     #         KeySchema:
     #           - AttributeName: guild_id
-    #             KeyType: HASH
-    #           - AttributeName: PK
-    #             KeyType: RANGE
-    #         Projection:
-    #           ProjectionType: INCLUDE
-    #         NonKeyAttributes:
-    #           - SK
-    #           - channel_id
-    #           - channel_name
-    #           - custom_message
-    #           - disable_button
-    #           - disable_embed
-    #           - last_noti_at
-    #           - last_noti_status
-    #       - IndexName: GSI-type
-    #         KeySchema:
-    #           - AttributeName: type
-    #             KeyType: HASH
-    #         Projection:
-    #           ProjectionType: INCLUDE
-    #         NonKeyAttributes:
-    #           - PK
-    #           - lastLiveId
-    #       - IndexName: GSI-index
-    #         KeySchema:
-    #           - AttributeName: index
     #             KeyType: HASH
     #           - AttributeName: PK
     #             KeyType: RANGE
