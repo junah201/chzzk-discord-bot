@@ -19,5 +19,6 @@ ENV UV_LINK_MODE=copy \
     UV_PROJECT_ENVIRONMENT=/workspaces/.venv
 
 RUN mkdir -p /home/node/.cache/uv && chown -R node:node /home/node/.cache
+RUN mkdir -p /workspaces/.venv && chown -R node:node /workspaces/.venv
 
 USER node
