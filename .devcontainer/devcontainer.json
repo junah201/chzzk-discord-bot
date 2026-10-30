@@ -4,10 +4,7 @@
     "dockerfile": "Dockerfile"
   },
   "features": {
-    "ghcr.io/devcontainers/features/aws-cli:1": {},
-    "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.12"
-    }
+    "ghcr.io/devcontainers/features/aws-cli:1": {}
   },
   "remoteEnv": {
     "PYTHONPATH": "${containerWorkspaceFolder}/lambdas"
@@ -16,19 +13,21 @@
     "AWS_DEFAULT_REGION": "ap-northeast-2",
     "AWS_REGION": "ap-northeast-2"
   },
-  "mounts": [
-    "source=uv-cache-${localWorkspaceFolderBasename},target=/home/node/.cache/uv,type=volume"
-  ],
+  "mounts": ["source=uv-cache,target=/home/node/.cache/uv,type=volume"],
   "customizations": {
     "vscode": {
       "extensions": [
         "esbenp.prettier-vscode",
         "amazonwebservices.aws-toolkit-vscode",
         "redhat.vscode-yaml",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
         "charliermarsh.ruff"
       ],
       "settings": {
         "editor.formatOnSave": true,
+        "python.defaultInterpreterPath": "/workspaces/.venv/bin/python",
+        "python.terminal.activateEnvironment": true,
         "python.analysis.extraPaths": ["lambdas"],
         "python.testing.pytestEnabled": true,
         "python.testing.pytestArgs": ["lambdas"],
@@ -39,11 +38,16 @@
           "editor.defaultFormatter": "redhat.vscode-yaml"
         },
         "[python]": {
-          "editor.defaultFormatter": "charliermarsh.ruff"
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.codeActionsOnSave": {
+            "source.fixAll.ruff": "explicit",
+            "source.organizeImports.ruff": "explicit"
+          }
         }
       }
     }
   },
-  "updateContentCommand": "npm install -g serverless",
+  "updateContentCommand": "npm install -g serverless@3",
+  "postCreateCommand": "uv sync",
   "remoteUser": "node"
 }
