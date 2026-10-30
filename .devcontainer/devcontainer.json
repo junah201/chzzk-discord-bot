@@ -9,6 +9,9 @@
       "version": "3.12"
     }
   },
+  "remoteEnv": {
+    "PYTHONPATH": "${containerWorkspaceFolder}/lambdas"
+  },
   "containerEnv": {
     "AWS_DEFAULT_REGION": "ap-northeast-2",
     "AWS_REGION": "ap-northeast-2"
@@ -26,6 +29,9 @@
       ],
       "settings": {
         "editor.formatOnSave": true,
+        "python.analysis.extraPaths": ["lambdas"],
+        "python.testing.pytestEnabled": true,
+        "python.testing.pytestArgs": ["lambdas"],
         "[javascript]": {
           "editor.defaultFormatter": "esbenp.prettier-vscode"
         },

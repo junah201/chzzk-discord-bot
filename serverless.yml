@@ -15,6 +15,7 @@ provider:
   versionFunctions: false
   stage: prodV2
   environment:
+    PYTHONPATH: "/var/task/lambdas"
     DISCORD_PUBLIC_KEY: ${env:DISCORD_PUBLIC_KEY}
     DISCORD_TOKEN: ${env:DISCORD_TOKEN}
     DISCORD_CLIENT_ID: ${env:DISCORD_CLIENT_ID}
@@ -61,7 +62,7 @@ provider:
 
 functions:
   event_handler:
-    handler: lambdas/event_handler.handler
+    handler: lambdas/bot/event_handler.handler
     name: event_handler_v2
     description: Handle event from discord (slash command, interaction)
     events:
@@ -71,7 +72,7 @@ functions:
           cors: true
 
   admin_event_handler:
-    handler: lambdas/admin_event_handler.handler
+    handler: lambdas/bot/admin_event_handler.handler
     name: admin_event_handler
     description: Handle admin discord bot interactions and subscriptions
     events:
@@ -80,22 +81,8 @@ functions:
           method: post
           cors: true
 
-  live_check:
-    handler: lambdas/live_check.handler
-    name: live_check_v2
-    description: live check V2
-    timeout: 270
-
-  naver_session_renew:
-    handler: lambdas/naver_session_renew.handler
-    name: naver_session_renew_v2
-    description: 네이버 계정 세션 갱신
-    timeout: 60
-    events:
-      - schedule: rate(12 hours)
-
   discord_oauth2_redirect:
-    handler: lambdas/discord_oauth2_redirect.handler
+    handler: lambdas/api/auth/discord_oauth2_redirect.handler
     name: discord_oauth2_redirect_v2
     description: Handle OAuth2 redirect from discord
     events:
@@ -105,7 +92,7 @@ functions:
           cors: true
 
   discord_me:
-    handler: lambdas/discord_me.handler
+    handler: lambdas/api/auth/discord_me.handler
     name: discord_me_v2
     description: Get user information from discord
     events:
@@ -115,7 +102,7 @@ functions:
           cors: true
 
   discord_guilds:
-    handler: lambdas/discord_guilds.handler
+    handler: lambdas/api/guilds/discord_guilds.handler
     name: discord_guilds_v2
     description: Get guilds information from discord
     events:
@@ -125,7 +112,7 @@ functions:
           cors: true
 
   discord_guild_by_id:
-    handler: lambdas/discord_guild_by_id.handler
+    handler: lambdas/api/guilds/discord_guild_by_id.handler
     name: discord_guild_by_id_v2
     description: Get guild information by ID from discord
     events:
@@ -135,7 +122,7 @@ functions:
           cors: true
 
   get_guild_channels:
-    handler: lambdas/get_guild_channels.handler
+    handler: lambdas/api/guilds/get_guild_channels.handler
     name: get_guild_channels_v2
     description: 특정 ID의 디스코드 서버의 채널 목록을 가져옵니다. 만약 해당 서버가 존재하지 않거나 접근할 수 없는 경우 404를 반환합니다.
     events:
@@ -145,7 +132,7 @@ functions:
           cors: true
 
   post_notification:
-    handler: lambdas/post_notification.handler
+    handler: lambdas/api/notifications/post_notification.handler
     name: post_notification_v2
     description: 치지직 알림을 추가합니다.
     events:
@@ -155,7 +142,7 @@ functions:
           cors: true
 
   get_notification_by_guild_id:
-    handler: lambdas/get_notification_by_guild_id.handler
+    handler: lambdas/api/notifications/get_notification_by_guild_id.handler
     name: get_notification_by_guild_id_v2
     description: 특정 ID의 디스코드 서버의 알림 목록을 가져옵니다. 데이터가 없을 경우 빈 리스트를 반환합니다.
     events:
@@ -165,7 +152,7 @@ functions:
           cors: true
 
   delete_notification:
-    handler: lambdas/delete_notification.handler
+    handler: lambdas/api/notifications/delete_notification.handler
     name: delete_notification_v2
     description: 알림을 삭제합니다. 만약 해당 알림이 없으면 404를 반환합니다.
     events:
@@ -175,7 +162,7 @@ functions:
           cors: true
 
   send_test_notification:
-    handler: lambdas/send_test_notification.handler
+    handler: lambdas/api/notifications/send_test_notification.handler
     name: send_test_notification_v2
     description: 테스트 알림을 보냅니다.
     events:
@@ -185,7 +172,7 @@ functions:
           cors: true
 
   update_notification:
-    handler: lambdas/update_notification.handler
+    handler: lambdas/api/notifications/update_notification.handler
     name: update_notification_v2
     description: 알림을 수정합니다. 만약 해당 알림이 없으면 404를 반환합니다.
     events:
@@ -194,15 +181,29 @@ functions:
           method: put
           cors: true
 
+  live_check:
+    handler: lambdas/cron/live_check.handler
+    name: live_check_v2
+    description: live check V2
+    timeout: 270
+
+  naver_session_renew:
+    handler: lambdas/cron/naver_session_renew.handler
+    name: naver_session_renew_v2
+    description: 네이버 계정 세션 갱신
+    timeout: 60
+    events:
+      - schedule: rate(12 hours)
+
   sync_koreanbots_stats:
-    handler: lambdas/sync_koreanbots_stats.handler
+    handler: lambdas/cron/sync_koreanbots_stats.handler
     name: sync_koreanbots_stats_v2
     description: Sync KoreanBots stats
     events:
       - schedule: rate(12 hours)
 
   cleanup_orphan_chzzk_channels:
-    handler: lambdas/cleanup_orphan_chzzk_channels.handler
+    handler: lambdas/cron/cleanup_orphan_chzzk_channels.handler
     name: cleanup_orphan_chzzk_channels_v2
     description: Cleanup orphan chzzk channels and send report to discord channel
     timeout: 600
@@ -211,7 +212,7 @@ functions:
       - schedule: cron(30 20 L * ? *) # 매월 1일 5시 30분 (KST 기준) -> UTC 기준 11:30 PM (전날)
 
   weekly_report:
-    handler: lambdas/weekly_report.handler
+    handler: lambdas/cron/weekly_report.handler
     name: weekly_report_v2
     description: Send weekly report to discord channel
     timeout: 600
@@ -221,7 +222,7 @@ functions:
           enabled: true
 
   chzzk_unfollow:
-    handler: lambdas/chzzk_unfollow.handler
+    handler: lambdas/admin/chzzk_unfollow.handler
     name: chzzk_unfollow_v2
     description: 치지직 채널 팔로우 해제 (관리자 전용)
 
