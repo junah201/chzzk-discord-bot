@@ -5,8 +5,7 @@ import time
 from datetime import datetime, timedelta, timezone
 
 import boto3
-
-from lambdas.shared.discord.utils import send_message
+from shared.discord.utils import send_message
 
 ADMIN_DISCORD_TOKEN = os.environ.get("ADMIN_DISCORD_TOKEN")
 

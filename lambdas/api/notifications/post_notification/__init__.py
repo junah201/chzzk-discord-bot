@@ -1,8 +1,8 @@
 import json
 import logging
 
-from lambdas.post_notification.client import process_follow
-from lambdas.post_notification.service import (
+from api.notifications.post_notification.client import process_follow
+from api.notifications.post_notification.service import (
     check_guild_limit,
     get_naver_account,
     is_chzzk_registered,
