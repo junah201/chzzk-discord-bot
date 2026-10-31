@@ -11,14 +11,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Backend (repo root, Python managed by `uv`):
 
 ```bash
-uv sync                      # install deps (incl. dev group: ruff, boto3, pynacl)
+uv sync                      # install deps (incl. dev group: ruff, pytest, boto3, pynacl)
 sh scripts/format.sh         # ruff check --fix + ruff format
 serverless login             # once per machine; v4 needs a login for the `junah` org
 serverless deploy            # deploy all lambdas/infra (needs .env and the `chzzk` AWS profile)
 serverless deploy function -f live_check   # redeploy a single function
 ```
 
-There is no test suite yet (pytest is configured with `pythonpath`/`testpaths = lambdas`, so `uv run pytest lambdas/path/to/test_x.py` would work once tests exist).
+Tests (pytest, `pytest-mock`, `pytest-cov`):
+
+```bash
+uv run pytest                                            # all tests
+uv run pytest lambdas/tests/shared/test_utils.py         # one file
+uv run pytest --cov=lambdas --cov-report=term-missing    # with coverage (add --cov-report=html for htmlcov/)
+```
+
+- Tests live in `lambdas/tests/`, mirroring the `lambdas/` layout (`lambdas/shared/utils.py` → `lambdas/tests/shared/test_utils.py`). No `__init__.py` in test dirs; `--import-mode=importlib` keeps same-named test files apart. `serverless.yml` excludes `lambdas/tests/**` from the deploy package.
+- `lambdas/tests/conftest.py` overwrites AWS/Discord env vars with fake values before any module is imported (several modules create boto3 clients or read tokens at import time) and blocks real socket connections. Every external call (Discord, Chzzk, AWS) must be mocked: `responses` for `requests`, `moto` for DynamoDB (replace the module-level `dynamodb`/`table` objects created inside `mock_aws()`).
+- Use `monkeypatch` for env vars and plain attribute/dict swaps, and `mocker` (pytest-mock) for patching, spies, and call assertions; avoid importing `unittest.mock` directly.
+- Pin current behavior; if it looks like a bug, note it and fix it in a separate commit. There is no coverage threshold.
+- `tzdata` is a dev dependency because Windows has no system time zone data for `zoneinfo`.
 
 Frontend (`frontend/`, pnpm):
 
@@ -39,7 +51,7 @@ Frontend deploys automatically via `.github/workflows/frontend-deploy.yml` on pu
 - **DynamoDB** is a single table `chzzk-bot-db` (see schema below).
 - **Live detection works by following, not polling each channel.** There are 7 Naver accounts (index 0–6). `post_notification` assigns a channel to account `int(chzzk_id, 16) % 7` (probing forward if full) and makes that account follow the channel. `cron/live_check` runs every 5 minutes per account: one EventBridge rule per index (`live_check_trigger_for_N` in `serverless.yml` resources), and the handler derives the index from the rule name suffix in `event["resources"]`. It fetches the account's following list, finds `openLive` channels, and dispatches notifications via `shared.notification_dispatcher` (Discord bot message or custom webhook for subscribed guilds). Adding an account means adding a DynamoDB `NAVER#<n>` item, a new trigger + permission pair, and updating the `% 7` modulus.
 - Operational errors/reports are posted to internal Discord channels using `ADMIN_DISCORD_TOKEN`; channel IDs live in `serverless.yml` `provider.environment`. Secrets come from `.env`, which v4 loads automatically for `${env:...}`; it does not add variables to functions, so a new secret must also be listed under `provider.environment`.
-- **Packaging (`serverless.yml`):** `package.patterns` is a whitelist (`!**`, then `lambdas/**`), so new top-level files are never deployed. Runtime deps in `pyproject.toml` `dependencies` are bundled by v4's built-in Python requirements support (`custom.pythonRequirements`, via `uv.lock`; the dev group is excluded). PyNaCl is the exception: it ships as the prebuilt Lambda layer `custom.layers.pynacl` (python3.12/x86_64) attached only to `event_handler` and `admin_event_handler`, and is in the dev group for local use only. A function that newly imports `nacl` needs that layer too.
+- **Packaging (`serverless.yml`):** `package.patterns` is a whitelist (`!**`, then `lambdas/**`, minus `lambdas/tests/**`), so new top-level files and tests are never deployed. Runtime deps in `pyproject.toml` `dependencies` are bundled by v4's built-in Python requirements support (`custom.pythonRequirements`, via `uv.lock`; the dev group is excluded). PyNaCl is the exception: it ships as the prebuilt Lambda layer `custom.layers.pynacl` (python3.12/x86_64) attached only to `event_handler` and `admin_event_handler`, and is in the dev group for local use only. A function that newly imports `nacl` needs that layer too.
 - **IAM:** extra permissions go in `provider.iam.role.statements`. In plain strings use Serverless variables (`${aws:region}`, `${aws:accountId}`); CloudFormation pseudo parameters like `${AWS::AccountId}` only work inside `!Sub`/`Fn::Sub`.
 
 ## DynamoDB schema (`chzzk-bot-db`)
@@ -92,6 +104,7 @@ Gitmoji as used in this repo:
 | 🔊 | Add or improve logs | `🔊 Add timestamp to discord log payload` |
 | 💬 | User-facing text and messages | `💬 Enhance user-facing error messages for notification registration` |
 | 📝 | Docs (README, docs pages, blog posts) | `📝 Expand troubleshooting docs with new error cases` |
+| ✅ | Add or update tests | `✅ Add tests for shared utils` |
 | 🎨 | Formatting only (ruff, eslint) | `🎨 Ruff format` |
 | 🚚 | Move or rename files, directories, or routes | `🚚 Restructure lambdas by trigger type (api, cron, bot, admin)` |
 | 🔥 | Remove code, files, or dependencies | `🔥 Remove pydantic dependencies` |
