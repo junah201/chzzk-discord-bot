@@ -14,7 +14,7 @@ provider:
   versionFunctions: false
   stage: prodV2
   environment:
-    PYTHONPATH: "/var/task/lambdas"
+    PYTHONPATH: "/var/task/lambdas:/opt/python"
     DISCORD_PUBLIC_KEY: ${env:DISCORD_PUBLIC_KEY}
     DISCORD_TOKEN: ${env:DISCORD_TOKEN}
     DISCORD_CLIENT_ID: ${env:DISCORD_CLIENT_ID}
