@@ -8,7 +8,6 @@ from shared.exceptions import BadRequestError
 from shared.utils import build_response
 
 dynamodb = boto3.client("dynamodb")
-table = boto3.resource("dynamodb").Table("chzzk-bot-db")
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -26,32 +25,39 @@ def handler(event, context):
         raise BadRequestError()
 
     try:
-        # 알림 삭제
-        dynamodb.delete_item(
-            TableName="chzzk-bot-db",
-            Key={
-                "PK": {"S": f"CHZZK#{chzzk_id}"},
-                "SK": {"S": f"NOTI#{channel_id}"},
-            },
-            ConditionExpression="guild_id = :guild_id",
-            ExpressionAttributeValues={
-                ":guild_id": {"S": guild_id},
-            },
-        )
-
-        # 서버 알림 개수 감소
-        table.update_item(
-            Key={
-                "PK": f"GUILD#{guild_id}",
-                "SK": f"GUILD#{guild_id}",
-            },
-            UpdateExpression="SET current_count = if_not_exists(current_count, :one) - :dec",
-            ConditionExpression="current_count > :zero",
-            ExpressionAttributeValues={
-                ":dec": 1,
-                ":one": 1,
-                ":zero": 0,
-            },
+        # 알림 삭제와 서버 알림 개수 감소를 하나의 트랜잭션으로 처리
+        dynamodb.transact_write_items(
+            TransactItems=[
+                {
+                    "Delete": {
+                        "TableName": "chzzk-bot-db",
+                        "Key": {
+                            "PK": {"S": f"CHZZK#{chzzk_id}"},
+                            "SK": {"S": f"NOTI#{channel_id}"},
+                        },
+                        "ConditionExpression": "guild_id = :guild_id",
+                        "ExpressionAttributeValues": {
+                            ":guild_id": {"S": guild_id},
+                        },
+                    }
+                },
+                {
+                    "Update": {
+                        "TableName": "chzzk-bot-db",
+                        "Key": {
+                            "PK": {"S": f"GUILD#{guild_id}"},
+                            "SK": {"S": f"GUILD#{guild_id}"},
+                        },
+                        "UpdateExpression": "SET current_count = if_not_exists(current_count, :one) - :dec",
+                        "ConditionExpression": "current_count > :zero",
+                        "ExpressionAttributeValues": {
+                            ":dec": {"N": "1"},
+                            ":one": {"N": "1"},
+                            ":zero": {"N": "0"},
+                        },
+                    }
+                },
+            ]
         )
         logger.info(
             json.dumps(
@@ -66,7 +72,10 @@ def handler(event, context):
         )
 
     except ClientError as e:
-        if e.response["Error"]["Code"] == "ConditionalCheckFailedException":
+        if e.response["Error"]["Code"] == "TransactionCanceledException" and any(
+            reason.get("Code") == "ConditionalCheckFailed"
+            for reason in e.response.get("CancellationReasons", [])
+        ):
             return build_response(404, "알림을 찾을 수 없거나 권한이 없습니다.")
 
         logger.error(
