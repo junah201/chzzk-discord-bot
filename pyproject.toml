@@ -18,6 +18,10 @@ dev = [
     "pynacl>=1.6.2",
     "boto3>=1.43.119",
     "botocore[crt]>=1.43.119",
+    "pytest>=9.2.0",
+    "pytest-mock>=3.17.0",
+    "pytest-cov>=7.1.0",
+    "tzdata>=2026.6",
 ]
 
 [tool.ruff]
@@ -43,4 +47,8 @@ ignore = [
 
 [tool.pytest.ini_options]
 pythonpath = ["lambdas"]
-testpaths = ["lambdas"]
+testpaths = ["lambdas/tests"]
+addopts = "--import-mode=importlib"
+
+[tool.coverage.run]
+omit = ["lambdas/tests/*"]

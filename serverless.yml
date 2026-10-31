@@ -244,6 +244,7 @@ package:
   patterns:
     - "!**"
     - "lambdas/**"
+    - "!lambdas/tests/**"
     - "!**/__pycache__/**"
 
 resources:
