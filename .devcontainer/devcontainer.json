@@ -47,7 +47,7 @@
       }
     }
   },
-  "updateContentCommand": "npm install -g serverless@3",
+  "updateContentCommand": "npm install -g serverless@4",
   "postCreateCommand": "uv sync",
   "remoteUser": "node"
 }

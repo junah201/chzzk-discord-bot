@@ -1,7 +1,6 @@
 # "org" ensures this Service is used with the correct Serverless Framework License Key.
 org: junah
 service: chzzk
-useDotenv: true
 
 provider:
   name: aws
@@ -31,34 +30,45 @@ provider:
     ADMIN_DISCORD_USER_ID: ${env:ADMIN_DISCORD_USER_ID}
     ADMIN_DISCORD_TOKEN: ${env:ADMIN_DISCORD_TOKEN}
     KOREANBOTS_TOKEN: ${env:KOREANBOTS_TOKEN}
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:GetItem
-        - dynamodb:BatchGetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-        - dynamodb:Query
-        - dynamodb:TransactWriteItems
-        - dynamodb:Scan
-      Resource:
-        - "arn:aws:dynamodb:${aws:region}:${AWS::AccountId}:table/chzzk-bot-db"
-        - "arn:aws:dynamodb:${aws:region}:${AWS::AccountId}:table/chzzk-bot-db/index/*"
-    - Effect: Allow
-      Action:
-        - logs:StartQuery
-      Resource:
-        - "arn:aws:logs:${aws:region}:${AWS::AccountId}:log-group:/aws/lambda/post_notification_v2:*"
-        - "arn:aws:logs:${aws:region}:${AWS::AccountId}:log-group:/aws/lambda/delete_notification_v2:*"
-        - "arn:aws:logs:${aws:region}:${AWS::AccountId}:log-group:/aws/lambda/update_notification_v2:*"
-        - "arn:aws:logs:${aws:region}:${AWS::AccountId}:log-group:/aws/lambda/live_check_v2:*"
-        - "arn:aws:logs:${aws:region}:${AWS::AccountId}:log-group:/aws/lambda/sync_koreanbots_stats_v2:*"
-    - Effect: Allow
-      Action:
-        - logs:GetQueryResults
-        - logs:StopQuery
-      Resource: "*"
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:GetItem
+            - dynamodb:BatchGetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:Query
+            - dynamodb:TransactWriteItems
+            - dynamodb:Scan
+          Resource:
+            - "arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/chzzk-bot-db"
+            - "arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/chzzk-bot-db/index/*"
+        - Effect: Allow
+          Action:
+            - logs:StartQuery
+          Resource:
+            - "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/post_notification_v2:*"
+            - "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/delete_notification_v2:*"
+            - "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/update_notification_v2:*"
+            - "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/live_check_v2:*"
+            - "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/sync_koreanbots_stats_v2:*"
+        - Effect: Allow
+          Action:
+            - logs:GetQueryResults
+            - logs:StopQuery
+          Resource: "*"
+
+custom:
+  layers:
+    pynacl: "arn:aws:lambda:ap-northeast-2:897699718511:layer:pynacl:1"
+
+  pythonRequirements:
+    useUv: true
+    installer: uv
+    slim: true
 
 functions:
   event_handler:
@@ -70,6 +80,8 @@ functions:
           path: event
           method: post
           cors: true
+    layers:
+      - ${self:custom.layers.pynacl}
 
   admin_event_handler:
     handler: lambdas/bot/admin_event_handler.handler
@@ -80,6 +92,8 @@ functions:
           path: admin/event
           method: post
           cors: true
+    layers:
+      - ${self:custom.layers.pynacl}
 
   discord_oauth2_redirect:
     handler: lambdas/api/auth/discord_oauth2_redirect.handler
@@ -227,23 +241,10 @@ functions:
     description: 치지직 채널 팔로우 해제 (관리자 전용)
 
 package:
-  include:
+  patterns:
+    - "!**"
     - "lambdas/**"
-    - "shared/**"
-    - "requirements.txt"
-  exclude:
-    - "node_modules/**"
-    - ".venv/**"
-    - ".git/**"
-    - ".github/**"
-    - "frontend/**"
-    - "scripts/**"
-    - "serverless.yml"
-    - ".serverless/**"
-    - ".pnpm-store/**"
-    - ".devcontainer/**"
-    - ".ruff_cache/**"
-    - ".claude/**"
+    - "!**/__pycache__/**"
 
 resources:
   Resources:
@@ -684,12 +685,3 @@ resources:
                     - cloudfront:CreateInvalidation
                   Resource:
                     - Fn::Sub: "arn:aws:cloudfront::${AWS::AccountId}:distribution/${ReactAppCloudFrontDistribution}"
-
-custom:
-  pythonRequirements:
-    useUv: true
-    installer: uv
-    slim: true
-
-plugins:
-  - serverless-dotenv-plugin

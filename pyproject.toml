@@ -8,7 +8,6 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "pynacl>=1.6.2",
     "requests>=2.34.2",
     "user-agent>=0.1.14",
 ]
@@ -16,6 +15,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ruff>=0.6.7",
+    "pynacl>=1.6.2",
     "boto3>=1.43.119",
     "botocore[crt]>=1.43.119",
 ]
