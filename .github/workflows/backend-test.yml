@@ -1,0 +1,50 @@
+name: Backend Tests
+
+on:
+  pull_request:
+    paths:
+      - "lambdas/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/backend-test.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "lambdas/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/backend-test.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Check formatting
+        run: uv run ruff format --check lambdas
+
+      - name: Run tests
+        run: uv run pytest --cov=lambdas --cov-report=term-missing

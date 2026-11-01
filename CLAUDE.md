@@ -31,6 +31,7 @@ uv run pytest --cov=lambdas --cov-report=term-missing    # with coverage (add --
 - Use `monkeypatch` for env vars and plain attribute/dict swaps, and `mocker` (pytest-mock) for patching, spies, and call assertions; avoid importing `unittest.mock` directly.
 - Pin current behavior; if it looks like a bug, note it and fix it in a separate commit. There is no coverage threshold.
 - `tzdata` is a dev dependency because Windows has no system time zone data for `zoneinfo`.
+- CI: `.github/workflows/backend-test.yml` runs `ruff format --check lambdas` and the full pytest suite with coverage on PRs and pushes to `main` that touch `lambdas/**`, `pyproject.toml`, or `uv.lock`.
 
 Frontend (`frontend/`, pnpm):
 
