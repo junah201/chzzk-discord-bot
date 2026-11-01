@@ -1,6 +1,8 @@
 import json
 
 import pytest
+import requests
+import responses
 from shared import notification_dispatcher
 from shared.notification_dispatcher import (
     DEFAULT_EMBED_COLOR,
@@ -272,3 +274,66 @@ class TestSendNotificationMessage:
             "status_code": status_code,
             "response_text": "Unknown Webhook",
         }
+
+
+class TestSendWebhook:
+    @pytest.fixture
+    def log_error(self, mocker):
+        return mocker.patch.object(notification_dispatcher.logger, "error")
+
+    @pytest.mark.parametrize("status", [200, 204])
+    def test_success(self, mocker, mock_requests, log_error, status):
+        mock_requests.add(responses.POST, WEBHOOK_URL, status=status)
+        spy = mocker.spy(notification_dispatcher.requests, "post")
+
+        res = notification_dispatcher._send_webhook(WEBHOOK_URL, MESSAGE)
+
+        assert res.status_code == status
+        request = mock_requests.calls[0].request
+        assert request.headers["Content-Type"] == "application/json"
+        assert json.loads(request.body) == MESSAGE
+        assert spy.call_args.kwargs["timeout"] == 5
+        log_error.assert_not_called()
+
+    @pytest.mark.parametrize("status", [400, 404, 429, 500])
+    def test_http_error_is_returned_as_is(self, mock_requests, log_error, status):
+        mock_requests.add(
+            responses.POST,
+            WEBHOOK_URL,
+            json={"message": "Unknown Webhook"},
+            status=status,
+        )
+
+        res = notification_dispatcher._send_webhook(WEBHOOK_URL, MESSAGE)
+
+        assert res.status_code == status
+        log_error.assert_not_called()
+
+    @pytest.mark.parametrize(
+        "error",
+        [
+            requests.exceptions.ReadTimeout("read timed out"),
+            requests.exceptions.ConnectionError("connection refused"),
+            requests.exceptions.InvalidURL("invalid url"),
+        ],
+        ids=["timeout", "connection-error", "invalid-url"],
+    )
+    def test_request_exception_returns_599(self, mock_requests, log_error, error):
+        mock_requests.add(responses.POST, WEBHOOK_URL, body=error)
+
+        res = notification_dispatcher._send_webhook(WEBHOOK_URL, MESSAGE)
+
+        assert isinstance(res, requests.Response)
+        assert res.status_code == 599
+        assert res.text == str(error)
+        assert json.loads(log_error.call_args.args[0]) == {
+            "type": "DISCORD_WEBHOOK_REQUEST_ERROR",
+            "error": str(error),
+        }
+
+    def test_non_request_exception_propagates(self, mock_requests):
+        # 현재 동작: requests 예외가 아닌 오류는 599로 바꾸지 않고 그대로 던진다.
+        mock_requests.add(responses.POST, WEBHOOK_URL, body=RuntimeError("boom"))
+
+        with pytest.raises(RuntimeError):
+            notification_dispatcher._send_webhook(WEBHOOK_URL, MESSAGE)
