@@ -58,7 +58,7 @@ class TestBuildResponse:
         assert build_response(200) == {"statusCode": 200, "body": "{}"}
 
     def test_data_replaces_message(self):
-        # 현재 동작: data가 있으면 message는 body에서 빠진다.
+        # 의도한 동작: data가 있으면 message는 body에서 빠진다.
         res = build_response(200, "msg", {"a": 1})
         assert json.loads(res["body"]) == {"a": 1}
 

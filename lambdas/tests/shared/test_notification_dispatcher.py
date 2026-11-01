@@ -262,7 +262,7 @@ class TestSendNotificationMessage:
         )
 
         assert res is failed
-        # 현재 동작: 웹훅이 실패해도 봇 메시지로 대체 전송하지 않는다.
+        # 의도한 동작: 웹훅이 실패해도 봇 메시지로 대체 전송하지 않는다.
         send_message.assert_not_called()
         log_error.assert_called_once()
         assert json.loads(log_error.call_args.args[0]) == {
