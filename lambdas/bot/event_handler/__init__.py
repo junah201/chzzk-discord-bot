@@ -15,7 +15,7 @@ logger.setLevel(logging.INFO)
 
 
 @middleware(logger)
-def handler(event, context):
+def handler(event, _context):
     # verify the signature
     try:
         raw_body = event["body"]

@@ -27,7 +27,7 @@ table = dynamodb_resource.Table(table_name)
 
 
 @middleware(logger)
-def handler(event, context):
+def handler(event, _context):
     # 서명 검증
     try:
         raw_body = event["body"]

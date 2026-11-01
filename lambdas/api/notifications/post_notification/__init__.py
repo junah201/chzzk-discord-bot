@@ -23,7 +23,7 @@ logger.setLevel(logging.INFO)
 
 
 @middleware(logger, admin_check=True)
-def handler(event, context):
+def handler(event, _context):
     headers = event.get("headers", {})
     token = headers.get("Authorization")
     body = json.loads(event.get("body", "{}"))

@@ -355,7 +355,7 @@ def send_notification(chzzk_id: str, index: int):
 
 
 @middleware(logger)
-def handler(event, context):
+def handler(event, _context):
     index = int(event.get("resources", [])[0].split("_")[-1])
 
     res = table.get_item(Key={"PK": "NAVER#ACCOUNTS", "SK": f"NAVER#{index}"})

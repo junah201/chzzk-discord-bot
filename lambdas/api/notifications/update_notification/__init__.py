@@ -19,7 +19,7 @@ logger.setLevel(logging.INFO)
 
 
 @middleware(logger, admin_check=True)
-def handler(event, context):
+def handler(event, _context):
     body = json.loads(event.get("body", "{}"))
 
     chzzk_id = body.get("chzzk_id")

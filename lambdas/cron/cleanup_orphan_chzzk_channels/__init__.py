@@ -416,7 +416,7 @@ def send_discord_report(
         )
 
 
-def handler(event, context):
+def handler(event, _context):
     global metrics
 
     try:

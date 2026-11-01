@@ -357,7 +357,7 @@ def send_error_alert(error: Exception):
         )
 
 
-def handler(event, context):
+def handler(event, _context):
     try:
         start, end = get_week_range(event)
         report = build_report(start, end)

@@ -39,7 +39,7 @@ session.headers.update({"Authorization": f"Bot {DISCORD_TOKEN}"})
 
 
 @middleware(logger, admin_check=True)
-def handler(event, context):
+def handler(event, _context):
     guild_id = event.get("pathParameters", {}).get("guild_id", None)
 
     if not guild_id:

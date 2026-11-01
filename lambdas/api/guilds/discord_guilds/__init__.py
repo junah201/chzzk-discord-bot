@@ -21,7 +21,7 @@ table = dynamodb_resource.Table(table_name)
 
 
 @middleware(logger, admin_check=False)
-def handler(event, context):
+def handler(event, _context):
     headers = event.get("headers", {})
     token = headers.get("Authorization", None)
 

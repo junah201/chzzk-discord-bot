@@ -14,7 +14,7 @@ table = boto3.resource("dynamodb").Table("chzzk-bot-db")
 
 
 @middleware(logger)
-def handler(event, context):
+def handler(event, _context):
     chzzk_id = event.get("chzzk_id", None)
     index = event.get("index", None)
 

@@ -12,7 +12,7 @@ logger.setLevel(logging.INFO)
 
 
 @middleware(logger)
-def handler(event, context):
+def handler(event, _context):
     # get authorization header
     headers = event.get("headers", {})
     token = headers.get("Authorization", None)

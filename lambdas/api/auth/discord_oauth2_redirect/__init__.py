@@ -17,7 +17,7 @@ DISCORD_CLIENT_SECRET = os.environ.get("DISCORD_CLIENT_SECRET")
 
 
 @middleware(logger)
-def handler(event, context):
+def handler(event, _context):
     body = json.loads(event.get("body", "{}"))
     code = body.get("code", None)
 

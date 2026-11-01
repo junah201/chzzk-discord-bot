@@ -17,7 +17,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-def handler(event, context):
+def handler(event, _context):
     # 디스코드 API에서 봇 정보 및 서버 수 조회
     try:
         discord_res = requests.get(

@@ -24,7 +24,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-def handler(_event, context):
+def handler(_event, _context):
     res = dynamodb.query(
         TableName="chzzk-bot-db",
         KeyConditionExpression="#pk = :val",
