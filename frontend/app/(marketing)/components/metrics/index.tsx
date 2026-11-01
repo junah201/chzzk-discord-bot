@@ -50,7 +50,7 @@ export function Metrics() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section id="metrics" className="py-20 sm:py-32 relative overflow-hidden">
+    <section id="metrics" className="py-16 sm:py-20 relative overflow-hidden">
       <GlowEffect
         variant="static"
         className="top-1/2 left-0 w-96 h-96 -translate-y-1/2"
@@ -106,8 +106,9 @@ export function Metrics() {
         {/* Bottom CTA */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
           className="text-center mt-16"
         >
           <p className="text-muted-foreground mb-6">

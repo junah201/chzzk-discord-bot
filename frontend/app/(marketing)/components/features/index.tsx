@@ -44,7 +44,7 @@ export function Features() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section id="features" className="py-20 sm:py-32 relative overflow-hidden">
+    <section id="features" className="py-16 sm:py-20 relative overflow-hidden">
       {/* 상단 Primary Glow */}
       <GlowEffect
         variant="breathing" // 원하시면 'static' 또는 'pulse'로 변경 가능

@@ -14,7 +14,7 @@ export function Pricing() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section id="pricing" className="py-20 sm:py-32 relative overflow-hidden">
+    <section id="pricing" className="py-16 sm:py-20 relative overflow-hidden">
       <GlowEffect
         variant="breathing"
         className="top-1/2 left-1/4 w-96 h-96 bg-primary/5"
@@ -60,7 +60,7 @@ export function Pricing() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 lg:gap-8 max-w-7xl mx-auto">
           {pricingPlans.map((plan, index) => (
             <PricingCard key={plan.name} plan={plan} index={index} />
           ))}
@@ -68,8 +68,9 @@ export function Pricing() {
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
           className="text-center mt-16"
         >
           <p className="text-muted-foreground mb-6">

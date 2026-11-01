@@ -82,7 +82,7 @@ export default function PricingCard({ plan, index }: PricingCardProps) {
 
         {/* Plan Info */}
         <CardHeader className="px-0 pt-0 pb-4">
-          <CardTitle className="text-2xl font-bold text-foreground mb-2">
+          <CardTitle className="text-2xl xl:text-xl font-bold text-foreground mb-2 break-keep">
             {plan.name}
           </CardTitle>
           <CardTitle className="text-lg font-semibold text-primary mb-1">
