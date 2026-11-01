@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { useNotificationActions } from "@/hooks/use-notifications";
 import { Notification } from "@/types/api";
 import NotificationForm from "./notification-form";
+import NotificationPreviewPanel from "./notification-preview-panel";
 
 interface EditNotificationDialogProps {
   notification: Notification;
@@ -72,19 +73,28 @@ export default function EditNotificationDialog({
           <span className="text-xs font-medium">수정</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="@container max-h-[90vh] overflow-y-auto sm:max-w-2xl lg:max-w-6xl">
         <DialogHeader>
           <DialogTitle>알림 설정 수정</DialogTitle>
           <DialogDescription>저장된 알림 설정을 변경합니다.</DialogDescription>
         </DialogHeader>
 
-        <div className="py-4">
+        <div className="grid gap-8 py-4 @5xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
           <NotificationForm
             serverId={notification.guild_id}
             control={control}
             isEdit
             isSubscription={isSubscription}
           />
+          <div className="@5xl:sticky @5xl:top-0 @5xl:self-start">
+            <NotificationPreviewPanel
+              serverId={notification.guild_id}
+              control={control}
+              isSubscription={isSubscription}
+              chzzkName={notification.chzzk_name}
+              chzzkImageUrl={notification.chzzk_image_url}
+            />
+          </div>
         </div>
 
         <div className="flex justify-end gap-2">

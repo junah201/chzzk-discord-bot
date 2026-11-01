@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import NotificationForm from "./notification-form";
+import NotificationPreviewPanel from "./notification-preview-panel";
 import { Card, CardContent } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -47,32 +48,41 @@ export default function AddNotificationForm({
           </p>
         </div>
       </div>
-      <Card className="bg-card border-border transition-all duration-300 group hover:border-primary/50 h-full flex flex-col z-10">
-        <CardContent className="flex flex-col gap-4">
-          <NotificationForm
-            serverId={serverId}
-            control={control}
-            isSubscription={isSubscription}
-          />
-          <Button
-            onClick={handleSubmit((data) =>
-              add.mutate(data, {
-                onSuccess: () => {
-                  reset();
-                },
-              }),
-            )}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            disabled={add.isPending}
-          >
-            {add.isPending ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <Plus className="w-3.5 h-3.5" />
-            )}
-            알림 추가
-          </Button>
+      <Card className="bg-card border-border transition-all duration-300 group hover:border-primary/50 h-full flex flex-col z-10 @container">
+        <CardContent className="grid gap-8 @5xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
+          <div className="flex flex-col gap-4">
+            <NotificationForm
+              serverId={serverId}
+              control={control}
+              isSubscription={isSubscription}
+            />
+            <Button
+              onClick={handleSubmit((data) =>
+                add.mutate(data, {
+                  onSuccess: () => {
+                    reset();
+                  },
+                }),
+              )}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              disabled={add.isPending}
+            >
+              {add.isPending ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Plus className="w-3.5 h-3.5" />
+              )}
+              알림 추가
+            </Button>
+          </div>
+          <div className="@5xl:sticky @5xl:top-6 @5xl:self-start">
+            <NotificationPreviewPanel
+              serverId={serverId}
+              control={control}
+              isSubscription={isSubscription}
+            />
+          </div>
         </CardContent>
       </Card>
     </motion.div>

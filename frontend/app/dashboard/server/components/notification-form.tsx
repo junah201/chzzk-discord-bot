@@ -9,20 +9,22 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { Control } from "react-hook-form";
 
+export interface NotificationFormValues {
+  chzzk_id: string;
+  channel_id: string;
+  guild_id: string;
+  custom_message: string;
+  webhook_url: string;
+  embed_color: string;
+  disable_embed: boolean;
+  disable_tag: boolean;
+  disable_button: boolean;
+  disable_notification: boolean;
+}
+
 interface NotificationFormProps {
   serverId: string;
-  control: Control<{
-    chzzk_id: string;
-    channel_id: string;
-    guild_id: string;
-    custom_message: string;
-    webhook_url: string;
-    embed_color: string;
-    disable_embed: boolean;
-    disable_tag: boolean;
-    disable_button: boolean;
-    disable_notification: boolean;
-  }>;
+  control: Control<NotificationFormValues>;
   isEdit?: boolean;
   isSubscription?: boolean;
 }

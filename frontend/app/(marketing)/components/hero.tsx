@@ -3,9 +3,9 @@
 import { motion } from "motion/react";
 import { ArrowRight, LayoutDashboard, Sparkles } from "lucide-react";
 import { LinkButton } from "@/components/ui/link-button";
-import { Logo } from "@/components/ui/logo";
 import { GlowEffect } from "@/components/ui/glow-effect";
 import routeMap from "@/constants/route-map";
+import { HeroNotification } from "./hero-notification";
 
 export function Hero() {
   return (
@@ -100,86 +100,14 @@ export function Hero() {
             </LinkButton>
           </motion.div>
 
-          {/* Floating Cards Animation */}
+          {/* Notification Preview */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="mt-20 relative"
+            className="mt-20"
           >
-            <div className="relative max-w-4xl mx-auto">
-              {/* Mock Discord Notification */}
-              <motion.div
-                className="relative bg-linear-to-br from-card to-card/50 backdrop-blur-xl border border-border rounded-2xl p-6 shadow-2xl"
-                animate={{
-                  y: [0, -10, 0],
-                }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-                    <Logo size="sm" showText={false} />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="font-semibold">치직 봇</span>
-                      <span className="px-2 py-0.5 bg-primary/20 text-primary text-xs rounded">
-                        봇
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        방금 전
-                      </span>
-                    </div>
-                    <div className="bg-secondary/50 rounded-lg p-4 border-l-4 border-primary">
-                      <p className="text-sm font-semibold mb-1">
-                        🔴 방송 시작!
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        <span className="text-foreground">스트리머님</span>이
-                        방송을 시작했습니다!
-                      </p>
-                      <div className="mt-3 flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                        <span className="text-xs text-muted-foreground">
-                          LIVE
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Decorative Elements */}
-              <motion.div
-                className="absolute -top-4 -right-4 w-24 h-24 bg-primary/20 rounded-full blur-2xl"
-                animate={{
-                  scale: [1, 1.2, 1],
-                  opacity: [0.3, 0.5, 0.3],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              />
-              <motion.div
-                className="absolute -bottom-4 -left-4 w-32 h-32 bg-emerald-500/20 rounded-full blur-2xl"
-                animate={{
-                  scale: [1, 1.3, 1],
-                  opacity: [0.3, 0.5, 0.3],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 1.5,
-                }}
-              />
-            </div>
+            <HeroNotification />
           </motion.div>
         </div>
       </div>
