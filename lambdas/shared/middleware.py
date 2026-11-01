@@ -31,11 +31,17 @@ def middleware(logger: logging.Logger | None = None, admin_check: bool = False):
                         logger.info(json.dumps({"type": "MISSING_TOKEN"}))
                         raise UnauthorizedError()
 
-                    guild_id = (event.get("pathParameters", {}) or {}).get(
-                        "guild_id", None
-                    ) or (json.loads(event.get("body", "{}")) or {}).get(
-                        "guild_id", None
-                    )
+                    guild_id = (event.get("pathParameters") or {}).get("guild_id")
+
+                    if not guild_id:
+                        # API Gateway는 body가 없으면 "body": null을 보낸다.
+                        try:
+                            body = json.loads(event.get("body") or "{}")
+                        except json.JSONDecodeError:
+                            logger.info(json.dumps({"type": "INVALID_JSON_BODY"}))
+                            raise BadRequestError()
+                        if isinstance(body, dict):
+                            guild_id = body.get("guild_id")
 
                     if guild_id is None:
                         logger.info(json.dumps({"type": "MISSING_GUILD_ID"}))

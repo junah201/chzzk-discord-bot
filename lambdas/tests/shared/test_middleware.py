@@ -176,6 +176,11 @@ class TestAdminCheck:
             {"pathParameters": None, "body": "{}"},
             {"pathParameters": None, "body": "null"},
             {"pathParameters": {"guild_id": None}, "body": json.dumps({"x": 1})},
+            {"pathParameters": None, "body": None},
+            {"pathParameters": None, "body": ""},
+            {"pathParameters": None, "body": "not-json"},
+            {"pathParameters": None, "body": "[1, 2]"},
+            {"pathParameters": None, "body": '"123"'},
         ],
         ids=[
             "no-path-no-body",
@@ -183,6 +188,11 @@ class TestAdminCheck:
             "empty-body",
             "null-json-body",
             "no-guild-in-either",
+            "body-none",
+            "body-empty-string",
+            "invalid-json",
+            "json-array",
+            "json-string",
         ],
     )
     def test_missing_guild_id_is_400(self, logger, handler, is_admin, overrides):
@@ -193,20 +203,11 @@ class TestAdminCheck:
         is_admin.assert_not_called()
         handler.assert_not_called()
 
-    @pytest.mark.parametrize(
-        "body", [None, "not-json"], ids=["body-none", "invalid-json"]
-    )
-    def test_unparsable_body_without_path_guild_id_is_500(
-        self, logger, handler, is_admin, body
-    ):
-        # 현재 동작: body가 None(API Gateway의 GET 요청)이거나 JSON이 아니면 400이 아니라 500이 된다.
-        res = self.wrap(logger, handler)(
-            admin_event(pathParameters=None, body=body), None
-        )
+    def test_body_is_not_parsed_when_path_has_guild_id(self, logger, handler, is_admin):
+        res = self.wrap(logger, handler)(admin_event(body="not-json"), None)
 
-        assert res["statusCode"] == 500
-        is_admin.assert_not_called()
-        handler.assert_not_called()
+        assert res["statusCode"] == 200
+        is_admin.assert_called_once_with("123", "Bearer token")
 
     def test_rate_limited_is_429_with_retry_after(self, logger, handler, is_admin):
         is_admin.return_value = AdminCheckResult(
