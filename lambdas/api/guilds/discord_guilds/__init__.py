@@ -1,13 +1,14 @@
 import json
 import logging
-import time
 
 import boto3
-import requests
 from shared import middleware
-from shared.discord import PartialGuild
-from shared.discord.utils import DISCORD_USER_GUILDS_URL
-from shared.exceptions import DiscordApiError, RateLimitError, UnauthorizedError
+from shared.discord.utils import get_admin_guilds
+from shared.exceptions import (
+    DiscordApiUnavailableError,
+    RateLimitError,
+    UnauthorizedError,
+)
 from shared.utils import build_response, pick
 
 logger = logging.getLogger()
@@ -28,53 +29,22 @@ def handler(event, context):
         logger.info(json.dumps({"type": "MISSING_TOKEN"}))
         raise UnauthorizedError()
 
-    retry = 2
-    for _retry_count in range(1, retry + 1):
-        res = requests.get(
-            DISCORD_USER_GUILDS_URL,
-            headers={"Authorization": token},
-            params={"with_counts": "true"},
-        )
+    result = get_admin_guilds(token, with_counts=True, retry=2)
 
-        if res.status_code == 429:
-            data = res.json()
-            time.sleep(data["retry_after"] + 0.1)
-            continue
-        break
+    if result.guilds is None:
+        log_data = {
+            "status_code": result.status_code,
+            "error_message": result.error_message,
+        }
+        if result.status_code == 429:
+            logger.info(json.dumps({"type": "RATE_LIMITED", **log_data}))
+            raise RateLimitError(retry_after=result.retry_after)
 
-    if res.status_code == 429:
-        logger.info(
-            json.dumps(
-                {
-                    "type": "RATE_LIMITED",
-                    "status_code": res.status_code,
-                    "response": res.text,
-                }
-            )
-        )
-        raise RateLimitError(retry_after=data["retry_after"])
+        logger.error(json.dumps({"type": "GET_ADMIN_GUILDS_FAILED", **log_data}))
+        raise DiscordApiUnavailableError()
 
-    if res.status_code != 200:
-        logger.error(
-            json.dumps(
-                {
-                    "type": "INVALID_TOKEN",
-                    "status_code": res.status_code,
-                    "response": res.text,
-                }
-            )
-        )
-        raise DiscordApiError(res)
-
-    data: list[PartialGuild] = res.json()
-
-    # 관리자 권한을 가진 서버만 필터링
     ALLOWED_KEYS = {"id", "name", "icon", "description", "approximate_member_count"}
-    admin_guilds = [
-        pick(guild, ALLOWED_KEYS)
-        for guild in data
-        if (int(guild["permissions"]) & 0x8) == 0x8
-    ]
+    admin_guilds = [pick(guild, ALLOWED_KEYS) for guild in result.guilds]
 
     if not admin_guilds:
         return build_response(200, data=[])
