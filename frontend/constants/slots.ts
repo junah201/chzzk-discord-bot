@@ -1,0 +1,2 @@
+export const DEFAULT_SLOT_LIMIT = 5;
+export const SUBSCRIPTION_SLOT_LIMIT = 250;

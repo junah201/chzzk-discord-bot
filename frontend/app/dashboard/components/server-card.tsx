@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LinkButton } from "@/components/ui/link-button";
 import routeMap from "@/constants/route-map";
+import { DEFAULT_SLOT_LIMIT } from "@/constants/slots";
 import { getDiscordIconUrl } from "@/lib/urls";
 import { Guild } from "@/types/api";
 import { Bell, Users } from "lucide-react";
@@ -39,7 +40,7 @@ export function ServerCard({ server }: ServerCardProps) {
             <div className="flex items-center gap-2 text-muted-foreground shrink-0">
               <Bell className="w-4 h-4" />
               <span>
-                알림: {server.current_count || 0} / {server.max_limit || 5}개
+                알림: {server.current_count || 0} / {server.max_limit || DEFAULT_SLOT_LIMIT}개
               </span>
             </div>
           </div>
