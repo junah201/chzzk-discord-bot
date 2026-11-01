@@ -134,6 +134,46 @@ export default function TroubleshootingPage() {
           </li>
         </ul>
       </PolicyCallout>
+      <PolicyCallout
+        variant="warning"
+        title="유효한 디스코드 웹훅 URL을 입력해주세요."
+      >
+        <ul className="mb-0">
+          <li>
+            디스코드 채널 설정의 <strong>연동 → 웹후크</strong>에서{" "}
+            <strong>웹후크 URL 복사</strong>를 누르고, 복사한 URL을 그대로 붙여
+            넣어 주세요.
+          </li>
+          <li>
+            URL은 <code>https://discord.com/api/webhooks/</code>로 시작해야
+            합니다. <code>ptb.discord.com</code>이나{" "}
+            <code>canary.discord.com</code>으로 시작하면 그 부분을{" "}
+            <code>discord.com</code>으로 바꿔 주세요.
+          </li>
+        </ul>
+      </PolicyCallout>
+      <PolicyCallout variant="warning" title="디스코드 웹훅을 찾을 수 없습니다.">
+        <ul className="mb-0">
+          <li>
+            웹훅이 삭제되었거나 URL이 일부만 복사된 경우입니다. 디스코드에서
+            웹훅이 남아 있는지 확인하고, <strong>웹후크 URL 복사</strong>로
+            다시 복사해 붙여 넣어 주세요.
+          </li>
+          <li>
+            등록해 둔 웹훅을 디스코드에서 지웠다면 다른 설정을 바꿀 때도 이
+            오류가 납니다. 새 웹훅 URL을 넣거나 웹훅 칸을 비운 뒤 저장해 주세요.
+          </li>
+        </ul>
+      </PolicyCallout>
+      <PolicyCallout variant="warning" title="다른 디스코드 서버의 웹훅입니다.">
+        <ul className="mb-0">
+          <li>
+            커스텀 웹훅은 <strong>알림을 등록하는 서버에서 만든 웹훅</strong>만
+            쓸 수 있습니다.
+          </li>
+          <li>그 서버의 채널에서 웹훅을 새로 만들어 URL을 입력해 주세요.</li>
+        </ul>
+      </PolicyCallout>
       <h2>알림 전송 관련 오류</h2>
       <PolicyCallout
         variant="warning"

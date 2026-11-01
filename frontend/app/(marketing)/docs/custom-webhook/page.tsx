@@ -35,6 +35,10 @@ export default function CustomWebhookPage() {
           </a>
           를 참고해 주세요. 웹훅을 만든 뒤 URL을 복사해 둡니다.
         </li>
+        <li>
+          웹훅은 <strong>알림을 등록하는 서버</strong>에서 만들어야 합니다.
+          다른 서버에서 만든 웹훅은 등록할 수 없습니다.
+        </li>
       </ul>
 
       {/* 설정 단계 */}
@@ -76,6 +80,16 @@ export default function CustomWebhookPage() {
           전송됩니다.
         </p>
       </PolicyCallout>
+      <p>
+        웹훅을 저장할 때 오류가 나면{" "}
+        <Link
+          href={routeMap.DOCS.TROUBLESHOOTING}
+          className="text-primary hover:underline font-medium"
+        >
+          문제 해결 문서
+        </Link>
+        에서 오류 메시지를 찾아보세요.
+      </p>
     </DocsContainer>
   );
 }
