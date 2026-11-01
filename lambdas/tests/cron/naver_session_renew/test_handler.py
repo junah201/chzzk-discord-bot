@@ -2,6 +2,7 @@ import importlib
 import json
 
 import pytest
+import requests
 import responses
 
 naver_session_renew = importlib.import_module("cron.naver_session_renew")
@@ -105,6 +106,10 @@ class TestRenewed:
 
         request = mock_requests.calls[0].request
         assert request.headers["Cookie"] == f"NID_AUT={NID_AUT}; NID_SES={NID_SES}"
+        assert (
+            request.req_kwargs["timeout"]
+            == naver_session_renew.NAVER_REQUEST_TIMEOUT_SEC
+        )
 
     def test_renews_every_account_in_order(self, ddb, mock_requests, logs, sleep):
         put_account(ddb.table, index=1)
@@ -200,3 +205,33 @@ class TestRenewFailed:
         assert get_account(ddb.table, 0)["NID_SES"] == NID_SES
         assert get_account(ddb.table, 1)["NID_SES"] == "NEW_SESSION_FOR_SECOND_ACCOUNT"
         send_message.assert_called_once()
+
+    @pytest.mark.parametrize(
+        "error",
+        [
+            requests.exceptions.ReadTimeout("read timed out"),
+            requests.exceptions.ConnectionError("connection refused"),
+        ],
+        ids=["timeout", "connection-error"],
+    )
+    def test_network_error_does_not_block_others(
+        self, ddb, mock_requests, logs, send_message, error
+    ):
+        put_account(ddb.table, index=0)
+        put_account(ddb.table, index=1)
+        mock_requests.add(responses.GET, USER_STATUS_URL, body=error)
+        add_user_status(mock_requests, "NEW_SESSION_FOR_SECOND_ACCOUNT")
+
+        result = naver_session_renew.handler({}, None)
+
+        assert [r["NEW_NID_SES"] for r in result] == ["error", "NEW_...OUNT"]
+        assert get_account(ddb.table, 0)["NID_SES"] == NID_SES
+        assert get_account(ddb.table, 1)["NID_SES"] == "NEW_SESSION_FOR_SECOND_ACCOUNT"
+        log = logged(logs["error"], "NAVER_SESSION_RENEW_REQUEST_ERROR")
+        assert log == {
+            "type": "NAVER_SESSION_RENEW_REQUEST_ERROR",
+            "SK": "NAVER#0",
+            "error": str(error),
+        }
+        send_message.assert_called_once()
+        assert_no_secret_logged(logs)

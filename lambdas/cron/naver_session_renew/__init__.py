@@ -15,6 +15,8 @@ ADMIN_DISCORD_TOKEN = os.environ.get("ADMIN_DISCORD_TOKEN")
 DISCORD_NAVER_SESSION_RENEW_EXPIRED_CHANNEL_ID = os.environ.get(
     "DISCORD_NAVER_SESSION_RENEW_EXPIRED_CHANNEL_ID"
 )
+# 계정 7개 × (요청 5초 + 대기 1.5초)가 Lambda timeout(60초) 안에 끝나야 한다.
+NAVER_REQUEST_TIMEOUT_SEC = 5
 
 dynamodb = boto3.client("dynamodb")
 
@@ -39,27 +41,44 @@ def handler(event, context):
         NID_AUT = item.get("NID_AUT")
         NID_SES = item.get("NID_SES")
 
-        res = requests.get(
-            "https://comm-api.game.naver.com/nng_main/v1/user/getUserStatus",
-            headers={
-                "User-Agent": generate_user_agent(os="win", device_type="desktop"),
-                "Cookie": f"NID_AUT={NID_AUT}; NID_SES={NID_SES}",
-            },
-        )
         try:
-            NEW_NID_SES = res.headers["set-cookie"].split("NID_SES=")[1].split(";")[0]
-        except Exception as e:
+            res = requests.get(
+                "https://comm-api.game.naver.com/nng_main/v1/user/getUserStatus",
+                headers={
+                    "User-Agent": generate_user_agent(os="win", device_type="desktop"),
+                    "Cookie": f"NID_AUT={NID_AUT}; NID_SES={NID_SES}",
+                },
+                timeout=NAVER_REQUEST_TIMEOUT_SEC,
+            )
+        except requests.RequestException as e:
+            # 한 계정의 네트워크 오류가 나머지 계정 갱신을 막지 않도록 실패로 처리하고 넘어간다.
             logger.error(
                 json.dumps(
                     {
-                        "type": "NAVER_SESSION_RENEW_ERROR",
-                        "PK": item.get("PK"),
+                        "type": "NAVER_SESSION_RENEW_REQUEST_ERROR",
+                        "SK": item.get("SK"),
                         "error": str(e),
-                        "text": res.text,
                     }
                 )
             )
             NEW_NID_SES = "error"
+        else:
+            try:
+                NEW_NID_SES = (
+                    res.headers["set-cookie"].split("NID_SES=")[1].split(";")[0]
+                )
+            except Exception as e:
+                logger.error(
+                    json.dumps(
+                        {
+                            "type": "NAVER_SESSION_RENEW_ERROR",
+                            "PK": item.get("PK"),
+                            "error": str(e),
+                            "text": res.text,
+                        }
+                    )
+                )
+                NEW_NID_SES = "error"
 
         if NEW_NID_SES not in ["expired", "error"]:
             dynamodb.update_item(
