@@ -29,9 +29,6 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      cva:
-        specifier: ^0.0.0
-        version: 0.0.0
       dayjs:
         specifier: ^1.11.23
         version: 1.11.23
@@ -50,9 +47,6 @@ importers:
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
-      postcss:
-        specifier: ^8.5.31
-        version: 8.5.31
       radix-ui:
         specifier: ^1.8.1
         version: 1.8.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -93,6 +87,9 @@ importers:
       eslint-config-next:
         specifier: 16.4.2
         version: 16.4.2(@typescript-eslint/parser@8.72.0(eslint@10.13.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.13.0(jiti@2.7.0))(typescript@6.0.3)
+      postcss:
+        specifier: ^8.5.31
+        version: 8.5.31
       tailwindcss:
         specifier: ^4.3.3
         version: 4.3.3
@@ -1706,9 +1703,6 @@ packages:
 
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
-
-  cva@0.0.0:
-    resolution: {integrity: sha512-KPdxLxXhIzmCNtGpqdONKC1JwEx0cDH8cnYh7KYFxO7JYf4DqqtcLg6g+1QA0SlIdME18n9m337DOxIlrsSF5Q==}
 
   damerau-levenshtein@1.0.8:
     resolution: {integrity: sha512-sdQSFB7+llfUcQHUQO3+B8ERRj0Oa4w9POWMI/puGtuf7gFywGmkaLCElnudfTiKZV+NvHqL0ifzdrI8Ro7ESA==}
@@ -4588,8 +4582,6 @@ snapshots:
       which: 2.0.2
 
   csstype@3.2.3: {}
-
-  cva@0.0.0: {}
 
   damerau-levenshtein@1.0.8: {}
 
