@@ -12,7 +12,6 @@ from shared.exceptions import (
     DiscordApiError,
     DiscordApiUnavailableError,
     ServerNotFoundError,
-    UnauthorizedError,
 )
 from shared.utils import build_response
 from urllib3.util import Timeout
@@ -72,9 +71,6 @@ def handler(event, context):
 
     if res.status_code == 403:
         raise BotNotJoinedError()
-
-    if res.status_code == 401:
-        raise UnauthorizedError()
 
     if res.status_code != 200:
         raise DiscordApiError(res)

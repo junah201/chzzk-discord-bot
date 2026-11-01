@@ -49,8 +49,8 @@ def test_network_failure_is_502(mocker, session_get, error):
     [
         (404, 404, "SERVER_NOT_FOUND"),
         (403, 404, "BOT_NOT_JOINED"),
-        # 현재 동작: 봇 토큰 요청의 401을 유저 로그인 만료(UNAUTHORIZED)로 응답한다.
-        (401, 401, "UNAUTHORIZED"),
+        # 봇 토큰 문제는 유저 로그인과 무관하므로 서버 측 오류로 응답한다.
+        (401, 502, "DISCORD_API_ERROR"),
         (500, 502, "DISCORD_API_ERROR"),
     ],
 )
