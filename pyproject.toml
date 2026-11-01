@@ -23,6 +23,7 @@ dev = [
     "pytest-cov>=7.1.0",
     "tzdata>=2026.6",
     "responses>=0.26.3",
+    "moto[dynamodb]>=5.2.5",
 ]
 
 [tool.ruff]

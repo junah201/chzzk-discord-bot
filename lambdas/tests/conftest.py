@@ -1,8 +1,11 @@
 import os
 import socket
+from types import SimpleNamespace
 
+import boto3
 import pytest
 import responses
+from moto import mock_aws
 
 # 일부 모듈이 import 시점에 boto3 클라이언트를 만들고 환경 변수를 읽으므로,
 # 테스트 모듈이 import 되기 전에 테스트용 값으로 덮어쓴다.
@@ -57,3 +60,41 @@ def mock_requests():
     """requests 호출을 가로챈다. 등록하지 않은 요청이나 호출되지 않은 응답이 있으면 실패한다."""
     with responses.RequestsMock() as rsps:
         yield rsps
+
+
+TABLE_NAME = "chzzk-bot-db"
+
+
+@pytest.fixture
+def dynamodb_table():
+    """moto로 띄운 chzzk-bot-db 테이블. 테스트마다 새로 만들어서 상태를 공유하지 않는다.
+
+    모듈 전역 boto3 객체는 import 시점(moto 활성화 이전)에 만들어지므로,
+    테스트에서 mocker.patch.object(module, "dynamodb", dynamodb_table.client)처럼 교체해서 쓴다.
+    """
+    with mock_aws():
+        client = boto3.client("dynamodb")
+        client.create_table(
+            TableName=TABLE_NAME,
+            KeySchema=[
+                {"AttributeName": "PK", "KeyType": "HASH"},
+                {"AttributeName": "SK", "KeyType": "RANGE"},
+            ],
+            AttributeDefinitions=[
+                {"AttributeName": "PK", "AttributeType": "S"},
+                {"AttributeName": "SK", "AttributeType": "S"},
+                {"AttributeName": "guild_id", "AttributeType": "S"},
+            ],
+            GlobalSecondaryIndexes=[
+                {
+                    "IndexName": "GSI-GuildID-v2",
+                    "KeySchema": [{"AttributeName": "guild_id", "KeyType": "HASH"}],
+                    "Projection": {"ProjectionType": "ALL"},
+                }
+            ],
+            BillingMode="PAY_PER_REQUEST",
+        )
+        resource = boto3.resource("dynamodb")
+        yield SimpleNamespace(
+            client=client, resource=resource, table=resource.Table(TABLE_NAME)
+        )
