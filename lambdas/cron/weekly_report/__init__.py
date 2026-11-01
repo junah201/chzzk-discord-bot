@@ -126,7 +126,7 @@ def run_queries(specs: dict) -> dict:
     return results
 
 
-def to_int(value, default: int = 0) -> int:
+def to_int(value, default: int | None = 0) -> int | None:
     try:
         return int(float(value))
     except (TypeError, ValueError):
@@ -137,10 +137,11 @@ def get_count(rows: list) -> int:
     return to_int(rows[0].get("cnt")) if rows else 0
 
 
-def get_servers(rows: list):
-    if not rows or rows[0].get("servers") is None:
+def get_servers(rows: list) -> int | None:
+    """서버 수를 반환한다. 값이 없거나 숫자가 아니면 None(데이터 없음)을 반환한다."""
+    if not rows:
         return None
-    return to_int(rows[0]["servers"])
+    return to_int(rows[0].get("servers"), default=None)
 
 
 def build_report(start: datetime, end: datetime) -> dict:

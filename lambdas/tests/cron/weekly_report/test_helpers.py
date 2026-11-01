@@ -115,9 +115,12 @@ class TestGetServers:
     def test_missing_servers_is_none(self, rows):
         assert get_servers(rows) is None
 
-    def test_non_numeric_servers_is_zero(self):
-        # 현재 동작: 값이 있지만 숫자가 아니면 None이 아니라 0이 된다.
-        assert get_servers([{"servers": "x"}]) == 0
+    @pytest.mark.parametrize("value", ["x", "", []], ids=["text", "empty", "list"])
+    def test_non_numeric_servers_is_none(self, value):
+        assert get_servers([{"servers": value}]) is None
+
+    def test_zero_servers_is_zero(self):
+        assert get_servers([{"servers": "0"}]) == 0
 
 
 def test_count_query():
