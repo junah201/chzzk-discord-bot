@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 
 import boto3
 import requests
@@ -124,7 +124,7 @@ def handler(_event, context):
                                     "inline": False,
                                 },
                             ],
-                            "timestamp": datetime.now().isoformat(),
+                            "timestamp": datetime.now(UTC).isoformat(),
                         }
                     ]
                 },

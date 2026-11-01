@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta, timezone
 
 import boto3
 from shared.discord.utils import send_message
@@ -315,7 +315,7 @@ def send_report(report: dict):
                             "inline": False,
                         },
                     ],
-                    "timestamp": datetime.now().isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                 }
             ]
         },

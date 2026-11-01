@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 
 import boto3
 from shared import get_chzzk, middleware
@@ -78,7 +78,7 @@ def handler(event, context):
                 },
                 "footer": {"text": "chzzk.junah.dev"},
                 "url": f"https://chzzk.naver.com/live/{chzzk_id}",
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             },
         ]
     if not item.get("disable_button", {"BOOL": False})["BOOL"]:

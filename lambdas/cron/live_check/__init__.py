@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import traceback
-from datetime import datetime
+from datetime import UTC, datetime
 
 import boto3
 import requests
@@ -90,7 +90,7 @@ def get_follows(NID_AUT: str, NID_SES: str, index: int) -> list[Following]:
                                 {"name": "text", "value": res.text},
                                 {"name": "index", "value": str(index)},
                             ],
-                            "timestamp": datetime.now().isoformat(),
+                            "timestamp": datetime.now(UTC).isoformat(),
                         }
                     ]
                 },
@@ -137,9 +137,9 @@ def send_notification(chzzk_id: str, index: int):
     last_live_id = item["lastLiveId"]
 
     try:
-        start_time = datetime.now()
+        start_time = datetime.now(UTC)
         chzzk = get_chzzk(chzzk_id, logger=logger)
-        end_time = datetime.now()
+        end_time = datetime.now(UTC)
         logger.info(
             json.dumps(
                 {
@@ -254,7 +254,7 @@ def send_notification(chzzk_id: str, index: int):
                     },
                     "footer": {"text": "chzzk.junah.dev"},
                     "url": f"https://chzzk.naver.com/live/{chzzk_id}",
-                    "timestamp": datetime.now().isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                 },
             ]
 
@@ -284,7 +284,7 @@ def send_notification(chzzk_id: str, index: int):
             ":name": {"S": chzzk["channel"]["channelName"]},
             ":url": {"S": chzzk["channel"]["channelImageUrl"] or ""},
             ":cid": {"S": f"{chzzk_id}"},
-            ":last_noti_at": {"S": datetime.now().isoformat()},
+            ":last_noti_at": {"S": datetime.now(UTC).isoformat()},
         }
 
         # 메시지 전송에 실패한 경우 (채널이 존재하지 않는 404 포함)

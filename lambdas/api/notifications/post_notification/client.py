@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 
 from shared.chzzk import follow_chzzk_channel
 from shared.discord.utils import send_message
@@ -56,7 +56,7 @@ def _log_and_send_follow_error(
                         {"name": "err_message", "value": err_message},
                         {"name": "index", "value": str(index)},
                     ],
-                    "timestamp": datetime.now().isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                 }
             ]
         },

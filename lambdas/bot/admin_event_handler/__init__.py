@@ -225,7 +225,7 @@ def handler(event, context):
                 item = response["Item"]
                 result_message = ""
 
-                timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+                timestamp = datetime.now(UTC).strftime("%Y%m%d%H%M%S")
                 short_uuid = str(uuid.uuid4())[:16]
                 order_sk = f"ORDER#{timestamp}#{short_uuid}"
                 now = datetime.now(UTC)

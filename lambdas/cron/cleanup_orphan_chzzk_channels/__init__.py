@@ -4,7 +4,7 @@ import math
 import os
 import statistics
 from collections import defaultdict
-from datetime import datetime
+from datetime import UTC, datetime
 from time import perf_counter
 
 import boto3
@@ -372,7 +372,7 @@ def send_discord_report(
                 "title": "치지직 고아 채널 정리 리포트",
                 "description": report_description,
                 "color": 0x3498DB,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         ],
     }
