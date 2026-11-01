@@ -1,63 +1,50 @@
+import Link from "next/link";
+import { Bell, ChevronRight, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LinkButton } from "@/components/ui/link-button";
 import routeMap from "@/constants/route-map";
 import { DEFAULT_SLOT_LIMIT } from "@/constants/slots";
 import { getDiscordIconUrl } from "@/lib/urls";
 import { Guild } from "@/types/api";
-import { Bell, Users } from "lucide-react";
 
 interface ServerCardProps {
   server: Guild;
 }
 
+/** 카드 전체가 서버 관리 페이지로 가는 링크 */
 export function ServerCard({ server }: ServerCardProps) {
   return (
-    <Card className="bg-card border-border transition-all duration-300 group hover:border-primary/50 h-full flex flex-col">
-      <CardHeader className="w-full min-w-0">
-        <div className="flex items-center gap-4 w-full min-w-0">
-          <Avatar className="w-16 h-16 border-2 border-border transition-colors shrink-0">
-            <AvatarImage
-              src={getDiscordIconUrl(server.id, server.icon)}
-              alt={server.name}
-            />
-            <AvatarFallback className="bg-primary/20 text-primary text-lg font-semibold">
-              {server.name.slice(0, 2)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <CardTitle className="text-xl truncate group-hover:text-primary transition-colors">
-              {server.name}
-            </CardTitle>
-          </div>
-          <div className="flex flex-col gap-1 items-end">
-            <div className="flex items-center gap-2 text-muted-foreground shrink-0">
-              <Users className="w-4 h-4" />
-              <span>
-                멤버 {(server.approximate_member_count ?? 0).toLocaleString()}명
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground shrink-0">
-              <Bell className="w-4 h-4" />
-              <span>
-                알림 {server.current_count || 0}/{server.max_limit || DEFAULT_SLOT_LIMIT}개
-              </span>
-            </div>
-          </div>
-        </div>
-      </CardHeader>
+    <Link
+      href={routeMap.DASHBOARD.SERVER(server.id)}
+      className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/50 focus-visible:border-primary focus-visible:outline-none"
+    >
+      <Avatar className="size-12 shrink-0 border border-border">
+        <AvatarImage
+          src={getDiscordIconUrl(server.id, server.icon)}
+          alt={server.name}
+        />
+        <AvatarFallback className="bg-primary/20 font-semibold text-primary">
+          {server.name.slice(0, 2)}
+        </AvatarFallback>
+      </Avatar>
 
-      <CardContent className="mt-auto">
-        <LinkButton
-          href={routeMap.DASHBOARD.SERVER(server.id)}
-          variant="outline"
-          className="w-full"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          관리하기
-        </LinkButton>
-      </CardContent>
-    </Card>
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-semibold transition-colors group-hover:text-primary">
+          {server.name}
+        </p>
+        <div className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
+          <span className="flex items-center gap-1">
+            <Users className="size-3.5" />
+            멤버 {(server.approximate_member_count ?? 0).toLocaleString()}명
+          </span>
+          <span className="flex items-center gap-1">
+            <Bell className="size-3.5" />
+            알림 {server.current_count || 0}/
+            {server.max_limit || DEFAULT_SLOT_LIMIT}개
+          </span>
+        </div>
+      </div>
+
+      <ChevronRight className="size-5 shrink-0 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+    </Link>
   );
 }
