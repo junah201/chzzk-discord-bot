@@ -45,6 +45,7 @@ ignore = [
     "W191",  # indentation contains tabs
     "B904",  # Allow raising exceptions without from e, for HTTPException
 ]
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?)|context)$"
 
 [tool.pytest.ini_options]
 pythonpath = ["lambdas"]
