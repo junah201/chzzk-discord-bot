@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { UserRoundCheck, Loader2 } from "lucide-react";
@@ -23,11 +23,14 @@ export default function LoginCallbackPage() {
 function ClientLoginCallbackPage() {
   const searchParams = useSearchParams();
   const { verifySession } = useAuth();
+  // Discord code는 한 번만 교환할 수 있으므로 같은 code로 다시 요청하지 않는다 (StrictMode 재실행 등)
+  const verifiedCodeRef = useRef<string | null>(null);
 
   useEffect(() => {
     const code = searchParams.get("code");
 
-    if (code) {
+    if (code && verifiedCodeRef.current !== code) {
+      verifiedCodeRef.current = code;
       verifySession(code);
     }
   }, [searchParams, verifySession]);
