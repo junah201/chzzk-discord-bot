@@ -1,6 +1,6 @@
 "use client";
 
-import { GITHUB_REPO_CHANGELOG_URL, GITHUB_USER_URL } from "@/constants/links";
+import { GITHUB_USER_URL } from "@/constants/links";
 
 export function FooterBottom() {
   const currentYear = new Date().getFullYear();
