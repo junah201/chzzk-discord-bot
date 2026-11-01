@@ -44,7 +44,7 @@ export const FeatureCard = ({ feature, index }: FeatureCardProps) => {
           <h3 className="text-xl sm:text-2xl font-semibold mb-3 group-hover:text-primary transition-colors">
             {feature.title}
           </h3>
-          <p className="text-muted-foreground leading-relaxed break-keepq">
+          <p className="text-muted-foreground leading-relaxed break-keep">
             {feature.description}
           </p>
         </div>

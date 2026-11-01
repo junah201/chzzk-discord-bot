@@ -52,7 +52,7 @@ export const MetricCard = ({ metric, index }: MetricCardProps) => {
       transition={{ duration: 0.5, delay: index * 0.1 }}
       className="group relative"
     >
-      <div className="relative bg-card border border-border rounded-2xl p-8 overflow-hidden transition-all duration-300 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10">
+      <div className="relative bg-card border border-border rounded-2xl p-8 lg:p-6 xl:p-8 overflow-hidden transition-all duration-300 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10">
         {/* Background Gradient */}
         <div
           className={`absolute inset-0 bg-linear-to-br ${metric.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
@@ -74,7 +74,7 @@ export const MetricCard = ({ metric, index }: MetricCardProps) => {
 
         {/* Value */}
         <div className="relative text-center">
-          <div className="text-4xl sm:text-5xl font-bold mb-2 bg-linear-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
+          <div className="text-4xl sm:text-5xl lg:text-4xl xl:text-5xl font-bold mb-2 whitespace-nowrap tabular-nums bg-linear-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
             <AnimatedNumber value={metric.value} />
             {metric.suffix}
           </div>
