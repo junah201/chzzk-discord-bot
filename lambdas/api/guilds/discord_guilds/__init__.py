@@ -43,7 +43,7 @@ def handler(event, context):
         logger.error(json.dumps({"type": "GET_ADMIN_GUILDS_FAILED", **log_data}))
         raise DiscordApiUnavailableError()
 
-    ALLOWED_KEYS = {"id", "name", "icon", "description", "approximate_member_count"}
+    ALLOWED_KEYS = {"id", "name", "icon", "approximate_member_count"}
     admin_guilds = [pick(guild, ALLOWED_KEYS) for guild in result.guilds]
 
     if not admin_guilds:
