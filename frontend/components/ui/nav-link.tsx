@@ -23,6 +23,7 @@ const NavLink = React.forwardRef<HTMLAnchorElement, LogoProps>(
     return (
       <MotionLink
         {...props}
+        ref={ref}
         className={navLinkVariants({ className })}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
