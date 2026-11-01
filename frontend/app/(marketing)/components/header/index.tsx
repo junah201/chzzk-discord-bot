@@ -8,6 +8,7 @@ import routeMap from "@/constants/route-map";
 import { useScrollThreshold } from "@/hooks/use-scroll-threshold";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
+import { MobileNav } from "./mobile-nav";
 
 export default function Header() {
   const isScrolled = useScrollThreshold(10);
@@ -34,6 +35,10 @@ export default function Header() {
             <LinkButton href={routeMap.DASHBOARD.HOME} variant="primary">
               대시보드로 이동
             </LinkButton>
+          </div>
+
+          <div className="md:hidden">
+            <MobileNav />
           </div>
         </div>
       </nav>
