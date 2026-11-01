@@ -10,17 +10,16 @@ table = boto3.resource("dynamodb").Table("chzzk-bot-db")
 logger = logging.getLogger()
 
 
-def check_guild_limit(guild_id: str) -> tuple[bool, str, bool]:
+def check_guild_limit(guild_id: str) -> tuple[bool, str]:
     """
     서버의 알림 등록 제한 검증
-    반환값: (통과 여부, 에러 메시지, 신규 서버 여부)
+    반환값: (통과 여부, 에러 메시지)
     """
     guild_res = table.get_item(
         Key={"PK": f"GUILD#{guild_id}", "SK": f"GUILD#{guild_id}"}
     )
     guild_item = guild_res.get("Item")
 
-    is_new_guild = guild_item is None
     max_limit = int(guild_item.get("max_limit", 5)) if guild_item else 5
     current_count = int(guild_item.get("current_count", 0)) if guild_item else 0
 
@@ -28,10 +27,9 @@ def check_guild_limit(guild_id: str) -> tuple[bool, str, bool]:
         return (
             False,
             f"알림 등록 제한을 초과했습니다. (최대 {max_limit}개 등록 가능 / 현재 {current_count}개)",
-            is_new_guild,
         )
 
-    return True, "", is_new_guild
+    return True, ""
 
 
 def is_chzzk_registered(chzzk_id: str) -> bool:
@@ -96,22 +94,10 @@ def save_notification_and_increment_counter(
     chzzk_id: str,
     chzzk_data: dict,
     body: dict,
-    is_new_guild: bool,
 ):
-    """신규 GUILD 객체 생성(필요 시), NOTI 아이템 저장 및 current_count 원자적 증가(+1)"""
-    # 신규 서버인 경우 GUILD 기본 메타데이터 객체 생성 (limit: 5)
-    if is_new_guild:
-        table.put_item(
-            Item={
-                "PK": f"GUILD#{guild_id}",
-                "SK": f"GUILD#{guild_id}",
-                "guild_id": guild_id,
-                "max_limit": 5,
-                "current_count": 0,
-                "type": "GUILD",
-            }
-        )
-
+    """NOTI 아이템 저장과 GUILD current_count 증가(+1)를 하나의 트랜잭션으로 처리합니다.
+    GUILD가 없으면 같은 트랜잭션에서 기본값(max_limit 5)으로 만들고, 있으면 기존 값을 유지합니다.
+    """
     # NOTI 아이템 추가
     item = {
         "PK": {"S": f"CHZZK#{chzzk_id}"},
@@ -155,8 +141,20 @@ def save_notification_and_increment_counter(
                     "PK": {"S": f"GUILD#{guild_id}"},
                     "SK": {"S": f"GUILD#{guild_id}"},
                 },
-                "UpdateExpression": "ADD current_count :inc",
-                "ExpressionAttributeValues": {":inc": {"N": "1"}},
+                # 동시에 처음 등록해도 GUILD를 덮어쓰지 않도록 기본값은 없을 때만 넣는다.
+                "UpdateExpression": (
+                    "SET #type = if_not_exists(#type, :type), "
+                    "guild_id = if_not_exists(guild_id, :guild_id), "
+                    "max_limit = if_not_exists(max_limit, :max_limit) "
+                    "ADD current_count :inc"
+                ),
+                "ExpressionAttributeNames": {"#type": "type"},
+                "ExpressionAttributeValues": {
+                    ":inc": {"N": "1"},
+                    ":type": {"S": "GUILD"},
+                    ":guild_id": {"S": guild_id},
+                    ":max_limit": {"N": "5"},
+                },
             }
         },
     ]

@@ -419,6 +419,6 @@ class TestDuplicate:
         res, _ = call()
 
         assert res["statusCode"] == 500
-        # 트랜잭션이 취소되므로 다른 서버의 알림도, 이 서버의 카운터도 그대로다.
+        # 트랜잭션이 취소되므로 다른 서버의 알림은 그대로고, 이 서버의 GUILD도 만들어지지 않는다.
         assert get_noti(ddb.table)["guild_id"] == "999"
-        assert get_guild(ddb.table)["current_count"] == 0
+        assert get_guild(ddb.table) is None

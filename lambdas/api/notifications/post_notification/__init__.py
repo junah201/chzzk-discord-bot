@@ -68,7 +68,7 @@ def handler(event, context):
         )
 
     # 2. 서버 알림 개수 제한 검증
-    is_valid, err_msg, is_new_guild = check_guild_limit(guild_id)
+    is_valid, err_msg = check_guild_limit(guild_id)
     if not is_valid:
         return build_response(400, err_msg)
 
@@ -141,7 +141,6 @@ def handler(event, context):
         chzzk_id,
         chzzk_data,
         body,
-        is_new_guild,
     )
 
     return build_response(204)

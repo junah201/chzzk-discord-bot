@@ -58,21 +58,20 @@ def get_noti(table, chzzk_id=CHZZK_ID, channel_id=CHANNEL_ID):
     return get_item(table, f"CHZZK#{chzzk_id}", f"NOTI#{channel_id}")
 
 
-def save(body=None, is_new_guild=False, channel_id=CHANNEL_ID, guild_id=GUILD_ID):
+def save(body=None, channel_id=CHANNEL_ID, guild_id=GUILD_ID, chzzk_id=CHZZK_ID):
     service.save_notification_and_increment_counter(
         guild_id=guild_id,
         channel_id=channel_id,
         channel_data=CHANNEL_DATA,
-        chzzk_id=CHZZK_ID,
+        chzzk_id=chzzk_id,
         chzzk_data=CHZZK_DATA,
         body=body or {},
-        is_new_guild=is_new_guild,
     )
 
 
 class TestCheckGuildLimit:
     def test_new_guild_uses_default_limit(self):
-        assert service.check_guild_limit(GUILD_ID) == (True, "", True)
+        assert service.check_guild_limit(GUILD_ID) == (True, "")
 
     @pytest.mark.parametrize(
         ("current_count", "max_limit"), [(0, 5), (4, 5), (249, 250)]
@@ -80,7 +79,7 @@ class TestCheckGuildLimit:
     def test_under_limit(self, ddb, current_count, max_limit):
         put_guild(ddb.table, current_count=current_count, max_limit=max_limit)
 
-        assert service.check_guild_limit(GUILD_ID) == (True, "", False)
+        assert service.check_guild_limit(GUILD_ID) == (True, "")
 
     @pytest.mark.parametrize(
         ("current_count", "max_limit"), [(5, 5), (6, 5), (250, 250)]
@@ -91,13 +90,12 @@ class TestCheckGuildLimit:
         assert service.check_guild_limit(GUILD_ID) == (
             False,
             f"알림 등록 제한을 초과했습니다. (최대 {max_limit}개 등록 가능 / 현재 {current_count}개)",
-            False,
         )
 
     def test_missing_attributes_use_defaults(self, ddb):
         put_guild(ddb.table, current_count=None, max_limit=None)
 
-        assert service.check_guild_limit(GUILD_ID) == (True, "", False)
+        assert service.check_guild_limit(GUILD_ID) == (True, "")
 
 
 class TestChzzkChannel:
@@ -178,7 +176,7 @@ class TestIsNotificationExists:
 
 class TestSaveNotification:
     def test_new_guild_creates_guild_and_counts_one(self, ddb):
-        save(is_new_guild=True)
+        save()
 
         guild = get_guild(ddb.table)
         assert guild["max_limit"] == 5
@@ -296,27 +294,67 @@ class TestSaveNotification:
         put_guild(ddb.table)
         save()
 
-        service.save_notification_and_increment_counter(
-            guild_id=GUILD_ID,
-            channel_id=CHANNEL_ID,
-            channel_data=CHANNEL_DATA,
-            chzzk_id="other",
-            chzzk_data=CHZZK_DATA,
-            body={},
-            is_new_guild=False,
-        )
+        save(chzzk_id="other")
 
         assert get_guild(ddb.table)["current_count"] == 2
 
-    def test_new_guild_flag_overwrites_existing_guild(self, ddb):
-        # 현재 동작: is_new_guild=True면 GUILD를 조건 없이 put_item 한다.
-        # check_guild_limit과 저장 사이에 다른 요청이 GUILD를 만들었다면 구매한 슬롯과 카운트가 초기화된다.
-        put_guild(ddb.table, current_count=3, max_limit=250)
+    def test_two_first_notifications_count_two(self, ddb):
+        # 새 서버에서 처음 등록이 겹쳐도(둘 다 check_guild_limit에서 GUILD가 없다고 본 경우)
+        # GUILD를 덮어쓰지 않고 카운트가 모두 반영된다.
+        assert service.check_guild_limit(GUILD_ID) == (True, "")
+        assert service.check_guild_limit(GUILD_ID) == (True, "")
 
-        save(is_new_guild=True)
+        save(channel_id="10")
+        save(channel_id="11")
 
         guild = get_guild(ddb.table)
-        assert (guild["current_count"], guild["max_limit"]) == (1, 5)
+        assert (guild["current_count"], guild["max_limit"]) == (2, 5)
+
+    def test_guild_created_meanwhile_keeps_its_values(self, ddb):
+        # check_guild_limit 이후 다른 요청이 GUILD를 만들거나 슬롯을 늘려도 덮어쓰지 않는다.
+        assert service.check_guild_limit(GUILD_ID) == (True, "")
+        put_guild(ddb.table, current_count=3, max_limit=250)
+
+        save()
+
+        guild = get_guild(ddb.table)
+        assert (guild["current_count"], guild["max_limit"]) == (4, 250)
+
+    def test_partial_guild_item_gets_missing_defaults(self, ddb):
+        ddb.table.put_item(
+            Item={
+                "PK": f"GUILD#{GUILD_ID}",
+                "SK": f"GUILD#{GUILD_ID}",
+                "current_count": 2,
+            }
+        )
+
+        save()
+
+        guild = get_guild(ddb.table)
+        assert guild == {
+            "PK": f"GUILD#{GUILD_ID}",
+            "SK": f"GUILD#{GUILD_ID}",
+            "type": "GUILD",
+            "guild_id": GUILD_ID,
+            "max_limit": 5,
+            "current_count": 3,
+        }
+
+    def test_failed_save_does_not_create_guild(self, ddb):
+        ddb.table.put_item(
+            Item={
+                "PK": f"CHZZK#{CHZZK_ID}",
+                "SK": f"NOTI#{CHANNEL_ID}",
+                "type": "NOTI",
+                "guild_id": GUILD_ID,
+            }
+        )
+
+        with pytest.raises(ddb.client.exceptions.TransactionCanceledException):
+            save()
+
+        assert get_guild(ddb.table) is None
 
     def test_transaction_error_is_logged(self, mocker, ddb):
         log_error = mocker.patch.object(service.logger, "error")
