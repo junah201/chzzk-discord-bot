@@ -9,6 +9,7 @@ from shared.notification_dispatcher import (
     is_guild_subscription_active,
     is_valid_webhook_url,
     parse_embed_color,
+    verify_webhook_guild,
 )
 from shared.utils import build_response
 
@@ -53,6 +54,8 @@ def handler(event, _context):
         raise BadRequestError(
             "커스텀 임베드 색상은 활성 월간 정기 구독 서버에서만 사용할 수 있습니다."
         )
+    if webhook_url:
+        verify_webhook_guild(webhook_url, guild_id)
 
     try:
         guild_response = dynamodb.get_item(

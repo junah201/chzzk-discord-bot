@@ -4,6 +4,7 @@ import json
 import pytest
 from botocore.exceptions import ClientError
 from shared import notification_dispatcher
+from shared.exceptions import BadRequestError
 
 update_notification = importlib.import_module("api.notifications.update_notification")
 
@@ -20,6 +21,11 @@ def ddb(mocker, dynamodb_table):
     mocker.patch.object(update_notification, "dynamodb", dynamodb_table.client)
     mocker.patch.object(notification_dispatcher, "table", dynamodb_table.table)
     return dynamodb_table
+
+
+@pytest.fixture(autouse=True)
+def verify_webhook(mocker):
+    return mocker.patch.object(update_notification, "verify_webhook_guild")
 
 
 def call(**body):
@@ -142,12 +148,13 @@ class TestSuccess:
         noti = get_noti(setup.table)
         assert (noti["chzzk_name"], noti["noti_fail_count"]) == ("스트리머", 2)
 
-    def test_subscriber_options_are_saved(self, setup):
+    def test_subscriber_options_are_saved(self, setup, verify_webhook):
         put_subscription(setup.table)
 
         res, _ = call(webhook_url=f" {WEBHOOK_URL} ", embed_color=" #FF0000 ")
 
         assert res["statusCode"] == 204
+        verify_webhook.assert_called_once_with(WEBHOOK_URL, GUILD_ID)
         noti = get_noti(setup.table)
         assert noti["webhook_url"] == WEBHOOK_URL
         assert noti["embed_color"] == "#FF0000"
@@ -169,12 +176,13 @@ class TestSuccess:
         assert get_noti(setup.table)["embed_color"] == "#FF0000"
 
     @pytest.mark.parametrize("value", ["", "   "], ids=["empty", "blank"])
-    def test_empty_webhook_url_clears_saved_webhook(self, setup, value):
+    def test_empty_webhook_url_clears_saved_webhook(self, setup, verify_webhook, value):
         put_noti(setup.table, webhook_url=WEBHOOK_URL)
 
         res, _ = call(webhook_url=value)
 
         assert res["statusCode"] == 204
+        verify_webhook.assert_not_called()
         assert get_noti(setup.table)["webhook_url"] == ""
 
     def test_clearing_webhook_does_not_need_subscription(self, setup):
@@ -240,12 +248,25 @@ class TestValidation:
             "color-without-subscription",
         ],
     )
-    def test_subscriber_option_errors(self, setup, body, message):
+    def test_subscriber_option_errors(self, setup, verify_webhook, body, message):
         res, response = call(custom_message="바뀌면 안 됨", **body)
 
         assert res["statusCode"] == 400
         assert response["message"] == message
         assert get_noti(setup.table)["custom_message"] == "예전 메시지"
+        verify_webhook.assert_not_called()
+
+    def test_webhook_verification_error_keeps_notification(self, setup, verify_webhook):
+        put_subscription(setup.table)
+        verify_webhook.side_effect = BadRequestError("다른 서버")
+
+        res, response = call(custom_message="바뀌면 안 됨", webhook_url=WEBHOOK_URL)
+
+        assert res["statusCode"] == 400
+        assert response["message"] == "다른 서버"
+        noti = get_noti(setup.table)
+        assert noti["custom_message"] == "예전 메시지"
+        assert "webhook_url" not in noti
 
 
 class TestNotFound:

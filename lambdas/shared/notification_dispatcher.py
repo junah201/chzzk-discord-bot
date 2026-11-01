@@ -7,13 +7,26 @@ from typing import Literal
 import boto3
 import requests
 
-from shared.discord.utils import network_error_response, send_message, session
+from shared.discord.utils import (
+    DISCORD_API_BASE_URL,
+    DISCORD_API_TIMEOUT_SEC,
+    network_error_response,
+    send_message,
+    session,
+)
+from shared.exceptions import (
+    BadRequestError,
+    DiscordApiUnavailableError,
+    RateLimitError,
+)
 
 logger = logging.getLogger()
 
 _DISCORD_WEBHOOK_URL = re.compile(
-    r"^https://(?:discord(?:app)?\.com)/api/webhooks/\d+/[\w-]+$"
+    r"^https://(?:discord(?:app)?\.com)/api/webhooks/(\d+)/([\w-]+)$"
 )
+# 토큰으로 실행할 수 있는 일반(Incoming) 웹훅
+_INCOMING_WEBHOOK_TYPE = 1
 _HEX_COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
 DEFAULT_EMBED_COLOR = 0x02E895
 dynamodb = boto3.client("dynamodb")
@@ -22,6 +35,76 @@ table = boto3.resource("dynamodb").Table("chzzk-bot-db")
 
 def is_valid_webhook_url(webhook_url: str) -> bool:
     return bool(_DISCORD_WEBHOOK_URL.fullmatch(webhook_url))
+
+
+def verify_webhook_guild(webhook_url: str, guild_id: str) -> None:
+    """웹훅이 존재하고 guild_id 서버의 일반 웹훅인지 디스코드에 조회해서 확인합니다.
+    조건에 맞지 않으면 BadRequestError, rate limit이면 RateLimitError,
+    네트워크 오류나 5xx면 DiscordApiUnavailableError를 던집니다.
+    webhook_url은 is_valid_webhook_url을 통과한 값이어야 합니다.
+    """
+    webhook_id, webhook_token = _DISCORD_WEBHOOK_URL.fullmatch(webhook_url).groups()
+    # 웹훅 토큰이 로그에 남지 않도록 webhook_id만 기록한다.
+    log_context = {"guild_id": str(guild_id), "webhook_id": webhook_id}
+    try:
+        res = session.get(
+            f"{DISCORD_API_BASE_URL}/webhooks/{webhook_id}/{webhook_token}",
+            timeout=DISCORD_API_TIMEOUT_SEC,
+        )
+    except requests.RequestException as error:
+        logger.error(
+            json.dumps(
+                {
+                    "type": "DISCORD_GET_WEBHOOK_REQUEST_ERROR",
+                    **log_context,
+                    "error": str(error),
+                },
+                ensure_ascii=False,
+            )
+        )
+        raise DiscordApiUnavailableError() from error
+
+    if res.status_code == 429:
+        try:
+            retry_after = float(res.json()["retry_after"])
+        except Exception:
+            retry_after = 0
+        raise RateLimitError(retry_after)
+    if res.status_code in (401, 404):
+        raise BadRequestError(
+            "디스코드 웹훅을 찾을 수 없습니다. 웹훅이 삭제되지 않았는지, URL을 정확히 복사했는지 확인해주세요."
+        )
+    if res.status_code != 200:
+        logger.error(
+            json.dumps(
+                {
+                    "type": "DISCORD_GET_WEBHOOK_HTTP_ERROR",
+                    **log_context,
+                    "status_code": res.status_code,
+                    "text": res.text[:1000],
+                },
+                ensure_ascii=False,
+            )
+        )
+        raise DiscordApiUnavailableError()
+
+    webhook = res.json()
+    if webhook.get("type") != _INCOMING_WEBHOOK_TYPE:
+        raise BadRequestError("유효한 디스코드 웹훅 URL을 입력해주세요.")
+    if webhook.get("guild_id") != str(guild_id):
+        logger.warning(
+            json.dumps(
+                {
+                    "type": "DISCORD_WEBHOOK_GUILD_MISMATCH",
+                    **log_context,
+                    "webhook_guild_id": webhook.get("guild_id"),
+                },
+                ensure_ascii=False,
+            )
+        )
+        raise BadRequestError(
+            "다른 디스코드 서버의 웹훅입니다. 알림을 등록하려는 서버에서 만든 웹훅을 입력해주세요."
+        )
 
 
 def parse_embed_color(embed_color: str) -> int | None:

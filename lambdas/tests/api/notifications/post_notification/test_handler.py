@@ -3,7 +3,7 @@ import json
 
 import pytest
 from shared import notification_dispatcher
-from shared.exceptions import DiscordApiUnavailableError
+from shared.exceptions import BadRequestError, DiscordApiUnavailableError
 
 post_notification = importlib.import_module("api.notifications.post_notification")
 service = importlib.import_module("api.notifications.post_notification.service")
@@ -52,6 +52,11 @@ def get_channel(mocker):
         "get_channel",
         return_value={"id": CHANNEL_ID, "guild_id": GUILD_ID, "name": "알림-채널"},
     )
+
+
+@pytest.fixture(autouse=True)
+def verify_webhook(mocker):
+    return mocker.patch.object(post_notification, "verify_webhook_guild")
 
 
 @pytest.fixture(autouse=True)
@@ -196,12 +201,13 @@ class TestSuccess:
         assert chzzk["index"] == index
         assert follow.call_args.args[1] == f"fake-aut-{index}"
 
-    def test_subscriber_options_are_saved(self, ddb):
+    def test_subscriber_options_are_saved(self, ddb, verify_webhook):
         put_subscription(ddb.table)
 
         res, _ = call(webhook_url=f" {WEBHOOK_URL} ", embed_color="#FF0000")
 
         assert res["statusCode"] == 204
+        verify_webhook.assert_called_once_with(WEBHOOK_URL, GUILD_ID)
         noti = get_noti(ddb.table)
         assert noti["webhook_url"] == WEBHOOK_URL
         assert noti["embed_color"] == "#FF0000"
@@ -245,19 +251,36 @@ class TestValidation:
             "color-without-subscription",
         ],
     )
-    def test_subscriber_option_errors(self, ddb, get_channel, body, message):
+    def test_subscriber_option_errors(
+        self, ddb, get_channel, verify_webhook, body, message
+    ):
         res, response = call(**body)
 
         assert res["statusCode"] == 400
         assert response["message"] == message
         get_channel.assert_not_called()
+        verify_webhook.assert_not_called()
         assert get_noti(ddb.table) is None
 
-    def test_blank_subscriber_options_are_ignored(self, ddb):
+    def test_webhook_verification_error_stops_registration(
+        self, ddb, get_channel, verify_webhook
+    ):
+        put_subscription(ddb.table)
+        verify_webhook.side_effect = BadRequestError("다른 서버")
+
+        res, response = call(webhook_url=WEBHOOK_URL)
+
+        assert res["statusCode"] == 400
+        assert response["message"] == "다른 서버"
+        get_channel.assert_not_called()
+        assert get_noti(ddb.table) is None
+
+    def test_blank_subscriber_options_are_ignored(self, ddb, verify_webhook):
         res, _ = call(webhook_url="  ", embed_color="")
 
         assert res["statusCode"] == 204
         assert "webhook_url" not in get_noti(ddb.table)
+        verify_webhook.assert_not_called()
 
 
 class TestDiscordChannel:

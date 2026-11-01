@@ -4,6 +4,11 @@ import pytest
 import requests
 import responses
 from shared import notification_dispatcher
+from shared.exceptions import (
+    BadRequestError,
+    DiscordApiUnavailableError,
+    RateLimitError,
+)
 from shared.notification_dispatcher import (
     DEFAULT_EMBED_COLOR,
     get_embed_color,
@@ -11,6 +16,7 @@ from shared.notification_dispatcher import (
     is_valid_webhook_url,
     parse_embed_color,
     send_notification_message,
+    verify_webhook_guild,
 )
 
 
@@ -57,6 +63,91 @@ class TestIsValidWebhookUrl:
     )
     def test_rejects_invalid_url(self, url):
         assert is_valid_webhook_url(url) is False
+
+
+class TestVerifyWebhookGuild:
+    GUILD_ID = "1"
+    API_URL = "https://discord.com/api/v10/webhooks/123/abc-DEF_123"
+
+    def webhook(self, **attrs):
+        return {"id": "123", "type": 1, "guild_id": self.GUILD_ID, **attrs}
+
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "https://discord.com/api/webhooks/123/abc-DEF_123",
+            "https://discordapp.com/api/webhooks/123/abc-DEF_123",
+        ],
+        ids=["discord", "discordapp"],
+    )
+    def test_same_guild_webhook_passes(self, mock_requests, url):
+        mock_requests.get(self.API_URL, json=self.webhook())
+
+        verify_webhook_guild(url, self.GUILD_ID)
+
+        # 입력한 도메인과 관계없이 v10 API로, 인증 헤더 없이 조회한다.
+        assert "Authorization" not in mock_requests.calls[0].request.headers
+
+    def test_other_guild_webhook_is_rejected(self, mock_requests):
+        mock_requests.get(self.API_URL, json=self.webhook(guild_id="2"))
+
+        with pytest.raises(BadRequestError) as exc_info:
+            verify_webhook_guild(
+                "https://discord.com/api/webhooks/123/abc-DEF_123", self.GUILD_ID
+            )
+
+        assert exc_info.value.message.startswith("다른 디스코드 서버의 웹훅입니다.")
+
+    @pytest.mark.parametrize(
+        "webhook",
+        [{"type": 2}, {"type": 3}, {"type": None}],
+        ids=["channel-follower", "application", "missing-type"],
+    )
+    def test_non_incoming_webhook_is_rejected(self, mock_requests, webhook):
+        mock_requests.get(self.API_URL, json=self.webhook(**webhook))
+
+        with pytest.raises(BadRequestError) as exc_info:
+            verify_webhook_guild(
+                "https://discord.com/api/webhooks/123/abc-DEF_123", self.GUILD_ID
+            )
+
+        assert exc_info.value.message == "유효한 디스코드 웹훅 URL을 입력해주세요."
+
+    @pytest.mark.parametrize("status", [401, 404])
+    def test_unknown_webhook_is_rejected(self, mock_requests, status):
+        mock_requests.get(
+            self.API_URL, status=status, json={"message": "Unknown Webhook"}
+        )
+
+        with pytest.raises(BadRequestError) as exc_info:
+            verify_webhook_guild(
+                "https://discord.com/api/webhooks/123/abc-DEF_123", self.GUILD_ID
+            )
+
+        assert exc_info.value.message.startswith("디스코드 웹훅을 찾을 수 없습니다.")
+
+    def test_rate_limit_raises_rate_limit_error(self, mock_requests):
+        mock_requests.get(self.API_URL, status=429, json={"retry_after": 1.5})
+
+        with pytest.raises(RateLimitError) as exc_info:
+            verify_webhook_guild(
+                "https://discord.com/api/webhooks/123/abc-DEF_123", self.GUILD_ID
+            )
+
+        assert exc_info.value.retry_after == 1.5
+
+    @pytest.mark.parametrize(
+        "kwargs",
+        [{"status": 500}, {"status": 403}, {"body": requests.ConnectionError("x")}],
+        ids=["5xx", "unexpected-status", "network-error"],
+    )
+    def test_discord_failure_is_502(self, mock_requests, kwargs):
+        mock_requests.get(self.API_URL, **kwargs)
+
+        with pytest.raises(DiscordApiUnavailableError):
+            verify_webhook_guild(
+                "https://discord.com/api/webhooks/123/abc-DEF_123", self.GUILD_ID
+            )
 
 
 class TestParseEmbedColor:
