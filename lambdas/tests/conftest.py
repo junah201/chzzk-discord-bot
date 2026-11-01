@@ -88,7 +88,10 @@ def dynamodb_table():
             GlobalSecondaryIndexes=[
                 {
                     "IndexName": "GSI-GuildID-v2",
-                    "KeySchema": [{"AttributeName": "guild_id", "KeyType": "HASH"}],
+                    "KeySchema": [
+                        {"AttributeName": "guild_id", "KeyType": "HASH"},
+                        {"AttributeName": "PK", "KeyType": "RANGE"},
+                    ],
                     "Projection": {"ProjectionType": "ALL"},
                 }
             ],

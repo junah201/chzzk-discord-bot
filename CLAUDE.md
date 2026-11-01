@@ -58,7 +58,7 @@ Frontend deploys automatically via `.github/workflows/frontend-deploy.yml` on pu
 
 ## DynamoDB schema (`chzzk-bot-db`)
 
-The table is not managed by `serverless.yml` (its definition there is commented out), so this is the only schema reference. Single-table design with `PK`/`SK` strings, a `type` attribute on every item, and GSI `GSI-GuildID-v2` (hash `guild_id`) used to list a guild's items (filter on `type = NOTI` for its notifications). Code mixes the low-level client (`{"S": ...}` typed values) and the `Table` resource (plain values); `shared.dynamo_to_python` converts client items.
+The table is not managed by `serverless.yml` (its definition there is commented out), so this is the only schema reference. Single-table design with `PK`/`SK` strings, a `type` attribute on every item, and GSI `GSI-GuildID-v2` (hash `guild_id`, range `PK`, projection `ALL`) used to list a guild's items (filter on `type = NOTI` for its notifications). Code mixes the low-level client (`{"S": ...}` typed values) and the `Table` resource (plain values); `shared.dynamo_to_python` converts client items.
 
 | `PK` | `SK` | `type` | Purpose |
 | --- | --- | --- | --- |
