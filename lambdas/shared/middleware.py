@@ -37,9 +37,9 @@ def middleware(logger: logging.Logger | None = None, admin_check: bool = False):
                         # API Gateway는 body가 없으면 "body": null을 보낸다.
                         try:
                             body = json.loads(event.get("body") or "{}")
-                        except json.JSONDecodeError:
+                        except json.JSONDecodeError as e:
                             logger.info(json.dumps({"type": "INVALID_JSON_BODY"}))
-                            raise BadRequestError()
+                            raise BadRequestError() from e
                         if isinstance(body, dict):
                             guild_id = body.get("guild_id")
 

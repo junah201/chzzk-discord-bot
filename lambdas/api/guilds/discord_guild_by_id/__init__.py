@@ -69,7 +69,7 @@ def handler(event, context):
             )
         )
         # 네트워크/DNS 단절 시 502 에러 처리
-        raise DiscordApiUnavailableError()
+        raise DiscordApiUnavailableError() from e
 
     logger.info(
         json.dumps(

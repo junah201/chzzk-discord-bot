@@ -53,7 +53,7 @@ def handler(event, context):
                 }
             )
         )
-        raise DiscordApiUnavailableError()
+        raise DiscordApiUnavailableError() from e
 
     logger.info(
         json.dumps(

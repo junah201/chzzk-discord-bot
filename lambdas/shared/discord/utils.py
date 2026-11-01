@@ -124,7 +124,7 @@ def get_channel(channel_id, token=DISCORD_TOKEN) -> dict | None:
                 ensure_ascii=False,
             )
         )
-        raise DiscordApiUnavailableError()
+        raise DiscordApiUnavailableError() from e
     if res.status_code != 200:
         return None
 
