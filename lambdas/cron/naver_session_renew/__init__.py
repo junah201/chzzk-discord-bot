@@ -8,6 +8,7 @@ import boto3
 import requests
 from shared import dynamo_to_python
 from shared.discord.utils import send_message
+from shared.utils import mask_secret
 from user_agent import generate_user_agent
 
 ADMIN_DISCORD_TOKEN = os.environ.get("ADMIN_DISCORD_TOKEN")
@@ -73,8 +74,8 @@ def handler(event, context):
                     {
                         "type": "NAVER_SESSION_RENEW_EXPIRED",
                         "SK": item.get("SK"),
-                        "NID_AUT": NID_AUT,
-                        "NID_SES": NID_SES,
+                        "NID_AUT": mask_secret(NID_AUT),
+                        "NID_SES": mask_secret(NID_SES),
                     }
                 )
             )
@@ -95,16 +96,12 @@ def handler(event, context):
                                 },
                                 {
                                     "name": "NID_AUT",
-                                    "value": f"`{NID_AUT[:7]}...{NID_AUT[-7:]}`"
-                                    if NID_AUT
-                                    else "`None`",
+                                    "value": f"`{mask_secret(NID_AUT)}`",
                                     "inline": False,
                                 },
                                 {
                                     "name": "NID_SES",
-                                    "value": f"`{NID_SES[:7]}...{NID_SES[-7:]}`"
-                                    if NID_SES
-                                    else "`None`",
+                                    "value": f"`{mask_secret(NID_SES)}`",
                                     "inline": False,
                                 },
                             ],
@@ -128,9 +125,9 @@ def handler(event, context):
         result.append(
             {
                 "SK": item.get("SK"),
-                "NID_AUT": NID_AUT,
-                "ORIGINAL_NID_SES": f"{NID_SES[:7]}...{NID_SES[-7:]}",
-                "NEW_NID_SES": f"{NEW_NID_SES[:7]}...{NEW_NID_SES[-7:]}"
+                "NID_AUT": mask_secret(NID_AUT),
+                "ORIGINAL_NID_SES": mask_secret(NID_SES),
+                "NEW_NID_SES": mask_secret(NEW_NID_SES)
                 if NEW_NID_SES not in ["expired", "error"]
                 else NEW_NID_SES,
             }
