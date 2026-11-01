@@ -79,7 +79,6 @@ functions:
       - http:
           path: event
           method: post
-          cors: true
     layers:
       - ${self:custom.layers.pynacl}
 
@@ -91,7 +90,6 @@ functions:
       - http:
           path: admin/event
           method: post
-          cors: true
     layers:
       - ${self:custom.layers.pynacl}
 
@@ -199,13 +197,16 @@ functions:
     handler: lambdas/cron/live_check.handler
     name: live_check_v2
     description: live check V2
-    timeout: 270
+    timeout: 285
+    memorySize: 160
+    maximumRetryAttempts: 0
 
   naver_session_renew:
     handler: lambdas/cron/naver_session_renew.handler
     name: naver_session_renew_v2
     description: 네이버 계정 세션 갱신
     timeout: 60
+    maximumRetryAttempts: 0
     events:
       - schedule: rate(12 hours)
 
@@ -213,6 +214,7 @@ functions:
     handler: lambdas/cron/sync_koreanbots_stats.handler
     name: sync_koreanbots_stats_v2
     description: Sync KoreanBots stats
+    maximumRetryAttempts: 0
     events:
       - schedule: rate(12 hours)
 
@@ -222,14 +224,16 @@ functions:
     description: Cleanup orphan chzzk channels and send report to discord channel
     timeout: 600
     memorySize: 256
+    maximumRetryAttempts: 0
     events:
-      - schedule: cron(30 20 L * ? *) # 매월 1일 5시 30분 (KST 기준) -> UTC 기준 11:30 PM (전날)
+      - schedule: cron(30 20 L * ? *) # 매월 1일 05:30 KST = 매월 말일 20:30 UTC
 
   weekly_report:
     handler: lambdas/cron/weekly_report.handler
     name: weekly_report_v2
     description: Send weekly report to discord channel
     timeout: 600
+    maximumRetryAttempts: 0
     events:
       - schedule:
           rate: cron(0 16 ? * SUN *) # 매주 월요일 01:00 KST = 일요일 16:00 UTC
@@ -324,6 +328,15 @@ resources:
         RestApiId:
           Ref: ApiGatewayRestApi
 
+    PermissionForEventsToInvokeLiveCheck:
+      Type: AWS::Lambda::Permission
+      Properties:
+        FunctionName:
+          Ref: LiveUnderscorecheckLambdaFunction
+        Action: lambda:InvokeFunction
+        Principal: events.amazonaws.com
+        SourceArn: "arn:aws:events:${aws:region}:${aws:accountId}:rule/live_check_trigger_for_*"
+
     LiveCheckTriggerFor0:
       Type: AWS::Events::Rule
       Properties:
@@ -337,18 +350,6 @@ resources:
                 - LiveUnderscorecheckLambdaFunction
                 - Arn
             Id: live_check_trigger_for_0
-
-    PermissionForEventsToInvokeLambda0:
-      Type: AWS::Lambda::Permission
-      Properties:
-        FunctionName:
-          Ref: LiveUnderscorecheckLambdaFunction
-        Action: lambda:InvokeFunction
-        Principal: events.amazonaws.com
-        SourceArn:
-          Fn::GetAtt:
-            - LiveCheckTriggerFor0
-            - Arn
 
     LiveCheckTriggerFor1:
       Type: AWS::Events::Rule
@@ -364,18 +365,6 @@ resources:
                 - Arn
             Id: live_check_trigger_for_1
 
-    PermissionForEventsToInvokeLambda1:
-      Type: AWS::Lambda::Permission
-      Properties:
-        FunctionName:
-          Ref: LiveUnderscorecheckLambdaFunction
-        Action: lambda:InvokeFunction
-        Principal: events.amazonaws.com
-        SourceArn:
-          Fn::GetAtt:
-            - LiveCheckTriggerFor1
-            - Arn
-
     LiveCheckTriggerFor2:
       Type: AWS::Events::Rule
       Properties:
@@ -389,18 +378,6 @@ resources:
                 - LiveUnderscorecheckLambdaFunction
                 - Arn
             Id: live_check_trigger_for_2
-
-    PermissionForEventsToInvokeLambda2:
-      Type: AWS::Lambda::Permission
-      Properties:
-        FunctionName:
-          Ref: LiveUnderscorecheckLambdaFunction
-        Action: lambda:InvokeFunction
-        Principal: events.amazonaws.com
-        SourceArn:
-          Fn::GetAtt:
-            - LiveCheckTriggerFor2
-            - Arn
 
     LiveCheckTriggerFor3:
       Type: AWS::Events::Rule
@@ -416,18 +393,6 @@ resources:
                 - Arn
             Id: live_check_trigger_for_3
 
-    PermissionForEventsToInvokeLambda3:
-      Type: AWS::Lambda::Permission
-      Properties:
-        FunctionName:
-          Ref: LiveUnderscorecheckLambdaFunction
-        Action: lambda:InvokeFunction
-        Principal: events.amazonaws.com
-        SourceArn:
-          Fn::GetAtt:
-            - LiveCheckTriggerFor3
-            - Arn
-
     LiveCheckTriggerFor4:
       Type: AWS::Events::Rule
       Properties:
@@ -441,18 +406,6 @@ resources:
                 - LiveUnderscorecheckLambdaFunction
                 - Arn
             Id: live_check_trigger_for_4
-
-    PermissionForEventsToInvokeLambda4:
-      Type: AWS::Lambda::Permission
-      Properties:
-        FunctionName:
-          Ref: LiveUnderscorecheckLambdaFunction
-        Action: lambda:InvokeFunction
-        Principal: events.amazonaws.com
-        SourceArn:
-          Fn::GetAtt:
-            - LiveCheckTriggerFor4
-            - Arn
 
     LiveCheckTriggerFor5:
       Type: AWS::Events::Rule
@@ -468,18 +421,6 @@ resources:
                 - Arn
             Id: live_check_trigger_for_5
 
-    PermissionForEventsToInvokeLambda5:
-      Type: AWS::Lambda::Permission
-      Properties:
-        FunctionName:
-          Ref: LiveUnderscorecheckLambdaFunction
-        Action: lambda:InvokeFunction
-        Principal: events.amazonaws.com
-        SourceArn:
-          Fn::GetAtt:
-            - LiveCheckTriggerFor5
-            - Arn
-
     LiveCheckTriggerFor6:
       Type: AWS::Events::Rule
       Properties:
@@ -493,18 +434,6 @@ resources:
                 - LiveUnderscorecheckLambdaFunction
                 - Arn
             Id: live_check_trigger_for_6
-
-    PermissionForEventsToInvokeLambda6:
-      Type: AWS::Lambda::Permission
-      Properties:
-        FunctionName:
-          Ref: LiveUnderscorecheckLambdaFunction
-        Action: lambda:InvokeFunction
-        Principal: events.amazonaws.com
-        SourceArn:
-          Fn::GetAtt:
-            - LiveCheckTriggerFor6
-            - Arn
 
     # TODO : Import DynamoDB Table from original resources
     # DynamoDBTable:
@@ -525,7 +454,7 @@ resources:
     #       - AttributeName: SK
     #         KeyType: RANGE
     #     GlobalSecondaryIndexes:
-    #       - IndexName: GSI-GuildID
+    #       - IndexName: GSI-GuildID-v2
     #         KeySchema:
     #           - AttributeName: guild_id
     #             KeyType: HASH
@@ -585,12 +514,13 @@ resources:
           PriceClass: PriceClass_All
 
           CustomErrorResponses:
+            # 없는 경로는 리라이트 후 S3가 403을 돌려주므로 403도 404 페이지로 보낸다
             - ErrorCode: 403
-              ResponseCode: 200
-              ResponsePagePath: /index.html
+              ResponseCode: 404
+              ResponsePagePath: /404.html
             - ErrorCode: 404
-              ResponseCode: 200
-              ResponsePagePath: /index.html
+              ResponseCode: 404
+              ResponsePagePath: /404.html
 
           Origins:
             - Id: DevAppOrigin
