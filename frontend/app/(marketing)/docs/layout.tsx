@@ -10,7 +10,7 @@ export default function DocsLayout({
 }) {
   return (
     <section className="relative min-h-screen pt-32 pb-20">
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <GlowEffect
           variant="breathing"
           duration={10}
