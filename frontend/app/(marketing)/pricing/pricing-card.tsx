@@ -65,19 +65,15 @@ export default function PricingCard({ plan, index }: PricingCardProps) {
         )}
 
         {/* Icon */}
-        <div className="relative w-16 h-16 rounded-xl mb-6">
-          <div
-            className={`absolute inset-0 rounded-xl bg-linear-to-br ${plan.color} p-2.5`}
-          >
-            <PlanIcon className="w-full h-full text-white" />
-          </div>
-          {/* Glow effect on hover */}
-          <motion.div
-            className={cn(
-              `absolute inset-0 rounded-xl bg-linear-to-br ${plan.color}`,
-              "opacity-0 group-hover:opacity-50 blur-xl transition-opacity",
-            )}
-          />
+        <div
+          className={cn(
+            "mb-6 flex size-12 items-center justify-center rounded-xl border",
+            plan.isRecommended
+              ? "border-primary/40 bg-primary/15 text-primary"
+              : "border-border bg-secondary text-foreground/80",
+          )}
+        >
+          <PlanIcon className="size-6" />
         </div>
 
         {/* Plan Info */}

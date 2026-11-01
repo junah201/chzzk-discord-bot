@@ -1,107 +1,228 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useInView } from "motion/react";
-import { useRef } from "react";
-import { Zap, Settings, Bell, Shield } from "lucide-react";
-import { Feature } from "./feature.interface";
-import { FeatureCard } from "./feature-card";
-import { GlowEffect } from "@/components/ui/glow-effect";
+import { Bell, Radio, Zap } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const features: Feature[] = [
-  {
-    icon: Zap,
-    title: "실시간 알림",
-    description:
-      "방송 시작과 동시에 디스코드로 즉시 알림을 받아보세요. 단 한 순간도 놓치지 않습니다.",
-    gradient: "from-primary to-emerald-500",
-  },
-  {
-    icon: Settings,
-    title: "간편한 설정",
-    description:
-      "복잡한 설정은 이제 그만. 몇 번의 클릭만으로 원하는 스트리머의 알림을 설정할 수 있습니다.",
-    gradient: "from-blue-500 to-cyan-500",
-  },
-  {
-    icon: Bell,
-    title: "맞춤형 알림",
-    description:
-      "알림 메시지, 멘션, 채널 등을 자유롭게 커스터마이징하여 서버에 최적화된 알림을 만드세요.",
-    gradient: "from-purple-500 to-pink-500",
-  },
-  {
-    icon: Shield,
-    title: "안정적인 서비스",
-    description:
-      "24시간 무중단 모니터링으로 언제나 안정적으로 알림을 전송합니다. 신뢰할 수 있는 서비스.",
-    gradient: "from-orange-500 to-red-500",
-  },
-];
+const reveal = (delay = 0) => ({
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-80px" },
+  transition: { duration: 0.5, delay },
+});
 
 export function Features() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
   return (
-    <section id="features" className="py-16 sm:py-20 relative overflow-hidden">
-      {/* 상단 Primary Glow */}
-      <GlowEffect
-        variant="breathing" // 원하시면 'static' 또는 'pulse'로 변경 가능
-        className="top-1/10 left-1/4 w-96 h-96 bg-primary/5"
-      />
-
-      {/* 하단 Emerald Glow */}
-      <GlowEffect
-        variant="breathing"
-        delay={2} // 두 효과가 동시에 움직이지 않도록 딜레이를 주면 더 자연스럽습니다
-        className="bottom-0 right-1/4 w-96 h-96 bg-emerald-500/5"
-      />
-
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Section Header */}
-        <motion.div
-          ref={ref}
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-3xl mx-auto mb-16"
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={
-              isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }
-            }
-            transition={{ duration: 0.5 }}
-            className="inline-block px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
+    <section id="features" className="relative py-16 sm:py-24">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+          {/* 왼쪽: 편집 디자인처럼 왼쪽 정렬된 제목. 넓은 화면에서는 스크롤해도 따라옴 */}
+          <motion.header
+            {...reveal()}
+            className="break-keep lg:sticky lg:top-32 lg:self-start"
           >
-            <span className="text-sm font-semibold text-primary">
+            <p className="mb-5 flex items-center gap-2 text-sm font-semibold text-primary">
+              <span className="relative flex size-2">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#e5172d] opacity-60 motion-reduce:animate-none" />
+                <span className="relative inline-flex size-2 rounded-full bg-[#e5172d]" />
+              </span>
               핵심 기능
-            </span>
-          </motion.div>
+            </p>
+            <h2 className="text-4xl leading-[1.15] font-bold tracking-tight sm:text-5xl">
+              방송 시작을
+              <br />
+              <span className="text-primary">가장 먼저</span> 알려드립니다
+            </h2>
+            <p className="mt-6 max-w-md text-lg leading-relaxed text-muted-foreground">
+              한 번 설정해 두면, 방송이 시작될 때마다 디스코드 채널로 알림을
+              보냅니다.
+            </p>
+          </motion.header>
 
-          <h2 className="text-4xl sm:text-5xl font-bold mb-6">
-            <span className="bg-linear-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
-              치직이 제공하는
-            </span>
-            <br />
-            <span className="bg-linear-to-r from-primary to-emerald-400 bg-clip-text text-transparent">
-              강력한 기능들
-            </span>
-          </h2>
+          {/* 오른쪽: 크기가 다른 타일을 엮은 벤토 그리드 */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Tile
+              className="sm:col-span-2"
+              delay={0}
+              title="실시간 알림"
+              description="방송이 시작되면 등록한 디스코드 채널로 알림을 보냅니다."
+            >
+              <SignalFlow />
+            </Tile>
 
-          <p className="text-lg text-muted-foreground">
-            스트리머와 시청자를 위한 최고의 알림 서비스
-          </p>
-        </motion.div>
+            <Tile
+              delay={0.08}
+              title="간편한 설정"
+              description="명령어를 외울 필요 없이, 대시보드에서 클릭 몇 번으로 등록합니다."
+            >
+              <SetupSteps />
+            </Tile>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-6xl mx-auto">
-          {features.map((feature, index) => (
-            <FeatureCard key={feature.title} feature={feature} index={index} />
-          ))}
+            <Tile
+              delay={0.16}
+              title="맞춤형 알림"
+              description="알림 메시지, 멘션, 임베드 모양을 서버에 맞게 바꿀 수 있습니다."
+            >
+              <CustomChips />
+            </Tile>
+
+            <Tile
+              className="sm:col-span-2"
+              delay={0.24}
+              title="안정적인 서비스"
+              description="24시간 방송 상태를 확인하고, 알림이 잘 전송됐는지 대시보드에서 보여줍니다."
+            >
+              <UptimeBars />
+            </Tile>
+          </div>
         </div>
       </div>
     </section>
+  );
+}
+
+function Tile({
+  title,
+  description,
+  delay,
+  className,
+  children,
+}: {
+  title: string;
+  description: string;
+  delay: number;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <motion.article
+      {...reveal(delay)}
+      className={cn(
+        "group flex flex-col gap-6 rounded-2xl border border-border bg-card/60 p-6 transition-colors hover:border-primary/40 sm:p-7",
+        className,
+      )}
+    >
+      <div className="flex-1">{children}</div>
+      <div className="break-keep">
+        <h3 className="text-lg font-semibold">{title}</h3>
+        <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+          {description}
+        </p>
+      </div>
+    </motion.article>
+  );
+}
+
+/** 방송 시작 → 치직 감지 → 디스코드 도착으로 신호가 흘러가는 그림 */
+function SignalFlow() {
+  const steps = [
+    { icon: Radio, label: "방송 시작", accent: "text-[#ff4d5e]" },
+    { icon: Zap, label: "치직 감지", accent: "text-primary" },
+    { icon: Bell, label: "디스코드 알림", accent: "text-[#8c9eff]" },
+  ];
+
+  return (
+    <div className="relative px-2 pt-2">
+      {/* 노드를 잇는 선. 화면에 들어오면 왼쪽부터 채워짐 */}
+      <div className="absolute top-7 right-[16%] left-[16%] h-px bg-border">
+        <motion.div
+          className="h-full origin-left bg-linear-to-r from-[#ff4d5e] via-primary to-[#8c9eff]"
+          initial={{ scaleX: 0 }}
+          whileInView={{ scaleX: 1 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 1.2, ease: "easeInOut", delay: 0.3 }}
+        />
+      </div>
+
+      <ol className="relative grid grid-cols-3">
+        {steps.map(({ icon: Icon, label, accent }) => (
+          <li key={label} className="flex flex-col items-center gap-3">
+            <span className="flex size-10 items-center justify-center rounded-full border border-border bg-background">
+              <Icon className={cn("size-[18px]", accent)} />
+            </span>
+            <span className="text-xs font-medium text-muted-foreground sm:text-sm">
+              {label}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+function SetupSteps() {
+  const steps = ["봇 초대", "치지직 ID 입력", "알림 채널 선택"];
+
+  return (
+    <ol className="flex flex-col gap-2">
+      {steps.map((step, index) => (
+        <li
+          key={step}
+          className="flex items-center gap-3 rounded-lg border border-border/70 bg-background/60 px-3 py-2 text-sm"
+        >
+          <span className="font-mono text-xs text-primary tabular-nums">
+            0{index + 1}
+          </span>
+          {step}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function CustomChips() {
+  const chips = [
+    { label: "@everyone", mention: true },
+    { label: "커스텀 메시지" },
+    { label: "임베드 색상" },
+    { label: "방송 태그" },
+    { label: "바로가기 버튼" },
+    { label: "커스텀 웹훅" },
+  ];
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {chips.map(({ label, mention }) => (
+        <span
+          key={label}
+          className={cn(
+            "rounded-md px-2.5 py-1 text-sm",
+            mention
+              ? "bg-[#5865f2]/25 font-medium text-[#c9cdfb]"
+              : "border border-border/70 bg-background/60 text-foreground/80",
+          )}
+        >
+          {label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/** 상태 페이지처럼 하루 단위 막대를 나열한 가동 기록 */
+function UptimeBars() {
+  const days = 45;
+
+  return (
+    <div>
+      <div className="mb-3 flex items-baseline justify-between">
+        <span className="text-3xl font-bold tracking-tight tabular-nums">
+          99.9<span className="text-xl text-muted-foreground">%</span>
+        </span>
+        <span className="text-xs text-muted-foreground">가동률</span>
+      </div>
+      <div className="flex h-8 gap-[3px]">
+        {Array.from({ length: days }, (_, index) => (
+          <motion.span
+            key={index}
+            className="flex-1 origin-bottom rounded-[2px] bg-primary/80"
+            initial={{ scaleY: 0.2, opacity: 0 }}
+            whileInView={{ scaleY: 1, opacity: 1 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.3, delay: 0.2 + index * 0.012 }}
+          />
+        ))}
+      </div>
+    </div>
   );
 }

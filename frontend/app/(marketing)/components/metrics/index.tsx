@@ -1,131 +1,94 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useInView } from "motion/react";
-import { useRef } from "react";
-import { Bell, Server, TrendingUp, Radio, ArrowRight } from "lucide-react";
-import { Metric } from "./metric.interface";
-import { MetricCard } from "./metric-card";
-import { GlowEffect } from "@/components/ui/glow-effect";
+import { ArrowRight } from "lucide-react";
 import { LinkButton } from "@/components/ui/link-button";
 import routeMap from "@/constants/route-map";
+import { AnimatedNumber } from "./animated-number";
 
-const metrics: Metric[] = [
-  {
-    icon: Server,
-    value: 17500,
-    label: "활성 서버",
-    suffix: "+",
-    gradient: "from-primary to-emerald-500",
-    description: "현재 봇을 사용 중인 디스코드 서버",
-  },
-  {
-    icon: Radio,
-    value: 17000,
-    label: "모니터링 중인 채널",
-    suffix: "+",
-    gradient: "from-blue-500 to-cyan-500",
-    description: "실시간 감지 중인 치지직 스트리머",
-  },
-  {
-    icon: Bell,
-    value: 300,
-    label: "누적 알림 전송",
-    suffix: "만+",
-    gradient: "from-purple-500 to-pink-500",
-    description: "유저들에게 전달된 방송 알림 총합",
-  },
-  {
-    icon: TrendingUp,
-    value: 99.9,
-    label: "가동률",
-    suffix: "%",
-    gradient: "from-orange-500 to-red-500",
-    description: "최근 1년 이상 무사고 운영 중",
-  },
+const secondaryMetrics = [
+  { value: 17000, suffix: "+", label: "모니터링 중인 치지직 채널" },
+  { value: 300, suffix: "만+", label: "누적 방송 알림" },
 ];
 
 export function Metrics() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
   return (
-    <section id="metrics" className="py-16 sm:py-20 relative overflow-hidden">
-      <GlowEffect
-        variant="static"
-        className="top-1/2 left-0 w-96 h-96 -translate-y-1/2"
+    <section
+      id="metrics"
+      className="relative overflow-hidden border-y border-border bg-card/40 py-16 sm:py-24"
+    >
+      {/* 방송 화면의 주사선 질감 */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.35]"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 4px)",
+        }}
       />
-      <GlowEffect
-        variant="static"
-        className="top-1/2 right-0 w-96 h-96 bg-emerald-500/10 -translate-y-1/2"
-      />
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Section Header */}
-        <motion.div
-          ref={ref}
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-3xl mx-auto mb-16"
-        >
+
+      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-6xl items-end gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+          {/* 대표 숫자 하나를 크게 */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={
-              isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }
-            }
-            transition={{ duration: 0.5 }}
-            className="inline-block px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.6 }}
+            className="break-keep"
           >
-            <span className="text-sm font-semibold text-primary">
-              신뢰할 수 있는 서비스
-            </span>
+            <h2 className="mb-4 text-sm font-semibold text-primary">
+              숫자로 보는 치직
+            </h2>
+            <p className="text-7xl leading-none font-bold tracking-tighter whitespace-nowrap tabular-nums sm:text-8xl lg:text-9xl">
+              <AnimatedNumber value={17500} />
+              <span className="text-primary">+</span>
+            </p>
+            <p className="mt-5 max-w-md text-lg text-muted-foreground sm:text-xl">
+              디스코드 서버가 치직으로 방송 알림을 받고 있습니다.
+            </p>
           </motion.div>
 
-          <h2 className="text-4xl sm:text-5xl font-bold mb-6">
-            <span className="bg-linear-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
-              수치로 증명하는
-            </span>
-            <br />
-            <span className="bg-linear-to-r from-primary to-emerald-400 bg-clip-text text-transparent">
-              치직의 성장
-            </span>
-          </h2>
-
-          <p className="text-lg text-muted-foreground">
-            많은 사용자들이 선택한 안정적이고 빠른 알림 서비스
-          </p>
-        </motion.div>
-
-        {/* Metrics Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 max-w-6xl mx-auto">
-          {metrics.map((metric, index) => (
-            <MetricCard key={metric.label} metric={metric} index={index} />
-          ))}
-        </div>
-
-        {/* Bottom CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-center mt-16"
-        >
-          <p className="text-muted-foreground mb-6">
-            지금 바로 치직을 시작하고 커뮤니티에 참여하세요
-          </p>
-          <LinkButton
-            href={routeMap.REDIRECTS.INVITE}
-            target="_blank"
-            variant="primary"
-            effect="glow"
-            size="lg"
-            className="w-full sm:w-auto"
+          {/* 보조 숫자와 CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.6, delay: 0.15 }}
           >
-            봇 초대하기
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </LinkButton>
-        </motion.div>
+            <dl className="grid grid-cols-2 divide-x divide-border border-t border-border">
+              {secondaryMetrics.map((metric) => (
+                <div
+                  key={metric.label}
+                  className="flex flex-col-reverse pt-6 pr-4 break-keep [&:not(:first-child)]:pl-6"
+                >
+                  <dt className="mt-2 text-sm text-muted-foreground">
+                    {metric.label}
+                  </dt>
+                  <dd className="text-3xl font-bold tracking-tight whitespace-nowrap tabular-nums sm:text-4xl">
+                    <AnimatedNumber value={metric.value} />
+                    <span className="text-primary">{metric.suffix}</span>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+
+            <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
+              <LinkButton
+                href={routeMap.REDIRECTS.INVITE}
+                target="_blank"
+                variant="primary"
+                size="lg"
+                className="w-full sm:w-auto"
+              >
+                봇 초대하기
+                <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
+              </LinkButton>
+              <p className="text-sm text-muted-foreground">
+                초대 후 대시보드에서 바로 알림을 등록할 수 있습니다.
+              </p>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
