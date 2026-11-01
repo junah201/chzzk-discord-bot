@@ -275,21 +275,6 @@ def send_notification(chzzk_id: str, index: int):
             notification_item=noti,
         )
 
-        # 채널이 존재하지 않는 경우
-        if res.status_code == 404:
-            noti_fail_cnt += 1
-            logger.error(
-                json.dumps(
-                    {
-                        "type": "DISCORD_CHANNEL_NOT_FOUND",
-                        "chzzk_id": chzzk_id,
-                        "discord_channel_id": discord_channel_id,
-                    },
-                    ensure_ascii=False,
-                )
-            )
-            continue
-
         update_attr_values = {
             ":name": {"S": chzzk["channel"]["channelName"]},
             ":url": {"S": chzzk["channel"]["channelImageUrl"] or ""},
@@ -297,21 +282,33 @@ def send_notification(chzzk_id: str, index: int):
             ":last_noti_at": {"S": datetime.now().isoformat()},
         }
 
-        # 메시지 전송에 실패한 경우
+        # 메시지 전송에 실패한 경우 (채널이 존재하지 않는 404 포함)
         if res.status_code not in (200, 204):
             noti_fail_cnt += 1
-            logger.error(
-                json.dumps(
-                    {
-                        "type": "DISCORD_MESSAGE_SEND_FAIL",
-                        "chzzk_id": chzzk_id,
-                        "discord_channel_id": discord_channel_id,
-                        "status_code": res.status_code,
-                        "response": res.text,
-                    },
-                    ensure_ascii=False,
-                ),
-            )
+            if res.status_code == 404:
+                logger.error(
+                    json.dumps(
+                        {
+                            "type": "DISCORD_CHANNEL_NOT_FOUND",
+                            "chzzk_id": chzzk_id,
+                            "discord_channel_id": discord_channel_id,
+                        },
+                        ensure_ascii=False,
+                    )
+                )
+            else:
+                logger.error(
+                    json.dumps(
+                        {
+                            "type": "DISCORD_MESSAGE_SEND_FAIL",
+                            "chzzk_id": chzzk_id,
+                            "discord_channel_id": discord_channel_id,
+                            "status_code": res.status_code,
+                            "response": res.text,
+                        },
+                        ensure_ascii=False,
+                    ),
+                )
             dynamodb.update_item(
                 TableName="chzzk-bot-db",
                 Key={"PK": noti.get("PK"), "SK": noti.get("SK")},

@@ -325,19 +325,19 @@ class TestDeliveryResult:
         assert noti["chzzk_name"] == "스트리머"
         assert logged_types(log_error) == ["DISCORD_MESSAGE_SEND_FAIL"]
 
-    def test_channel_not_found_is_counted_but_not_recorded(
+    def test_channel_not_found_is_recorded_as_failure(
         self, mocker, ddb, get_chzzk, send, log_error
     ):
-        # 현재 동작: 404는 실패로 세지만 NOTI에 last_noti_status/noti_fail_count를 기록하지 않는다.
         put_chzzk(ddb.table)
-        put_noti(ddb.table, "10")
+        put_noti(ddb.table, "10", noti_fail_count=1)
         send.return_value = mocker.Mock(status_code=404, text="Unknown Channel")
 
         assert live_check.send_notification(CHZZK_ID, 3) == (1, 0, 1)
 
         noti = get_noti(ddb.table, "10")
-        assert "last_noti_status" not in noti
-        assert "noti_fail_count" not in noti
+        assert noti["last_noti_status"] == "FAIL_404"
+        assert noti["noti_fail_count"] == 2
+        datetime.fromisoformat(noti["last_noti_at"])
         assert logged_types(log_error) == ["DISCORD_CHANNEL_NOT_FOUND"]
 
     def test_mixed_results_are_counted(self, mocker, ddb, get_chzzk, send):
@@ -352,6 +352,7 @@ class TestDeliveryResult:
         assert live_check.send_notification(CHZZK_ID, 3) == (1, 1, 2)
         assert get_noti(ddb.table, "10")["last_noti_status"] == "SUCCESS"
         assert get_noti(ddb.table, "11")["last_noti_status"] == "FAIL_500"
+        assert get_noti(ddb.table, "12")["last_noti_status"] == "FAIL_404"
 
     def test_send_exception_stops_remaining_notifications(self, ddb, get_chzzk, send):
         # 현재 동작: 전송 중 예외가 나면 그대로 올라가서 남은 알림을 보내지 않는다.
