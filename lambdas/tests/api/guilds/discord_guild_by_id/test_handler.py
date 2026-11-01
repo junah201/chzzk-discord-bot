@@ -3,22 +3,16 @@ import json
 
 import pytest
 import requests
-from shared.discord.utils import AdminCheckResult
+from shared.discord.utils import DISCORD_API_BASE_URL
 
 discord_guild_by_id = importlib.import_module("api.guilds.discord_guild_by_id")
-middleware_module = importlib.import_module("shared.middleware")
+
+pytestmark = pytest.mark.usefixtures("as_admin")
 
 EVENT = {
     "headers": {"Authorization": "Bearer user-token"},
     "pathParameters": {"guild_id": "1"},
 }
-
-
-@pytest.fixture(autouse=True)
-def admin(mocker):
-    return mocker.patch.object(
-        middleware_module, "is_admin", return_value=AdminCheckResult(True, 200)
-    )
 
 
 @pytest.fixture
@@ -74,7 +68,7 @@ def test_discord_error_status(mocker, session_get, status, expected_status, code
     assert body["code"] == code
 
 
-def test_returns_guild_with_slot_info(mocker, session_get, ddb):
+def discord_guild(mocker, session_get):
     session_get.return_value = mocker.Mock(status_code=200, text="{}")
     session_get.return_value.json.return_value = {
         "id": "1",
@@ -84,6 +78,10 @@ def test_returns_guild_with_slot_info(mocker, session_get, ddb):
         "approximate_member_count": 10,
         "owner_id": "999",
     }
+
+
+def test_returns_guild_with_slot_info(mocker, session_get, ddb):
+    discord_guild(mocker, session_get)
     ddb.table.put_item(
         Item={
             "PK": "GUILD#1",
@@ -107,3 +105,14 @@ def test_returns_guild_with_slot_info(mocker, session_get, ddb):
         "current_count": 2,
         "max_limit": 10,
     }
+    assert session_get.call_args.args == (f"{DISCORD_API_BASE_URL}/guilds/1",)
+    assert session_get.call_args.kwargs["params"] == {"with_counts": "true"}
+
+
+@pytest.mark.usefixtures("ddb")
+def test_guild_without_item_gets_default_slots(mocker, session_get):
+    discord_guild(mocker, session_get)
+
+    _, body = call()
+
+    assert (body["current_count"], body["max_limit"]) == (0, 5)

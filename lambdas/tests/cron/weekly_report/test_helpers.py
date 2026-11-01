@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 import pytest
+from cron import weekly_report
 from cron.weekly_report import (
     KST,
     count_query,
@@ -53,20 +54,22 @@ class TestGetWeekRange:
         assert end.isoformat() == "2026-11-01T23:59:59+09:00"
 
     @pytest.mark.parametrize("event", [None, {}], ids=["none", "empty"])
-    def test_without_base_date_uses_now(self, event):
-        start, end = get_week_range(event)
-        now = datetime.now(KST)
+    def test_without_base_date_uses_now(self, monkeypatch, event):
+        # 실제 시계를 쓰면 월요일 0시(KST) 경계에서 결과가 달라지므로 고정한다.
+        # UTC로는 일요일이지만 KST로는 월요일이므로 KST 기준 주가 쓰여야 한다.
+        fixed_now = datetime(2026, 11, 2, 0, 30, tzinfo=KST)
 
-        assert start.weekday() == 0
-        assert (start.hour, start.minute, start.second, start.microsecond) == (
-            0,
-            0,
-            0,
-            0,
-        )
-        assert end - start == timedelta(days=7, seconds=-1)
-        assert now - timedelta(days=14) < start <= now - timedelta(days=7)
-        assert end < now
+        class FixedDatetime(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return fixed_now.astimezone(tz)
+
+        monkeypatch.setattr(weekly_report, "datetime", FixedDatetime)
+
+        start, end = get_week_range(event)
+
+        assert start.isoformat() == "2026-10-26T00:00:00+09:00"
+        assert end.isoformat() == "2026-11-01T23:59:59+09:00"
 
     def test_invalid_base_date_raises(self):
         with pytest.raises(ValueError):

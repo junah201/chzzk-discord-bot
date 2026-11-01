@@ -109,6 +109,16 @@ class TestSuccess:
         ) == (True, True, True)
         assert noti["is_subscription_active"] is False
 
+    @pytest.mark.parametrize(
+        "flag", ["disable_embed", "disable_button", "disable_notification"]
+    )
+    def test_each_flag_is_saved_to_its_own_attribute(self, setup, flag):
+        call(**{flag: True})
+
+        noti = get_noti(setup.table)
+        flags = ("disable_embed", "disable_button", "disable_notification")
+        assert {f: noti[f] for f in flags} == {f: f == flag for f in flags}
+
     def test_missing_options_reset_to_defaults(self, setup):
         put_noti(setup.table, disable_embed=True, custom_message="예전 메시지")
 

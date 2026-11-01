@@ -251,6 +251,25 @@ class TestMessage:
 
         assert sent_data(send, "10") == {"content": "알림"}
 
+    @pytest.mark.parametrize(
+        ("flag", "removed", "kept"),
+        [
+            ("disable_embed", "embeds", "components"),
+            ("disable_button", "components", "embeds"),
+        ],
+    )
+    def test_each_flag_removes_only_its_part(
+        self, ddb, get_chzzk, send, flag, removed, kept
+    ):
+        put_chzzk(ddb.table)
+        put_noti(ddb.table, "10", **{flag: True})
+
+        live_check.send_notification(CHZZK_ID, 3)
+
+        data = sent_data(send, "10")
+        assert removed not in data
+        assert kept in data
+
     def test_subscriber_embed_color(self, ddb, get_chzzk, send):
         put_chzzk(ddb.table)
         put_noti(ddb.table, "10", is_subscription_active=True, embed_color="#FF0000")

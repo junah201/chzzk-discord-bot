@@ -128,10 +128,17 @@ class TestSuccess:
         assert body is None
         chzzk = get_item(ddb.table, f"CHZZK#{CHZZK_ID}", f"CHZZK#{CHZZK_ID}")
         assert (chzzk["index"], chzzk["lastLiveId"]) == (1, 123)
+        assert (chzzk["channelName"], chzzk["lastLiveTitle"]) == (
+            "스트리머",
+            "방송 제목",
+        )
         noti = get_noti(ddb.table)
         assert (noti["guild_id"], noti["channel_name"]) == (GUILD_ID, "알림-채널")
+        # 디스코드 채널 정보와 치지직 채널 정보가 뒤바뀌지 않았는지 함께 확인한다.
+        assert (noti["chzzk_name"], noti["chzzk_id"]) == ("스트리머", CHZZK_ID)
         assert noti["custom_message"] == "방송 시작!"
-        assert get_guild(ddb.table)["current_count"] == 1
+        guild = get_guild(ddb.table)
+        assert (guild["current_count"], guild["max_limit"]) == (1, 5)
         follow.assert_called_once_with(CHZZK_ID, "fake-aut-1", "fake-ses-1")
 
     def test_existing_guild_count_increments(self, ddb):
@@ -143,7 +150,7 @@ class TestSuccess:
         guild = get_guild(ddb.table)
         assert (guild["current_count"], guild["max_limit"]) == (3, 10)
 
-    def test_registered_channel_is_not_registered_again(self, ddb):
+    def test_registered_channel_is_not_registered_again(self, ddb, follow):
         ddb.table.put_item(
             Item={
                 "PK": f"CHZZK#{CHZZK_ID}",
@@ -159,6 +166,9 @@ class TestSuccess:
         assert res["statusCode"] == 204
         chzzk = get_item(ddb.table, f"CHZZK#{CHZZK_ID}", f"CHZZK#{CHZZK_ID}")
         assert (chzzk["index"], chzzk["lastLiveId"]) == (6, 999)
+        # 현재 동작: 저장된 index(6)가 아니라 새로 계산한 index(1) 계정으로 팔로우한다.
+        # live_check는 6번 계정으로 이 채널을 확인하므로 1번 계정의 팔로우는 낭비일 수 있다.
+        follow.assert_called_once_with(CHZZK_ID, "fake-aut-1", "fake-ses-1")
 
     @pytest.mark.parametrize(
         ("chzzk_id", "index"),
@@ -409,3 +419,6 @@ class TestDuplicate:
         res, _ = call()
 
         assert res["statusCode"] == 500
+        # 트랜잭션이 취소되므로 다른 서버의 알림도, 이 서버의 카운터도 그대로다.
+        assert get_noti(ddb.table)["guild_id"] == "999"
+        assert get_guild(ddb.table)["current_count"] == 0

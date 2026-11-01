@@ -174,3 +174,29 @@ class TestRenewFailed:
             for f in send_message.call_args.kwargs["data"]["embeds"][0]["fields"]
         }
         assert (fields["NID_AUT"], fields["NID_SES"]) == ("`None`", "`None`")
+
+    def test_expired_cookie_is_not_saved(self, ddb, mock_requests, logs, send_message):
+        put_account(ddb.table)
+        add_user_status(mock_requests, new_nid_ses="expired")
+
+        result = naver_session_renew.handler({}, None)
+
+        assert get_account(ddb.table)["NID_SES"] == NID_SES
+        assert result[0]["NEW_NID_SES"] == "expired"
+        assert logged(logs["error"], "NAVER_SESSION_RENEW_EXPIRED")["SK"] == "NAVER#0"
+        send_message.assert_called_once()
+
+    def test_one_failed_account_does_not_block_others(
+        self, ddb, mock_requests, logs, send_message
+    ):
+        put_account(ddb.table, index=0)
+        put_account(ddb.table, index=1)
+        add_user_status(mock_requests, new_nid_ses=None)
+        add_user_status(mock_requests, "NEW_SESSION_FOR_SECOND_ACCOUNT")
+
+        result = naver_session_renew.handler({}, None)
+
+        assert [r["NEW_NID_SES"] for r in result] == ["error", "NEW_...OUNT"]
+        assert get_account(ddb.table, 0)["NID_SES"] == NID_SES
+        assert get_account(ddb.table, 1)["NID_SES"] == "NEW_SESSION_FOR_SECOND_ACCOUNT"
+        send_message.assert_called_once()

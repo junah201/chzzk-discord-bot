@@ -4,22 +4,16 @@ import json
 import pytest
 import requests
 from shared.discord import CHANNEL_TYPE
-from shared.discord.utils import AdminCheckResult
+from shared.discord.utils import DISCORD_API_BASE_URL
 
 get_guild_channels = importlib.import_module("api.guilds.get_guild_channels")
-middleware_module = importlib.import_module("shared.middleware")
+
+pytestmark = pytest.mark.usefixtures("as_admin")
 
 EVENT = {
     "headers": {"Authorization": "Bearer user-token"},
     "pathParameters": {"guild_id": "1"},
 }
-
-
-@pytest.fixture(autouse=True)
-def admin(mocker):
-    return mocker.patch.object(
-        middleware_module, "is_admin", return_value=AdminCheckResult(True, 200)
-    )
 
 
 @pytest.fixture
@@ -55,6 +49,7 @@ def test_network_failure_is_502(mocker, session_get, error):
     [
         (404, 404, "SERVER_NOT_FOUND"),
         (403, 404, "BOT_NOT_JOINED"),
+        # 현재 동작: 봇 토큰 요청의 401을 유저 로그인 만료(UNAUTHORIZED)로 응답한다.
         (401, 401, "UNAUTHORIZED"),
         (500, 502, "DISCORD_API_ERROR"),
     ],
@@ -82,6 +77,7 @@ def test_returns_text_and_news_channels_only(mocker, session_get):
 
     assert res["statusCode"] == 200
     assert [c["id"] for c in body] == ["1", "3"]
+    assert session_get.call_args.args == (f"{DISCORD_API_BASE_URL}/guilds/1/channels",)
 
 
 def test_no_text_channels_returns_empty_list(mocker, session_get):
