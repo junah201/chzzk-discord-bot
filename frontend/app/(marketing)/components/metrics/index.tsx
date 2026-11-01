@@ -40,7 +40,7 @@ export function Metrics() {
               숫자로 보는 치직
             </h2>
             <p className="text-7xl leading-none font-bold tracking-tighter whitespace-nowrap tabular-nums sm:text-8xl lg:text-9xl">
-              <AnimatedNumber value={17500} />
+              <AnimatedNumber value={18000} />
               <span className="text-primary">+</span>
             </p>
             <p className="mt-5 max-w-md text-lg text-muted-foreground sm:text-xl">
