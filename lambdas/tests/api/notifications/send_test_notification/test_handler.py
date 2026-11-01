@@ -165,16 +165,39 @@ def test_subscriber_webhook_and_color_are_used(ddb, mock_requests):
     assert sent_payload(mock_requests)["embeds"][0]["color"] == 0xFF0000
 
 
-def test_deleted_discord_channel_removes_notification(ddb, mock_requests):
-    # 현재 동작: 404면 알림을 지운다. (GUILD current_count는 줄이지 않는다.)
-    put_noti(ddb.table)
-    mock_requests.post(MESSAGE_URL, status=404, json={"code": 10003})
+@pytest.mark.parametrize(
+    ("noti_attrs", "url", "discord_code"),
+    [
+        ({}, MESSAGE_URL, 10003),
+        (
+            {"is_subscription_active": True, "webhook_url": WEBHOOK_URL},
+            WEBHOOK_URL,
+            10015,
+        ),
+    ],
+    ids=["deleted-channel", "deleted-webhook"],
+)
+def test_discord_404_keeps_notification(
+    ddb, mock_requests, noti_attrs, url, discord_code
+):
+    put_noti(ddb.table, **noti_attrs)
+    mock_requests.post(url, status=404, json={"code": discord_code})
 
     res, body = call()
 
     assert res["statusCode"] == 404
     assert body["message"] == "해당 디스코드 채널이 존재하지 않습니다."
-    assert get_noti(ddb.table) is None
+    assert get_noti(ddb.table) == {
+        "PK": f"CHZZK#{CHZZK_ID}",
+        "SK": f"NOTI#{CHANNEL_ID}",
+        "type": "NOTI",
+        "guild_id": GUILD_ID,
+        "channel_id": CHANNEL_ID,
+        "custom_message": "@everyone 방송 시작!",
+        "disable_embed": False,
+        "disable_button": False,
+        **noti_attrs,
+    }
 
 
 def test_other_send_failure_is_500_and_keeps_notification(ddb, mock_requests):

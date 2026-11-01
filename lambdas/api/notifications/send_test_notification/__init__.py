@@ -114,9 +114,6 @@ def handler(event, context):
                 ensure_ascii=False,
             )
         )
-        dynamodb.delete_item(
-            TableName="chzzk-bot-db", Key={"PK": item.get("PK"), "SK": item.get("SK")}
-        )
         return build_response(404, "해당 디스코드 채널이 존재하지 않습니다.")
 
     # 메시지 전송에 실패한 경우
