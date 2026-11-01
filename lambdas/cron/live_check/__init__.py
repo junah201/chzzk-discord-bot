@@ -15,6 +15,7 @@ from shared import (
     send_message,
 )
 from shared.notification_dispatcher import get_embed_color, send_notification_message
+from shared.utils import mask_secret
 from user_agent import generate_user_agent
 
 ADMIN_DISCORD_TOKEN = os.environ.get("ADMIN_DISCORD_TOKEN")
@@ -366,8 +367,8 @@ def handler(event, context):
             {
                 "type": "LIVE_CHECK_START",
                 "index": index,
-                "NID_AUT": NID_AUT,
-                "NID_SES": NID_SES,
+                "NID_AUT": mask_secret(NID_AUT),
+                "NID_SES": mask_secret(NID_SES),
             },
             ensure_ascii=False,
         )

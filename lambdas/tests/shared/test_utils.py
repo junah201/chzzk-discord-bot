@@ -2,7 +2,7 @@ import json
 from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
-from shared.utils import build_response, omit, pick, to_kst_string
+from shared.utils import build_response, mask_secret, omit, pick, to_kst_string
 
 
 class TestPick:
@@ -127,3 +127,26 @@ class TestToKstString:
     def test_invalid_string_raises(self):
         with pytest.raises(ValueError):
             to_kst_string("not-a-date")
+
+
+class TestMaskSecret:
+    def test_keeps_both_ends(self):
+        assert mask_secret("AAAAbbbbbbbbbbbbZZZZ") == "AAAA...ZZZZ"
+
+    def test_custom_visible_length(self):
+        assert mask_secret("abcdefghijklmnop", visible=2) == "ab...op"
+
+    @pytest.mark.parametrize("value", ["a", "abcdefgh"], ids=["one-char", "exactly-8"])
+    def test_short_value_is_fully_masked(self, value):
+        assert mask_secret(value) == "***"
+
+    def test_nine_chars_shows_ends(self):
+        assert mask_secret("abcdefghi") == "abcd...fghi"
+
+    @pytest.mark.parametrize("value", [None, ""], ids=["none", "empty"])
+    def test_empty_value_is_returned_as_is(self, value):
+        assert mask_secret(value) == value
+
+    def test_does_not_leak_middle(self):
+        secret = "AAAA" + "secret-middle-part" + "ZZZZ"
+        assert "secret-middle-part" not in mask_secret(secret)

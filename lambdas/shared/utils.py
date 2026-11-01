@@ -54,6 +54,21 @@ def build_response(status_code: int, message: str = None, data: dict | list = No
     }
 
 
+def mask_secret(value: str | None, visible: int = 4) -> str | None:
+    """
+    로그에 남길 비밀 값(세션 쿠키, 토큰 등)을 앞뒤 일부만 남기고 가립니다.
+    값이 짧으면 전부 가리고, 빈 값은 그대로 반환합니다.
+
+    Usage:
+        mask_secret("abcdefghijkl")  # "abcd...ijkl"
+    """
+    if not value:
+        return value
+    if len(value) <= visible * 2:
+        return "***"
+    return f"{value[:visible]}...{value[-visible:]}"
+
+
 UTC = ZoneInfo("UTC")
 KST = ZoneInfo("Asia/Seoul")
 
