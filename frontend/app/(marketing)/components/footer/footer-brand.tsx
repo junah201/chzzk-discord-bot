@@ -25,8 +25,7 @@ export const FooterBrand = () => {
     <div className="lg:col-span-2">
       <Logo />
       <p className="text-muted-foreground mb-6 max-w-sm">
-        치지직 스트리밍 플랫폼의 방송 알림을 디스코드로 전송하는 가장 빠르고
-        안정적인 봇 서비스입니다.
+        치지직 방송이 시작되면 디스코드 채널로 알림을 보내 주는 봇입니다.
       </p>
 
       {/* Social Links */}

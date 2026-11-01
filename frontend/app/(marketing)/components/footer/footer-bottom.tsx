@@ -23,7 +23,7 @@ export function FooterBottom() {
             . All rights reserved.
           </p>
           <p className="text-[11px] text-muted-foreground/50 leading-tight">
-            본 서비스는 네이버 주식회사에 의해 운영되지 않습니다.{" "}
+            치직은 네이버 주식회사가 운영하는 서비스가 아닙니다.{" "}
             <br className="sm:hidden" />
             &apos;CHZZK&apos; 및 &apos;치지직&apos;은 네이버 주식회사의 등록
             상표입니다.

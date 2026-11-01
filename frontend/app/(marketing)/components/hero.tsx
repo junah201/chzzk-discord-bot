@@ -66,9 +66,9 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg sm:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed"
           >
-            좋아하는 스트리머의 방송 시작을 디스코드로 실시간 알림받으세요.{" "}
+            좋아하는 치지직 스트리머가 방송을 시작하면{" "}
             <br className="hidden sm:block" />
-            간편한 설정, 빠른 알림, 완벽한 통합.
+            디스코드 채널로 알려드립니다.
           </motion.p>
 
           {/* CTA Buttons */}
