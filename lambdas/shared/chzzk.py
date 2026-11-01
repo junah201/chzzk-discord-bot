@@ -18,6 +18,7 @@ class ChzzkChannel(TypedDict):
     channelName: str
     channelImageUrl: str | None
     verifiedMark: bool
+    officialChannel: bool
 
 
 class ChzzkLive(TypedDict):
@@ -36,6 +37,7 @@ class ChzzkLive(TypedDict):
     categoryType: str
     liveCategory: str
     liveCategoryValue: str
+    tags: list[str] | None
     chatActive: bool
     chatAvailableGroup: str
     paidPromotion: bool

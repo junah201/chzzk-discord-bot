@@ -270,6 +270,29 @@ class TestMessage:
         assert removed not in data
         assert kept in data
 
+    def test_shows_tags_by_default(self, ddb, get_chzzk, send):
+        get_chzzk.return_value = live(tags=["게임", "소통"])
+        put_chzzk(ddb.table)
+        put_noti(ddb.table, "10")
+
+        live_check.send_notification(CHZZK_ID, 3)
+
+        assert sent_data(send, "10")["embeds"][0]["fields"] == [
+            {"name": "카테고리", "value": "Just Chatting"},
+            {"name": "태그", "value": "`게임` `소통`"},
+        ]
+
+    def test_disable_tag_hides_tags(self, ddb, get_chzzk, send):
+        get_chzzk.return_value = live(tags=["게임"])
+        put_chzzk(ddb.table)
+        put_noti(ddb.table, "10", disable_tag=True)
+
+        live_check.send_notification(CHZZK_ID, 3)
+
+        assert sent_data(send, "10")["embeds"][0]["fields"] == [
+            {"name": "카테고리", "value": "Just Chatting"},
+        ]
+
     def test_subscriber_embed_color(self, ddb, get_chzzk, send):
         put_chzzk(ddb.table)
         put_noti(ddb.table, "10", is_subscription_active=True, embed_color="#FF0000")

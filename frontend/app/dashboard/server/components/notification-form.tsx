@@ -19,6 +19,7 @@ interface NotificationFormProps {
     webhook_url: string;
     embed_color: string;
     disable_embed: boolean;
+    disable_tag: boolean;
     disable_button: boolean;
     disable_notification: boolean;
   }>;
@@ -138,6 +139,13 @@ export default function NotificationForm({
         name="disable_embed"
         label="임베드 비활성화"
         helperText="방송 알림 임베드를 비활성화합니다"
+      />
+      <Input
+        type="checkbox"
+        control={control as unknown as Control<any>}
+        name="disable_tag"
+        label="태그 비활성화"
+        helperText="방송 알림 임베드에 방송 태그를 표시하지 않습니다."
       />
       <Input
         type="checkbox"

@@ -112,6 +112,7 @@ def save_notification_and_increment_counter(
         "type": {"S": "NOTI"},
         "disable_embed": {"BOOL": body.get("disable_embed", False)},
         "disable_button": {"BOOL": body.get("disable_button", False)},
+        "disable_tag": {"BOOL": body.get("disable_tag", False)},
         "disable_notification": {"BOOL": body.get("disable_notification", False)},
         "index": {"N": "-1"},
     }

@@ -27,6 +27,7 @@ export default function AddNotificationForm({
       webhook_url: "",
       embed_color: "",
       disable_embed: false,
+      disable_tag: false,
       disable_button: false,
       disable_notification: false,
     },

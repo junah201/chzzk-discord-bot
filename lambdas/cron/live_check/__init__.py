@@ -14,7 +14,11 @@ from shared import (
     middleware,
     send_message,
 )
-from shared.notification_dispatcher import get_embed_color, send_notification_message
+from shared.notification_dispatcher import (
+    get_embed_color,
+    get_embed_fields,
+    send_notification_message,
+)
 from shared.utils import mask_secret
 from user_agent import generate_user_agent
 
@@ -231,9 +235,7 @@ def send_notification(chzzk_id: str, index: int):
                     "title": f"{chzzk['liveTitle']}",
                     "description": f"{chzzk['channel']['channelName']} 님이 방송을 시작했습니다.",
                     "color": get_embed_color(noti),
-                    "fields": [
-                        {"name": "카테고리", "value": chzzk["liveCategoryValue"]}
-                    ],
+                    "fields": get_embed_fields(chzzk, noti),
                     "image": {
                         "url": (
                             chzzk["liveImageUrl"]

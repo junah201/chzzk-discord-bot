@@ -6,7 +6,11 @@ import boto3
 from shared import get_chzzk, middleware
 from shared.discord import BUTTON_STYLE, COMPONENT_TYPE
 from shared.exceptions import BadRequestError
-from shared.notification_dispatcher import get_embed_color, send_notification_message
+from shared.notification_dispatcher import (
+    get_embed_color,
+    get_embed_fields,
+    send_notification_message,
+)
 from shared.utils import build_response
 
 dynamodb = boto3.client("dynamodb")
@@ -58,7 +62,7 @@ def handler(event, context):
                 "title": f"{chzzk['liveTitle']}",
                 "description": f"{chzzk['channel']['channelName']} 님이 방송을 시작했습니다.",
                 "color": get_embed_color(item),
-                "fields": [{"name": "카테고리", "value": chzzk["liveCategoryValue"]}],
+                "fields": get_embed_fields(chzzk, item),
                 "image": {
                     "url": (
                         chzzk["liveImageUrl"]

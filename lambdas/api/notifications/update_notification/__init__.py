@@ -29,6 +29,7 @@ def handler(event, context):
 
     disable_embed = body.get("disable_embed", False)
     disable_button = body.get("disable_button", False)
+    disable_tag = body.get("disable_tag", False)
     disable_notification = body.get("disable_notification", False)
     webhook_url = body.get("webhook_url", "").strip()
     has_webhook_url = "webhook_url" in body
@@ -84,6 +85,7 @@ def handler(event, context):
             "custom_message = :cm",
             "disable_embed = :de",
             "disable_button = :db",
+            "disable_tag = :dt",
             "disable_notification = :dn",
             "is_subscription_active = :isa",
         ]
@@ -91,6 +93,7 @@ def handler(event, context):
             ":cm": {"S": custom_message},
             ":de": {"BOOL": disable_embed},
             ":db": {"BOOL": disable_button},
+            ":dt": {"BOOL": disable_tag},
             ":dn": {"BOOL": disable_notification},
             ":gid": {"S": guild_id},
             ":isa": {"BOOL": is_subscription_active},

@@ -49,6 +49,22 @@ def get_embed_color(notification_item: dict) -> int:
     return DEFAULT_EMBED_COLOR
 
 
+def get_embed_fields(chzzk: dict, notification_item: dict) -> list[dict]:
+    """방송 알림 임베드의 필드(카테고리, 태그)를 만듭니다.
+    태그는 disable_tag가 없으면 표시하며, 방송에 태그가 없으면 필드를 생략합니다.
+    """
+    fields = [{"name": "카테고리", "value": chzzk["liveCategoryValue"]}]
+
+    disable_tag = notification_item.get("disable_tag", {}).get("BOOL", False)
+    tags = [tag for tag in chzzk.get("tags") or [] if tag]
+    if not disable_tag and tags:
+        # 디스코드 임베드 필드 값은 최대 1024자
+        value = " ".join(f"`{tag}`" for tag in tags)[:1024]
+        fields.append({"name": "태그", "value": value})
+
+    return fields
+
+
 def is_guild_subscription_active(guild_id: str) -> bool:
     """
     특정 길드의 현재 구독 상태(SUB#CURRENT)가 유효한지(ACTIVE 및 만료 전) 확인합니다.

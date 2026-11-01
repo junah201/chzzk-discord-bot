@@ -216,6 +216,7 @@ class TestSaveNotification:
             "custom_message": "",
             "disable_embed": False,
             "disable_button": False,
+            "disable_tag": False,
             "disable_notification": False,
             "index": -1,
         }
@@ -240,13 +241,19 @@ class TestSaveNotification:
         ) == (True, True, True)
 
     @pytest.mark.parametrize(
-        "flag", ["disable_embed", "disable_button", "disable_notification"]
+        "flag",
+        ["disable_embed", "disable_button", "disable_tag", "disable_notification"],
     )
     def test_each_flag_is_saved_to_its_own_attribute(self, ddb, flag):
         save(body={flag: True})
 
         noti = get_noti(ddb.table)
-        flags = ("disable_embed", "disable_button", "disable_notification")
+        flags = (
+            "disable_embed",
+            "disable_button",
+            "disable_tag",
+            "disable_notification",
+        )
         assert {f: noti[f] for f in flags} == {f: f == flag for f in flags}
 
     @pytest.mark.parametrize("active", [True, False])

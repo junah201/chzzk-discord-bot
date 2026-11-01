@@ -40,6 +40,7 @@ export default function EditNotificationDialog({
       webhook_url: notification.webhook_url || "",
       embed_color: notification.embed_color || "",
       disable_embed: notification.disable_embed || false,
+      disable_tag: notification.disable_tag || false,
       disable_button: notification.disable_button || false,
       disable_notification: notification.disable_notification || false,
     },

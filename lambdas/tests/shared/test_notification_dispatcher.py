@@ -7,6 +7,7 @@ from shared import notification_dispatcher
 from shared.notification_dispatcher import (
     DEFAULT_EMBED_COLOR,
     get_embed_color,
+    get_embed_fields,
     is_valid_webhook_url,
     parse_embed_color,
     send_notification_message,
@@ -154,6 +155,46 @@ class TestGetEmbedColor:
     )
     def test_missing_attributes_use_default(self, item):
         assert get_embed_color(item) == DEFAULT_EMBED_COLOR
+
+
+class TestGetEmbedFields:
+    CATEGORY = {"name": "카테고리", "value": "Just Chatting"}
+
+    @staticmethod
+    def chzzk(**overrides):
+        return {"liveCategoryValue": "Just Chatting", **overrides}
+
+    def test_tags_are_shown_when_disable_tag_is_missing(self):
+        fields = get_embed_fields(self.chzzk(tags=["게임", "소통"]), {})
+
+        assert fields == [self.CATEGORY, {"name": "태그", "value": "`게임` `소통`"}]
+
+    def test_disable_tag_false_shows_tags(self):
+        fields = get_embed_fields(
+            self.chzzk(tags=["게임"]), {"disable_tag": {"BOOL": False}}
+        )
+
+        assert fields == [self.CATEGORY, {"name": "태그", "value": "`게임`"}]
+
+    def test_disable_tag_hides_tags(self):
+        fields = get_embed_fields(
+            self.chzzk(tags=["게임"]), {"disable_tag": {"BOOL": True}}
+        )
+
+        assert fields == [self.CATEGORY]
+
+    @pytest.mark.parametrize(
+        "chzzk",
+        [{}, {"tags": None}, {"tags": []}, {"tags": [""]}],
+        ids=["missing", "none", "empty", "blank-tag"],
+    )
+    def test_no_tags_omits_field(self, chzzk):
+        assert get_embed_fields(self.chzzk(**chzzk), {}) == [self.CATEGORY]
+
+    def test_tag_value_is_capped_at_discord_field_limit(self):
+        fields = get_embed_fields(self.chzzk(tags=["가" * 100] * 20), {})
+
+        assert len(fields[1]["value"]) == 1024
 
 
 WEBHOOK_URL = "https://discord.com/api/webhooks/1/token"

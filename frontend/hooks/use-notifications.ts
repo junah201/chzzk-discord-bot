@@ -17,6 +17,7 @@ interface NotificationSettings extends NotificationBase {
   webhook_url?: string;
   embed_color?: string;
   disable_embed: boolean;
+  disable_tag: boolean;
   disable_button: boolean;
   disable_notification: boolean;
 }
