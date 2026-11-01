@@ -28,7 +28,7 @@ export default function RateLimitedPage() {
           glowClassName="bg-orange-500/20"
         />
       }
-      title="너무 많은 요청을 보냈어요"
+      title="요청이 너무 많습니다"
       description={
         <div className="flex flex-col w-full">
           짧은 시간 동안 너무 많은 요청이 발생했습니다.
@@ -38,7 +38,7 @@ export default function RateLimitedPage() {
           <span className="font-semibold text-foreground">
             잠시만 기다렸다가
           </span>{" "}
-          다시 시도해주세요.
+          다시 시도해 주세요.
         </div>
       }
       footer={

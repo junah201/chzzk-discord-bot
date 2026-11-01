@@ -57,7 +57,7 @@ export default function NotificationManager({
         <div>
           <h2 className="text-2xl font-bold tracking-tight">알림 목록</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            등록된 치지직 알림 채널들을 관리하고 테스트할 수 있습니다.
+            등록한 알림을 수정하거나 테스트 알림을 보낼 수 있습니다.
           </p>
         </div>
       </div>
@@ -93,10 +93,10 @@ function NotificationTableEmpty() {
   return (
     <div className="flex flex-col items-center justify-center py-16 bg-card/50 rounded-md border border-border overflow-hidden">
       <p className="text-sm text-muted-foreground font-medium">
-        설정된 알림이 없습니다.
+        아직 등록한 알림이 없습니다.
       </p>
       <p className="text-xs text-muted-foreground/60 mt-1">
-        새로운 치지직 채널을 등록하여 알림을 받아보세요.
+        위의 알림 추가에서 치지직 채널을 등록해 보세요.
       </p>
     </div>
   );
@@ -179,7 +179,7 @@ function NotificationRow({
           className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-500/10 text-indigo-500 text-sm font-medium hover:bg-indigo-500/20 transition-colors"
         >
           <span className="text-xs">#</span>
-          {n.channel_name || "채널 이동"}
+          {n.channel_name || "채널로 이동"}
         </a>
       </PolicyTd>
 
@@ -214,7 +214,7 @@ function NotificationRow({
           </div>
         ) : (
           <div className="flex items-center gap-2 text-muted-foreground/50 py-1">
-            <span className="text-sm">이력 없음</span>
+            <span className="text-sm">아직 없음</span>
           </div>
         )}
       </PolicyTd>

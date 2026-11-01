@@ -59,7 +59,7 @@ export default function ServerHeader({ server }: ServerHeaderProps) {
 
               <div className="flex items-center gap-2 mt-1">
                 <p className="hidden sm:inline text-sm text-muted-foreground">
-                  치지직 방송 알림을 관리하세요
+                  치지직 방송 알림 관리
                 </p>
                 <span className="hidden sm:inline text-muted-foreground/40">
                   •
@@ -67,7 +67,7 @@ export default function ServerHeader({ server }: ServerHeaderProps) {
                 <button
                   onClick={handleCopyId}
                   className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground bg-muted/50 hover:bg-muted px-2 py-1 rounded-md transition-colors cursor-pointer"
-                  title="클립보드에 서버 ID 복사"
+                  title="서버 ID 복사"
                 >
                   <span className="font-mono">ID: {server.id}</span>
                   {copied ? (

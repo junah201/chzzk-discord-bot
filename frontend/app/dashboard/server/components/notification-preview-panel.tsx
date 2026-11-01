@@ -65,7 +65,7 @@ export default function NotificationPreviewPanel({
           live={{
             channelName: chzzkName || "스트리머",
             channelImageUrl: chzzkImageUrl,
-            title: "방송 제목이 여기에 표시돼요",
+            title: "방송 제목이 여기에 표시됩니다",
             category: "카테고리",
             tags: ["방송 태그", "예시"],
           }}
@@ -74,16 +74,16 @@ export default function NotificationPreviewPanel({
           <div className="absolute inset-0 flex items-center justify-center p-6">
             <p className="flex items-center gap-2 rounded-md bg-background/90 px-3 py-2 text-sm font-medium shadow">
               <BellOff className="size-4 text-muted-foreground" />
-              알림 비활성화 상태라 전송되지 않아요
+              알림이 일시 중지되어 전송되지 않습니다
             </p>
           </div>
         )}
       </div>
 
       <p className="text-xs text-muted-foreground/70">
-        방송 제목, 카테고리, 태그, 썸네일은 실제 방송 정보로 채워져요.
+        방송 제목, 카테고리, 태그, 썸네일은 실제 방송 정보로 채워집니다.
         {usesWebhook &&
-          " 커스텀 웹훅으로 보내므로, 이름과 프로필 이미지는 웹훅에 설정한 값으로 표시돼요."}
+          " 커스텀 웹훅으로 보내므로 이름과 프로필 이미지는 웹훅에 설정한 값으로 표시됩니다."}
       </p>
     </div>
   );

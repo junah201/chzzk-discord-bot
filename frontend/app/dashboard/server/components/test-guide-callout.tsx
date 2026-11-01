@@ -12,7 +12,7 @@ export default function TestGuideCallout() {
     >
       <PolicyCallout
         variant="warning"
-        title="테스트 알림 전송에 실패했다고 떠요"
+        title="‘테스트 알림 전송에 실패했습니다’라고 나와요"
       >
         <ul className="mb-0 list-disc pl-5">
           <li>
@@ -22,8 +22,7 @@ export default function TestGuideCallout() {
             >
               시작하기 문서
             </Link>
-            의 디스코드 채널 권한 설정 부분을 참고하여, 치직 봇에게 충분한
-            권한이 있는지 확인해주세요.
+            의 채널 권한 설정을 보고, 치직 봇에게 필요한 권한이 있는지 확인해 주세요.
           </li>
         </ul>
       </PolicyCallout>

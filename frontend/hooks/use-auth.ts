@@ -27,7 +27,7 @@ export const useAuth = () => {
 
       sendGAEvent("event", "login");
 
-      toast.success("로그인되었습니다. 환영합니다!");
+      toast.success("로그인했습니다.");
       router.replace(routeMap.DASHBOARD.HOME);
     },
     onError: (error) => {
@@ -40,7 +40,7 @@ export const useAuth = () => {
   const logout = useCallback(() => {
     removeCookie(ACCESS_TOKEN.key);
     sendGAEvent("event", "logout");
-    toast.success("로그아웃되었습니다.");
+    toast.success("로그아웃했습니다.");
     router.replace(routeMap.HOME);
   }, [router]);
 

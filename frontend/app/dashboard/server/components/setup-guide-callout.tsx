@@ -10,16 +10,15 @@ export default function SetupGuideCallout() {
     >
       <PolicyCallout
         variant="warning"
-        title="해당 치지직의 채널을 찾을 수 없다고 떠요"
+        title="‘해당 치지직 채널을 찾을 수 없습니다’라고 나와요"
       >
         <ul className="mb-0 list-disc pl-5">
-          <li>ID에 공백이나 특수문자가 포함되지 않았는지 확인해주세요.</li>
+          <li>ID에 공백이나 특수문자가 들어가지 않았는지 확인해 주세요.</li>
           <li>
-            방송 기록이 아예 없는 신설 채널은 치지직 API 제한으로 인해 검색되지
-            않을 수 있습니다.
+            한 번도 방송하지 않은 채널은 등록할 수 없습니다.
           </li>
           <li>
-            휴면 채널의 경우, 방송을 한 번 시작하면 정상적으로 인식됩니다.
+            오래 방송하지 않은 채널은 방송을 한 번 켜면 등록할 수 있습니다.
           </li>
         </ul>
       </PolicyCallout>

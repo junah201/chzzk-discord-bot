@@ -60,7 +60,7 @@ export default function DeleteNotificationDialog({
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>알림 설정을 삭제하시겠습니까?</AlertDialogTitle>
+          <AlertDialogTitle>이 알림을 삭제할까요?</AlertDialogTitle>
           <AlertDialogDescription>
             <span className="font-semibold text-foreground">
               {notification.chzzk_name || chzzkId}
@@ -88,7 +88,7 @@ export default function DeleteNotificationDialog({
             {remove.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
-            삭제 확인
+            삭제
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

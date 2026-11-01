@@ -12,7 +12,7 @@ export default function BotMissingPage() {
   return (
     <StatusPageLayout
       icon={<StatusIcon icon={<Bot />} badge={<ShieldAlert />} />}
-      title="봇이 서버에 없어요!"
+      title="서버에 치직 봇이 없습니다"
       description={
         <>
           서비스를 이용하려면 먼저 치직 봇을
@@ -22,8 +22,7 @@ export default function BotMissingPage() {
       }
       footer={
         <p className="text-sm text-muted-foreground">
-          이미 봇을 초대하셨나요? ‘채널 보기’ 권한이 꺼져 있을 수 있습니다. 서버
-          설정에서 봇의 권한을 확인해 주세요. 문제가 지속된다면{" "}
+          이미 초대했다면 봇의 ‘채널 보기’ 권한이 꺼져 있을 수 있습니다. 서버 설정에서 권한을 확인해 주세요. 그래도 안 되면{" "}
           <Link
             href={routeMap.REDIRECTS.SUPPORT_SERVER}
             target="_blank"
@@ -42,7 +41,7 @@ export default function BotMissingPage() {
         size="lg"
         className="w-full group"
       >
-        <ExternalLink className="w-5 h-5 mr-2" />봇 초대하러 가기
+        <ExternalLink className="w-5 h-5 mr-2" />봇 초대하기
       </LinkButton>
       <Button
         variant="outline"
@@ -51,7 +50,7 @@ export default function BotMissingPage() {
         onClick={() => window.location.reload()}
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
-        이미 초대했어요
+        초대했다면 새로고침
       </Button>
     </StatusPageLayout>
   );

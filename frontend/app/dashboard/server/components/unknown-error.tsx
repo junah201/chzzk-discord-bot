@@ -41,19 +41,19 @@ export default function UnknownErrorPage({ error }: UnknownErrorPageProps) {
           glowClassName="bg-destructive/20"
         />
       }
-      title="알 수 없는 오류가 발생했어요"
+      title="알 수 없는 오류가 발생했습니다"
       description={
         <>
-          서버 내부 정보를 가져오는 도중
+          디스코드 서버 정보를 불러오는 중
           <br />
-          예기치 못한 문제가 발생했습니다.
+          문제가 생겼습니다.
           <br />
           {errorMessage}
         </>
       }
       footer={
         <p className="text-sm text-muted-foreground">
-          문제가 지속적으로 발생한다면 <br className="sm:hidden" />
+          문제가 계속되면 <br className="sm:hidden" />
           <Link
             href={routeMap.REDIRECTS.SUPPORT_SERVER}
             target="_blank"

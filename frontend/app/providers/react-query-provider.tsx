@@ -33,7 +33,7 @@ export default function ReactQueryProvider({
         if (status === 401) {
           if (isRedirectingToLogin) return;
 
-          toast.error("세션이 만료되었습니다. 다시 로그인해주세요.");
+          toast.error("로그인이 만료되었습니다. 다시 로그인해 주세요.");
           removeCookie(ACCESS_TOKEN.key);
 
           if (window.location.pathname !== routeMap.AUTH.LOGIN) {
@@ -44,13 +44,13 @@ export default function ReactQueryProvider({
           return;
         }
 
-        const message = data?.message || "알 수 없는 서버 오류가 발생했습니다.";
+        const message = data?.message || "서버에서 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.";
         toast.error(message);
         return;
       }
 
       if (error.request) {
-        toast.error("서버와 연결할 수 없습니다. 네트워크를 확인해주세요.");
+        toast.error("서버에 연결할 수 없습니다. 인터넷 연결을 확인해 주세요.");
         return;
       }
     }
@@ -60,7 +60,7 @@ export default function ReactQueryProvider({
       return;
     }
 
-    toast.error("알 수 없는 오류가 발생했습니다.");
+    toast.error("알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
   };
 
   const [queryClient] = useState(

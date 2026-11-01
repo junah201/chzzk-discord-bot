@@ -48,11 +48,11 @@ export default function NotificationForm({
             name="chzzk_id"
             label="치지직 ID"
             placeholder="bb382c2c0cc9fa7c86"
-            rules={{ required: "치지직 채널의 고유 ID를 입력해주세요." }}
+            rules={{ required: "치지직 ID를 입력해 주세요." }}
             helperText={
               <>
                 치지직 ID를 찾는 방법은{" "}
-                <Link href={routeMap.DOCS.NOTIFICATIONS}>방송 알림 문서</Link>를
+                <Link href={routeMap.DOCS.NOTIFICATIONS}>알림 등록 문서</Link>를
                 참고하세요.
               </>
             }
@@ -63,10 +63,10 @@ export default function NotificationForm({
             control={control as unknown as Control<any>}
             name="channel_id"
             label="디스코드 채널"
-            rules={{ required: "디스코드 채널을 선택해주세요." }}
+            rules={{ required: "알림을 받을 디스코드 채널을 선택해 주세요." }}
             helperText={
               <>
-                새롭게 추가한 채널이 목록에 보이지 않는다면, 페이지를
+                새로 만든 채널이 보이지 않으면 페이지를
                 <a
                   href=""
                   onClick={() => location.reload()}
@@ -74,7 +74,7 @@ export default function NotificationForm({
                 >
                   새로고침
                 </a>
-                해보세요
+                해 주세요.
               </>
             }
             options={channels.map((channel) => ({
@@ -93,9 +93,8 @@ export default function NotificationForm({
         placeholder="@everyone 새로운 방송이 시작되었습니다! 시청하러 가볼까요?"
         helperText={
           <>
-            역할 멘션 등 자세한 설정 방법은{" "}
-            <Link href={routeMap.DOCS.CUSTOMIZATION}>메시지 커스텀 문서</Link>를
-            참고하세요
+            멘션을 넣는 방법은{" "}
+            <Link href={routeMap.DOCS.CUSTOMIZATION}>메시지 커스텀 문서</Link>를 참고하세요.
           </>
         }
       />
@@ -108,8 +107,7 @@ export default function NotificationForm({
         placeholder="https://discord.com/api/webhooks/..."
         helperText={
           <>
-            치직 봇 기본 이름과 프로필 대신, 원하는 유저명과 프로필 이미지로
-            알림을 꾸밀 수 있습니다. 자세한 설정 방법은{" "}
+            치직 봇 대신 웹훅에 설정한 이름과 프로필 이미지로 알림을 보냅니다. 설정 방법은{" "}
             <Link
               href={routeMap.DOCS.CUSTOM_WEBHOOK}
               className="underline hover:text-primary/80"
@@ -130,38 +128,38 @@ export default function NotificationForm({
         rules={{
           pattern: {
             value: /^(#[0-9a-fA-F]{6}|(?:0|[1-9][0-9]{0,7}))$/,
-            message: "예: #5865F2 또는 5793266 형식으로 입력해주세요.",
+            message: "#5865F2 같은 색상 코드나 5793266 같은 숫자로 입력해 주세요.",
           },
         }}
-        helperText="방송 알림 임베드의 강조 색상을 설정합니다. 구독이 만료되면 기본 색상으로 표시됩니다."
+        helperText="임베드 왼쪽 띠의 색입니다. 구독이 끝나면 기본 색상으로 돌아갑니다."
       />
       <Input
         type="checkbox"
         control={control as unknown as Control<any>}
         name="disable_embed"
-        label="임베드 비활성화"
-        helperText="방송 알림 임베드를 비활성화합니다"
+        label="임베드 숨기기"
+        helperText="방송 제목과 썸네일이 담긴 임베드 없이 메시지만 보냅니다."
       />
       <Input
         type="checkbox"
         control={control as unknown as Control<any>}
         name="disable_tag"
-        label="태그 비활성화"
-        helperText="방송 알림 임베드에 방송 태그를 표시하지 않습니다."
+        label="방송 태그 숨기기"
+        helperText="임베드에 방송 태그를 표시하지 않습니다."
       />
       <Input
         type="checkbox"
         control={control as unknown as Control<any>}
         name="disable_button"
-        label="바로가기 버튼 비활성화"
-        helperText="방송 알림의 바로가기 버튼을 비활성화합니다."
+        label="바로가기 버튼 숨기기"
+        helperText="알림 아래의 바로가기 버튼을 표시하지 않습니다."
       />
       <Input
         type="checkbox"
         control={control as unknown as Control<any>}
         name="disable_notification"
-        label="알림 비활성화"
-        helperText="방송 알림의 알림 기능을 비활성화합니다."
+        label="알림 일시 중지"
+        helperText="이 알림을 보내지 않습니다. 설정은 그대로 남아 있습니다."
       />
     </div>
   );

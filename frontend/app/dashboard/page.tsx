@@ -25,7 +25,7 @@ export default function Dashboard() {
               <div>
                 <h2 className="text-2xl font-bold">내 서버</h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                  관리 중인 디스코드 서버 목록
+                  관리자 권한이 있는 디스코드 서버입니다.
                 </p>
               </div>
             </div>
@@ -55,10 +55,10 @@ export default function Dashboard() {
             >
               <PolicyCallout title="서버가 목록에 없나요?">
                 관리자 권한을 가진 서버만 표시됩니다. 해당 서버에 관리자 권한이
-                있는지 확인해주세요.
+                있는지 확인해 주세요.
               </PolicyCallout>
               <PolicyCallout title="도움이 필요하신가요?">
-                도움이 필요하신 경우,{" "}
+                궁금한 점이 있다면{" "}
                 <Link
                   href={routeMap.REDIRECTS.SUPPORT_SERVER}
                   target="_blank"
@@ -67,7 +67,7 @@ export default function Dashboard() {
                 >
                   서포트 서버
                 </Link>
-                에 방문하여 문의해주세요.
+                에 문의해 주세요.
               </PolicyCallout>
             </motion.div>
           </motion.div>

@@ -28,7 +28,7 @@ export default function AdminRequiredPage() {
           glowClassName="bg-destructive/20"
         />
       }
-      title="관리자 권한이 필요해요"
+      title="관리자 권한이 필요합니다"
       description={
         <div className="flex flex-col w-full">
           해당 서버의{" "}

@@ -45,15 +45,15 @@ export default function NotificationLimitCard({
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-border/60">
             <p className="text-sm text-muted-foreground">
-              더 많은 알림이 필요하신가요?{" "}
+              알림이 더 필요하다면{" "}
               <Link
                 href={routeMap.PRICING}
                 target="_blank"
                 className="text-primary underline"
               >
-                요금제 페이지
+                요금제
               </Link>
-              를 확인해보세요.
+              를 확인해 보세요.
             </p>
           </div>
         </CardContent>
@@ -66,20 +66,17 @@ export default function NotificationLimitCard({
         >
           <PolicyCallout
             variant="warning"
-            title="허용된 알림 슬롯 개수를 초과했습니다"
+            title="알림 슬롯을 초과했습니다"
           >
             <ul className="mb-0 list-disc pl-5 text-sm">
               <li>
-                현재 서버에 등록된 알림 개수가 최대 허용 슬롯({maxLimit}
-                개)을 초과하여 설정을 수정하거나 추가할 수 없습니다.
+                등록된 알림이 슬롯 수({maxLimit}개)보다 많아서 알림을 추가하거나 수정할 수 없습니다.
               </li>
               <li>
-                기존 등록된 모든 알림은 비활성화되었으며, 알림이 정상적으로
-                전송되지 않습니다.
+                이미 등록된 알림도 모두 전송되지 않습니다.
               </li>
               <li>
-                초과된 알림을 정리(삭제)하거나 슬롯을 확장한 후 다시 이용해
-                주세요.
+                알림을 삭제하거나 슬롯을 늘린 뒤 다시 이용해 주세요.
               </li>
             </ul>
           </PolicyCallout>

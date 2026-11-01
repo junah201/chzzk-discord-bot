@@ -129,8 +129,7 @@ export function NotificationPreview({
 
           {isEmpty && (
             <p className="text-sm italic" style={{ color: DISCORD.muted }}>
-              보낼 내용이 없어 알림이 전송되지 않아요. 메시지를 입력하거나
-              임베드·버튼 중 하나를 켜주세요.
+              보낼 내용이 없어 알림이 전송되지 않습니다. 메시지를 입력하거나 임베드·바로가기 버튼 중 하나는 표시해 주세요.
             </p>
           )}
 

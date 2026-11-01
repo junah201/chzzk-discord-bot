@@ -44,7 +44,7 @@ export default function AddNotificationForm({
         <div>
           <h2 className="text-2xl font-bold">알림 추가</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            새로운 치지직 채널의 방송 알림을 설정하세요
+            치지직 채널과 알림을 받을 디스코드 채널을 등록합니다.
           </p>
         </div>
       </div>
