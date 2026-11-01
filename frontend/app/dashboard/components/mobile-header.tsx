@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { DashboardSidebar } from "./sidebar";
 import { Logo } from "@/components/ui/logo";
 
@@ -31,6 +36,7 @@ export default function MobileHeader() {
             className="w-64 p-0 bg-sidebar"
             onClick={handleContentClick}
           >
+            <SheetTitle className="sr-only">대시보드 메뉴</SheetTitle>
             <DashboardSidebar />
           </SheetContent>
         </Sheet>
