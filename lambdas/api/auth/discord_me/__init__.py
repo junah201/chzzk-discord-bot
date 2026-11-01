@@ -3,7 +3,7 @@ import logging
 
 import requests
 from shared import middleware
-from shared.discord.utils import DISCORD_API_BASE_URL
+from shared.discord.utils import DISCORD_API_BASE_URL, DISCORD_API_TIMEOUT_SEC
 from shared.exceptions import UnauthorizedError
 from shared.utils import build_response
 
@@ -28,7 +28,9 @@ def handler(event, context):
         raise UnauthorizedError()
 
     res = requests.get(
-        f"{DISCORD_API_BASE_URL}/users/@me", headers={"Authorization": token}
+        f"{DISCORD_API_BASE_URL}/users/@me",
+        headers={"Authorization": token},
+        timeout=DISCORD_API_TIMEOUT_SEC,
     )
 
     if res.status_code != 200:

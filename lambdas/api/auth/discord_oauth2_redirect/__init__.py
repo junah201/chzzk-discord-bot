@@ -4,7 +4,7 @@ import os
 
 import requests
 from shared import middleware
-from shared.discord.utils import DISCORD_API_BASE_URL
+from shared.discord.utils import DISCORD_API_BASE_URL, DISCORD_API_TIMEOUT_SEC
 from shared.exceptions import BadRequestError, UnauthorizedError
 from shared.utils import build_response, pick
 
@@ -58,6 +58,7 @@ def handler(event, context):
             "redirect_uri": redirect_uri,
             "scope": scope,
         },
+        timeout=DISCORD_API_TIMEOUT_SEC,
     )
 
     if res.status_code != 200:

@@ -27,6 +27,8 @@ DISCORD_GET_FOLLOWING_ERROR_CHANNEL_ID = os.environ.get(
     "DISCORD_GET_FOLLOWING_ERROR_CHANNEL_ID"
 )
 
+CHZZK_FOLLOWINGS_TIMEOUT_SEC = 10
+
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -54,6 +56,7 @@ def get_follows(NID_AUT: str, NID_SES: str, index: int) -> list[Following]:
                 "User-Agent": generate_user_agent(os="win", device_type="desktop"),
                 "Cookie": f"NID_AUT={NID_AUT}; NID_SES={NID_SES}",
             },
+            timeout=CHZZK_FOLLOWINGS_TIMEOUT_SEC,
         )
         data = res.json()
         total_page = data.get("content", {}).get("totalPage", 0)
