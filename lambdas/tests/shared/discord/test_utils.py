@@ -6,12 +6,17 @@ import requests
 import responses
 from responses import matchers
 from shared.discord.utils import (
+    DISCORD_API_BASE_URL,
     DISCORD_API_TIMEOUT_SEC,
+    DISCORD_TOKEN,
     DISCORD_USER_GUILDS_URL,
     AdminCheckResult,
     AdminGuildsResult,
+    delete_message,
     get_admin_guilds,
+    get_channel,
     is_admin,
+    send_message,
 )
 
 discord_utils = importlib.import_module("shared.discord.utils")
@@ -20,12 +25,6 @@ TOKEN = "Bearer user-token"
 # v10은 permissions를 10진수 문자열로 준다.
 ADMIN = str(0x8)
 MANAGE_GUILD = str(0x20)
-
-
-@pytest.fixture
-def mock_requests():
-    with responses.RequestsMock() as rsps:
-        yield rsps
 
 
 @pytest.fixture
@@ -328,3 +327,115 @@ class TestIsAdmin:
         add_guilds(mock_requests, [guild("123", ADMIN), guild("456", MANAGE_GUILD)])
 
         assert is_admin("456", TOKEN).is_admin is False
+
+
+CHANNEL_ID = "100"
+MESSAGES_URL = f"{DISCORD_API_BASE_URL}/channels/{CHANNEL_ID}/messages"
+
+
+class TestSendMessage:
+    def test_sends_json_with_bot_token(self, mock_requests):
+        mock_requests.add(responses.POST, MESSAGES_URL, json={"id": "1"})
+        data = {"content": "방송 시작", "embeds": []}
+
+        res = send_message(CHANNEL_ID, data)
+
+        assert res.status_code == 200
+        request = mock_requests.calls[0].request
+        assert request.url == MESSAGES_URL
+        assert request.headers["Authorization"] == f"Bot {DISCORD_TOKEN}"
+        assert request.headers["Content-Type"] == "application/json"
+        assert json.loads(request.body) == data
+
+    def test_custom_token(self, mock_requests):
+        mock_requests.add(responses.POST, MESSAGES_URL, json={"id": "1"})
+
+        send_message(CHANNEL_ID, {"content": "x"}, token="admin-token")
+
+        assert mock_requests.calls[0].request.headers["Authorization"] == (
+            "Bot admin-token"
+        )
+
+    def test_files_are_sent_as_multipart_with_payload_json(self, mock_requests):
+        mock_requests.add(responses.POST, MESSAGES_URL, json={"id": "1"})
+        data = {"embeds": [{"title": "리포트"}]}
+
+        send_message(
+            CHANNEL_ID,
+            data,
+            files={"file": ("report.json", b'{"a": 1}', "application/json")},
+        )
+
+        request = mock_requests.calls[0].request
+        assert request.headers["Content-Type"].startswith("multipart/form-data")
+        body = request.body.decode()
+        assert 'name="payload_json"' in body
+        assert json.dumps(data) in body
+        assert 'name="file"; filename="report.json"' in body
+
+    def test_files_without_data_omit_payload_json(self, mock_requests):
+        mock_requests.add(responses.POST, MESSAGES_URL, json={"id": "1"})
+
+        send_message(CHANNEL_ID, {}, files={"file": ("a.txt", b"a", "text/plain")})
+
+        assert 'name="payload_json"' not in mock_requests.calls[0].request.body.decode()
+
+    @pytest.mark.parametrize("status", [403, 404, 500])
+    def test_returns_error_response_as_is(self, mock_requests, status):
+        mock_requests.add(
+            responses.POST, MESSAGES_URL, json={"message": "x"}, status=status
+        )
+
+        assert send_message(CHANNEL_ID, {"content": "x"}).status_code == status
+
+    def test_request_exception_propagates(self, mock_requests):
+        # 현재 동작: 네트워크 오류는 잡지 않고 호출자에게 그대로 던진다.
+        mock_requests.add(
+            responses.POST,
+            MESSAGES_URL,
+            body=requests.exceptions.ConnectionError("refused"),
+        )
+
+        with pytest.raises(requests.exceptions.ConnectionError):
+            send_message(CHANNEL_ID, {"content": "x"})
+
+
+class TestGetChannel:
+    URL = f"{DISCORD_API_BASE_URL}/channels/{CHANNEL_ID}"
+
+    def test_returns_channel(self, mock_requests):
+        channel = {"id": CHANNEL_ID, "guild_id": "1", "type": 0}
+        mock_requests.add(responses.GET, self.URL, json=channel)
+
+        assert get_channel(CHANNEL_ID) == channel
+        assert mock_requests.calls[0].request.headers["Authorization"] == (
+            f"Bot {DISCORD_TOKEN}"
+        )
+
+    @pytest.mark.parametrize("status", [403, 404, 500])
+    def test_non_200_returns_none(self, mock_requests, status):
+        mock_requests.add(responses.GET, self.URL, json={"message": "x"}, status=status)
+
+        assert get_channel(CHANNEL_ID) is None
+
+
+class TestDeleteMessage:
+    URL = f"{MESSAGES_URL}/200"
+
+    def test_deletes_message(self, mock_requests):
+        mock_requests.add(responses.DELETE, self.URL, status=204)
+
+        delete_message(CHANNEL_ID, "200")
+
+        assert mock_requests.calls[0].request.headers["Authorization"] == (
+            f"Bot {DISCORD_TOKEN}"
+        )
+
+    @pytest.mark.parametrize("status", [200, 403, 404])
+    def test_non_204_raises(self, mock_requests, status):
+        mock_requests.add(
+            responses.DELETE, self.URL, body="Unknown Message", status=status
+        )
+
+        with pytest.raises(Exception, match=f"Failed to delete message: {status}"):
+            delete_message(CHANNEL_ID, "200")

@@ -2,6 +2,7 @@ import os
 import socket
 
 import pytest
+import responses
 
 # 일부 모듈이 import 시점에 boto3 클라이언트를 만들고 환경 변수를 읽으므로,
 # 테스트 모듈이 import 되기 전에 테스트용 값으로 덮어쓴다.
@@ -49,3 +50,10 @@ def block_network(monkeypatch):
 
     monkeypatch.setattr(socket.socket, "connect", guarded_connect)
     monkeypatch.setattr(socket.socket, "connect_ex", guarded_connect)
+
+
+@pytest.fixture
+def mock_requests():
+    """requests 호출을 가로챈다. 등록하지 않은 요청이나 호출되지 않은 응답이 있으면 실패한다."""
+    with responses.RequestsMock() as rsps:
+        yield rsps
