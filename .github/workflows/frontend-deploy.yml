@@ -13,10 +13,15 @@ permissions:
   id-token: write
   contents: read
 
+concurrency:
+  group: frontend-deploy
+  cancel-in-progress: false
+
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     environment: Production
+    timeout-minutes: 15
 
     defaults:
       run:
@@ -24,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           sparse-checkout: frontend
 
@@ -33,6 +38,13 @@ jobs:
         with:
           package_json_file: frontend/package.json
 
+      - name: Install Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -40,15 +52,15 @@ jobs:
         run: pnpm run build
 
       - name: Get AWS Access Token via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ap-northeast-2
 
       - name: Deploy to S3
         run: |
-          aws s3 sync out s3://chzzk.junah.dev --delete
+          aws s3 sync out s3://${{ secrets.S3_BUCKET }} --delete
 
       - name: Create CloudFront Invalidation
         run: |
-          aws cloudfront create-invalidation --distribution-id E9O0PBRANS4UW --paths "/*"
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
