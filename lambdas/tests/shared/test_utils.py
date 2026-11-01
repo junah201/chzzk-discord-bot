@@ -63,9 +63,13 @@ class TestBuildResponse:
         assert json.loads(res["body"]) == {"a": 1}
 
     @pytest.mark.parametrize("data", [{}, []], ids=["empty-dict", "empty-list"])
-    def test_empty_data_keeps_message(self, data):
-        res = build_response(200, "msg", data)
-        assert json.loads(res["body"]) == {"message": "msg"}
+    def test_empty_data_is_returned_as_is(self, data):
+        res = build_response(200, data=data)
+        assert json.loads(res["body"]) == data
+
+    def test_empty_data_also_replaces_message(self):
+        res = build_response(200, "msg", [])
+        assert json.loads(res["body"]) == []
 
     def test_body_keeps_non_ascii_characters(self):
         res = build_response(200, "한글")

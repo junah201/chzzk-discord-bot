@@ -89,14 +89,13 @@ def test_discord_failure_is_502(get_admin_guilds, batch_get_item, status_code):
     batch_get_item.assert_not_called()
 
 
-def test_no_admin_guilds_returns_empty_object(get_admin_guilds, batch_get_item):
-    # 현재 동작: build_response가 빈 리스트를 data 없음으로 보고 []가 아니라 {}를 반환한다.
+def test_no_admin_guilds_returns_empty_list(get_admin_guilds, batch_get_item):
     get_admin_guilds.return_value = AdminGuildsResult([], 200)
 
     res, body = call()
 
     assert res["statusCode"] == 200
-    assert body == {}
+    assert body == []
     batch_get_item.assert_not_called()
 
 

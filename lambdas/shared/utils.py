@@ -44,7 +44,8 @@ def build_response(status_code: int, message: str = None, data: dict | list = No
     body = {}
     if message:
         body["message"] = message
-    if data:
+    # 빈 리스트/딕셔너리도 그대로 반환해야 목록 API가 []를 응답한다.
+    if data is not None:
         body = data
 
     return {
