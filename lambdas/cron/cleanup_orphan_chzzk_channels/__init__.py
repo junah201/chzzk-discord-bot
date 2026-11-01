@@ -8,10 +8,8 @@ from datetime import datetime
 from time import perf_counter
 
 import boto3
-import requests
 from shared.chzzk import unfollow_chzzk_channel
 from shared.discord.utils import send_message
-from user_agent import generate_user_agent
 
 TABLE_NAME = "chzzk-bot-db"
 CHZZK_PREFIX = "CHZZK#"
