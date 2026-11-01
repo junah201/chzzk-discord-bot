@@ -22,6 +22,8 @@ export const discordQueries = {
     queryOptions({
       queryKey: keys.guilds(),
       queryFn: () => api.get<Guild[]>("/discord/guilds"),
+      select: (guilds) =>
+        [...guilds].sort((a, b) => b.current_count - a.current_count),
       staleTime: Infinity,
       gcTime: 1000 * 60 * 60,
     }),
