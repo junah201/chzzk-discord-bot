@@ -50,7 +50,7 @@ export default function CustomWebhookPage() {
           에 로그인합니다.
         </li>
         <li>
-          알림을 설정할 서버에서 <strong>관리하기</strong>를 누릅니다.
+          <strong>내 서버</strong> 목록에서 알림을 설정할 서버를 누릅니다.
         </li>
         <li>
           <strong>커스텀 웹훅 URL</strong> 칸에 복사한 URL을 붙여 넣습니다.

@@ -19,7 +19,10 @@ export default function NotificationsPage() {
           </Link>
           에 디스코드 계정으로 로그인합니다.
         </li>
-        <li>알림을 등록할 서버에서 <strong>관리하기</strong>를 누릅니다.</li>
+        <li>
+          <strong>내 서버</strong> 목록에서 알림을 등록할 서버를 누릅니다.
+          서버가 많다면 검색창에 서버 이름을 입력해 찾을 수 있습니다.
+        </li>
         <PolicyCallout variant="warning" title="서버가 보이지 않나요?">
           대시보드에는 내가 관리자 권한을 가진 서버만 나옵니다. 디스코드에서 해당
           서버의 관리자 권한이 있는지 확인해 주세요.
