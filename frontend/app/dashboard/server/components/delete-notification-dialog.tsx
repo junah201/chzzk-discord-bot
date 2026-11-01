@@ -63,9 +63,13 @@ export default function DeleteNotificationDialog({
           <AlertDialogTitle>알림 설정을 삭제하시겠습니까?</AlertDialogTitle>
           <AlertDialogDescription>
             <span className="font-semibold text-foreground">
-              {notification.channel_name || chzzkId}
+              {notification.chzzk_name || chzzkId}
             </span>{" "}
-            채널의 알림 설정이 영구적으로 삭제됩니다.
+            채널의{" "}
+            <span className="font-semibold text-foreground">
+              #{notification.channel_name || notification.channel_id}
+            </span>{" "}
+            알림 설정이 영구적으로 삭제됩니다.
             <br />이 작업은 되돌릴 수 없습니다.
           </AlertDialogDescription>
         </AlertDialogHeader>
