@@ -8,6 +8,7 @@ from responses import matchers
 from shared.discord.utils import (
     DISCORD_API_BASE_URL,
     DISCORD_API_TIMEOUT_SEC,
+    DISCORD_MESSAGE_TIMEOUT_SEC,
     DISCORD_TOKEN,
     DISCORD_USER_GUILDS_URL,
     AdminCheckResult,
@@ -18,6 +19,7 @@ from shared.discord.utils import (
     is_admin,
     send_message,
 )
+from shared.exceptions import DiscordApiUnavailableError
 
 discord_utils = importlib.import_module("shared.discord.utils")
 
@@ -388,16 +390,53 @@ class TestSendMessage:
 
         assert send_message(CHANNEL_ID, {"content": "x"}).status_code == status
 
-    def test_request_exception_propagates(self, mock_requests):
-        # 현재 동작: 네트워크 오류는 잡지 않고 호출자에게 그대로 던진다.
+    @pytest.mark.parametrize("with_files", [False, True], ids=["json", "files"])
+    def test_uses_timeout(self, mocker, mock_requests, with_files):
+        mock_requests.add(responses.POST, MESSAGES_URL, json={"id": "1"})
+        spy = mocker.spy(discord_utils.requests, "post")
+        files = {"file": ("a.txt", b"a", "text/plain")} if with_files else None
+
+        send_message(CHANNEL_ID, {"content": "x"}, files=files)
+
+        assert spy.call_args.kwargs["timeout"] == DISCORD_MESSAGE_TIMEOUT_SEC
+
+    @pytest.mark.parametrize(
+        "error",
+        [
+            requests.exceptions.ReadTimeout("read timed out"),
+            requests.exceptions.ConnectTimeout("connect timed out"),
+            requests.exceptions.ConnectionError("connection refused"),
+        ],
+        ids=["read-timeout", "connect-timeout", "connection-error"],
+    )
+    @pytest.mark.parametrize("with_files", [False, True], ids=["json", "files"])
+    def test_network_error_returns_599(
+        self, mock_requests, log_error, error, with_files
+    ):
+        mock_requests.add(responses.POST, MESSAGES_URL, body=error)
+        files = {"file": ("a.txt", b"a", "text/plain")} if with_files else None
+
+        res = send_message(CHANNEL_ID, {"content": "x"}, files=files)
+
+        assert isinstance(res, requests.Response)
+        assert res.status_code == 599
+        assert res.text == str(error)
+        assert json.loads(log_error.call_args.args[0]) == {
+            "type": "DISCORD_SEND_MESSAGE_REQUEST_ERROR",
+            "channel_id": CHANNEL_ID,
+            "error": str(error),
+        }
+
+    def test_token_is_not_logged_on_network_error(self, mock_requests, log_error):
         mock_requests.add(
             responses.POST,
             MESSAGES_URL,
             body=requests.exceptions.ConnectionError("refused"),
         )
 
-        with pytest.raises(requests.exceptions.ConnectionError):
-            send_message(CHANNEL_ID, {"content": "x"})
+        send_message(CHANNEL_ID, {"content": "x"}, token="secret-bot-token")
+
+        assert "secret-bot-token" not in log_error.call_args.args[0]
 
 
 class TestGetChannel:
@@ -417,6 +456,34 @@ class TestGetChannel:
         mock_requests.add(responses.GET, self.URL, json={"message": "x"}, status=status)
 
         assert get_channel(CHANNEL_ID) is None
+
+    def test_uses_timeout(self, mocker, mock_requests):
+        mock_requests.add(responses.GET, self.URL, json={"id": CHANNEL_ID})
+        spy = mocker.spy(discord_utils.requests, "get")
+
+        get_channel(CHANNEL_ID)
+
+        assert spy.call_args.kwargs["timeout"] == DISCORD_API_TIMEOUT_SEC
+
+    @pytest.mark.parametrize(
+        "error",
+        [
+            requests.exceptions.ReadTimeout("read timed out"),
+            requests.exceptions.ConnectionError("connection refused"),
+        ],
+        ids=["timeout", "connection-error"],
+    )
+    def test_network_error_raises_502(self, mock_requests, log_error, error):
+        mock_requests.add(responses.GET, self.URL, body=error)
+
+        with pytest.raises(DiscordApiUnavailableError) as exc_info:
+            get_channel(CHANNEL_ID)
+
+        assert exc_info.value.status_code == 502
+        assert (
+            json.loads(log_error.call_args.args[0])["type"]
+            == "DISCORD_GET_CHANNEL_REQUEST_ERROR"
+        )
 
 
 class TestDeleteMessage:
@@ -438,4 +505,22 @@ class TestDeleteMessage:
         )
 
         with pytest.raises(Exception, match=f"Failed to delete message: {status}"):
+            delete_message(CHANNEL_ID, "200")
+
+    def test_uses_timeout(self, mocker, mock_requests):
+        mock_requests.add(responses.DELETE, self.URL, status=204)
+        spy = mocker.spy(discord_utils.requests, "delete")
+
+        delete_message(CHANNEL_ID, "200")
+
+        assert spy.call_args.kwargs["timeout"] == DISCORD_API_TIMEOUT_SEC
+
+    def test_network_error_raises(self, mock_requests):
+        mock_requests.add(
+            responses.DELETE,
+            self.URL,
+            body=requests.exceptions.ConnectionError("refused"),
+        )
+
+        with pytest.raises(Exception, match="Failed to delete message: refused"):
             delete_message(CHANNEL_ID, "200")

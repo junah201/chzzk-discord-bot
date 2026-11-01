@@ -7,7 +7,7 @@ from typing import Literal
 import boto3
 import requests
 
-from shared.discord.utils import send_message
+from shared.discord.utils import network_error_response, send_message
 
 logger = logging.getLogger()
 
@@ -177,7 +177,4 @@ def _send_webhook(webhook_url: str, data: dict) -> requests.Response:
                 ensure_ascii=False,
             )
         )
-        response = requests.Response()
-        response.status_code = 599
-        response._content = str(error).encode()
-        return response
+        return network_error_response(error)

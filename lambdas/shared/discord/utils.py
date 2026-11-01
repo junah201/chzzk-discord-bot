@@ -6,6 +6,8 @@ from typing import NamedTuple
 
 import requests
 
+from shared.exceptions import DiscordApiUnavailableError
+
 from .dataclass import PartialGuild
 
 DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
@@ -13,6 +15,10 @@ DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
 DISCORD_API_BASE_URL = "https://discord.com/api/v10"
 DISCORD_USER_GUILDS_URL = f"{DISCORD_API_BASE_URL}/users/@me/guilds"
 DISCORD_API_TIMEOUT_SEC = 3
+# 메시지 전송은 파일 첨부가 있을 수 있어 조금 더 기다린다.
+DISCORD_MESSAGE_TIMEOUT_SEC = 5
+# 네트워크 오류로 응답을 받지 못했을 때 쓰는 상태 코드 (HTTP 표준 코드가 아니다).
+NETWORK_ERROR_STATUS_CODE = 599
 # Lambda 기본 timeout(10초) 안에서 끝나도록 rate limit 대기 시간을 제한한다.
 MAX_RATE_LIMIT_WAIT_SEC = 3
 ADMINISTRATOR_PERMISSION = 0x8
@@ -20,40 +26,92 @@ ADMINISTRATOR_PERMISSION = 0x8
 logger = logging.getLogger()
 
 
+def network_error_response(error: Exception) -> requests.Response:
+    """네트워크 오류를 상태 코드 599인 Response로 바꿉니다. 본문에는 오류 메시지가 담깁니다."""
+    response = requests.Response()
+    response.status_code = NETWORK_ERROR_STATUS_CODE
+    response._content = str(error).encode()
+    return response
+
+
 def delete_message(channel_id: int, message_id: int):
-    res = requests.delete(
-        f"{DISCORD_API_BASE_URL}/channels/{channel_id}/messages/{message_id}",
-        headers={"Authorization": f"Bot {DISCORD_TOKEN}"},
-    )
+    try:
+        res = requests.delete(
+            f"{DISCORD_API_BASE_URL}/channels/{channel_id}/messages/{message_id}",
+            headers={"Authorization": f"Bot {DISCORD_TOKEN}"},
+            timeout=DISCORD_API_TIMEOUT_SEC,
+        )
+    except requests.RequestException as e:
+        raise Exception(f"Failed to delete message: {e}") from e
     if res.status_code != 204:
         raise Exception(f"Failed to delete message: {res.status_code} {res.text}")
 
 
 def send_message(
     channel_id: int, data: dict, files: dict | None = None, token=DISCORD_TOKEN
-):
+) -> requests.Response:
+    """채널에 메시지를 보냅니다. 네트워크 오류가 나면 예외 대신 상태 코드 599인 Response를 반환합니다."""
     url = f"{DISCORD_API_BASE_URL}/channels/{channel_id}/messages"
     headers = {"Authorization": f"Bot {token}"}
-    if files:
-        form_data = {}
-        if data:
-            form_data["payload_json"] = json.dumps(data)
+    try:
+        if files:
+            form_data = {}
+            if data:
+                form_data["payload_json"] = json.dumps(data)
 
-        res = requests.post(url, headers=headers, data=form_data, files=files)
-    else:
+            return requests.post(
+                url,
+                headers=headers,
+                data=form_data,
+                files=files,
+                timeout=DISCORD_MESSAGE_TIMEOUT_SEC,
+            )
+
         headers["Content-Type"] = "application/json"
-        res = requests.post(url, headers=headers, data=json.dumps(data))
-
-    return res
+        return requests.post(
+            url,
+            headers=headers,
+            data=json.dumps(data),
+            timeout=DISCORD_MESSAGE_TIMEOUT_SEC,
+        )
+    except requests.RequestException as e:
+        logger.error(
+            json.dumps(
+                {
+                    "type": "DISCORD_SEND_MESSAGE_REQUEST_ERROR",
+                    "channel_id": str(channel_id),
+                    "error": str(e),
+                },
+                ensure_ascii=False,
+            )
+        )
+        return network_error_response(e)
 
 
 def get_channel(channel_id, token=DISCORD_TOKEN) -> dict | None:
-    res = requests.get(
-        f"{DISCORD_API_BASE_URL}/channels/{channel_id}",
-        headers={
-            "Authorization": f"Bot {token}",
-        },
-    )
+    """채널 정보를 가져옵니다. 채널이 없거나 접근할 수 없으면 None을 반환합니다.
+    네트워크 오류가 나면 DiscordApiUnavailableError(502)를 던집니다.
+    """
+    try:
+        res = requests.get(
+            f"{DISCORD_API_BASE_URL}/channels/{channel_id}",
+            headers={
+                "Authorization": f"Bot {token}",
+            },
+            timeout=DISCORD_API_TIMEOUT_SEC,
+        )
+    except requests.RequestException as e:
+        logger.error(
+            json.dumps(
+                {
+                    "type": "DISCORD_GET_CHANNEL_REQUEST_ERROR",
+                    "channel_id": str(channel_id),
+                    "error": str(e),
+                },
+                ensure_ascii=False,
+            )
+        )
+        raise DiscordApiUnavailableError()
     if res.status_code != 200:
         return None
 

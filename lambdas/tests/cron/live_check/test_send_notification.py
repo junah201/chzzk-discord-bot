@@ -4,7 +4,9 @@ from datetime import datetime
 
 import pytest
 import requests
+import responses
 from shared.discord import BUTTON_STYLE, COMPONENT_TYPE
+from shared.discord.utils import DISCORD_API_BASE_URL
 from shared.notification_dispatcher import DEFAULT_EMBED_COLOR
 
 live_check = importlib.import_module("cron.live_check")
@@ -355,7 +357,8 @@ class TestDeliveryResult:
         assert get_noti(ddb.table, "12")["last_noti_status"] == "FAIL_404"
 
     def test_send_exception_stops_remaining_notifications(self, ddb, get_chzzk, send):
-        # 현재 동작: 전송 중 예외가 나면 그대로 올라가서 남은 알림을 보내지 않는다.
+        # 현재 동작: 전송 중 예상하지 못한 예외가 나면 그대로 올라가서 남은 알림을 보내지 않는다.
+        # (send_message/_send_webhook의 네트워크 오류는 599 응답으로 바뀌어 여기까지 오지 않는다.)
         # lastLiveId는 이미 갱신된 뒤라 다음 실행에서도 이 방송은 다시 보내지 않는다.
         put_chzzk(ddb.table)
         put_noti(ddb.table, "10")
@@ -367,3 +370,24 @@ class TestDeliveryResult:
 
         assert send.call_count == 1
         assert get_chzzk_item(ddb.table)["lastLiveId"] == 200
+
+    def test_discord_network_error_does_not_stop_other_notifications(
+        self, ddb, get_chzzk, mock_requests, log_error
+    ):
+        put_chzzk(ddb.table)
+        put_noti(ddb.table, "10")
+        put_noti(ddb.table, "11")
+        mock_requests.add(
+            responses.POST,
+            f"{DISCORD_API_BASE_URL}/channels/10/messages",
+            body=requests.exceptions.ReadTimeout("read timed out"),
+        )
+        mock_requests.add(
+            responses.POST,
+            f"{DISCORD_API_BASE_URL}/channels/11/messages",
+            json={"id": "1"},
+        )
+
+        assert live_check.send_notification(CHZZK_ID, 3) == (1, 1, 1)
+        assert get_noti(ddb.table, "10")["last_noti_status"] == "FAIL_599"
+        assert get_noti(ddb.table, "11")["last_noti_status"] == "SUCCESS"
