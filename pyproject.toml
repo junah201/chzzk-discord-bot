@@ -1,12 +1,12 @@
 [project]
 name = "chzzk-discord-bot"
 version = "2.0.0"
-description = ""
+description = "Discord notification bot for Chzzk live streams"
 authors = [
     { name = "junah201", email = "junah.dev@gmail.com" }
 ]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.13"  # AWS Lambda python3.12 runtime
 dependencies = [
     "requests>=2.34.2",
     "user-agent>=0.1.14",
@@ -39,19 +39,22 @@ select = [
     "C4",  # flake8-comprehensions
     "UP",  # pyupgrade
     "ARG001", # unused arguments in functions
+    "DTZ",  # flake8-datetimez (naive datetimes)
+    "S113",  # requests call without timeout
 ]
 ignore = [
-    "E501",  # line too long, handled by black
-    "B008",  # do not perform function calls in argument defaults
-    "W191",  # indentation contains tabs
-    "B904",  # Allow raising exceptions without from e, for HTTPException
+    "E501",  # line too long, handled by ruff format
+    "W191",  # indentation contains tabs, conflicts with ruff format
 ]
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?)|context)$"
 
-[tool.pytest.ini_options]
+[tool.pytest]
 pythonpath = ["lambdas"]
 testpaths = ["lambdas/tests"]
-addopts = "--import-mode=importlib"
+addopts = ["--import-mode=importlib"]
+strict = true
 
 [tool.coverage.run]
+source = ["lambdas"]
+branch = true
 omit = ["lambdas/tests/*"]
