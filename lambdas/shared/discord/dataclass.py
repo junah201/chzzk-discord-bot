@@ -87,12 +87,8 @@ class CHANNEL_TYPE:
 
 
 class PartialGuild(TypedDict):
-    """`GET /users/@me/guilds` 응답의 서버 항목.
+    """`GET /users/@me/guilds` (v10) 응답의 서버 항목.
     https://discord.com/developers/docs/resources/user#get-current-user-guilds
-
-    버전 없는 `https://discord.com/api/...` 경로는 v6 형식으로 응답하므로
-    `permissions`는 정수(하위 32비트), 전체 권한 비트는 문자열 `permissions_new`로 온다.
-    v8 이상 경로로 바꾸면 `permissions`가 문자열이 되고 `permissions_new`는 사라진다.
     """
 
     id: str
@@ -100,8 +96,8 @@ class PartialGuild(TypedDict):
     icon: str | None
     banner: str | None
     owner: bool
-    permissions: int
-    permissions_new: str
+    # 권한 비트 플래그를 10진수 문자열로 준다. 계산할 때는 int()로 바꾼다.
+    permissions: str
     features: list[str]
     # `with_counts=true`로 요청했을 때만 포함된다.
     approximate_member_count: NotRequired[int]

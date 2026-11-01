@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 
 import requests
-from shared.discord.utils import send_message
+from shared.discord.utils import DISCORD_API_BASE_URL, send_message
 
 DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
 ADMIN_DISCORD_TOKEN = os.environ.get("ADMIN_DISCORD_TOKEN")
@@ -21,7 +21,7 @@ def handler(event, context):
     # 디스코드 API에서 봇 정보 및 서버 수 조회
     try:
         discord_res = requests.get(
-            "https://discord.com/api/v10/applications/@me",
+            f"{DISCORD_API_BASE_URL}/applications/@me",
             headers={
                 "Authorization": f"Bot {DISCORD_TOKEN}",
                 "Content-Type": "application/json",

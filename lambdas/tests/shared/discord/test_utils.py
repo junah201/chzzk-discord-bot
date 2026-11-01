@@ -14,8 +14,9 @@ from shared.discord.utils import (
 discord_utils = importlib.import_module("shared.discord.utils")
 
 TOKEN = "Bearer user-token"
-ADMIN = 0x8
-MANAGE_GUILD = 0x20
+# v10은 permissions를 10진수 문자열로 준다.
+ADMIN = str(0x8)
+MANAGE_GUILD = str(0x20)
 
 
 @pytest.fixture
@@ -55,8 +56,8 @@ def logged(log_mock):
 class TestPermissions:
     @pytest.mark.parametrize(
         "permissions",
-        [ADMIN, ADMIN | MANAGE_GUILD, 0xFFFFFFFF],
-        ids=["admin", "admin-with-others", "all"],
+        [ADMIN, str(0x8 | 0x20), str(0xFFFFFFFF), "2251799813685247"],
+        ids=["admin", "admin-with-others", "all-32bit", "all-64bit"],
     )
     def test_admin_guild(self, mock_requests, permissions):
         add_guilds(mock_requests, [{"id": "123", "permissions": permissions}])
@@ -65,8 +66,8 @@ class TestPermissions:
 
     @pytest.mark.parametrize(
         "permissions",
-        [0, MANAGE_GUILD],
-        ids=["none", "manage-guild-only"],
+        ["0", MANAGE_GUILD, "2251799813685239"],
+        ids=["none", "manage-guild-only", "64bit-without-admin"],
     )
     def test_not_admin_guild(self, mock_requests, permissions):
         add_guilds(mock_requests, [{"id": "123", "permissions": permissions}])
@@ -219,8 +220,8 @@ class TestInvalidResponse:
             "not-json",
             json.dumps({"message": "not a list"}),
             json.dumps([{"id": "123"}]),
-            json.dumps([{"permissions": 8}]),
-            json.dumps([{"id": "123", "permissions": "8"}]),
+            json.dumps([{"permissions": "8"}]),
+            json.dumps([{"id": "123", "permissions": "abc"}]),
             json.dumps([{"id": "123", "permissions": None}]),
             json.dumps(["123"]),
         ],
@@ -229,7 +230,7 @@ class TestInvalidResponse:
             "object",
             "missing-permissions",
             "missing-id",
-            "string-permissions",
+            "non-numeric-permissions",
             "null-permissions",
             "list-of-strings",
         ],

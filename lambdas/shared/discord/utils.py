@@ -9,7 +9,9 @@ import requests
 from .dataclass import PartialGuild
 
 DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
-DISCORD_USER_GUILDS_URL = "https://discord.com/api/users/@me/guilds"
+# 디스코드 API는 v10으로 고정한다. 버전 없는 경로는 deprecated된 v6 형식으로 응답한다.
+DISCORD_API_BASE_URL = "https://discord.com/api/v10"
+DISCORD_USER_GUILDS_URL = f"{DISCORD_API_BASE_URL}/users/@me/guilds"
 DISCORD_API_TIMEOUT_SEC = 3
 # Lambda 기본 timeout(10초) 안에서 끝나도록 rate limit 대기 시간을 제한한다.
 MAX_RATE_LIMIT_WAIT_SEC = 3
@@ -20,7 +22,7 @@ logger = logging.getLogger()
 
 def delete_message(channel_id: int, message_id: int):
     res = requests.delete(
-        f"https://discord.com/api/v9/channels/{channel_id}/messages/{message_id}",
+        f"{DISCORD_API_BASE_URL}/channels/{channel_id}/messages/{message_id}",
         headers={"Authorization": f"Bot {DISCORD_TOKEN}"},
     )
     if res.status_code != 204:
@@ -30,7 +32,7 @@ def delete_message(channel_id: int, message_id: int):
 def send_message(
     channel_id: int, data: dict, files: dict | None = None, token=DISCORD_TOKEN
 ):
-    url = f"https://discord.com/api/v9/channels/{channel_id}/messages"
+    url = f"{DISCORD_API_BASE_URL}/channels/{channel_id}/messages"
     headers = {"Authorization": f"Bot {token}"}
     if files:
         form_data = {}
@@ -47,7 +49,7 @@ def send_message(
 
 def get_channel(channel_id, token=DISCORD_TOKEN) -> dict | None:
     res = requests.get(
-        f"https://discord.com/api/v10/channels/{channel_id}",
+        f"{DISCORD_API_BASE_URL}/channels/{channel_id}",
         headers={
             "Authorization": f"Bot {token}",
         },
@@ -154,13 +156,13 @@ def is_admin(guild_id: str, token: str = None, retry: int = 3) -> AdminCheckResu
 
         break
 
-    # 관리자 권한을 가진 서버만 필터링합니다.
+    # 관리자 권한을 가진 서버만 필터링합니다. (v10의 permissions는 문자열이다.)
     try:
         guilds: list[PartialGuild] = res.json()
         admin_guild_ids = {
             guild["id"]
             for guild in guilds
-            if guild["permissions"] & ADMINISTRATOR_PERMISSION
+            if int(guild["permissions"]) & ADMINISTRATOR_PERMISSION
             == ADMINISTRATOR_PERMISSION
         }
     except Exception as e:

@@ -3,6 +3,7 @@ import logging
 
 import requests
 from shared import middleware
+from shared.discord.utils import DISCORD_API_BASE_URL
 from shared.exceptions import UnauthorizedError
 from shared.utils import build_response
 
@@ -27,7 +28,7 @@ def handler(event, context):
         raise UnauthorizedError()
 
     res = requests.get(
-        "https://discord.com/api/users/@me", headers={"Authorization": token}
+        f"{DISCORD_API_BASE_URL}/users/@me", headers={"Authorization": token}
     )
 
     if res.status_code != 200:

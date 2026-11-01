@@ -6,6 +6,7 @@ import boto3
 import requests
 from requests.adapters import HTTPAdapter
 from shared import middleware
+from shared.discord.utils import DISCORD_API_BASE_URL
 from shared.exceptions import (
     BadRequestError,
     BotNotJoinedError,
@@ -52,7 +53,7 @@ def handler(event, context):
 
     try:
         res = session.get(
-            f"https://discord.com/api/v10/guilds/{guild_id}",
+            f"{DISCORD_API_BASE_URL}/guilds/{guild_id}",
             params={"with_counts": "true"},
             timeout=Timeout(connect=3.05, read=5.0),
         )

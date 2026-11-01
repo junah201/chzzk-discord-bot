@@ -6,6 +6,7 @@ import boto3
 import requests
 from shared import middleware
 from shared.discord import PartialGuild
+from shared.discord.utils import DISCORD_USER_GUILDS_URL
 from shared.exceptions import DiscordApiError, RateLimitError, UnauthorizedError
 from shared.utils import build_response, pick
 
@@ -30,7 +31,7 @@ def handler(event, context):
     retry = 2
     for _retry_count in range(1, retry + 1):
         res = requests.get(
-            "https://discord.com/api/users/@me/guilds",
+            DISCORD_USER_GUILDS_URL,
             headers={"Authorization": token},
             params={"with_counts": "true"},
         )
@@ -72,7 +73,7 @@ def handler(event, context):
     admin_guilds = [
         pick(guild, ALLOWED_KEYS)
         for guild in data
-        if (guild["permissions"] & 0x8) == 0x8
+        if (int(guild["permissions"]) & 0x8) == 0x8
     ]
 
     if not admin_guilds:

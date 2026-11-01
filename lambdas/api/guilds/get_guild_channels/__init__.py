@@ -6,6 +6,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from shared import middleware
 from shared.discord import CHANNEL_TYPE
+from shared.discord.utils import DISCORD_API_BASE_URL
 from shared.exceptions import (
     BotNotJoinedError,
     DiscordApiError,
@@ -39,7 +40,7 @@ def handler(event, context):
 
     try:
         res = session.get(
-            f"https://discord.com/api/v10/guilds/{guild_id}/channels",
+            f"{DISCORD_API_BASE_URL}/guilds/{guild_id}/channels",
             timeout=Timeout(connect=3.05, read=5.0),
         )
     except requests.exceptions.RequestException as e:

@@ -4,6 +4,7 @@ import os
 
 import requests
 from shared import middleware
+from shared.discord.utils import DISCORD_API_BASE_URL
 from shared.exceptions import BadRequestError, UnauthorizedError
 from shared.utils import build_response, pick
 
@@ -47,7 +48,7 @@ def handler(event, context):
         scope = "identify, email, guilds, guilds.members.read"
 
     res = requests.post(
-        url="https://discord.com/api/v10/oauth2/token",
+        url=f"{DISCORD_API_BASE_URL}/oauth2/token",
         headers={"Content-Type": "application/x-www-form-urlencoded"},
         data={
             "client_id": DISCORD_CLIENT_ID,
