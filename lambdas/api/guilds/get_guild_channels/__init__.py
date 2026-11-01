@@ -10,6 +10,7 @@ from shared.discord.utils import DISCORD_API_BASE_URL
 from shared.exceptions import (
     BotNotJoinedError,
     DiscordApiError,
+    DiscordApiUnavailableError,
     ServerNotFoundError,
     UnauthorizedError,
 )
@@ -53,7 +54,7 @@ def handler(event, context):
                 }
             )
         )
-        raise DiscordApiError(None)
+        raise DiscordApiUnavailableError()
 
     logger.info(
         json.dumps(

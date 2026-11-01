@@ -11,6 +11,7 @@ from shared.exceptions import (
     BadRequestError,
     BotNotJoinedError,
     DiscordApiError,
+    DiscordApiUnavailableError,
     ServerNotFoundError,
 )
 from shared.utils import build_response, pick
@@ -67,8 +68,8 @@ def handler(event, context):
                 }
             )
         )
-        # 네트워크/DNS 단절 시 500 에러 처리
-        raise DiscordApiError(None)
+        # 네트워크/DNS 단절 시 502 에러 처리
+        raise DiscordApiUnavailableError()
 
     logger.info(
         json.dumps(
