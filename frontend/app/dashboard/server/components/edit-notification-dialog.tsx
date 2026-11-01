@@ -31,23 +31,33 @@ export default function EditNotificationDialog({
   const chzzkId =
     notification.chzzk_id || notification.PK.split("#")[1] || "unknown";
 
-  const { control, handleSubmit, reset } = useForm({
-    defaultValues: {
-      chzzk_id: chzzkId,
-      channel_id: notification.channel_id,
-      guild_id: notification.guild_id,
-      custom_message: notification.custom_message || "",
-      webhook_url: notification.webhook_url || "",
-      embed_color: notification.embed_color || "",
-      disable_embed: notification.disable_embed || false,
-      disable_tag: notification.disable_tag || false,
-      disable_button: notification.disable_button || false,
-      disable_notification: notification.disable_notification || false,
-    },
+  const getDefaultValues = () => ({
+    chzzk_id: chzzkId,
+    channel_id: notification.channel_id,
+    guild_id: notification.guild_id,
+    custom_message: notification.custom_message || "",
+    webhook_url: notification.webhook_url || "",
+    embed_color: notification.embed_color || "",
+    disable_embed: notification.disable_embed || false,
+    disable_tag: notification.disable_tag || false,
+    disable_button: notification.disable_button || false,
+    disable_notification: notification.disable_notification || false,
   });
 
+  const { control, handleSubmit, reset } = useForm({
+    defaultValues: getDefaultValues(),
+  });
+
+  // 열 때마다 저장된 설정으로 되돌려, 취소한 입력이 남지 않게 함
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
+      reset(getDefaultValues());
+    }
+    setOpen(nextOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button
           size="sm"
@@ -88,10 +98,7 @@ export default function EditNotificationDialog({
           <Button
             onClick={handleSubmit((data) =>
               update.mutate(data, {
-                onSuccess: () => {
-                  setOpen(false);
-                  reset(data);
-                },
+                onSuccess: () => setOpen(false),
               }),
             )}
             disabled={update.isPending}
