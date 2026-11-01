@@ -5,6 +5,7 @@ import time
 import boto3
 import requests
 from shared import middleware
+from shared.discord import PartialGuild
 from shared.exceptions import DiscordApiError, RateLimitError, UnauthorizedError
 from shared.utils import build_response, pick
 
@@ -64,7 +65,7 @@ def handler(event, context):
         )
         raise DiscordApiError(res)
 
-    data = res.json()
+    data: list[PartialGuild] = res.json()
 
     # 관리자 권한을 가진 서버만 필터링
     ALLOWED_KEYS = {"id", "name", "icon", "description", "approximate_member_count"}

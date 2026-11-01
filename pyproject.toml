@@ -22,6 +22,7 @@ dev = [
     "pytest-mock>=3.17.0",
     "pytest-cov>=7.1.0",
     "tzdata>=2026.6",
+    "responses>=0.26.3",
 ]
 
 [tool.ruff]

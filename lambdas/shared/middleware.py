@@ -6,6 +6,7 @@ from shared.discord.utils import is_admin
 from shared.exceptions import (
     BadRequestError,
     BaseException,
+    DiscordApiUnavailableError,
     RateLimitError,
     UnauthorizedError,
     UserNotAdminError,
@@ -40,39 +41,29 @@ def middleware(logger: logging.Logger | None = None, admin_check: bool = False):
                         logger.info(json.dumps({"type": "MISSING_GUILD_ID"}))
                         raise BadRequestError()
 
-                    is_admin_result, res = is_admin(guild_id, token)
+                    result = is_admin(guild_id, token)
 
-                    if is_admin_result is False:
-                        if res.status_code == 429:
+                    if not result.is_admin:
+                        log_data = {
+                            "guild_id": guild_id,
+                            "status_code": result.status_code,
+                            "error_message": result.error_message,
+                        }
+                        if result.status_code == 429:
+                            logger.info(
+                                json.dumps({"type": "RATE_LIMITED", **log_data})
+                            )
+                            raise RateLimitError(retry_after=result.retry_after)
+                        # Timeout/연결 실패(음수) 또는 디스코드 서버 오류(5xx)는 권한 문제가 아니다.
+                        if result.status_code < 0 or result.status_code >= 500:
                             logger.info(
                                 json.dumps(
-                                    {
-                                        "type": "RATE_LIMITED",
-                                        "guild_id": guild_id,
-                                        "status_code": res.status_code,
-                                        "response": res.text,
-                                    }
+                                    {"type": "DISCORD_API_UNAVAILABLE", **log_data}
                                 )
                             )
-                            raise RateLimitError(
-                                retry_after=res.json().get("retry_after", 0)
-                            )
-                        else:
-                            logger.info(
-                                json.dumps(
-                                    {
-                                        "type": "NOT_ADMIN",
-                                        "guild_id": guild_id,
-                                        "status_code": res.status_code
-                                        if res is not None
-                                        else None,
-                                        "response": res.text
-                                        if res is not None
-                                        else None,
-                                    }
-                                )
-                            )
-                            raise UserNotAdminError()
+                            raise DiscordApiUnavailableError()
+                        logger.info(json.dumps({"type": "NOT_ADMIN", **log_data}))
+                        raise UserNotAdminError()
 
                 res = func(event, context)
             except BaseException as e:

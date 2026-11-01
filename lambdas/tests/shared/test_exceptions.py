@@ -7,6 +7,7 @@ from shared.exceptions import (
     BotForbiddenError,
     BotNotJoinedError,
     DiscordApiError,
+    DiscordApiUnavailableError,
     RateLimitError,
     ServerNotFoundError,
     UnauthorizedError,
@@ -34,6 +35,12 @@ from shared.exceptions import (
         ),
         (ServerNotFoundError(), 404, "SERVER_NOT_FOUND", "서버를 찾을 수 없습니다."),
         (RateLimitError(), 429, "RATE_LIMITED", "요청이 너무 많습니다."),
+        (
+            DiscordApiUnavailableError(),
+            502,
+            "DISCORD_API_ERROR",
+            "디스코드 API 통신 중 오류가 발생했습니다.",
+        ),
     ],
     ids=lambda v: v.__class__.__name__ if isinstance(v, Exception) else None,
 )

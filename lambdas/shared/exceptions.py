@@ -70,6 +70,13 @@ class RateLimitError(BaseException):
         }
 
 
+class DiscordApiUnavailableError(BaseException):
+    """응답 객체 없이 디스코드 API 호출이 실패했을 때(Timeout, 연결 실패, 5xx 등) 사용합니다."""
+
+    def __init__(self, message="디스코드 API 통신 중 오류가 발생했습니다."):
+        super().__init__(502, "DISCORD_API_ERROR", message)
+
+
 class DiscordApiError(BaseException):
     def __init__(self, res: Response, message="디스코드 API 통신 중 오류 발생"):
         super().__init__(

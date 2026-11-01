@@ -4,6 +4,7 @@ import logging
 
 import pytest
 from shared import middleware
+from shared.discord.utils import AdminCheckResult
 from shared.exceptions import BadRequestError, UserNotAdminError
 
 # `shared/__init__.py`가 `middleware` 함수를 같은 이름으로 re-export 하므로
@@ -28,7 +29,9 @@ def handler(mocker):
 
 @pytest.fixture
 def is_admin(mocker):
-    return mocker.patch.object(middleware_module, "is_admin", return_value=(True, None))
+    return mocker.patch.object(
+        middleware_module, "is_admin", return_value=AdminCheckResult(True, 200)
+    )
 
 
 def admin_event(**overrides):
@@ -205,12 +208,10 @@ class TestAdminCheck:
         is_admin.assert_not_called()
         handler.assert_not_called()
 
-    def test_rate_limited_is_429_with_retry_after(
-        self, mocker, logger, handler, is_admin
-    ):
-        discord_res = mocker.Mock(status_code=429, text="rate limited")
-        discord_res.json.return_value = {"retry_after": 2.5}
-        is_admin.return_value = (False, discord_res)
+    def test_rate_limited_is_429_with_retry_after(self, logger, handler, is_admin):
+        is_admin.return_value = AdminCheckResult(
+            False, 429, "RateLimited: {}", retry_after=2.5
+        )
 
         res = self.wrap(logger, handler)(admin_event(), None)
 
@@ -224,19 +225,19 @@ class TestAdminCheck:
         handler.assert_not_called()
 
     def test_rate_limited_without_retry_after_defaults_to_zero(
-        self, mocker, logger, handler, is_admin
+        self, logger, handler, is_admin
     ):
-        discord_res = mocker.Mock(status_code=429, text="rate limited")
-        discord_res.json.return_value = {}
-        is_admin.return_value = (False, discord_res)
+        is_admin.return_value = AdminCheckResult(False, 429, "RateLimited: {}")
 
         res = self.wrap(logger, handler)(admin_event(), None)
 
         assert json.loads(res["body"])["retry_after"] == 0
 
-    @pytest.mark.parametrize("status_code", [200, 401, 500])
-    def test_not_admin_is_403(self, mocker, logger, handler, is_admin, status_code):
-        is_admin.return_value = (False, mocker.Mock(status_code=status_code, text=""))
+    @pytest.mark.parametrize(
+        "status_code", [200, 401, 403, 404], ids=["not-admin", "401", "403", "404"]
+    )
+    def test_not_admin_is_403(self, logger, handler, is_admin, status_code):
+        is_admin.return_value = AdminCheckResult(False, status_code, "")
 
         res = self.wrap(logger, handler)(admin_event(), None)
 
@@ -244,13 +245,19 @@ class TestAdminCheck:
         assert json.loads(res["body"])["code"] == "USER_NOT_ADMIN"
         handler.assert_not_called()
 
-    def test_not_admin_without_response_is_500(self, logger, handler, is_admin):
-        # 현재 동작: res가 None이면 status_code 접근에서 AttributeError가 나서 403이 아니라 500이 된다.
-        is_admin.return_value = (False, None)
+    @pytest.mark.parametrize(
+        "status_code",
+        [-1, -2, -3, 500, 503],
+        ids=["timeout", "connection-error", "unknown-error", "500", "503"],
+    )
+    def test_discord_failure_is_502(self, logger, handler, is_admin, status_code):
+        is_admin.return_value = AdminCheckResult(False, status_code, "error")
 
         res = self.wrap(logger, handler)(admin_event(), None)
 
-        assert res["statusCode"] == 500
+        assert res["statusCode"] == 502
+        assert json.loads(res["body"])["code"] == "DISCORD_API_ERROR"
+        assert res["headers"] == CORS_HEADERS
         handler.assert_not_called()
 
     def test_admin_check_disabled_skips_is_admin(self, logger, handler, is_admin):
