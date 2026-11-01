@@ -371,7 +371,7 @@ def handler(event, context):
                         f"- 구매자 ID: `{buyer_id}`\n"
                         f"- 상품: `월 ₩2,000 정기 구독`\n"
                         f"- 슬롯 변경: 기존 **{old_max_limit}개**에서 **{new_max_limit}개**로 늘어났습니다.\n"
-                        f"- 구독 만료일: `{to_kst_string(expires_at)} UTC`"
+                        f"- 구독 만료일: `{to_kst_string(expires_at)} KST`"
                     )
 
                 return build_response(
