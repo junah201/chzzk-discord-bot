@@ -152,14 +152,31 @@ class TestSuccess:
 
         assert get_noti(setup.table)["embed_color"] == "#FF0000"
 
-    def test_empty_webhook_url_does_not_clear_saved_webhook(self, setup):
-        # 현재 동작: webhook_url을 빈 값으로 보내도 저장된 웹훅이 지워지지 않는다.
-        # (embed_color는 빈 값을 보내면 지워진다.)
+    @pytest.mark.parametrize("value", ["", "   "], ids=["empty", "blank"])
+    def test_empty_webhook_url_clears_saved_webhook(self, setup, value):
         put_noti(setup.table, webhook_url=WEBHOOK_URL)
+
+        res, _ = call(webhook_url=value)
+
+        assert res["statusCode"] == 204
+        assert get_noti(setup.table)["webhook_url"] == ""
+
+    def test_clearing_webhook_does_not_need_subscription(self, setup):
+        # 구독이 만료된 서버도 남아 있는 웹훅을 지울 수 있어야 한다.
+        put_noti(setup.table, webhook_url=WEBHOOK_URL, is_subscription_active=True)
 
         res, _ = call(webhook_url="")
 
         assert res["statusCode"] == 204
+        noti = get_noti(setup.table)
+        assert noti["webhook_url"] == ""
+        assert noti["is_subscription_active"] is False
+
+    def test_omitted_webhook_url_is_kept(self, setup):
+        put_noti(setup.table, webhook_url=WEBHOOK_URL)
+
+        call(custom_message="x")
+
         assert get_noti(setup.table)["webhook_url"] == WEBHOOK_URL
 
     def test_count_at_limit_can_update(self, ddb):

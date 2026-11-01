@@ -31,6 +31,7 @@ def handler(event, context):
     disable_button = body.get("disable_button", False)
     disable_notification = body.get("disable_notification", False)
     webhook_url = body.get("webhook_url", "").strip()
+    has_webhook_url = "webhook_url" in body
     embed_color = body.get("embed_color", "").strip()
     has_embed_color = "embed_color" in body
     is_subscription_active = is_guild_subscription_active(guild_id)
@@ -94,7 +95,8 @@ def handler(event, context):
             ":gid": {"S": guild_id},
             ":isa": {"BOOL": is_subscription_active},
         }
-        if webhook_url:
+        # 키가 있으면 빈 값이어도 저장해서 웹훅을 지울 수 있게 한다. (embed_color와 동일)
+        if has_webhook_url:
             set_parts.append("webhook_url = :wu")
             expression_values[":wu"] = {"S": webhook_url}
         if has_embed_color:
