@@ -325,7 +325,7 @@ class TestSendWebhook:
     @pytest.mark.parametrize("status", [200, 204])
     def test_success(self, mocker, mock_requests, log_error, status):
         mock_requests.add(responses.POST, WEBHOOK_URL, status=status)
-        spy = mocker.spy(notification_dispatcher.requests, "post")
+        spy = mocker.spy(notification_dispatcher.session, "post")
 
         res = notification_dispatcher._send_webhook(WEBHOOK_URL, MESSAGE)
 

@@ -7,7 +7,7 @@ from typing import Literal
 import boto3
 import requests
 
-from shared.discord.utils import network_error_response, send_message
+from shared.discord.utils import network_error_response, send_message, session
 
 logger = logging.getLogger()
 
@@ -180,7 +180,7 @@ def send_notification_message(
 
 def _send_webhook(webhook_url: str, data: dict) -> requests.Response:
     try:
-        return requests.post(
+        return session.post(
             webhook_url,
             headers={"Content-Type": "application/json"},
             data=json.dumps(data),

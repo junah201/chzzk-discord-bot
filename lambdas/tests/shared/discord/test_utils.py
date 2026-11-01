@@ -106,7 +106,7 @@ class TestGetAdminGuilds:
 
     def test_sends_token_with_timeout_and_no_params(self, mocker, mock_requests):
         add_guilds(mock_requests, [])
-        spy = mocker.spy(discord_utils.requests, "get")
+        spy = mocker.spy(discord_utils.session, "get")
 
         get_admin_guilds(TOKEN)
 
@@ -393,7 +393,7 @@ class TestSendMessage:
     @pytest.mark.parametrize("with_files", [False, True], ids=["json", "files"])
     def test_uses_timeout(self, mocker, mock_requests, with_files):
         mock_requests.add(responses.POST, MESSAGES_URL, json={"id": "1"})
-        spy = mocker.spy(discord_utils.requests, "post")
+        spy = mocker.spy(discord_utils.session, "post")
         files = {"file": ("a.txt", b"a", "text/plain")} if with_files else None
 
         send_message(CHANNEL_ID, {"content": "x"}, files=files)
@@ -459,7 +459,7 @@ class TestGetChannel:
 
     def test_uses_timeout(self, mocker, mock_requests):
         mock_requests.add(responses.GET, self.URL, json={"id": CHANNEL_ID})
-        spy = mocker.spy(discord_utils.requests, "get")
+        spy = mocker.spy(discord_utils.session, "get")
 
         get_channel(CHANNEL_ID)
 
@@ -509,7 +509,7 @@ class TestDeleteMessage:
 
     def test_uses_timeout(self, mocker, mock_requests):
         mock_requests.add(responses.DELETE, self.URL, status=204)
-        spy = mocker.spy(discord_utils.requests, "delete")
+        spy = mocker.spy(discord_utils.session, "delete")
 
         delete_message(CHANNEL_ID, "200")
 
@@ -524,3 +524,17 @@ class TestDeleteMessage:
 
         with pytest.raises(Exception, match="Failed to delete message: refused"):
             delete_message(CHANNEL_ID, "200")
+
+
+class TestSession:
+    def test_does_not_keep_response_cookies(self, mock_requests):
+        mock_requests.add(
+            responses.POST,
+            MESSAGES_URL,
+            json={"id": "1"},
+            headers={"Set-Cookie": "__cf_bm=x; Domain=discord.com; Path=/"},
+        )
+
+        send_message(CHANNEL_ID, {"content": "x"})
+
+        assert len(discord_utils.session.cookies) == 0

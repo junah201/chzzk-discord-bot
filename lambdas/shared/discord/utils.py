@@ -1,3 +1,4 @@
+import http.cookiejar
 import json
 import logging
 import os
@@ -26,6 +27,18 @@ ADMINISTRATOR_PERMISSION = 0x8
 logger = logging.getLogger()
 
 
+def _create_session() -> requests.Session:
+    session = requests.Session()
+    # 여러 토큰(봇, 유저 OAuth)의 요청이 세션을 같이 쓰므로 응답 쿠키를 다음 요청에 싣지 않는다.
+    session.cookies.set_policy(http.cookiejar.DefaultCookiePolicy(allowed_domains=[]))
+    return session
+
+
+# 같은 Lambda 실행 환경 안에서 연결을 재사용해서 요청마다 TLS 핸드셰이크를 하지 않는다.
+# 인증 헤더는 요청마다 넘긴다.
+session = _create_session()
+
+
 def network_error_response(error: Exception) -> requests.Response:
     """네트워크 오류를 상태 코드 599인 Response로 바꿉니다. 본문에는 오류 메시지가 담깁니다."""
     response = requests.Response()
@@ -36,7 +49,7 @@ def network_error_response(error: Exception) -> requests.Response:
 
 def delete_message(channel_id: int, message_id: int):
     try:
-        res = requests.delete(
+        res = session.delete(
             f"{DISCORD_API_BASE_URL}/channels/{channel_id}/messages/{message_id}",
             headers={"Authorization": f"Bot {DISCORD_TOKEN}"},
             timeout=DISCORD_API_TIMEOUT_SEC,
@@ -59,7 +72,7 @@ def send_message(
             if data:
                 form_data["payload_json"] = json.dumps(data)
 
-            return requests.post(
+            return session.post(
                 url,
                 headers=headers,
                 data=form_data,
@@ -68,7 +81,7 @@ def send_message(
             )
 
         headers["Content-Type"] = "application/json"
-        return requests.post(
+        return session.post(
             url,
             headers=headers,
             data=json.dumps(data),
@@ -93,7 +106,7 @@ def get_channel(channel_id, token=DISCORD_TOKEN) -> dict | None:
     네트워크 오류가 나면 DiscordApiUnavailableError(502)를 던집니다.
     """
     try:
-        res = requests.get(
+        res = session.get(
             f"{DISCORD_API_BASE_URL}/channels/{channel_id}",
             headers={
                 "Authorization": f"Bot {token}",
@@ -146,7 +159,7 @@ def get_admin_guilds(
 
     for attempt in range(1, retry + 1):
         try:
-            res = requests.get(
+            res = session.get(
                 DISCORD_USER_GUILDS_URL,
                 headers={"Authorization": token},
                 params=params,
