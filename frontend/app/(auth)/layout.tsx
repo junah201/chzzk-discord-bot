@@ -15,13 +15,11 @@ export default function AuthLayout({
     <main className="flex min-h-screen bg-background text-foreground">
       <GridPattern position="fixed" mask="fade" />
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* 왼쪽 상단: Primary Color */}
         <GlowEffect
           variant="breathing"
           duration={10}
           className="top-1/4 left-1/4 w-96 h-96 bg-primary/10"
         />
-        {/* 오른쪽 하단: Emerald Color */}
         <GlowEffect
           variant="breathing"
           duration={12}

@@ -30,7 +30,6 @@ def handler(event, _context):
     if not all([chzzk_id, guild_id, discord_channel_id]):
         raise BadRequestError()
 
-    # 치지직 채널이 있는지 확인
     chzzk = get_chzzk(chzzk_id)
     if not chzzk:
         return build_response(400, "해당 치지직 채널을 찾을 수 없습니다.")
@@ -103,7 +102,6 @@ def handler(event, _context):
         notification_item=item,
     )
 
-    # 채널이 존재하지 않는 경우
     if res.status_code == 404:
         logger.error(
             json.dumps(
@@ -120,7 +118,6 @@ def handler(event, _context):
         )
         return build_response(404, "해당 디스코드 채널이 존재하지 않습니다.")
 
-    # 메시지 전송에 실패한 경우
     if res.status_code not in (200, 204):
         logger.error(
             json.dumps(
@@ -146,7 +143,6 @@ def handler(event, _context):
             f"테스트 알림 전송에 실패했습니다. 치직 봇이 해당 채널에 메시지를 보낼 권한이 있는지 확인해주세요. ({error_detail})",
         )
 
-    # 성공
     logger.info(
         json.dumps(
             {

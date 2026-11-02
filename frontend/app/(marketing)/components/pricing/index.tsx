@@ -12,7 +12,6 @@ export function Pricing() {
     <section id="pricing" className="relative py-16 sm:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          {/* 제목은 왼쪽, 자세히 보기 링크는 오른쪽에 두는 분할 헤더 */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}

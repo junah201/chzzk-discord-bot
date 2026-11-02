@@ -16,7 +16,6 @@ export function Features() {
     <section id="features" className="relative py-16 sm:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
-          {/* 왼쪽: 편집 디자인처럼 왼쪽 정렬된 제목. 넓은 화면에서는 스크롤해도 따라옴 */}
           <motion.header
             {...reveal()}
             className="break-keep lg:sticky lg:top-32 lg:self-start"
@@ -39,7 +38,6 @@ export function Features() {
             </p>
           </motion.header>
 
-          {/* 오른쪽: 크기가 다른 타일을 엮은 벤토 그리드 */}
           <div className="grid gap-4 sm:grid-cols-2">
             <Tile
               className="sm:col-span-2"

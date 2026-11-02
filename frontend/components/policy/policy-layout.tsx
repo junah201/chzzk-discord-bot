@@ -1,4 +1,3 @@
-// components/policy/PolicyLayout.tsx
 "use client";
 
 import { motion } from "motion/react";
@@ -32,7 +31,6 @@ export function PolicyLayout({
   sections,
   children,
 }: PolicyLayoutProps) {
-  // useScrollSpy에서 activeId만 가져옵니다.
   const activeId = useScrollSpy(sections.map((s) => s.id));
 
   return (
@@ -88,14 +86,12 @@ export function PolicyLayout({
               </motion.div>
             </aside>
 
-            {/* --- 메인 콘텐츠 --- */}
             <main className="lg:col-span-9">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
               >
-                {/* 페이지 헤더 */}
                 <div className="mb-12">
                   <h1 className="text-4xl sm:text-5xl font-bold mb-8 bg-linear-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
                     {title}
@@ -113,11 +109,9 @@ export function PolicyLayout({
                   </div>
                 </div>
 
-                {/* 약관 본문 영역 */}
                 <div className="prose prose-invert max-w-none">
                   {children}
 
-                  {/* 푸터 (최종 수정일) */}
                   <div className="mt-16 bg-linear-to-br from-secondary to-secondary/50 border border-border rounded-xl p-8 text-center">
                     <p className="text-muted-foreground mb-2">최종 수정일</p>
                     <p className="text-lg font-semibold">{lastUpdated}</p>

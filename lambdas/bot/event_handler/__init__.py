@@ -16,7 +16,7 @@ logger.setLevel(logging.INFO)
 
 @middleware(logger)
 def handler(event, _context):
-    # verify the signature
+    # 서명 검증
     try:
         raw_body = event["body"]
         signature = event["headers"].get("x-signature-ed25519")
@@ -33,7 +33,6 @@ def handler(event, _context):
         )
         return {"statusCode": 401, "body": "Invalid request signature"}
 
-    # ping pong
     body = json.loads(raw_body)
     logging.info(
         json.dumps({"type": "REQUEST_BODY", "body": raw_body}, ensure_ascii=False)

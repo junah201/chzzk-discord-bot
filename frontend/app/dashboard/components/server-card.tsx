@@ -10,7 +10,6 @@ interface ServerCardProps {
   server: Guild;
 }
 
-/** 카드 전체가 서버 관리 페이지로 가는 링크 */
 export function ServerCard({ server }: ServerCardProps) {
   return (
     <Link

@@ -41,7 +41,6 @@ export default function CustomWebhookPage() {
         </li>
       </ul>
 
-      {/* 설정 단계 */}
       <h2>대시보드에서 웹훅 연동하기</h2>
       <ol>
         <li>

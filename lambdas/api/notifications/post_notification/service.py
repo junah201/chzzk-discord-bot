@@ -98,7 +98,6 @@ def save_notification_and_increment_counter(
     """NOTI 아이템 저장과 GUILD current_count 증가(+1)를 하나의 트랜잭션으로 처리합니다.
     GUILD가 없으면 같은 트랜잭션에서 기본값(max_limit 5)으로 만들고, 있으면 기존 값을 유지합니다.
     """
-    # NOTI 아이템 추가
     item = {
         "PK": {"S": f"CHZZK#{chzzk_id}"},
         "SK": {"S": f"NOTI#{channel_id}"},

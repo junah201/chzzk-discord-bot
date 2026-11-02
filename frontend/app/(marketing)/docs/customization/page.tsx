@@ -50,7 +50,6 @@ export default function CustomizationPage() {
         </p>
       </PolicyCallout>
 
-      {/* 2. 특정 유저 멘션 */}
       <h2>특정 유저 멘션하기</h2>
       <p>
         멘션할 유저의 ID가 필요합니다. 먼저 디스코드 설정 {`>`} 고급에서{" "}
@@ -69,7 +68,6 @@ export default function CustomizationPage() {
         ID가 <code>123456789</code>라면 👉 <code>&lt;@123456789&gt;</code> 입력
       </PolicyCallout>
 
-      {/* 3. 특정 역할 멘션 */}
       <h2>특정 역할 멘션하기</h2>
       <p>
         멘션할 역할의 ID가 필요합니다. 먼저 디스코드 설정 {`>`} 고급에서{" "}

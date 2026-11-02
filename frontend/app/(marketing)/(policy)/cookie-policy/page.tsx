@@ -68,7 +68,6 @@ export default function CookiePolicy() {
       notice={NOTICE}
       sections={SECTIONS}
     >
-      {/* 01. 쿠키란 무엇인가요? */}
       <PolicySection id="what-is-cookie" index={1} title="쿠키란 무엇인가요?">
         <p>
           쿠키(Cookie)는 웹사이트를 방문할 때 사용자의 브라우저에 저장되는 작은
@@ -77,7 +76,6 @@ export default function CookiePolicy() {
         </p>
       </PolicySection>
 
-      {/* 02. 쿠키 사용 목적 */}
       <PolicySection id="purpose" index={2} title="쿠키 사용 목적">
         <p>
           회사는 최소한의 정보만을 수집하며, 다음과 같은 구체적인 목적을 위해

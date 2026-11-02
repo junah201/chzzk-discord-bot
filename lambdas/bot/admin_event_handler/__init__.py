@@ -208,7 +208,7 @@ def handler(event, _context):
             try:
                 guild_pk = f"GUILD#{guild_id}"
 
-                # 트랜잭션 또는 개별 조회를 통한 길드 존재 여부 확인
+                # GUILD 아이템은 알림을 처음 등록할 때 생기므로, 없으면 처리하지 않는다.
                 response = table.get_item(Key={"PK": guild_pk, "SK": guild_pk})
                 if "Item" not in response:
                     return build_response(
@@ -232,7 +232,6 @@ def handler(event, _context):
                 purchased_at_str = now.isoformat()
                 old_max_limit = int(item.get("max_limit", 5))
 
-                # 상품 종류별 처리
                 if product_type in ["SLOT_5", "SLOT_10"]:
                     added_slots = 5 if product_type == "SLOT_5" else 10
                     amount = 3000 if product_type == "SLOT_5" else 5000

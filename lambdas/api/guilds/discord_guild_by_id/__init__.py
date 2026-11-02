@@ -68,7 +68,6 @@ def handler(event, _context):
                 }
             )
         )
-        # 네트워크/DNS 단절 시 502 에러 처리
         raise DiscordApiUnavailableError() from e
 
     logger.info(
@@ -91,11 +90,9 @@ def handler(event, _context):
     if res.status_code != 200:
         raise DiscordApiError(res)
 
-    # 기본 디스코드 서버 정보 필터링
     ALLOWED_KEYS = {"id", "name", "icon", "description", "approximate_member_count"}
     guild_data = pick(res.json(), ALLOWED_KEYS)
 
-    # DynamoDB 조회
     guild_res = table.get_item(
         Key={
             "PK": f"GUILD#{guild_id}",

@@ -37,7 +37,6 @@ export default function PricingCard({ plan, index }: PricingCardProps) {
           plan.isRecommended && "border-2 border-primary/50",
         )}
       >
-        {/* Badge */}
         {plan.badge && (
           <div className="mb-4 flex items-center gap-2 flex-wrap">
             <Badge
@@ -64,7 +63,6 @@ export default function PricingCard({ plan, index }: PricingCardProps) {
           </div>
         )}
 
-        {/* Icon */}
         <div
           className={cn(
             "mb-6 flex size-12 items-center justify-center rounded-xl border",
@@ -76,7 +74,6 @@ export default function PricingCard({ plan, index }: PricingCardProps) {
           <PlanIcon className="size-6" />
         </div>
 
-        {/* Plan Info */}
         <CardHeader className="px-0 pt-0 pb-4">
           <CardTitle className="text-2xl xl:text-xl font-bold text-foreground mb-2 break-keep">
             {plan.name}
@@ -89,15 +86,12 @@ export default function PricingCard({ plan, index }: PricingCardProps) {
           </CardTitle>
         </CardHeader>
 
-        {/* Description */}
         <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
 
-        {/* Slots highlight */}
         <div className="mb-4 px-4 py-3 bg-secondary/50 rounded-lg border border-border/50">
           <p className="text-sm font-semibold text-primary">{plan.slotsText}</p>
         </div>
 
-        {/* Features */}
         <CardContent className="px-0 space-y-3 mb-6 text-sm text-muted-foreground">
           {plan.features.map((feature, idx) => (
             <div key={idx} className="flex items-start gap-2">

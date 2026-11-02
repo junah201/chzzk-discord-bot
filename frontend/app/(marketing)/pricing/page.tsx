@@ -24,7 +24,6 @@ export const metadata: Metadata = {
 export default function Pricing() {
   return (
     <section className="relative min-h-screen pt-32 pb-20 overflow-hidden break-keep">
-      {/* Background Effects */}
       <div className="absolute inset-0 pointer-events-none">
         <GlowEffect
           variant="breathing"
@@ -41,7 +40,6 @@ export default function Pricing() {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
-          {/* Header */}
           <div className="text-center py-20 sm:py-32">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-12">
               <Zap className="w-4 h-4 text-primary" />
@@ -64,14 +62,12 @@ export default function Pricing() {
             </p>
           </div>
 
-          {/* Pricing Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-20">
             {pricingPlans.map((plan, index) => (
               <PricingCard key={plan.name} plan={plan} index={index} />
             ))}
           </div>
 
-          {/* Payment Info */}
           <section className="relative py-20 sm:py-32">
             <div className="absolute inset-0 pointer-events-none">
               <GlowEffect

@@ -328,7 +328,6 @@ def send_notification(chzzk_id: str, index: int):
             )
             continue
 
-        # 성공
         noti_send_cnt += 1
         logger.info(
             json.dumps(

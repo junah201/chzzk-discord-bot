@@ -71,7 +71,7 @@ def get_chzzk(
     """채널 ID를 통해 치지직 채널 정보를 가져옵니다.
     만약 채널이 존재하지 않는다면 None을 반환합니다.
     """
-    # 정규화되지 않은 채널 ID
+    # URL처럼 '/'가 들어간 값은 API 경로를 바꾸므로 요청하지 않는다.
     if "/" in channel_id:
         if logger:
             logger.error(
@@ -117,14 +117,14 @@ def get_chzzk(
                 )
             continue
     else:
-        # Break 없이 끝났을 때 -> retry 모두 실패
+        # 재시도가 모두 실패한 경우
         if logger:
             logger.error(
                 json.dumps({"type": "CHZZK_REQUEST_FAILED", "channel_id": channel_id})
             )
         return None
 
-    # 채널이 존재하지 않는 경우 or 알 수 없는 오류
+    # 채널이 없거나 알 수 없는 오류
     if res.status_code != 200:
         if logger:
             logger.error(
@@ -141,7 +141,7 @@ def get_chzzk(
 
     content = res.json()["content"]
 
-    # 한번도 방송을 키지 않은 경우
+    # 한 번도 방송을 켜지 않은 채널
     if content is None:
         return None
 
@@ -223,12 +223,12 @@ def _handle_follow_request(
 def follow_chzzk_channel(
     chzzk_id: str, nid_aut: str, nid_ses: str
 ) -> tuple[bool, int, str]:
-    """치지직 채널 팔로우 요청을 수행합니다. 성공 시 (True, 200, "")를 반환하고, 실패 시 (False, status_code, error_message)를 반환합니다."""
+    """치지직 채널을 팔로우합니다. 반환값은 _handle_follow_request와 같습니다."""
     return _handle_follow_request("POST", chzzk_id, nid_aut, nid_ses)
 
 
 def unfollow_chzzk_channel(
     chzzk_id: str, nid_aut: str, nid_ses: str
 ) -> tuple[bool, int, str]:
-    """치지직 채널 언팔로우 요청을 수행합니다. 성공 시 (True, 200, "")를 반환하고, 실패 시 (False, status_code, error_message)를 반환합니다."""
+    """치지직 채널을 언팔로우합니다. 반환값은 _handle_follow_request와 같습니다."""
     return _handle_follow_request("DELETE", chzzk_id, nid_aut, nid_ses)

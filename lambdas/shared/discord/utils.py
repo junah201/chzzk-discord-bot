@@ -229,7 +229,7 @@ def get_admin_guilds(
 
         break
 
-    # 관리자 권한을 가진 서버만 필터링합니다. (v10의 permissions는 문자열이다.)
+    # 관리자 권한이 있는 서버만 남긴다. v10의 permissions는 10진수 문자열이다.
     try:
         guilds: list[PartialGuild] = res.json()
         admin_guilds = [

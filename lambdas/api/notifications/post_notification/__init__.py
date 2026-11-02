@@ -87,10 +87,8 @@ def handler(event, _context):
         )
 
     # 4. 치지직 채널 DB 저장 및 샤딩 인덱스 처리
-    # 가득 차서 더이상 등록할 수 없는 계정 index set
+    # 팔로우 한도가 찬 계정은 건너뛰고 다음 계정에 배정한다.
     full_indices = {3, 4}
-    # 3번, 4번 -> 가득 참
-    # 사용가능: 0, 1, 2, 5, 6
     index = int(chzzk_id, 16) % 7
     while index in full_indices:
         index = (index + 1) % 7

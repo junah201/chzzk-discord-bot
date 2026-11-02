@@ -17,7 +17,6 @@ const Footer = () => {
             className="bottom-0 right-[10%] w-96 h-96 bg-emerald-500/5 blur-3xl"
           />
         </div>
-        {/* Main Footer Content */}
         <div className="py-12 sm:py-16 lg:py-20">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
             <FooterBrand />
@@ -25,7 +24,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom Bar */}
         <FooterBottom />
       </div>
     </footer>

@@ -41,12 +41,11 @@ export default function MobileHeader() {
           </SheetContent>
         </Sheet>
 
-        {/* Mobile Logo */}
         <div className="flex-1 flex justify-center">
           <Logo size="md" />
         </div>
 
-        {/* Spacer for balance */}
+        {/* 로고가 가운데 오도록 메뉴 버튼만큼 비워 둠 */}
         <div className="w-10" />
       </div>
     </header>

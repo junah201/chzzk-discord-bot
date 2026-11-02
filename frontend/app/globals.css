@@ -120,7 +120,6 @@
     transition: background-color 5000s ease-in-out 0s;
   }
 
-  /* Custom scrollbar styles */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;

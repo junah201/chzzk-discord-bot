@@ -108,7 +108,7 @@ def verify_webhook_guild(webhook_url: str, guild_id: str) -> None:
 
 
 def parse_embed_color(embed_color: str) -> int | None:
-    """Return a Discord-compatible color integer, or None for an invalid value."""
+    """임베드 색상을 디스코드용 정수로 바꿉니다. 형식이 맞지 않으면 None을 반환합니다."""
     value = embed_color.strip()
     if _HEX_COLOR.fullmatch(value):
         return int(value[1:], 16)
@@ -120,7 +120,7 @@ def parse_embed_color(embed_color: str) -> int | None:
 
 
 def get_embed_color(notification_item: dict) -> int:
-    """Use a custom color only while the notification has an active subscription."""
+    """구독이 활성일 때만 커스텀 색상을 쓰고, 아니면 기본 색상을 씁니다."""
     is_subscription_active = notification_item.get("is_subscription_active", {}).get(
         "BOOL", False
     )

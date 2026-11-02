@@ -29,7 +29,6 @@ export function Metrics() {
 
       <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-6xl items-end gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-          {/* 대표 숫자 하나를 크게 */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -49,7 +48,6 @@ export function Metrics() {
             </p>
           </motion.div>
 
-          {/* 보조 숫자와 CTA */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}

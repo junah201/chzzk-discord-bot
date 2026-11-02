@@ -35,7 +35,6 @@ export function HeroNotification() {
       className="relative mx-auto max-w-2xl overflow-hidden rounded-xl border border-white/10 text-left shadow-2xl shadow-black/60"
       style={{ backgroundColor: "#313338" }}
     >
-      {/* 채널 헤더 */}
       <div className="flex h-12 items-center gap-2 border-b border-black/30 px-4 text-[#f2f3f5] shadow-sm">
         <Hash className="size-5 text-[#80848e]" />
         <span className="font-semibold">방송-알림</span>

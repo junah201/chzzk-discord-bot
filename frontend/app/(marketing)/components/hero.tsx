@@ -11,18 +11,15 @@ export function Hero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* 왼쪽 위: Pulse 효과 */}
         <GlowEffect
           variant="pulse"
           className="top-1/4 -left-48 w-96 h-96 bg-primary/10 hidden sm:block"
         />
-        {/* 오른쪽 아래: Pulse 효과 + 딜레이 */}
         <GlowEffect
           variant="pulse"
           delay={2}
           className="bottom-1/4 -right-48 w-96 h-96 bg-emerald-500/10 hidden sm:block"
         />
-        {/* 중앙: 정적(Static) 배경 */}
         <GlowEffect
           variant="static"
           className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-primary/5"
@@ -30,7 +27,6 @@ export function Hero() {
       </div>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-5xl mx-auto text-center">
-          {/* Main Heading */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -46,7 +42,6 @@ export function Hero() {
             </span>
           </motion.h1>
 
-          {/* Subtitle */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -58,7 +53,6 @@ export function Hero() {
             디스코드 채널로 알려드립니다.
           </motion.p>
 
-          {/* CTA Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -87,7 +81,6 @@ export function Hero() {
             </LinkButton>
           </motion.div>
 
-          {/* Notification Preview */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}

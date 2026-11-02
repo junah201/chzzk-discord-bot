@@ -28,7 +28,6 @@ export const FooterBrand = () => {
         치지직 방송이 시작되면 디스코드 채널로 알림을 보내 주는 봇입니다.
       </p>
 
-      {/* Social Links */}
       <div className="flex items-center gap-3">
         {socialLinks.map((social) => (
           <motion.a
