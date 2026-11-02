@@ -148,6 +148,13 @@ class TestSuccess:
         noti = get_noti(setup.table)
         assert (noti["chzzk_name"], noti["noti_fail_count"]) == ("스트리머", 2)
 
+    def test_backfills_chzzk_id_on_legacy_notification(self, setup):
+        assert "chzzk_id" not in get_noti(setup.table)
+
+        call()
+
+        assert get_noti(setup.table)["chzzk_id"] == CHZZK_ID
+
     def test_subscriber_options_are_saved(self, setup, verify_webhook):
         put_subscription(setup.table)
 

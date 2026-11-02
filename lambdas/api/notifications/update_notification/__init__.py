@@ -91,8 +91,10 @@ def handler(event, _context):
             "disable_tag = :dt",
             "disable_notification = :dn",
             "is_subscription_active = :isa",
+            "chzzk_id = :cid",
         ]
         expression_values = {
+            ":cid": {"S": chzzk_id},
             ":cm": {"S": custom_message},
             ":de": {"BOOL": disable_embed},
             ":db": {"BOOL": disable_button},
