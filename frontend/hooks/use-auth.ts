@@ -8,12 +8,18 @@ import routeMap from "@/constants/route-map";
 import { removeCookie, setCookie } from "@/lib/cookie";
 import { sendGAEvent } from "@next/third-parties/google";
 
+const OAUTH_STATE_KEY = "discord-oauth-state";
+
 export const useAuth = () => {
   const router = useRouter();
 
   const loginWithDiscord = useCallback(() => {
     sendGAEvent("event", "login_attempt");
-    window.location.href = process.env.NEXT_PUBLIC_DISCORD_OAUTH_URL as string;
+    const state = crypto.randomUUID();
+    sessionStorage.setItem(OAUTH_STATE_KEY, state);
+    const url = new URL(process.env.NEXT_PUBLIC_DISCORD_OAUTH_URL as string);
+    url.searchParams.set("state", state);
+    window.location.href = url.toString();
   }, []);
 
   const loginMutation = useMutation({
@@ -44,8 +50,26 @@ export const useAuth = () => {
     router.replace(routeMap.HOME);
   }, [router]);
 
-  // useMutation의 mutate는 이미 안정적인 참조이므로 그대로 사용한다
-  const verifySession = loginMutation.mutate;
+  const { mutate: exchangeCode } = loginMutation;
+
+  const verifySession = useCallback(
+    (code: string, state: string | null) => {
+      const savedState = sessionStorage.getItem(OAUTH_STATE_KEY);
+      sessionStorage.removeItem(OAUTH_STATE_KEY);
+
+      if (!state || state !== savedState) {
+        sendGAEvent("event", "exception", {
+          description: "oauth_state_mismatch",
+        });
+        toast.error("로그인 요청을 확인할 수 없습니다. 다시 로그인해 주세요.");
+        router.replace(routeMap.AUTH.LOGIN);
+        return;
+      }
+
+      exchangeCode(code);
+    },
+    [exchangeCode, router],
+  );
 
   return useMemo(
     () => ({

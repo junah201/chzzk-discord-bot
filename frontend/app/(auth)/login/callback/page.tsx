@@ -31,7 +31,7 @@ function ClientLoginCallbackPage() {
 
     if (code && verifiedCodeRef.current !== code) {
       verifiedCodeRef.current = code;
-      verifySession(code);
+      verifySession(code, searchParams.get("state"));
     }
   }, [searchParams, verifySession]);
 
