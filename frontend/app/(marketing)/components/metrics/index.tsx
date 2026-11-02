@@ -4,11 +4,12 @@ import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { LinkButton } from "@/components/ui/link-button";
 import routeMap from "@/constants/route-map";
+import metrics from "@/constants/metrics.json";
 import { AnimatedNumber } from "./animated-number";
 
 const secondaryMetrics = [
-  { value: 17000, suffix: "+", label: "모니터링 중인 치지직 채널" },
-  { value: 300, suffix: "만+", label: "누적 방송 알림" },
+  { ...metrics.channels, label: "모니터링 중인 치지직 채널" },
+  { ...metrics.notifications, label: "누적 방송 알림" },
 ];
 
 export function Metrics() {
@@ -40,8 +41,8 @@ export function Metrics() {
               숫자로 보는 치직
             </h2>
             <p className="text-7xl leading-none font-bold tracking-tighter whitespace-nowrap tabular-nums sm:text-8xl lg:text-9xl">
-              <AnimatedNumber value={18000} />
-              <span className="text-primary">+</span>
+              <AnimatedNumber value={metrics.servers.value} />
+              <span className="text-primary">{metrics.servers.suffix}</span>
             </p>
             <p className="mt-5 max-w-md text-lg text-muted-foreground sm:text-xl">
               디스코드 서버가 치직으로 방송 알림을 받고 있습니다.

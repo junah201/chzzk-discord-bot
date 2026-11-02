@@ -1,0 +1,5 @@
+{
+  "servers": { "value": 18000, "suffix": "+" },
+  "channels": { "value": 17000, "suffix": "+" },
+  "notifications": { "value": 300, "suffix": "만+" }
+}
