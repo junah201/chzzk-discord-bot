@@ -15,7 +15,7 @@ export function Features() {
   return (
     <section id="features" className="relative py-16 sm:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+        <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
           {/* 왼쪽: 편집 디자인처럼 왼쪽 정렬된 제목. 넓은 화면에서는 스크롤해도 따라옴 */}
           <motion.header
             {...reveal()}

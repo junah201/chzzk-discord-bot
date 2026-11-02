@@ -45,7 +45,7 @@ export function HeroNotification() {
         </div>
       </div>
 
-      <div className="flex min-h-[26rem] flex-col justify-end pt-6 pb-2 sm:min-h-[30rem]">
+      <div className="flex min-h-[26rem] flex-col justify-end pt-6 pb-2 sm:min-h-[682px]">
         {/* 알림 전의 평범한 대화 */}
         <div className="flex gap-4 px-4 py-2 text-[15px] leading-[1.375rem] text-[#dbdee1]">
           <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-[#f47b67] font-semibold text-white">
