@@ -74,11 +74,17 @@ export default function Profile() {
           내 계정
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="gap-2 cursor-pointer hover:bg-primary/10 hover:text-primary">
+        <DropdownMenuItem
+          disabled
+          className="gap-2 cursor-pointer hover:bg-primary/10 hover:text-primary"
+        >
           <User className="w-4 h-4" />
           <span>내 정보</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="gap-2 cursor-pointer hover:bg-primary/10 hover:text-primary">
+        <DropdownMenuItem
+          disabled
+          className="gap-2 cursor-pointer hover:bg-primary/10 hover:text-primary"
+        >
           <Settings className="w-4 h-4" />
           <span>설정</span>
         </DropdownMenuItem>
