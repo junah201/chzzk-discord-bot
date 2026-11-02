@@ -19,7 +19,7 @@ export const SelectInput = (props: BasicInputProps) => {
     label,
     helperText,
     disabled,
-    rules,
+    required,
     placeholder,
     options,
     value,
@@ -30,7 +30,7 @@ export const SelectInput = (props: BasicInputProps) => {
     <Field>
       {label && (
         <Label htmlFor={name}>
-          {label} {rules?.required ? "*" : ""}
+          {label} {required ? "*" : ""}
         </Label>
       )}
       <Select value={value} onValueChange={onChange} disabled={disabled}>

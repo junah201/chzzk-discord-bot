@@ -11,14 +11,21 @@ import { BasicInputProps } from "..";
 import { Input } from "@/components/ui/input";
 
 export const BaseInput = (props: BasicInputProps) => {
-  const { name, errorMessage, label, helperText, inputProps, rules, ...rest } =
-    props;
+  const {
+    name,
+    errorMessage,
+    label,
+    helperText,
+    inputProps,
+    required,
+    ...rest
+  } = props;
 
   return (
     <Field>
       {label && (
         <FieldLabel htmlFor={name}>
-          {label} {rules?.required ? "*" : ""}
+          {label} {required ? "*" : ""}
         </FieldLabel>
       )}
       <Input id={name} name={name} {...rest} {...inputProps} />

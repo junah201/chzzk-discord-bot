@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Input } from "@/components/input";
@@ -44,7 +43,7 @@ export default function NotificationForm({
         <>
           <Input
             type="text"
-            control={control as unknown as Control<any>}
+            control={control}
             name="chzzk_id"
             label="치지직 ID"
             placeholder="bb382c2c0cc9fa7c86"
@@ -60,7 +59,7 @@ export default function NotificationForm({
           />
           <Input
             type="select"
-            control={control as unknown as Control<any>}
+            control={control}
             name="channel_id"
             label="디스코드 채널"
             rules={{ required: "알림을 받을 디스코드 채널을 선택해 주세요." }}
@@ -87,7 +86,7 @@ export default function NotificationForm({
       )}
       <Input
         type="textarea"
-        control={control as unknown as Control<any>}
+        control={control}
         name="custom_message"
         label="커스텀 메시지"
         placeholder="@everyone 새로운 방송이 시작되었습니다! 시청하러 가볼까요?"
@@ -100,7 +99,7 @@ export default function NotificationForm({
       />
       <Input
         type="text"
-        control={control as unknown as Control<any>}
+        control={control}
         name="webhook_url"
         label="커스텀 웹훅 URL (구독자 전용)"
         disabled={!isSubscription}
@@ -120,7 +119,7 @@ export default function NotificationForm({
       />
       <Input
         type="text"
-        control={control as unknown as Control<any>}
+        control={control}
         name="embed_color"
         label="임베드 색상 (구독자 전용)"
         disabled={!isSubscription}
@@ -135,28 +134,28 @@ export default function NotificationForm({
       />
       <Input
         type="checkbox"
-        control={control as unknown as Control<any>}
+        control={control}
         name="disable_embed"
         label="임베드 숨기기"
         helperText="방송 제목과 썸네일이 담긴 임베드 없이 메시지만 보냅니다."
       />
       <Input
         type="checkbox"
-        control={control as unknown as Control<any>}
+        control={control}
         name="disable_tag"
         label="방송 태그 숨기기"
         helperText="임베드에 방송 태그를 표시하지 않습니다."
       />
       <Input
         type="checkbox"
-        control={control as unknown as Control<any>}
+        control={control}
         name="disable_button"
         label="바로가기 버튼 숨기기"
         helperText="알림 아래의 바로가기 버튼을 표시하지 않습니다."
       />
       <Input
         type="checkbox"
-        control={control as unknown as Control<any>}
+        control={control}
         name="disable_notification"
         label="알림 일시 중지"
         helperText="이 알림을 보내지 않습니다. 설정은 그대로 남아 있습니다."

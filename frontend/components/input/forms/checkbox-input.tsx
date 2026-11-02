@@ -18,7 +18,7 @@ export const CheckboxInput = (props: BasicInputProps) => {
     errorMessage,
     label,
     helperText,
-    rules,
+    required,
     type,
     placeholder,
     value,
@@ -38,11 +38,8 @@ export const CheckboxInput = (props: BasicInputProps) => {
         />
         <FieldContent>
           {label && (
-            <FieldTitle
-              id={name}
-              aria-required={rules?.required ? true : false}
-            >
-              {label} {rules?.required ? "*" : ""}
+            <FieldTitle id={name} aria-required={required}>
+              {label} {required ? "*" : ""}
             </FieldTitle>
           )}
           {Boolean(errorMessage) ? (

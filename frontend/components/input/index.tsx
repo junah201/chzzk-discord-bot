@@ -1,11 +1,16 @@
 "use client";
 
 import React from "react";
-import { useController, Control, UseControllerProps } from "react-hook-form";
+import {
+  useController,
+  Control,
+  FieldPath,
+  FieldValues,
+  UseControllerProps,
+} from "react-hook-form";
 
 import { BaseInput, CheckboxInput, SelectInput, TextareaInput } from "./forms";
 
-type Rules = UseControllerProps["rules"];
 export interface Option {
   label: string;
   value: string;
@@ -22,7 +27,7 @@ interface BaseInputProps {
   disabled?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   inputProps?: any;
-  rules?: Rules;
+  required?: boolean;
 }
 
 export interface BasicInputProps extends BaseInputProps {
@@ -58,14 +63,21 @@ export const BasicInput = (props: BasicInputProps) => {
   return <div className="flex w-full flex-col">{content(type)}</div>;
 };
 
-interface InputProps extends BaseInputProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  control: Control<any>;
+interface InputProps<
+  T extends FieldValues,
+  TName extends FieldPath<T>,
+> extends Omit<BaseInputProps, "name" | "required"> {
+  control: Control<T>;
+  name: TName;
+  rules?: UseControllerProps<T, TName>["rules"];
 }
 
-export const Input = (props: InputProps) => {
-  const { name, rules, control } = props;
-
+export const Input = <T extends FieldValues, TName extends FieldPath<T>>({
+  control,
+  name,
+  rules,
+  ...props
+}: InputProps<T, TName>) => {
   const {
     field: { value, onChange },
     fieldState: { error },
@@ -78,6 +90,8 @@ export const Input = (props: InputProps) => {
   return (
     <BasicInput
       {...props}
+      name={name}
+      required={Boolean(rules?.required)}
       value={value}
       onChange={onChange}
       errorMessage={error?.message}

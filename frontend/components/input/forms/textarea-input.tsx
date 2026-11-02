@@ -11,17 +11,21 @@ import { BasicInputProps } from "..";
 import { Textarea } from "@/components/ui/textarea";
 
 export const TextareaInput = (props: BasicInputProps) => {
-  const { name, errorMessage, label, helperText, inputProps, rules, ...rest } =
-    props;
+  const {
+    name,
+    errorMessage,
+    label,
+    helperText,
+    inputProps,
+    required,
+    ...rest
+  } = props;
 
   return (
     <Field>
       {label && (
-        <FieldLabel
-          htmlFor={name}
-          aria-required={rules?.required ? true : false}
-        >
-          {label} {rules?.required ? "*" : ""}
+        <FieldLabel htmlFor={name} aria-required={required}>
+          {label} {required ? "*" : ""}
         </FieldLabel>
       )}
       <Textarea id={name} name={name} {...rest} {...inputProps} />
