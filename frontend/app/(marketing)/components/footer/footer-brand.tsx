@@ -25,7 +25,7 @@ export const FooterBrand = () => {
     <div className="lg:col-span-2">
       <Logo />
       <p className="text-muted-foreground mb-6 max-w-sm">
-        치지직 방송이 시작되면 디스코드 채널로 알림을 보내 주는 봇입니다.
+        치지직 스트리머가 방송을 시작하면 디스코드 채널로 알려드립니다.
       </p>
 
       <div className="flex items-center gap-3">
