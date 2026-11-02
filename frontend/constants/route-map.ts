@@ -23,6 +23,7 @@ export const routeMap = {
   },
   DASHBOARD: {
     HOME: "/dashboard/",
+    SERVER_PATH: "/dashboard/server/",
     SERVER: (id: string) => `/dashboard/server/?id=${id}`,
   },
 };
