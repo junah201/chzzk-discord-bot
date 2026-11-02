@@ -30,7 +30,7 @@ function ClientServerDetailPage() {
   const searchParams = useSearchParams();
   const serverId = searchParams.get("id");
 
-  const { data: serverData, isLoading: isServerLoading } = useQuery(
+  const { data: serverData } = useQuery(
     useGuildOptions(serverId),
   );
 
@@ -38,10 +38,10 @@ function ClientServerDetailPage() {
 
   return (
     <ServerBotGuard>
-      {isServerLoading ? (
-        <ServerHeaderSkeleton />
+      {serverData ? (
+        <ServerHeader server={serverData} />
       ) : (
-        <ServerHeader server={serverData!} />
+        <ServerHeaderSkeleton />
       )}
       <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <NotificationLimitCard

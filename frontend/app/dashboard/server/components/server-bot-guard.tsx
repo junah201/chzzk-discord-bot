@@ -36,6 +36,8 @@ export default function ServerBotGuard({ children }: ServerBotGuardProps) {
     useGuildOptions(serverId),
   );
 
+  if (!serverId) return null;
+
   const getErrorCode = (error: unknown) => {
     return isAxiosError<APIError>(error) ? error.response?.data?.code : null;
   };
