@@ -39,7 +39,7 @@ export const useNotificationActions = (guildId: string) => {
       queryClient.invalidateQueries({
         queryKey: notificationKeys.listByGuildId(guildId),
       });
-      queryClient.setQueryData(discordKeys.guild(guildId), (oldData: Guild) => {
+      queryClient.setQueryData<Guild>(discordKeys.guild(guildId), (oldData) => {
         if (!oldData) return oldData;
 
         return {
@@ -60,9 +60,9 @@ export const useNotificationActions = (guildId: string) => {
     mutationFn: (data: NotificationBase) => api.delete(ROUTES.BASE, { data }),
     onSuccess: (_, variables) => {
       toast.success("알림이 삭제되었습니다.");
-      queryClient.setQueryData(
+      queryClient.setQueryData<Notification[]>(
         notificationKeys.listByGuildId(guildId),
-        (oldData: Notification[]) => {
+        (oldData) => {
           if (!oldData) return oldData;
 
           return oldData.filter(
@@ -74,7 +74,7 @@ export const useNotificationActions = (guildId: string) => {
           );
         },
       );
-      queryClient.setQueryData(discordKeys.guild(guildId), (oldData: Guild) => {
+      queryClient.setQueryData<Guild>(discordKeys.guild(guildId), (oldData) => {
         if (!oldData) return oldData;
 
         return {
