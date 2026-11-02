@@ -15,7 +15,8 @@ DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
 # 디스코드 API는 v10으로 고정한다. 버전 없는 경로는 deprecated된 v6 형식으로 응답한다.
 DISCORD_API_BASE_URL = "https://discord.com/api/v10"
 DISCORD_USER_GUILDS_URL = f"{DISCORD_API_BASE_URL}/users/@me/guilds"
-DISCORD_API_TIMEOUT_SEC = 3
+# (connect, read). 콜드 스타트 직후 첫 요청은 응답이 3초를 넘기기도 한다.
+DISCORD_API_TIMEOUT_SEC = (3.05, 6)
 # 메시지 전송은 파일 첨부가 있을 수 있어 조금 더 기다린다.
 DISCORD_MESSAGE_TIMEOUT_SEC = 5
 # 네트워크 오류로 응답을 받지 못했을 때 쓰는 상태 코드 (HTTP 표준 코드가 아니다).
