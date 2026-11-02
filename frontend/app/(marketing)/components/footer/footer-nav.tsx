@@ -1,5 +1,3 @@
-"use client";
-
 import routeMap from "@/constants/route-map";
 import Link from "next/link";
 

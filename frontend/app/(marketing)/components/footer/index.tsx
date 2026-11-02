@@ -1,5 +1,3 @@
-"use client";
-
 import { GlowEffect } from "@/components/ui/glow-effect";
 import { FooterBrand } from "./footer-brand";
 import { FooterNav } from "./footer-nav";

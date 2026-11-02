@@ -1,5 +1,3 @@
-"use client";
-
 import { GITHUB_USER_URL } from "@/constants/links";
 
 export function FooterBottom() {

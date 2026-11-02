@@ -1,3 +1,5 @@
+"use client";
+
 import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar";
 import { discordQueries } from "@/queries/discord";
 import { useQuery } from "@tanstack/react-query";

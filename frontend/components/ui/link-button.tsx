@@ -1,3 +1,5 @@
+"use client";
+
 import { HTMLMotionProps } from "motion/react";
 import { buttonVariants, ButtonInnerContent } from "./button";
 import { VariantProps } from "class-variance-authority";
