@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import { GlowEffect } from "@/components/ui/glow-effect";
 import { GridPattern } from "@/components/ui/grid-pattern";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default function AuthLayout({
   children,
