@@ -1,5 +1,3 @@
-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css");
-
 @import "tailwindcss";
 
 :root {
@@ -99,7 +97,7 @@
   body {
     @apply bg-background text-foreground;
     font-family:
-      "Pretendard Variable",
+      var(--font-pretendard),
       -apple-system,
       BlinkMacSystemFont,
       system-ui,

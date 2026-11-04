@@ -1,8 +1,20 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
 import Providers from "./providers";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { GoogleAdSense } from "./google-adsense";
+
+const pretendard = localFont({
+  src: [
+    { path: "./fonts/Pretendard-Regular.subset.woff2", weight: "400" },
+    { path: "./fonts/Pretendard-Medium.subset.woff2", weight: "500" },
+    { path: "./fonts/Pretendard-SemiBold.subset.woff2", weight: "600" },
+    { path: "./fonts/Pretendard-Bold.subset.woff2", weight: "700" },
+  ],
+  display: "swap",
+  variable: "--font-pretendard",
+});
 
 export const metadata: Metadata = {
   title: "치직 - 놓치지 않는 방송 알림, 치직",
@@ -66,7 +78,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    <html lang="ko" className={pretendard.variable}>
       <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ""} />
       <GoogleAdSense />
       <body>
