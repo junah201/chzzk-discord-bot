@@ -128,9 +128,8 @@ export default function TroubleshootingPage() {
           </li>
           <li>
             웹훅 URL은 <code>https://discord.com/api/webhooks/...</code>{" "}
-            형식이어야 합니다. 임베드 색상은 <code>#5865F2</code>처럼{" "}
-            <code>#</code>과 6자리 16진수로 쓰거나, <code>5793266</code>처럼
-            0~16777215 사이의 숫자로 입력해 주세요.
+            형식이어야 합니다. 임베드 색상은 색상 선택기에서 고르거나{" "}
+            <code>5865F2</code>처럼 6자리 16진수 색상 코드로 입력해 주세요.
           </li>
         </ul>
       </PolicyCallout>
