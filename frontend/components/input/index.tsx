@@ -9,13 +9,19 @@ import {
   UseControllerProps,
 } from "react-hook-form";
 
-import { BaseInput, CheckboxInput, SelectInput, TextareaInput } from "./forms";
+import {
+  BaseInput,
+  CheckboxInput,
+  ColorInput,
+  SelectInput,
+  TextareaInput,
+} from "./forms";
 
 export interface Option {
   label: string;
   value: string;
 }
-export type InputTypes = "text" | "select" | "textarea" | "checkbox";
+export type InputTypes = "text" | "select" | "textarea" | "checkbox" | "color";
 
 interface BaseInputProps {
   name: string;
@@ -51,6 +57,8 @@ export const BasicInput = (props: BasicInputProps) => {
         return <CheckboxInput {...props} />;
       case "select":
         return <SelectInput {...props} />;
+      case "color":
+        return <ColorInput {...props} />;
       default:
         return (
           <p>

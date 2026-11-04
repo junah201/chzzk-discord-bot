@@ -13,3 +13,8 @@ export const parseEmbedColor = (embedColor: string): number | null => {
 
 export const toCssColor = (color: number) =>
   `#${color.toString(16).padStart(6, "0")}`;
+
+export const toHexEmbedColor = (embedColor: string): string => {
+  const color = parseEmbedColor(embedColor);
+  return color === null ? "" : toCssColor(color).toUpperCase();
+};

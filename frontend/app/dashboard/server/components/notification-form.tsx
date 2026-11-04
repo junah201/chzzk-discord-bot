@@ -118,16 +118,15 @@ export default function NotificationForm({
         }
       />
       <Input
-        type="text"
+        type="color"
         control={control}
         name="embed_color"
         label="임베드 색상 (구독자 전용)"
         disabled={!isSubscription}
-        placeholder="#5865F2 또는 5793266"
         rules={{
           pattern: {
-            value: /^(#[0-9a-fA-F]{6}|(?:0|[1-9][0-9]{0,7}))$/,
-            message: "#5865F2 같은 색상 코드나 5793266 같은 숫자로 입력해 주세요.",
+            value: /^#[0-9a-fA-F]{6}$/,
+            message: "5865F2 같은 6자리 색상 코드로 입력해 주세요.",
           },
         }}
         helperText="임베드 왼쪽 띠의 색입니다. 구독이 끝나면 기본 색상으로 돌아갑니다."

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useNotificationActions } from "@/hooks/use-notifications";
+import { toHexEmbedColor } from "@/lib/discord";
 import { Notification } from "@/types/api";
 import NotificationForm from "./notification-form";
 import NotificationPreviewPanel from "./notification-preview-panel";
@@ -38,7 +39,7 @@ export default function EditNotificationDialog({
     guild_id: notification.guild_id,
     custom_message: notification.custom_message || "",
     webhook_url: notification.webhook_url || "",
-    embed_color: notification.embed_color || "",
+    embed_color: toHexEmbedColor(notification.embed_color || ""),
     disable_embed: notification.disable_embed || false,
     disable_tag: notification.disable_tag || false,
     disable_button: notification.disable_button || false,
