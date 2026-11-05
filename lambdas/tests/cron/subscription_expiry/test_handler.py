@@ -73,7 +73,14 @@ def put_guild(table, guild_id="1", max_limit=250):
     )
 
 
-def put_subscription(table, guild_id="1", expires_at=PAST, status="ACTIVE"):
+def put_subscription(
+    table, guild_id="1", expires_at=PAST, status="ACTIVE", previous_slot=5
+):
+    """SUB#CURRENT와 그 구독을 시작한 주문을 함께 저장한다. previous_slot=None이면 주문은 없다."""
+    if previous_slot is not None:
+        put_order(
+            table, "20261006000000#sub", "MONTHLY_SUB_2000", guild_id, previous_slot
+        )
     table.put_item(
         Item={
             "PK": f"GUILD#{guild_id}",
@@ -87,10 +94,15 @@ def put_subscription(table, guild_id="1", expires_at=PAST, status="ACTIVE"):
     )
 
 
-def put_order(table, sk, product_type, guild_id="1", added=None, status="SUCCESS"):
-    slot_info = {"previous_slot": 5, "final_slot": 250}
-    if added is not None:
-        slot_info = {"previous_slot": 5, "added_slot": added, "final_slot": 5 + added}
+def put_order(table, sk, product_type, guild_id="1", previous_slot=5, status="SUCCESS"):
+    if product_type == "MONTHLY_SUB_2000":
+        slot_info = {"previous_slot": previous_slot, "final_slot": 250}
+    else:
+        slot_info = {
+            "previous_slot": previous_slot,
+            "added_slot": 5,
+            "final_slot": previous_slot + 5,
+        }
     table.put_item(
         Item={
             "PK": f"GUILD#{guild_id}",
@@ -126,10 +138,11 @@ def run():
 
 def test_expires_subscription_and_restores_guild(ddb):
     put_guild(ddb.table)
-    put_subscription(ddb.table)
-    put_order(ddb.table, "20260101000000#a", "SLOT_5", added=5)
-    put_order(ddb.table, "20260102000000#b", "SLOT_10", added=10)
-    put_order(ddb.table, "20260201000000#c", "MONTHLY_SUB_2000")
+    # 유료화 이전 가입 서버(15)가 슬롯 5개를 산 뒤 구독하고 한 번 갱신했다.
+    put_order(ddb.table, "20260101000000#a", "SLOT_5", previous_slot=15)
+    put_subscription(ddb.table, previous_slot=None)
+    put_order(ddb.table, "20260201000000#b", "MONTHLY_SUB_2000", previous_slot=20)
+    put_order(ddb.table, "20260301000000#c", "MONTHLY_SUB_2000", previous_slot=250)
     put_noti(ddb.table, "10")
     put_noti(ddb.table, "20", guild_id="2")
 
@@ -146,13 +159,19 @@ def test_expires_subscription_and_restores_guild(ddb):
     assert get_item(ddb.table, "CHZZK#abc", "NOTI#20")["is_subscription_active"] is True
 
 
-def test_guild_without_slot_orders_returns_to_default(ddb):
+def test_guild_without_subscription_order_is_not_touched(ddb, discord):
     put_guild(ddb.table)
-    put_subscription(ddb.table)
+    put_subscription(ddb.table, previous_slot=None)
 
-    run()
+    result = run()
 
-    assert get_item(ddb.table, "GUILD#1", "GUILD#1")["max_limit"] == 5
+    assert result == {"expired": [], "skipped": [], "failed": ["1"]}
+    assert get_item(ddb.table, "GUILD#1", "SUB#CURRENT")["status"] == "ACTIVE"
+    assert get_item(ddb.table, "GUILD#1", "GUILD#1")["max_limit"] == 250
+    assert (
+        "구독 전 슬롯 한도를 알 수 있는 구독 주문이 없습니다"
+        in (discord.call_args.kwargs["data"]["embeds"][0]["description"])
+    )
 
 
 @pytest.mark.parametrize(
@@ -232,30 +251,51 @@ def test_noti_deactivation_failure_is_reported(mocker, ddb):
     assert get_item(ddb.table, "GUILD#1", "SUB#CURRENT")["status"] == "EXPIRED"
 
 
-def order(product_type, added=None, status="SUCCESS"):
+def order(sk, previous_slot, product_type="MONTHLY_SUB_2000", status="SUCCESS"):
     item = {
+        "SK": {"S": f"ORDER#{sk}"},
         "product_type": {"S": product_type},
         "payment_status": {"S": status},
         "slot_info": {"M": {}},
     }
-    if added is not None:
-        item["slot_info"]["M"]["added_slot"] = {"N": str(added)}
+    if previous_slot is not None:
+        item["slot_info"]["M"]["previous_slot"] = {"N": str(previous_slot)}
     return item
 
 
 @pytest.mark.parametrize(
     ("orders", "expected"),
     [
-        ([], 5),
-        ([order("SLOT_5", 5), order("SLOT_10", 10)], 20),
-        ([order("MONTHLY_SUB_2000")], 5),
-        ([order("SLOT_5", 5, status="FAILED")], 5),
-        ([order("SLOT_5")], 5),
+        ([order("1", 5)], 5),
+        ([order("1", 15)], 15),
+        ([order("1", 15), order("2", 250), order("3", 250)], 15),
+        ([order("3", 250), order("1", 5), order("2", 20)], 20),
+        ([order("1", 5), order("2", 20, status="FAILED")], 5),
+        ([order("1", 5), order("2", 10, product_type="SLOT_5")], 5),
+        ([order("1", 5), order("2", None)], 5),
     ],
-    ids=["none", "slots", "subscription-only", "failed-payment", "no-added-slot"],
+    ids=[
+        "new-guild",
+        "legacy-guild",
+        "renewals-skipped",
+        "latest-by-sk",
+        "failed-payment",
+        "slot-order-ignored",
+        "missing-previous-slot",
+    ],
 )
 def test_restored_max_limit(orders, expected):
     assert subscription_expiry.restored_max_limit(orders) == expected
+
+
+@pytest.mark.parametrize(
+    "orders",
+    [[], [order("1", 250)], [order("1", 5, product_type="SLOT_5")]],
+    ids=["none", "only-renewals", "only-slot-orders"],
+)
+def test_restored_max_limit_unknown(orders):
+    with pytest.raises(subscription_expiry.UnknownSlotLimitError):
+        subscription_expiry.restored_max_limit(orders)
 
 
 class TestDiscordMessages:

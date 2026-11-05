@@ -18,8 +18,8 @@ DISCORD_SUBSCRIPTION_EXPIRY_ERROR_CHANNEL_ID = os.environ.get(
 
 TABLE_NAME = "chzzk-bot-db"
 INDEX_NAME = "GSI-Type-ExpiresAt"
-DEFAULT_MAX_LIMIT = 5
-SLOT_PRODUCT_TYPES = ("SLOT_5", "SLOT_10")
+SUBSCRIPTION_PRODUCT_TYPE = "MONTHLY_SUB_2000"
+SUBSCRIPTION_MAX_LIMIT = 250
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -178,17 +178,29 @@ def _send_embed(channel_id: str | None, embed: dict) -> None:
         )
 
 
+class UnknownSlotLimitError(Exception):
+    def __init__(self):
+        super().__init__("구독 전 슬롯 한도를 알 수 있는 구독 주문이 없습니다.")
+
+
 def restored_max_limit(orders: list[dict]) -> int:
-    """구독 전 한도인 기본 슬롯 + 단일 구매로 추가한 슬롯 합계를 계산합니다."""
-    added = 0
-    for order in orders:
-        if order.get("product_type", {}).get("S") not in SLOT_PRODUCT_TYPES:
+    """구독 직전 한도를 구합니다.
+    가장 최근 구독 주문 중 previous_slot이 구독 한도가 아닌 것의 previous_slot을 씁니다.
+    (구독 중 갱신한 주문은 previous_slot이 구독 한도이므로 건너뜁니다.)
+    유료화 이전 가입 서버의 15 슬롯이나 단일 구매 슬롯은 이 값에 이미 포함되어 있습니다.
+    """
+    for order in sorted(orders, key=lambda o: o["SK"]["S"], reverse=True):
+        if order.get("product_type", {}).get("S") != SUBSCRIPTION_PRODUCT_TYPE:
             continue
         if order.get("payment_status", {}).get("S") != "SUCCESS":
             continue
-        slot_info = order.get("slot_info", {}).get("M", {})
-        added += int(slot_info.get("added_slot", {}).get("N", "0"))
-    return DEFAULT_MAX_LIMIT + added
+        previous_slot = (
+            order.get("slot_info", {}).get("M", {}).get("previous_slot", {}).get("N")
+        )
+        if previous_slot is None or int(previous_slot) == SUBSCRIPTION_MAX_LIMIT:
+            continue
+        return int(previous_slot)
+    raise UnknownSlotLimitError()
 
 
 def query_expired_subscriptions(now: str) -> list[dict]:
