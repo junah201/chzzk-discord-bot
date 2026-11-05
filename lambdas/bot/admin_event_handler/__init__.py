@@ -21,11 +21,14 @@ from bot.admin_event_handler.ui import (
     ADD_SUBSCRIPTION_MODAL,
     SYNC_SLOTS_MODAL,
     parse_modal_values,
-    reply,
 )
-from nacl.exceptions import BadSignatureError
-from nacl.signing import VerifyKey
 from shared import TYPE, middleware
+from shared.discord.bot import (
+    INVALID_SIGNATURE_RESPONSE,
+    PONG,
+    reply,
+    verify_signature,
+)
 from shared.notification_dispatcher import (
     activate_subscription_for_guild,
     is_guild_subscription_active,
@@ -43,16 +46,8 @@ logger.setLevel(logging.INFO)
 @middleware(logger)
 def handler(event, _context):
     raw_body = event["body"]
-    try:
-        _verify_signature(event["headers"], raw_body)
-    except BadSignatureError as e:
-        logger.info(
-            json.dumps(
-                {"type": "INVALID_REQUEST_SIGNATURE", "exception": str(e)},
-                ensure_ascii=False,
-            )
-        )
-        return {"statusCode": 401, "body": "Invalid request signature"}
+    if not verify_signature(ADMIN_DISCORD_PUBLIC_KEY, event["headers"], raw_body):
+        return INVALID_SIGNATURE_RESPONSE
 
     body = json.loads(raw_body)
     logger.info(
@@ -60,7 +55,7 @@ def handler(event, _context):
     )
 
     if body.get("type") == TYPE.PING:
-        return build_response(200, data={"type": 1})
+        return build_response(200, data=PONG)
 
     user = body.get("member", {}).get("user", {}) or body.get("user", {})
     user_id = user.get("id")
@@ -77,13 +72,6 @@ def handler(event, _context):
         )
 
     return build_response(200, data=_dispatch(body))
-
-
-def _verify_signature(headers: dict, raw_body: str) -> None:
-    signature = headers.get("x-signature-ed25519")
-    timestamp = headers.get("x-signature-timestamp")
-    verify_key = VerifyKey(bytes.fromhex(ADMIN_DISCORD_PUBLIC_KEY))
-    verify_key.verify(f"{timestamp}{raw_body}".encode(), bytes.fromhex(signature))
 
 
 def _dispatch(body: dict) -> dict:

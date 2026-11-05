@@ -1,14 +1,5 @@
 from shared import COMPONENT_TYPE, INTERACTION_CALLBACK_TYPE, TEXT_INPUT_STYLE
 
-EPHEMERAL = 64
-
-
-def reply(content: str, *, ephemeral: bool = False) -> dict:
-    data = {"content": content}
-    if ephemeral:
-        data["flags"] = EPHEMERAL
-    return {"type": INTERACTION_CALLBACK_TYPE.CHANNEL_MESSAGE_WITH_SOURCE, "data": data}
-
 
 def _text_input(label: str, custom_id: str, placeholder: str) -> dict:
     return {
