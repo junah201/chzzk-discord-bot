@@ -6,19 +6,9 @@ from datetime import UTC, datetime
 
 import boto3
 import requests
-from shared import (
-    BUTTON_STYLE,
-    COMPONENT_TYPE,
-    Following,
-    get_chzzk,
-    middleware,
-    send_message,
-)
-from shared.notification_dispatcher import (
-    get_embed_color,
-    get_embed_fields,
-    send_notification_message,
-)
+from shared import Following, get_chzzk, middleware, send_message
+from shared.live_message import build_live_message
+from shared.notification_dispatcher import send_notification_message
 from shared.utils import mask_secret
 from user_agent import generate_user_agent
 
@@ -225,53 +215,16 @@ def send_notification(chzzk_id: str, index: int):
     for noti in res["Items"]:
         discord_channel_id = noti["channel_id"]["S"]
 
-        data = {
-            "content": noti.get("custom_message", {}).get("S", ""),
-        }
-
         if noti.get("disable_notification", {"BOOL": False})["BOOL"]:
             continue
 
-        if not noti.get("disable_embed", {"BOOL": False})["BOOL"]:
-            data["embeds"] = [
-                {
-                    "title": f"{chzzk['liveTitle']}",
-                    "description": f"{chzzk['channel']['channelName']} 님이 방송을 시작했습니다.",
-                    "color": get_embed_color(noti),
-                    "fields": get_embed_fields(chzzk, noti),
-                    "image": {
-                        "url": (
-                            chzzk["liveImageUrl"]
-                            or chzzk["channel"]["channelImageUrl"]
-                            or ""
-                        ).replace("_{type}", "_1080"),
-                    },
-                    "author": {
-                        "name": f"{chzzk['channel']['channelName']}",
-                        "url": f"https://chzzk.naver.com/live/{chzzk_id}",
-                        "icon_url": chzzk["channel"]["channelImageUrl"]
-                        or "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png?type=f120_120_na",
-                    },
-                    "footer": {"text": "chzzk.junah.dev"},
-                    "url": f"https://chzzk.naver.com/live/{chzzk_id}",
-                    "timestamp": datetime.now(UTC).isoformat(),
-                },
-            ]
-
-        if not noti.get("disable_button", {"BOOL": False})["BOOL"]:
-            data["components"] = [
-                {
-                    "type": COMPONENT_TYPE.ACTION_ROW,
-                    "components": [
-                        {
-                            "type": COMPONENT_TYPE.BUTTON,
-                            "label": "바로가기",
-                            "style": BUTTON_STYLE.LINK,
-                            "url": f"https://chzzk.naver.com/live/{chzzk_id}",
-                        }
-                    ],
-                },
-            ]
+        data = build_live_message(
+            chzzk_id,
+            chzzk,
+            noti,
+            content=noti.get("custom_message", {}).get("S", ""),
+            now=datetime.now(UTC),
+        )
 
         res = send_notification_message(
             guild_id=noti["guild_id"]["S"],

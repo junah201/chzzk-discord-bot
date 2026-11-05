@@ -4,13 +4,9 @@ from datetime import UTC, datetime
 
 import boto3
 from shared import get_chzzk, middleware
-from shared.discord import BUTTON_STYLE, COMPONENT_TYPE
 from shared.exceptions import BadRequestError
-from shared.notification_dispatcher import (
-    get_embed_color,
-    get_embed_fields,
-    send_notification_message,
-)
+from shared.live_message import build_live_message
+from shared.notification_dispatcher import send_notification_message
 from shared.utils import build_response
 
 dynamodb = boto3.client("dynamodb")
@@ -50,50 +46,15 @@ def handler(event, _context):
 
     item = res["Items"][0]
 
-    data = {
-        "content": "관리자의 요청에 따라 전송된 테스트 알림입니다."
+    data = build_live_message(
+        chzzk_id,
+        chzzk,
+        item,
+        content="관리자의 요청에 따라 전송된 테스트 알림입니다."
         + "\n\n"
-        + item.get("custom_message", {}).get("S", "")
-    }
-    if not item.get("disable_embed", {"BOOL": False})["BOOL"]:
-        data["embeds"] = [
-            {
-                "title": f"{chzzk['liveTitle']}",
-                "description": f"{chzzk['channel']['channelName']} 님이 방송을 시작했습니다.",
-                "color": get_embed_color(item),
-                "fields": get_embed_fields(chzzk, item),
-                "image": {
-                    "url": (
-                        chzzk["liveImageUrl"]
-                        or chzzk["channel"]["channelImageUrl"]
-                        or ""
-                    ).replace("_{type}", "_1080"),
-                },
-                "author": {
-                    "name": f"{chzzk['channel']['channelName']}",
-                    "url": f"https://chzzk.naver.com/live/{chzzk_id}",
-                    "icon_url": chzzk["channel"]["channelImageUrl"]
-                    or "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png?type=f120_120_na",
-                },
-                "footer": {"text": "chzzk.junah.dev"},
-                "url": f"https://chzzk.naver.com/live/{chzzk_id}",
-                "timestamp": datetime.now(UTC).isoformat(),
-            },
-        ]
-    if not item.get("disable_button", {"BOOL": False})["BOOL"]:
-        data["components"] = [
-            {
-                "type": COMPONENT_TYPE.ACTION_ROW,
-                "components": [
-                    {
-                        "type": COMPONENT_TYPE.BUTTON,
-                        "label": "바로가기",
-                        "style": BUTTON_STYLE.LINK,
-                        "url": f"https://chzzk.naver.com/live/{chzzk_id}",
-                    }
-                ],
-            },
-        ]
+        + item.get("custom_message", {}).get("S", ""),
+        now=datetime.now(UTC),
+    )
 
     res = send_notification_message(
         guild_id=guild_id,
