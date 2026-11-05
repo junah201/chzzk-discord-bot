@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 from bot.admin_event_handler import service
 from bot.admin_event_handler.purchase import (
     DEFAULT_MAX_LIMIT,
+    SLOT_PRODUCTS,
     build_purchase,
     order_sk,
 )
@@ -26,6 +27,7 @@ from nacl.signing import VerifyKey
 from shared import TYPE, middleware
 from shared.notification_dispatcher import (
     activate_subscription_for_guild,
+    is_guild_subscription_active,
     query_guild_items,
 )
 from shared.utils import build_response
@@ -124,6 +126,12 @@ def add_subscription(values: dict[str, str]) -> dict:
         if guild is None:
             return reply(
                 f"❌ 해당 길드 정보를 찾을 수 없습니다. (Guild ID: {guild_id})",
+                ephemeral=True,
+            )
+
+        if product_type in SLOT_PRODUCTS and is_guild_subscription_active(guild_id):
+            return reply(
+                f"❌ 구독 중인 서버는 슬롯을 구매할 수 없습니다. (Guild ID: {guild_id})",
                 ephemeral=True,
             )
 

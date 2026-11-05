@@ -35,6 +35,7 @@ def ddb(monkeypatch, mocker, dynamodb_table):
     mocker.patch.object(service, "dynamodb", dynamodb_table.client)
     mocker.patch.object(service, "table", dynamodb_table.table)
     mocker.patch.object(notification_dispatcher, "dynamodb", dynamodb_table.client)
+    mocker.patch.object(notification_dispatcher, "table", dynamodb_table.table)
     return dynamodb_table
 
 
@@ -268,6 +269,52 @@ class TestSlotPurchase:
 
         assert get_guild(ddb.table)["max_limit"] == 20
         assert len(get_orders(ddb.table)) == 2
+
+
+def put_subscription(table, expires_at, guild_id=GUILD_ID):
+    table.put_item(
+        Item={
+            "PK": f"GUILD#{guild_id}",
+            "SK": "SUB#CURRENT",
+            "type": "SUBSCRIPTION",
+            "guild_id": guild_id,
+            "status": "ACTIVE",
+            "expires_at": expires_at,
+        }
+    )
+
+
+class TestSlotPurchaseDuringSubscription:
+    @pytest.mark.parametrize("product", ["SLOT_5", "SLOT_10"])
+    def test_is_rejected_without_writes(self, ddb, product):
+        put_guild(ddb.table, max_limit=250)
+        put_subscription(ddb.table, "9999-12-31T00:00:00+00:00")
+
+        _, body = call(purchase(product))
+
+        assert content(body) == (
+            f"❌ 구독 중인 서버는 슬롯을 구매할 수 없습니다. (Guild ID: {GUILD_ID})"
+        )
+        assert body["data"]["flags"] == 64
+        assert get_guild(ddb.table)["max_limit"] == 250
+        assert get_orders(ddb.table) == []
+
+    def test_expired_subscription_allows_slot_purchase(self, ddb):
+        put_guild(ddb.table, max_limit=5)
+        put_subscription(ddb.table, "2000-01-01T00:00:00+00:00")
+
+        call(purchase("SLOT_5"))
+
+        assert get_guild(ddb.table)["max_limit"] == 10
+
+    def test_subscription_can_be_renewed(self, ddb):
+        put_guild(ddb.table, max_limit=250)
+        put_subscription(ddb.table, "9999-12-31T00:00:00+00:00")
+
+        _, body = call(purchase("MONTHLY_SUB_2000"))
+
+        assert "월 정기 구독 등록 완료" in content(body)
+        assert len(get_orders(ddb.table)) == 1
 
 
 class TestMonthlySubscription:
