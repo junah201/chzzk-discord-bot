@@ -30,8 +30,7 @@ const gridPatternVariants = cva(
 );
 
 interface GridPatternProps
-  extends
-    React.HTMLAttributes<HTMLDivElement>,
+  extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof gridPatternVariants> {
   offsetX?: number;
   offsetY?: number;

@@ -12,8 +12,7 @@ const navLinkVariants = cva(
 );
 
 export interface LogoProps
-  extends
-    Omit<HTMLMotionProps<"a">, "size">,
+  extends Omit<HTMLMotionProps<"a">, "size">,
     VariantProps<typeof navLinkVariants> {
   label: string;
 }

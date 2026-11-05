@@ -51,8 +51,7 @@ const ICONS = {
 } as const;
 
 export interface PolicyCalloutProps
-  extends
-    React.HTMLAttributes<HTMLDivElement>,
+  extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof policyCalloutVariants> {
   title?: string;
 }

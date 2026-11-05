@@ -97,12 +97,8 @@
   body {
     @apply bg-background text-foreground;
     font-family:
-      var(--font-pretendard),
-      -apple-system,
-      BlinkMacSystemFont,
-      system-ui,
-      Roboto,
-      sans-serif;
+      var(--font-pretendard), -apple-system, BlinkMacSystemFont, system-ui,
+      Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     /* 한국어를 단어(어절) 단위로 줄바꿈하고, 공백 없는 긴 URL·ID는 넘치지 않게 끊음 */

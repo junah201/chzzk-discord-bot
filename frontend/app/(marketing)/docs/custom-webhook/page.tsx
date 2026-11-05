@@ -14,8 +14,8 @@ export default function CustomWebhookPage() {
       <PolicyCallout className="my-0">
         알림마다 디스코드 웹훅을 연결해 보낼 수 있습니다. 커스텀 웹훅을 쓰면{" "}
         <strong>치직 봇의 이름과 프로필</strong> 대신, 웹훅에 설정한{" "}
-        <strong>이름과 프로필 이미지</strong>로 알림이 옵니다. 월 정기 구독
-        중인 서버에서만 쓸 수 있습니다.
+        <strong>이름과 프로필 이미지</strong>로 알림이 옵니다. 월 정기 구독 중인
+        서버에서만 쓸 수 있습니다.
       </PolicyCallout>
       <h2>시작하기 전에 (웹훅 생성)</h2>
       <p>
@@ -36,8 +36,8 @@ export default function CustomWebhookPage() {
           를 참고해 주세요. 웹훅을 만든 뒤 URL을 복사해 둡니다.
         </li>
         <li>
-          웹훅은 <strong>알림을 등록하는 서버</strong>에서 만들어야 합니다.
-          다른 서버에서 만든 웹훅은 등록할 수 없습니다.
+          웹훅은 <strong>알림을 등록하는 서버</strong>에서 만들어야 합니다. 다른
+          서버에서 만든 웹훅은 등록할 수 없습니다.
         </li>
       </ul>
 
@@ -66,9 +66,9 @@ export default function CustomWebhookPage() {
           </ul>
         </li>
         <li>
-          <strong>알림 추가</strong>(기존 알림은{" "}
-          <strong>변경사항 저장</strong>) 버튼을 누르면 끝납니다. 미리보기에서
-          이름과 프로필 자리가 웹훅 설정으로 바뀐 것을 확인할 수 있습니다.
+          <strong>알림 추가</strong>(기존 알림은 <strong>변경사항 저장</strong>)
+          버튼을 누르면 끝납니다. 미리보기에서 이름과 프로필 자리가 웹훅
+          설정으로 바뀐 것을 확인할 수 있습니다.
         </li>
       </ol>
 

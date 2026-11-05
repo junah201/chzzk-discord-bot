@@ -64,20 +64,14 @@ export default function NotificationLimitCard({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <PolicyCallout
-            variant="warning"
-            title="알림 슬롯을 초과했습니다"
-          >
+          <PolicyCallout variant="warning" title="알림 슬롯을 초과했습니다">
             <ul className="mb-0 list-disc pl-5 text-sm">
               <li>
-                등록된 알림이 슬롯 수({maxLimit}개)보다 많아서 알림을 추가하거나 수정할 수 없습니다.
+                등록된 알림이 슬롯 수({maxLimit}개)보다 많아서 알림을 추가하거나
+                수정할 수 없습니다.
               </li>
-              <li>
-                이미 등록된 알림도 모두 전송되지 않습니다.
-              </li>
-              <li>
-                알림을 삭제하거나 슬롯을 늘린 뒤 다시 이용해 주세요.
-              </li>
+              <li>이미 등록된 알림도 모두 전송되지 않습니다.</li>
+              <li>알림을 삭제하거나 슬롯을 늘린 뒤 다시 이용해 주세요.</li>
             </ul>
           </PolicyCallout>
         </motion.div>

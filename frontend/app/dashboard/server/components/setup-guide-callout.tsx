@@ -14,9 +14,7 @@ export default function SetupGuideCallout() {
       >
         <ul className="mb-0 list-disc pl-5">
           <li>ID에 공백이나 특수문자가 들어가지 않았는지 확인해 주세요.</li>
-          <li>
-            한 번도 방송하지 않은 채널은 등록할 수 없습니다.
-          </li>
+          <li>한 번도 방송하지 않은 채널은 등록할 수 없습니다.</li>
           <li>
             오래 방송하지 않은 채널은 방송을 한 번 켜면 등록할 수 있습니다.
           </li>

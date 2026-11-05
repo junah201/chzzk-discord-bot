@@ -58,8 +58,8 @@ export default function TroubleshootingPage() {
             <strong>채널 보기 / 메시지 보내기</strong> 권한이 없는 경우입니다.
           </li>
           <li>
-            <Link href={routeMap.DOCS.INSTALLATION}>시작하기 문서</Link>의
-            채널 권한 설정을 확인하거나, 봇을 서버에 다시 초대해 주세요.
+            <Link href={routeMap.DOCS.INSTALLATION}>시작하기 문서</Link>의 채널
+            권한 설정을 확인하거나, 봇을 서버에 다시 초대해 주세요.
           </li>
         </ul>
       </PolicyCallout>
@@ -151,12 +151,15 @@ export default function TroubleshootingPage() {
           </li>
         </ul>
       </PolicyCallout>
-      <PolicyCallout variant="warning" title="디스코드 웹훅을 찾을 수 없습니다.">
+      <PolicyCallout
+        variant="warning"
+        title="디스코드 웹훅을 찾을 수 없습니다."
+      >
         <ul className="mb-0">
           <li>
             웹훅이 삭제되었거나 URL이 일부만 복사된 경우입니다. 디스코드에서
-            웹훅이 남아 있는지 확인하고, <strong>웹후크 URL 복사</strong>로
-            다시 복사해 붙여 넣어 주세요.
+            웹훅이 남아 있는지 확인하고, <strong>웹후크 URL 복사</strong>로 다시
+            복사해 붙여 넣어 주세요.
           </li>
           <li>
             등록해 둔 웹훅을 디스코드에서 지웠다면 다른 설정을 바꿀 때도 이
@@ -180,14 +183,14 @@ export default function TroubleshootingPage() {
       >
         <ul className="mb-0">
           <li>
-            <Link href={routeMap.DOCS.INSTALLATION}>시작하기 문서</Link>의
-            채널 권한 설정을 보고{" "}
+            <Link href={routeMap.DOCS.INSTALLATION}>시작하기 문서</Link>의 채널
+            권한 설정을 보고{" "}
             <strong>채널 보기 / 메시지 보내기 / 링크 첨부</strong> 권한이
             허용되어 있는지 확인해 주세요.
           </li>
           <li>
-            커스텀 웹훅을 쓰고 있다면, 웹훅이 삭제되지 않았는지와 URL이
-            올바른지 확인해 주세요.
+            커스텀 웹훅을 쓰고 있다면, 웹훅이 삭제되지 않았는지와 URL이 올바른지
+            확인해 주세요.
           </li>
         </ul>
       </PolicyCallout>
@@ -214,8 +217,8 @@ export default function TroubleshootingPage() {
           </li>
           <li>
             다음 확인 시점이 오기 전에 방송을 끄면 봇이 그 방송을 감지하지 못해{" "}
-            <strong>알림이 전송되지 않습니다.</strong> 방송 테스트처럼 잠깐
-            켰다 끈 경우가 여기에 해당합니다.
+            <strong>알림이 전송되지 않습니다.</strong> 방송 테스트처럼 잠깐 켰다
+            끈 경우가 여기에 해당합니다.
           </li>
           <li>
             대시보드에서 <strong>테스트 알림</strong>을 보내 권한과 채널 설정이

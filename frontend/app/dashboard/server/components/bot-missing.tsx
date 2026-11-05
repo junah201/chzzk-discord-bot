@@ -22,7 +22,8 @@ export default function BotMissingPage() {
       }
       footer={
         <p className="text-sm text-muted-foreground">
-          이미 초대했다면 봇의 ‘채널 보기’ 권한이 꺼져 있을 수 있습니다. 서버 설정에서 권한을 확인해 주세요. 그래도 안 되면{" "}
+          이미 초대했다면 봇의 ‘채널 보기’ 권한이 꺼져 있을 수 있습니다. 서버
+          설정에서 권한을 확인해 주세요. 그래도 안 되면{" "}
           <Link
             href={routeMap.REDIRECTS.SUPPORT_SERVER}
             target="_blank"

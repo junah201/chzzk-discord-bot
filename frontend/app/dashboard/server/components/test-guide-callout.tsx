@@ -22,7 +22,8 @@ export default function TestGuideCallout() {
             >
               시작하기 문서
             </Link>
-            의 채널 권한 설정을 보고, 치직 봇에게 필요한 권한이 있는지 확인해 주세요.
+            의 채널 권한 설정을 보고, 치직 봇에게 필요한 권한이 있는지 확인해
+            주세요.
           </li>
         </ul>
       </PolicyCallout>

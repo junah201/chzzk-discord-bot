@@ -8,8 +8,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 export interface LinkButtonProps
-  extends
-    Omit<HTMLMotionProps<"a">, "size" | "children">,
+  extends Omit<HTMLMotionProps<"a">, "size" | "children">,
     VariantProps<typeof buttonVariants> {
   children: React.ReactNode;
   href: string;

@@ -93,7 +93,8 @@ export default function NotificationForm({
         helperText={
           <>
             멘션을 넣는 방법은{" "}
-            <Link href={routeMap.DOCS.CUSTOMIZATION}>메시지 커스텀 문서</Link>를 참고하세요.
+            <Link href={routeMap.DOCS.CUSTOMIZATION}>메시지 커스텀 문서</Link>를
+            참고하세요.
           </>
         }
       />
@@ -106,7 +107,8 @@ export default function NotificationForm({
         placeholder="https://discord.com/api/webhooks/..."
         helperText={
           <>
-            치직 봇 대신 웹훅에 설정한 이름과 프로필 이미지로 알림을 보냅니다. 설정 방법은{" "}
+            치직 봇 대신 웹훅에 설정한 이름과 프로필 이미지로 알림을 보냅니다.
+            설정 방법은{" "}
             <Link
               href={routeMap.DOCS.CUSTOM_WEBHOOK}
               className="underline hover:text-primary/80"

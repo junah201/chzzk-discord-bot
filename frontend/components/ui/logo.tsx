@@ -56,8 +56,7 @@ const textVariants = cva(
 );
 
 export interface LogoProps
-  extends
-    Omit<HTMLMotionProps<"a">, "size">,
+  extends Omit<HTMLMotionProps<"a">, "size">,
     VariantProps<typeof logoVariants> {
   showText?: boolean;
 }

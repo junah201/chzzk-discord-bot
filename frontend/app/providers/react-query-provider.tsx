@@ -44,7 +44,9 @@ export default function ReactQueryProvider({
           return;
         }
 
-        const message = data?.message || "서버에서 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.";
+        const message =
+          data?.message ||
+          "서버에서 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.";
         toast.error(message);
         return;
       }

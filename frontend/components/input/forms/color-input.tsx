@@ -16,7 +16,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { DEFAULT_EMBED_COLOR, toCssColor, toHexEmbedColor } from "@/lib/discord";
+import {
+  DEFAULT_EMBED_COLOR,
+  toCssColor,
+  toHexEmbedColor,
+} from "@/lib/discord";
 import { BasicInputProps } from "..";
 
 const DEFAULT_HEX = toCssColor(DEFAULT_EMBED_COLOR).toUpperCase();
@@ -76,7 +80,10 @@ export const ColorInput = (props: BasicInputProps) => {
               style={{ backgroundColor: displayHex }}
             />
           </PopoverTrigger>
-          <PopoverContent align="start" className="flex w-60 flex-col gap-3 p-3">
+          <PopoverContent
+            align="start"
+            className="flex w-60 flex-col gap-3 p-3"
+          >
             <HexColorPicker
               color={displayHex}
               onChange={(color) => onChange(color.toUpperCase())}

@@ -20,9 +20,8 @@ export default function CustomizationPage() {
     <DocsContainer title="3. 메시지 커스텀 (멘션)">
       <PolicyCallout className="my-0">
         커스텀 메시지에 전체 멘션, 특정 유저, 특정 역할을 넣어 알림을 보낼 수
-        있습니다. 멘션을 쓰려면 봇에게{" "}
-        <strong>멘션 권한</strong>이 있어야 합니다. 입력한 메시지는 대시보드
-        미리보기에서 바로 확인할 수 있습니다.
+        있습니다. 멘션을 쓰려면 봇에게 <strong>멘션 권한</strong>이 있어야
+        합니다. 입력한 메시지는 대시보드 미리보기에서 바로 확인할 수 있습니다.
       </PolicyCallout>
 
       <h2>전체 멘션 (@everyone, @here)</h2>
@@ -43,8 +42,8 @@ export default function CustomizationPage() {
 
       <PolicyCallout variant="warning" title="멘션이 작동하지 않나요?">
         <p>
-          봇이 역할을 멘션하거나 <code>@everyone</code>을 쓰려면, 디스코드
-          채널 설정에서 치직 봇에게{" "}
+          봇이 역할을 멘션하거나 <code>@everyone</code>을 쓰려면, 디스코드 채널
+          설정에서 치직 봇에게{" "}
           <strong>‘@everyone, @here, 모든 역할 멘션하기’</strong> 권한을
           허용해야 합니다.
         </p>

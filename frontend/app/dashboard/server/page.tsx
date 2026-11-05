@@ -13,10 +13,7 @@ import NotificationManager from "./components/notification-manager";
 import TestGuideCallout from "./components/test-guide-callout";
 import ServerBotGuard from "./components/server-bot-guard";
 import NotificationLimitCard from "./components/notification-limit-card";
-import {
-  DEFAULT_SLOT_LIMIT,
-  SUBSCRIPTION_SLOT_LIMIT,
-} from "@/constants/slots";
+import { DEFAULT_SLOT_LIMIT, SUBSCRIPTION_SLOT_LIMIT } from "@/constants/slots";
 
 export default function ServerDetailPage() {
   return (
@@ -30,9 +27,7 @@ function ClientServerDetailPage() {
   const searchParams = useSearchParams();
   const serverId = searchParams.get("id");
 
-  const { data: serverData } = useQuery(
-    useGuildOptions(serverId),
-  );
+  const { data: serverData } = useQuery(useGuildOptions(serverId));
 
   const isSubscription = serverData?.max_limit === SUBSCRIPTION_SLOT_LIMIT;
 

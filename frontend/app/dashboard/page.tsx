@@ -20,9 +20,7 @@ export default function Dashboard() {
   const showSearch = servers.length >= SEARCH_THRESHOLD;
   const normalized = keyword.trim().toLowerCase();
   const filtered = normalized
-    ? servers.filter((server) =>
-        server.name.toLowerCase().includes(normalized),
-      )
+    ? servers.filter((server) => server.name.toLowerCase().includes(normalized))
     : servers;
 
   return (

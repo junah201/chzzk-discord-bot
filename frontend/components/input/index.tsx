@@ -71,10 +71,8 @@ export const BasicInput = (props: BasicInputProps) => {
   return <div className="flex w-full flex-col">{content(type)}</div>;
 };
 
-interface InputProps<
-  T extends FieldValues,
-  TName extends FieldPath<T>,
-> extends Omit<BaseInputProps, "name" | "required"> {
+interface InputProps<T extends FieldValues, TName extends FieldPath<T>>
+  extends Omit<BaseInputProps, "name" | "required"> {
   control: Control<T>;
   name: TName;
   rules?: UseControllerProps<T, TName>["rules"];

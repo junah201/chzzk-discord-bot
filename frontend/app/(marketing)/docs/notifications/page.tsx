@@ -24,8 +24,8 @@ export default function NotificationsPage() {
           서버가 많다면 검색창에 서버 이름을 입력해 찾을 수 있습니다.
         </li>
         <PolicyCallout variant="warning" title="서버가 보이지 않나요?">
-          대시보드에는 내가 관리자 권한을 가진 서버만 나옵니다. 디스코드에서 해당
-          서버의 관리자 권한이 있는지 확인해 주세요.
+          대시보드에는 내가 관리자 권한을 가진 서버만 나옵니다. 디스코드에서
+          해당 서버의 관리자 권한이 있는지 확인해 주세요.
         </PolicyCallout>
         <li>
           <strong>치지직 ID</strong>를 입력하고, 알림을 받을{" "}
