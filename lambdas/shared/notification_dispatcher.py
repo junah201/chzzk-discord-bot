@@ -199,7 +199,7 @@ def is_guild_subscription_active(guild_id: str) -> bool:
 
 
 def activate_subscription_for_guild(guild_id: str) -> None:
-    for item in _query_guild_items(guild_id):
+    for item in query_guild_items(guild_id):
         if item.get("type", {}).get("S") != "NOTI":
             continue
         dynamodb.update_item(
@@ -210,7 +210,7 @@ def activate_subscription_for_guild(guild_id: str) -> None:
         )
 
 
-def _query_guild_items(guild_id: str) -> list[dict]:
+def query_guild_items(guild_id: str) -> list[dict]:
     items = []
     query_args = {
         "TableName": "chzzk-bot-db",

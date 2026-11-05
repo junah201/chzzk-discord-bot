@@ -9,6 +9,7 @@ from nacl.signing import SigningKey
 from shared import INTERACTION_CALLBACK_TYPE, TYPE, notification_dispatcher
 
 admin = importlib.import_module("bot.admin_event_handler")
+service = importlib.import_module("bot.admin_event_handler.service")
 
 SIGNING_KEY = SigningKey.generate()
 ADMIN_ID = "777"
@@ -31,8 +32,8 @@ def ddb(monkeypatch, mocker, dynamodb_table):
     )
     monkeypatch.setattr(admin, "ADMIN_DISCORD_USER_ID", ADMIN_ID)
     monkeypatch.setattr(admin, "datetime", FixedDatetime)
-    mocker.patch.object(admin, "dynamodb_client", dynamodb_table.client)
-    mocker.patch.object(admin, "table", dynamodb_table.table)
+    mocker.patch.object(service, "dynamodb", dynamodb_table.client)
+    mocker.patch.object(service, "table", dynamodb_table.table)
     mocker.patch.object(notification_dispatcher, "dynamodb", dynamodb_table.client)
     return dynamodb_table
 
@@ -324,6 +325,16 @@ class TestMonthlySubscription:
 
 
 class TestPurchaseErrors:
+    def test_unknown_product_is_rejected_without_writes(self, ddb):
+        put_guild(ddb.table, max_limit=5)
+
+        _, body = call(purchase("SLOT_99"))
+
+        assert content(body) == "❌ 알 수 없는 상품입니다: `SLOT_99`"
+        assert body["data"]["flags"] == 64
+        assert get_guild(ddb.table)["max_limit"] == 5
+        assert get_orders(ddb.table) == []
+
     def test_unknown_guild_is_rejected_without_writes(self, ddb):
         _, body = call(purchase("MONTHLY_SUB_2000"))
 
@@ -392,3 +403,18 @@ def test_unknown_interaction_is_answered():
     _, body = call(interaction(TYPE.MODAL_SUBMIT, {"custom_id": "unknown"}))
 
     assert content(body) == "알 수 없는 요청입니다."
+
+
+def test_sync_slots_dynamodb_error_is_reported(mocker, ddb):
+    mocker.patch.object(
+        ddb.client,
+        "query",
+        side_effect=ClientError(
+            {"Error": {"Code": "InternalServerError", "Message": "boom"}}, "Query"
+        ),
+    )
+
+    _, body = call(sync_slots())
+
+    assert content(body).startswith("❌ 슬롯 동기화 중 오류가 발생했습니다")
+    assert body["data"]["flags"] == 64
