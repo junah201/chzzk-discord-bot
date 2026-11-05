@@ -32,15 +32,35 @@ def build_purchase(
     old_max_limit: int,
     now: datetime,
     sk: str,
+    current_subscription: dict | None = None,
 ) -> Purchase | None:
-    """상품 구매로 저장할 아이템과 결과 메시지를 만듭니다. 모르는 상품이면 None을 반환합니다."""
+    """상품 구매로 저장할 아이템과 결과 메시지를 만듭니다. 모르는 상품이면 None을 반환합니다.
+    current_subscription은 Table 리소스로 읽은 SUB#CURRENT 아이템입니다.
+    """
     if product_type in SLOT_PRODUCTS:
         return _build_slot_purchase(
             guild_id, buyer_id, product_type, old_max_limit, now, sk
         )
     if product_type == MONTHLY_SUB:
-        return _build_monthly_subscription(guild_id, buyer_id, old_max_limit, now, sk)
+        return _build_monthly_subscription(
+            guild_id,
+            buyer_id,
+            old_max_limit,
+            now,
+            sk,
+            renewal_base(now, current_subscription),
+        )
     return None
+
+
+def renewal_base(now: datetime, current_subscription: dict | None) -> datetime:
+    """구독 기간을 더할 기준 시각입니다. 활성 구독이 남아 있으면 그 만료일, 아니면 now입니다."""
+    if not current_subscription or current_subscription.get("status") != "ACTIVE":
+        return now
+    expires_at = current_subscription.get("expires_at")
+    if not expires_at:
+        return now
+    return max(now, datetime.fromisoformat(expires_at))
 
 
 def _order_item(
@@ -86,9 +106,9 @@ def _build_slot_purchase(guild_id, buyer_id, product_type, old_max_limit, now, s
     return Purchase(order_item=order_item, new_max_limit=new_max_limit, message=message)
 
 
-def _build_monthly_subscription(guild_id, buyer_id, old_max_limit, now, sk):
+def _build_monthly_subscription(guild_id, buyer_id, old_max_limit, now, sk, base):
     # 정확히 1달 뒤로 계산 (예: 1월 31일 -> 2월 28일)
-    expires_at = now + relativedelta(months=1)
+    expires_at = base + relativedelta(months=1)
     order_item = _order_item(
         guild_id,
         buyer_id,

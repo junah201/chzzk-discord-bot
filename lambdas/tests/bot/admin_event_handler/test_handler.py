@@ -307,14 +307,26 @@ class TestSlotPurchaseDuringSubscription:
 
         assert get_guild(ddb.table)["max_limit"] == 10
 
-    def test_subscription_can_be_renewed(self, ddb):
+    def test_renewal_extends_from_current_expiry(self, ddb):
         put_guild(ddb.table, max_limit=250)
-        put_subscription(ddb.table, "9999-12-31T00:00:00+00:00")
+        put_subscription(ddb.table, "2099-06-01T00:00:00+00:00")
 
         _, body = call(purchase("MONTHLY_SUB_2000"))
 
         assert "월 정기 구독 등록 완료" in content(body)
         assert len(get_orders(ddb.table)) == 1
+        sub = get_item(ddb.table, f"GUILD#{GUILD_ID}", "SUB#CURRENT")
+        assert sub["expires_at"] == "2099-07-01T00:00:00+00:00"
+        assert sub["purchased_at"] == FIXED_NOW.isoformat()
+
+    def test_expired_subscription_renews_from_now(self, ddb):
+        put_guild(ddb.table, max_limit=250)
+        put_subscription(ddb.table, "2000-01-01T00:00:00+00:00")
+
+        call(purchase("MONTHLY_SUB_2000"))
+
+        sub = get_item(ddb.table, f"GUILD#{GUILD_ID}", "SUB#CURRENT")
+        assert sub["expires_at"] == "2026-02-28T15:00:00+00:00"
 
 
 class TestMonthlySubscription:

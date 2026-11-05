@@ -1,13 +1,13 @@
 from datetime import UTC, datetime
 
 import pytest
-from bot.admin_event_handler.purchase import build_purchase, order_sk
+from bot.admin_event_handler.purchase import build_purchase, order_sk, renewal_base
 
 NOW = datetime(2026, 1, 31, 15, 0, 0, tzinfo=UTC)
 SK = "ORDER#20260131150000#abc"
 
 
-def purchase(product_type, old_max_limit=7):
+def purchase(product_type, old_max_limit=7, current_subscription=None):
     return build_purchase(
         guild_id="1",
         buyer_id="42",
@@ -15,6 +15,7 @@ def purchase(product_type, old_max_limit=7):
         old_max_limit=old_max_limit,
         now=NOW,
         sk=SK,
+        current_subscription=current_subscription,
     )
 
 
@@ -71,3 +72,32 @@ def test_monthly_subscription():
 
 def test_unknown_product_returns_none():
     assert purchase("SLOT_99") is None
+
+
+def subscription(status="ACTIVE", expires_at="2026-03-10T00:00:00+00:00"):
+    return {"status": status, "expires_at": expires_at}
+
+
+@pytest.mark.parametrize(
+    ("current", "expected"),
+    [
+        (None, NOW),
+        (subscription(), datetime(2026, 3, 10, tzinfo=UTC)),
+        (subscription(expires_at="2026-01-01T00:00:00+00:00"), NOW),
+        (subscription(status="EXPIRED"), NOW),
+        (subscription(status="SUSPENDED"), NOW),
+        ({"status": "ACTIVE"}, NOW),
+    ],
+    ids=["none", "active", "already-expired", "expired", "suspended", "no-expiry"],
+)
+def test_renewal_base(current, expected):
+    assert renewal_base(NOW, current) == expected
+
+
+def test_renewal_extends_from_current_expiry():
+    result = purchase("MONTHLY_SUB_2000", current_subscription=subscription())
+
+    sub = result.subscription_item
+    assert sub["expires_at"] == {"S": "2026-04-10T00:00:00+00:00"}
+    assert sub["purchased_at"] == {"S": "2026-01-31T15:00:00+00:00"}
+    assert "구독 만료일: `2026-04-10 09:00:00 KST`" in result.message

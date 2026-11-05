@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 from bot.admin_event_handler import service
 from bot.admin_event_handler.purchase import (
     DEFAULT_MAX_LIMIT,
+    MONTHLY_SUB,
     SLOT_PRODUCTS,
     build_purchase,
     order_sk,
@@ -143,6 +144,11 @@ def add_subscription(values: dict[str, str]) -> dict:
             old_max_limit=int(guild.get("max_limit", DEFAULT_MAX_LIMIT)),
             now=now,
             sk=order_sk(now, str(uuid.uuid4())[:16]),
+            current_subscription=(
+                service.get_subscription(guild_id)
+                if product_type == MONTHLY_SUB
+                else None
+            ),
         )
         if purchase is None:
             return reply(f"❌ 알 수 없는 상품입니다: `{product_type}`", ephemeral=True)

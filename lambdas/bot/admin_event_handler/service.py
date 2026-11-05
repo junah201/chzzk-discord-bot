@@ -12,6 +12,12 @@ def get_guild(guild_id: str) -> dict | None:
     return table.get_item(Key={"PK": guild_pk, "SK": guild_pk}).get("Item")
 
 
+def get_subscription(guild_id: str) -> dict | None:
+    return table.get_item(Key={"PK": f"GUILD#{guild_id}", "SK": "SUB#CURRENT"}).get(
+        "Item"
+    )
+
+
 def save_purchase(guild_id: str, purchase: Purchase) -> None:
     """주문 기록, (구독이면) 구독 정보, 길드 max_limit을 한 트랜잭션으로 저장합니다."""
     guild_pk = f"GUILD#{guild_id}"
