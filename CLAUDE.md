@@ -39,7 +39,9 @@ Frontend (`frontend/`, pnpm):
 pnpm install
 pnpm dev      # local dev at :3000 (uses .env.development; API points at prod api.chzzk.junah.dev)
 pnpm build    # static export to frontend/out
-pnpm lint
+pnpm lint          # ESLint (eslint-config-next); lint only
+pnpm format        # Biome formatter (formatter only; linter/assist disabled in biome.json)
+pnpm format:check
 ```
 
 Frontend deploys automatically via `.github/workflows/frontend-deploy.yml` on push to `main` touching `frontend/**` (build → `aws s3 sync out` → CloudFront invalidation).

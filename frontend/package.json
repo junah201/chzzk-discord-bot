@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "format": "biome format --write",
+    "format:check": "biome format"
   },
   "dependencies": {
     "@icons-pack/react-simple-icons": "^13.15.1",
@@ -31,6 +33,7 @@
     "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.6.5",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^26.6.5",
