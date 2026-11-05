@@ -199,6 +199,14 @@ def is_guild_subscription_active(guild_id: str) -> bool:
 
 
 def activate_subscription_for_guild(guild_id: str) -> None:
+    _set_subscription_active_for_guild(guild_id, True)
+
+
+def deactivate_subscription_for_guild(guild_id: str) -> None:
+    _set_subscription_active_for_guild(guild_id, False)
+
+
+def _set_subscription_active_for_guild(guild_id: str, active: bool) -> None:
     for item in query_guild_items(guild_id):
         if item.get("type", {}).get("S") != "NOTI":
             continue
@@ -206,7 +214,7 @@ def activate_subscription_for_guild(guild_id: str) -> None:
             TableName="chzzk-bot-db",
             Key={"PK": item["PK"], "SK": item["SK"]},
             UpdateExpression="SET is_subscription_active = :active",
-            ExpressionAttributeValues={":active": {"BOOL": True}},
+            ExpressionAttributeValues={":active": {"BOOL": active}},
         )
 
 

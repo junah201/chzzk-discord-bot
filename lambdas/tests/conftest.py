@@ -36,6 +36,8 @@ for _name in (
     "DISCORD_CLEANUP_ORPHAN_CHANNEL_ID",
     "DISCORD_WEEKLY_REPORT_CHANNEL_ID",
     "DISCORD_WEEKLY_REPORT_ERROR_CHANNEL_ID",
+    "DISCORD_SUBSCRIPTION_EXPIRY_REPORT_CHANNEL_ID",
+    "DISCORD_SUBSCRIPTION_EXPIRY_ERROR_CHANNEL_ID",
 ):
     os.environ[_name] = "100000000000000000"
 
@@ -84,6 +86,8 @@ def dynamodb_table():
                 {"AttributeName": "PK", "AttributeType": "S"},
                 {"AttributeName": "SK", "AttributeType": "S"},
                 {"AttributeName": "guild_id", "AttributeType": "S"},
+                {"AttributeName": "type", "AttributeType": "S"},
+                {"AttributeName": "expires_at", "AttributeType": "S"},
             ],
             GlobalSecondaryIndexes=[
                 {
@@ -93,7 +97,15 @@ def dynamodb_table():
                         {"AttributeName": "PK", "KeyType": "RANGE"},
                     ],
                     "Projection": {"ProjectionType": "ALL"},
-                }
+                },
+                {
+                    "IndexName": "GSI-Type-ExpiresAt",
+                    "KeySchema": [
+                        {"AttributeName": "type", "KeyType": "HASH"},
+                        {"AttributeName": "expires_at", "KeyType": "RANGE"},
+                    ],
+                    "Projection": {"ProjectionType": "ALL"},
+                },
             ],
             BillingMode="PAY_PER_REQUEST",
         )

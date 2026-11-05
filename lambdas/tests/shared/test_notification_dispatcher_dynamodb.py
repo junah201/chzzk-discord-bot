@@ -95,12 +95,10 @@ class TestIsGuildSubscriptionActive:
 
         assert is_guild_subscription_active("1") is False
 
-    @pytest.mark.parametrize("expires_at", [None, ""], ids=["missing", "empty"])
-    def test_missing_expires_at_is_inactive_and_warned(
-        self, mocker, use_dynamodb, expires_at
-    ):
+    # GSI-Type-ExpiresAt의 키라서 빈 문자열 expires_at은 저장할 수 없다.
+    def test_missing_expires_at_is_inactive_and_warned(self, mocker, use_dynamodb):
         warning = mocker.patch.object(notification_dispatcher.logger, "warning")
-        put_subscription(use_dynamodb.table, expires_at=expires_at)
+        put_subscription(use_dynamodb.table, expires_at=None)
 
         assert is_guild_subscription_active("1") is False
         assert json.loads(warning.call_args.args[0]) == {
@@ -228,3 +226,26 @@ class TestActivateSubscriptionForGuild:
             "NOTI#10",
             "NOTI#11",
         ]
+
+
+def test_deactivate_subscription_for_guild(use_dynamodb):
+    table = use_dynamodb.table
+    for sk, guild_id in (("NOTI#10", "1"), ("NOTI#20", "2")):
+        table.put_item(
+            Item={
+                "PK": "CHZZK#abc",
+                "SK": sk,
+                "type": "NOTI",
+                "guild_id": guild_id,
+                "is_subscription_active": True,
+            }
+        )
+
+    notification_dispatcher.deactivate_subscription_for_guild("1")
+
+    def flag(sk):
+        item = table.get_item(Key={"PK": "CHZZK#abc", "SK": sk})["Item"]
+        return item["is_subscription_active"]
+
+    assert flag("NOTI#10") is False
+    assert flag("NOTI#20") is True

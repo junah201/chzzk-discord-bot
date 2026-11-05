@@ -26,6 +26,8 @@ provider:
     DISCORD_CLEANUP_ORPHAN_CHANNEL_ID: "1564569823080489012"
     DISCORD_WEEKLY_REPORT_CHANNEL_ID: "1564687500704874577"
     DISCORD_WEEKLY_REPORT_ERROR_CHANNEL_ID: "1564687374619901952"
+    DISCORD_SUBSCRIPTION_EXPIRY_REPORT_CHANNEL_ID: "1567942386867376148"
+    DISCORD_SUBSCRIPTION_EXPIRY_ERROR_CHANNEL_ID: "1567942306412232734"
     ADMIN_DISCORD_PUBLIC_KEY: ${env:ADMIN_DISCORD_PUBLIC_KEY}
     ADMIN_DISCORD_USER_ID: ${env:ADMIN_DISCORD_USER_ID}
     ADMIN_DISCORD_TOKEN: ${env:ADMIN_DISCORD_TOKEN}
@@ -238,6 +240,15 @@ functions:
       - schedule:
           rate: cron(0 16 ? * SUN *) # 매주 월요일 01:00 KST = 일요일 16:00 UTC
           enabled: true
+
+  subscription_expiry:
+    handler: lambdas/cron/subscription_expiry.handler
+    name: subscription_expiry_v2
+    description: Expire subscriptions and restore guild slot limits
+    timeout: 300
+    maximumRetryAttempts: 0
+    events:
+      - schedule: cron(5 15 * * ? *) # 매일 00:05 KST = 15:05 UTC
 
   chzzk_unfollow:
     handler: lambdas/admin/chzzk_unfollow.handler
