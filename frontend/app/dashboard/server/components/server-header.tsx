@@ -41,7 +41,7 @@ export default function ServerHeader({ server }: ServerHeaderProps) {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h1 className="text-3xl sm:text-4xl font-bold bg-linear-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
+              <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
                 {server.name}
               </h1>
 
