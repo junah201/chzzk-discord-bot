@@ -32,7 +32,7 @@ export default function DocsLayout({
               <DocsSidebar />
             </aside>
 
-            <main className="lg:col-span-9">
+            <div className="lg:col-span-9">
               <div className="bg-linear-to-br from-primary/10 to-emerald-500/5 border-l-4 border-primary rounded-xl p-6 flex gap-4 mb-12">
                 <BookOpen className="w-6 h-6 text-primary shrink-0 mt-1" />
                 <div>
@@ -44,7 +44,7 @@ export default function DocsLayout({
                 </div>
               </div>
               {children}
-            </main>
+            </div>
           </div>
         </div>
       </div>

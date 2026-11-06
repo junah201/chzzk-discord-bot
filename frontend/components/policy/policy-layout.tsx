@@ -86,7 +86,7 @@ export function PolicyLayout({
               </motion.div>
             </aside>
 
-            <main className="lg:col-span-9">
+            <article className="lg:col-span-9">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -118,7 +118,7 @@ export function PolicyLayout({
                   </div>
                 </div>
               </motion.div>
-            </main>
+            </article>
           </div>
         </div>
       </div>
