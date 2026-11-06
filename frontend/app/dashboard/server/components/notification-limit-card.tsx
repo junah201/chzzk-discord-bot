@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useId } from "react";
 import { motion } from "motion/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -20,6 +20,7 @@ interface NotificationLimitCardProps {
 export default function NotificationLimitCard({
   slots,
 }: NotificationLimitCardProps) {
+  const titleId = useId();
   const { serverId } = use(ServerContext);
   const syncSlots = useSyncSlots(serverId);
   const syncSuccessMessage =
@@ -43,7 +44,9 @@ export default function NotificationLimitCard({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Bell className="w-5 h-5 text-primary" />
-              <span className="font-semibold">알림 슬롯 현황</span>
+              <span id={titleId} className="font-semibold">
+                알림 슬롯 현황
+              </span>
             </div>
             {slots ? (
               <span className="text-sm font-bold">
@@ -57,6 +60,10 @@ export default function NotificationLimitCard({
           {slots ? (
             <Progress
               value={percentage}
+              aria-labelledby={titleId}
+              getValueLabel={() =>
+                `${slots.maxLimit}개 중 ${slots.currentCount}개 사용 중`
+              }
               className={`h-2 ${isOverLimit ? "[&>div]:bg-destructive" : ""}`}
             />
           ) : (
