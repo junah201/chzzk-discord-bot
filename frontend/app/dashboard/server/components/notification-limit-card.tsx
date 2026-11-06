@@ -8,6 +8,7 @@ import Link from "next/link";
 import routeMap from "@/constants/route-map";
 import { PolicyCallout } from "@/components/policy/policy-callout";
 import { useSyncSlots } from "@/hooks/use-sync-slots";
+import MutationAlert from "./mutation-alert";
 
 interface NotificationLimitCardProps {
   serverId: string;
@@ -21,6 +22,11 @@ export default function NotificationLimitCard({
   maxLimit,
 }: NotificationLimitCardProps) {
   const syncSlots = useSyncSlots(serverId);
+  const syncSuccessMessage =
+    syncSlots.data &&
+    (syncSlots.data.current_count === syncSlots.data.previous_count
+      ? "슬롯 개수가 이미 실제 알림 수와 같습니다."
+      : `사용 중인 슬롯을 ${syncSlots.data.previous_count}개에서 ${syncSlots.data.current_count}개로 갱신했습니다.`);
   const isOverLimit = currentCount > maxLimit;
   const percentage = Math.min(100, (currentCount / maxLimit) * 100);
 
@@ -47,7 +53,7 @@ export default function NotificationLimitCard({
             className={`h-2 ${isOverLimit ? "[&>div]:bg-destructive" : ""}`}
           />
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-border/60">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-1 lg:gap-3 pt-2 border-t border-border/60">
             <p className="text-sm text-muted-foreground">
               알림이 더 필요하다면{" "}
               <Link
@@ -65,16 +71,24 @@ export default function NotificationLimitCard({
                 type="button"
                 onClick={() => syncSlots.mutate()}
                 disabled={syncSlots.isPending}
-                className="inline-flex items-center gap-1 text-primary underline disabled:opacity-50"
+                className="cursor-pointer whitespace-nowrap text-primary underline disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <RefreshCw
-                  className={`w-3.5 h-3.5 ${syncSlots.isPending ? "animate-spin" : ""}`}
+                  className={`inline-block mr-1 size-3.5 align-[-0.125em] ${syncSlots.isPending ? "animate-spin" : ""}`}
                 />
                 강제 새로고침
               </button>
               을 눌러 주세요.
             </p>
           </div>
+          <MutationAlert
+            error={syncSlots.error}
+            isSuccess={syncSlots.isSuccess}
+            errorTitle="슬롯 개수를 새로고침하지 못했습니다"
+            successMessage={syncSuccessMessage}
+            onClose={syncSlots.reset}
+            className="-mt-2"
+          />
         </CardContent>
       </Card>
       {isOverLimit && (
