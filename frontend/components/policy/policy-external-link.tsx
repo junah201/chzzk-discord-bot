@@ -19,10 +19,7 @@ export function PolicyExternalLink({
   return (
     <div
       {...props}
-      className={cn(
-        "bg-card border border-border rounded-lg p-4 hover:border-primary/50 transition-colors",
-        className,
-      )}
+      className={cn("bg-card border border-border rounded-lg p-4", className)}
     >
       <strong className="block mb-2 text-primary">{title}</strong>
       {description && <p className="text-sm mb-1">{description}</p>}

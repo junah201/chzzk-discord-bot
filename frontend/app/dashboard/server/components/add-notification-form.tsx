@@ -49,7 +49,7 @@ export default function AddNotificationForm({
           </p>
         </div>
       </div>
-      <Card className="bg-card border-border transition-all duration-300 group hover:border-primary/50 h-full flex flex-col z-10 @container">
+      <Card className="bg-card border-border h-full flex flex-col z-10 @container">
         <CardContent className="grid gap-8 @5xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
           <div className="flex flex-col gap-4">
             <NotificationForm

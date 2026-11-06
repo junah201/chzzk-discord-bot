@@ -96,7 +96,7 @@ function Tile({
     <motion.article
       {...reveal(delay)}
       className={cn(
-        "group flex flex-col gap-6 rounded-2xl border border-border bg-card/60 p-6 transition-colors hover:border-primary/40 sm:p-7",
+        "flex flex-col gap-6 rounded-2xl border border-border bg-card/60 p-6 sm:p-7",
         className,
       )}
     >

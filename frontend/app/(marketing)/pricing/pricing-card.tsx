@@ -27,13 +27,11 @@ export default function PricingCard({ plan, index }: PricingCardProps) {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: index * 0.05 }}
-      className="group relative"
+      className="relative"
     >
       <Card
         className={cn(
           "h-full bg-card border border-border rounded-2xl p-6 sm:p-8",
-          "transition-all duration-300",
-          "hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10",
           plan.isRecommended && "border-2 border-primary/50",
         )}
       >
