@@ -7,6 +7,7 @@ import {
   NotificationPreview,
   NotificationPreviewLive,
 } from "@/components/discord/notification-preview";
+import { DISCORD_COLORS } from "@/lib/discord";
 
 const DEMO_LIVE: NotificationPreviewLive = {
   channelName: "스트리머",
@@ -33,12 +34,18 @@ export function HeroNotification() {
     <div
       ref={ref}
       className="relative mx-auto max-w-2xl overflow-hidden rounded-xl border border-white/10 text-left shadow-2xl shadow-black/60"
-      style={{ backgroundColor: "#313338" }}
+      style={{ backgroundColor: DISCORD_COLORS.bg }}
     >
-      <div className="flex h-12 items-center gap-2 border-b border-black/30 px-4 text-[#f2f3f5] shadow-sm">
-        <Hash className="size-5 text-[#80848e]" />
+      <div
+        className="flex h-12 items-center gap-2 border-b border-black/30 px-4 shadow-sm"
+        style={{ color: DISCORD_COLORS.header }}
+      >
+        <Hash className="size-5" style={{ color: DISCORD_COLORS.icon }} />
         <span className="font-semibold">방송-알림</span>
-        <div className="ml-auto flex items-center gap-4 text-[#b5bac1]">
+        <div
+          className="ml-auto flex items-center gap-4"
+          style={{ color: DISCORD_COLORS.interactive }}
+        >
           <Bell className="size-5" />
           <Users className="size-5" />
         </div>
@@ -46,14 +53,27 @@ export function HeroNotification() {
 
       <div className="flex min-h-[26rem] flex-col justify-end pt-6 pb-2 sm:min-h-[682px]">
         {/* 알림 전의 평범한 대화 */}
-        <div className="flex gap-4 px-4 py-2 text-[15px] leading-[1.375rem] text-[#dbdee1]">
-          <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-[#f47b67] font-semibold text-white">
+        <div
+          className="flex gap-4 px-4 py-2 text-[15px] leading-[1.375rem]"
+          style={{ color: DISCORD_COLORS.text }}
+        >
+          <div
+            className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full font-semibold text-white"
+            style={{ backgroundColor: DISCORD_COLORS.avatar }}
+          >
             시
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-medium text-[#f2f3f5]">시청자</span>
-              <span className="text-xs text-[#949ba4]">오늘 오후 7:58</span>
+              <span
+                className="font-medium"
+                style={{ color: DISCORD_COLORS.header }}
+              >
+                시청자
+              </span>
+              <span className="text-xs" style={{ color: DISCORD_COLORS.muted }}>
+                오늘 오후 7:58
+              </span>
             </div>
             <p>오늘 방송 언제 켜지려나…</p>
           </div>
@@ -76,14 +96,18 @@ export function HeroNotification() {
         </AnimatePresence>
 
         {/* 입력 중 표시 */}
-        <div className="flex h-6 items-center gap-1.5 px-4 text-xs text-[#dbdee1]">
+        <div
+          className="flex h-6 items-center gap-1.5 px-4 text-xs"
+          style={{ color: DISCORD_COLORS.text }}
+        >
           {isInView && !arrived && (
             <>
               <span className="flex gap-0.5">
                 {[0, 1, 2].map((dot) => (
                   <motion.span
                     key={dot}
-                    className="size-1.5 rounded-full bg-[#dbdee1]"
+                    className="size-1.5 rounded-full"
+                    style={{ backgroundColor: DISCORD_COLORS.text }}
                     animate={{ opacity: [0.3, 1, 0.3] }}
                     transition={{
                       duration: 1,

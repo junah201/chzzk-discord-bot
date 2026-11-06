@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { Bell, Radio, Zap } from "lucide-react";
+import { DISCORD_COLORS } from "@/lib/discord";
 import { cn } from "@/lib/utils";
 
 const reveal = (delay = 0) => ({
@@ -20,9 +21,7 @@ export function Features() {
             {...reveal()}
             className="break-keep lg:sticky lg:top-32 lg:self-start"
           >
-            <p className="mb-5 text-sm font-semibold text-primary">
-              핵심 기능
-            </p>
+            <p className="mb-5 text-sm font-semibold text-primary">핵심 기능</p>
             <h2 className="text-4xl leading-[1.15] font-bold tracking-tight sm:text-5xl">
               방송 시작을
               <br />
@@ -182,9 +181,17 @@ function CustomChips() {
           className={cn(
             "rounded-md px-2.5 py-1 text-sm",
             mention
-              ? "bg-[#5865f2]/25 font-medium text-[#c9cdfb]"
+              ? "font-medium"
               : "border border-border/70 bg-background/60 text-foreground/80",
           )}
+          style={
+            mention
+              ? {
+                  backgroundColor: DISCORD_COLORS.mentionBg,
+                  color: DISCORD_COLORS.mentionText,
+                }
+              : undefined
+          }
         >
           {label}
         </span>

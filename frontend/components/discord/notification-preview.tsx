@@ -1,21 +1,8 @@
 import { Fragment } from "react";
 import { ExternalLink, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DEFAULT_EMBED_COLOR, toCssColor } from "@/lib/discord";
+import { DEFAULT_EMBED_COLOR, DISCORD_COLORS, toCssColor } from "@/lib/discord";
 import { getChzzkChannelImageUrl } from "@/lib/urls";
-
-// 디스코드 다크 테마 색상. 사이트 테마와 무관하게 실제 디스코드 화면처럼 보이도록 고정값을 사용
-const DISCORD = {
-  bg: "#313338",
-  embed: "#2b2d31",
-  code: "#1e1f22",
-  text: "#dbdee1",
-  header: "#f2f3f5",
-  muted: "#949ba4",
-  link: "#00a8fc",
-  blurple: "#5865f2",
-  button: "#4e5058",
-};
 
 const MENTION_PATTERN = /(@everyone|@here|<@&\d+>|<@!?\d+>|<#\d+>)/g;
 
@@ -66,15 +53,15 @@ export function NotificationPreview({
         "relative text-left text-[15px] leading-[1.375rem] font-normal",
         className,
       )}
-      style={{ backgroundColor: DISCORD.bg, color: DISCORD.text }}
+      style={{ backgroundColor: DISCORD_COLORS.bg, color: DISCORD_COLORS.text }}
     >
       <div
         className="flex gap-4 px-4 py-2"
         style={
           mentionsEveryone
             ? {
-                backgroundColor: "rgba(240, 178, 50, 0.08)",
-                boxShadow: "inset 2px 0 0 #f0b232",
+                backgroundColor: DISCORD_COLORS.highlightBg,
+                boxShadow: `inset 2px 0 0 ${DISCORD_COLORS.highlightBar}`,
               }
             : undefined
         }
@@ -82,7 +69,10 @@ export function NotificationPreview({
         {customSender ? (
           <div
             className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full border border-dashed"
-            style={{ borderColor: DISCORD.muted, color: DISCORD.muted }}
+            style={{
+              borderColor: DISCORD_COLORS.muted,
+              color: DISCORD_COLORS.muted,
+            }}
             title="웹훅에 설정한 프로필 이미지"
           >
             <UserRound className="size-5" />
@@ -102,22 +92,31 @@ export function NotificationPreview({
             {customSender ? (
               <span
                 className="rounded-[3px] border border-dashed px-1 text-sm font-medium"
-                style={{ borderColor: DISCORD.muted, color: DISCORD.header }}
+                style={{
+                  borderColor: DISCORD_COLORS.muted,
+                  color: DISCORD_COLORS.header,
+                }}
               >
                 웹훅 이름
               </span>
             ) : (
-              <span className="font-medium" style={{ color: DISCORD.header }}>
+              <span
+                className="font-medium"
+                style={{ color: DISCORD_COLORS.header }}
+              >
                 치직
               </span>
             )}
             <span
               className="rounded-[3px] px-[0.275rem] text-[10px] leading-[15px] font-semibold text-white"
-              style={{ backgroundColor: DISCORD.blurple }}
+              style={{ backgroundColor: DISCORD_COLORS.blurple }}
             >
               앱
             </span>
-            <span className="ml-0.5 text-xs" style={{ color: DISCORD.muted }}>
+            <span
+              className="ml-0.5 text-xs"
+              style={{ color: DISCORD_COLORS.muted }}
+            >
               {timestampLabel}
             </span>
           </div>
@@ -129,7 +128,10 @@ export function NotificationPreview({
           )}
 
           {isEmpty && (
-            <p className="text-sm italic" style={{ color: DISCORD.muted }}>
+            <p
+              className="text-sm italic"
+              style={{ color: DISCORD_COLORS.muted }}
+            >
               보낼 내용이 없어 알림이 전송되지 않습니다. 메시지를 입력하거나
               임베드·바로가기 버튼 중 하나는 표시해 주세요.
             </p>
@@ -139,7 +141,7 @@ export function NotificationPreview({
             <div
               className="mt-1 grid max-w-[432px] rounded-[4px] border-l-4 py-2 pr-4 pl-3"
               style={{
-                backgroundColor: DISCORD.embed,
+                backgroundColor: DISCORD_COLORS.embed,
                 borderColor: toCssColor(embedColor),
               }}
             >
@@ -153,7 +155,7 @@ export function NotificationPreview({
                 />
                 <span
                   className="text-sm font-semibold"
-                  style={{ color: DISCORD.header }}
+                  style={{ color: DISCORD_COLORS.header }}
                 >
                   {live.channelName}
                 </span>
@@ -161,7 +163,7 @@ export function NotificationPreview({
 
               <p
                 className="mt-2 font-semibold break-words"
-                style={{ color: DISCORD.link }}
+                style={{ color: DISCORD_COLORS.link }}
               >
                 {live.title}
               </p>
@@ -178,7 +180,7 @@ export function NotificationPreview({
                         <code
                           key={tag}
                           className="rounded-[4px] px-1 py-px text-[0.85em]"
-                          style={{ backgroundColor: DISCORD.code }}
+                          style={{ backgroundColor: DISCORD_COLORS.code }}
                         >
                           {tag}
                         </code>
@@ -190,7 +192,10 @@ export function NotificationPreview({
 
               <LiveThumbnail live={live} />
 
-              <p className="mt-2 text-xs" style={{ color: DISCORD.muted }}>
+              <p
+                className="mt-2 text-xs"
+                style={{ color: DISCORD_COLORS.muted }}
+              >
                 chzzk.junah.dev • {timestampLabel}
               </p>
             </div>
@@ -200,7 +205,7 @@ export function NotificationPreview({
             <div className="mt-1 py-0.5">
               <span
                 className="inline-flex h-8 items-center gap-2 rounded-[3px] px-4 text-sm font-medium text-white"
-                style={{ backgroundColor: DISCORD.button }}
+                style={{ backgroundColor: DISCORD_COLORS.button }}
               >
                 바로가기
                 <ExternalLink className="size-4" />
@@ -222,7 +227,7 @@ function EmbedField({
 }) {
   return (
     <div>
-      <p className="font-semibold" style={{ color: DISCORD.header }}>
+      <p className="font-semibold" style={{ color: DISCORD_COLORS.header }}>
         {name}
       </p>
       <div>{children}</div>
@@ -251,7 +256,10 @@ function MessageContent({
       <span
         key={index}
         className="rounded-[3px] px-0.5 font-medium"
-        style={{ backgroundColor: "rgba(88, 101, 242, 0.3)", color: "#c9cdfb" }}
+        style={{
+          backgroundColor: DISCORD_COLORS.mentionBg,
+          color: DISCORD_COLORS.mentionText,
+        }}
       >
         {label}
       </span>
@@ -298,7 +306,10 @@ function LiveThumbnail({ live }: { live: NotificationPreviewLive }) {
           className="size-14 rounded-full object-cover ring-2 ring-[#00e570]/60 ring-offset-4 ring-offset-transparent"
         />
       </div>
-      <span className="absolute top-2 left-2 rounded-[3px] bg-[#e5172d] px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-white">
+      <span
+        className="absolute top-2 left-2 rounded-[3px] px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-white"
+        style={{ backgroundColor: DISCORD_COLORS.live }}
+      >
         LIVE
       </span>
     </div>
