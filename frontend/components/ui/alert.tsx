@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { AlertCircle, CheckCircle2, Info, X } from "lucide-react";
@@ -5,7 +7,7 @@ import { AlertCircle, CheckCircle2, Info, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const alertVariants = cva(
-  "relative flex w-full items-start gap-3 rounded-lg border p-4 text-sm motion-safe:animate-shake",
+  "relative flex w-full items-start gap-3 rounded-lg border p-4 text-sm scroll-mt-20 scroll-mb-6 motion-safe:animate-shake",
   {
     variants: {
       variant: {
@@ -40,9 +42,15 @@ function Alert({
   ...props
 }: AlertProps) {
   const Icon = ICONS[variant ?? "default"];
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    ref.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, []);
 
   return (
     <div
+      ref={ref}
       data-slot="alert"
       role={variant === "destructive" ? "alert" : "status"}
       className={cn(alertVariants({ variant }), className)}

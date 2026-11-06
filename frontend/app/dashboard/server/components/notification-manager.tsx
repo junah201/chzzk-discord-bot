@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { fromNow, formatDate } from "@/lib/date";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "motion/react";
@@ -50,16 +50,6 @@ export default function NotificationManager({
   });
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [feedbackKey, setFeedbackKey] = useState(0);
-  const feedbackRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (feedback) {
-      feedbackRef.current?.scrollIntoView({
-        block: "nearest",
-        behavior: "smooth",
-      });
-    }
-  }, [feedback]);
 
   const handleFeedback = (next: Feedback) => {
     setFeedback(next);
@@ -85,20 +75,18 @@ export default function NotificationManager({
       </div>
 
       {feedback && (
-        <div ref={feedbackRef} className="scroll-mt-6">
-          <Alert
-            key={feedbackKey}
-            variant={feedback.variant}
-            onClose={() => setFeedback(null)}
-          >
-            <AlertTitle>{feedback.title}</AlertTitle>
-            {feedback.description && (
-              <AlertDescription className="whitespace-pre-line">
-                {feedback.description}
-              </AlertDescription>
-            )}
-          </Alert>
-        </div>
+        <Alert
+          key={feedbackKey}
+          variant={feedback.variant}
+          onClose={() => setFeedback(null)}
+        >
+          <AlertTitle>{feedback.title}</AlertTitle>
+          {feedback.description && (
+            <AlertDescription className="whitespace-pre-line">
+              {feedback.description}
+            </AlertDescription>
+          )}
+        </Alert>
       )}
 
       <div className="">
