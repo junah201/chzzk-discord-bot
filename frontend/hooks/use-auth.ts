@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { authMutations } from "@/queries/auth";
@@ -12,6 +12,7 @@ const OAUTH_STATE_KEY = "discord-oauth-state";
 
 export const useAuth = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const loginWithDiscord = useCallback(() => {
     sendGAEvent("event", "login_attempt");
@@ -45,10 +46,11 @@ export const useAuth = () => {
 
   const logout = useCallback(() => {
     removeCookie(ACCESS_TOKEN.key);
+    queryClient.clear();
     sendGAEvent("event", "logout");
     toast.success("로그아웃했습니다.");
     router.replace(routeMap.HOME);
-  }, [router]);
+  }, [queryClient, router]);
 
   const { mutate: exchangeCode } = loginMutation;
 
