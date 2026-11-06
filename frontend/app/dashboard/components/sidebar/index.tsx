@@ -8,7 +8,10 @@ import SidebarNavigation from "./sidebar-navigation";
 
 export function DashboardSidebar() {
   return (
-    <div className="flex flex-col h-full bg-sidebar border-r border-sidebar-border">
+    <nav
+      aria-label="대시보드"
+      className="flex flex-col h-full bg-sidebar border-r border-sidebar-border"
+    >
       <div className="p-6 ">
         <Logo size="md" />
       </div>
@@ -22,6 +25,6 @@ export function DashboardSidebar() {
       <div className="p-3">
         <Profile />
       </div>
-    </div>
+    </nav>
   );
 }
