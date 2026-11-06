@@ -179,7 +179,7 @@ export function NotificationPreview({
                       {tags.map((tag) => (
                         <code
                           key={tag}
-                          className="rounded-[4px] px-1 py-px text-[0.85em]"
+                          className="rounded-[4px] px-1 py-px font-[inherit] text-[0.85em] leading-[18px]"
                           style={{ backgroundColor: DISCORD_COLORS.code }}
                         >
                           {tag}
