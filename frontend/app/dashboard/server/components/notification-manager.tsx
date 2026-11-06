@@ -29,7 +29,8 @@ import { cn } from "@/lib/utils";
 import { useNotificationActions } from "@/hooks/use-notifications";
 import DeleteNotificationDialog from "./delete-notification-dialog";
 import EditNotificationDialog from "./edit-notification-dialog";
-import { Check, Copy, ExternalLink, Loader2, Send } from "lucide-react";
+import { ExternalLink, Loader2, Send } from "lucide-react";
+import CopyButton from "@/components/copy-button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { getErrorMessage } from "@/lib/api-error";
@@ -182,36 +183,18 @@ function NotificationTable({
 }
 
 function ChzzkIdCopyButton({ chzzkId }: { chzzkId: string }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(chzzkId);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error("치지직 채널 ID 복사 실패:", error);
-    }
-  };
-
   const shortenedId = `${chzzkId.slice(0, 4)}…${chzzkId.slice(-4)}`;
 
   return (
-    <button
-      type="button"
-      onClick={handleCopy}
-      title="치지직 채널 ID 복사"
-      aria-label="치지직 채널 ID 복사"
-      className="inline-flex items-center gap-1 w-fit mt-0.5 whitespace-nowrap text-xs text-muted-foreground hover:text-foreground font-mono transition-colors cursor-pointer"
+    <CopyButton
+      value={chzzkId}
+      label="치지직 채널 ID 복사"
+      className="gap-1 w-fit mt-0.5 whitespace-nowrap text-xs font-mono"
+      iconClassName="w-3 h-3"
     >
       <span className="md:hidden">{shortenedId}</span>
       <span className="hidden md:inline">{chzzkId}</span>
-      {copied ? (
-        <Check className="w-3 h-3 text-green-500" />
-      ) : (
-        <Copy className="w-3 h-3" />
-      )}
-    </button>
+    </CopyButton>
   );
 }
 

@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import CopyButton from "@/components/copy-button";
 import { routeMap } from "@/constants/route-map";
 import { getDiscordIconUrl } from "@/lib/urls";
 import { Guild } from "@/types/api";
-import { ArrowLeft, Check, Copy } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 
@@ -14,18 +14,6 @@ interface ServerHeaderProps {
 }
 
 export default function ServerHeader({ server }: ServerHeaderProps) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopyId = async () => {
-    try {
-      await navigator.clipboard.writeText(server.id);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error("서버 ID 복사 실패:", error);
-    }
-  };
-
   return (
     <div className="border-b border-border bg-background/95 backdrop-blur-lg">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -64,18 +52,14 @@ export default function ServerHeader({ server }: ServerHeaderProps) {
                 <span className="hidden sm:inline text-muted-foreground/40">
                   •
                 </span>
-                <button
-                  onClick={handleCopyId}
-                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground bg-muted/50 hover:bg-muted px-2 py-1 rounded-md transition-colors cursor-pointer"
-                  title="서버 ID 복사"
+                <CopyButton
+                  value={server.id}
+                  label="서버 ID 복사"
+                  className="gap-1.5 text-xs bg-muted/50 hover:bg-muted px-2 py-1 rounded-md"
+                  iconClassName="w-3.5 h-3.5"
                 >
                   <span className="font-mono">ID: {server.id}</span>
-                  {copied ? (
-                    <Check className="w-3.5 h-3.5 text-green-500" />
-                  ) : (
-                    <Copy className="w-3.5 h-3.5" />
-                  )}
-                </button>
+                </CopyButton>
               </div>
             </div>
           </div>
