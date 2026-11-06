@@ -1,7 +1,7 @@
 "use client";
 
 import { CSSProperties, use, useState } from "react";
-import { fromNow, formatDate } from "@/lib/date";
+import { formatDateTime, fromNow } from "@/lib/date";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "motion/react";
 
@@ -253,7 +253,7 @@ function NotificationRow({
                 </div>
               </TooltipTrigger>
               <TooltipContent className="text-xs bg-foreground text-background">
-                {formatDate(n.last_noti_at, "YYYY년 MM월 DD일 HH:mm:ss")}
+                {formatDateTime(n.last_noti_at)}
               </TooltipContent>
             </Tooltip>
 
