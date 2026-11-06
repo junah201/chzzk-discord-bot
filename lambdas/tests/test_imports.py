@@ -34,7 +34,7 @@ def test_finds_lambda_modules():
     # 탐색이 깨져서 아무것도 import하지 않는 상황을 막는다.
     assert "shared" in MODULES
     assert "cron.cleanup_orphan_chzzk_channels" in MODULES
-    assert "api.notifications.post_notification.service" in MODULES
+    assert "api.notifications.create_notification.service" in MODULES
 
 
 @pytest.mark.parametrize("module", MODULES)

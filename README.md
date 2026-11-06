@@ -196,10 +196,10 @@
  ┃ ┣ 📂 bot : 디스코드 인터랙션(슬래시 명령어, 버튼) 처리 (일반 봇 / 관리자 봇)
  ┃ ┣ 📂 cron : 주기적으로 실행되는 작업
  ┃ ┃ ┣ 📂 live_check : 5분마다 방송 상태를 확인하고 알림 전송
- ┃ ┃ ┣ 📂 naver_session_renew : 12시간마다 네이버 세션 갱신
+ ┃ ┃ ┣ 📂 renew_naver_sessions : 12시간마다 네이버 세션 갱신
  ┃ ┃ ┣ 📂 sync_koreanbots_stats : 12시간마다 한디리(KoreanBots) 통계 동기화
  ┃ ┃ ┣ 📂 cleanup_orphan_chzzk_channels : 매월 알림이 없는 치지직 채널 정리
- ┃ ┃ ┗ 📂 weekly_report : 매주 통계 리포트 전송
+ ┃ ┃ ┗ 📂 send_weekly_report : 매주 통계 리포트 전송
  ┃ ┣ 📂 admin : 관리자가 직접 실행하는 작업 (치지직 채널 팔로우 해제 등)
  ┃ ┣ 📂 shared : Lambda 함수들이 함께 쓰는 공통 코드
  ┃ ┗ 📂 tests : pytest 테스트 (lambdas 구조와 동일)

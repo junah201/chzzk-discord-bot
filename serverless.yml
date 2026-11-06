@@ -52,11 +52,11 @@ provider:
           Action:
             - logs:StartQuery
           Resource:
-            - "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/post_notification_v2:*"
-            - "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/delete_notification_v2:*"
-            - "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/update_notification_v2:*"
+            - "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/create_notification:*"
+            - "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/delete_notification:*"
+            - "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/update_notification:*"
             - "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/live_check_v2:*"
-            - "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/sync_koreanbots_stats_v2:*"
+            - "arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/sync_koreanbots_stats:*"
         - Effect: Allow
           Action:
             - logs:GetQueryResults
@@ -73,9 +73,9 @@ custom:
     slim: true
 
 functions:
-  event_handler:
-    handler: lambdas/bot/event_handler.handler
-    name: event_handler_v2
+  discord_interactions:
+    handler: lambdas/bot/discord_interactions.handler
+    name: discord_interactions
     description: 디스코드 봇의 슬래시 명령어와 인터랙션을 처리합니다.
     events:
       - http:
@@ -84,9 +84,9 @@ functions:
     layers:
       - ${self:custom.layers.pynacl}
 
-  admin_event_handler:
-    handler: lambdas/bot/admin_event_handler.handler
-    name: admin_event_handler
+  admin_discord_interactions:
+    handler: lambdas/bot/admin_discord_interactions.handler
+    name: admin_discord_interactions
     description: 관리자 봇 명령어로 슬롯 구매와 구독을 처리합니다.
     events:
       - http:
@@ -95,9 +95,9 @@ functions:
     layers:
       - ${self:custom.layers.pynacl}
 
-  discord_oauth2_redirect:
-    handler: lambdas/api/auth/discord_oauth2_redirect.handler
-    name: discord_oauth2_redirect_v2
+  exchange_oauth2_token:
+    handler: lambdas/api/auth/exchange_oauth2_token.handler
+    name: exchange_oauth2_token
     description: 디스코드 OAuth2 인가 코드를 액세스 토큰으로 교환합니다.
     events:
       - http:
@@ -105,9 +105,9 @@ functions:
           method: post
           cors: true
 
-  discord_me:
-    handler: lambdas/api/auth/discord_me.handler
-    name: discord_me_v2
+  get_me:
+    handler: lambdas/api/auth/get_me.handler
+    name: get_me
     description: 로그인한 사용자의 디스코드 프로필을 가져옵니다.
     events:
       - http:
@@ -115,9 +115,9 @@ functions:
           method: get
           cors: true
 
-  discord_guilds:
-    handler: lambdas/api/guilds/discord_guilds.handler
-    name: discord_guilds_v2
+  list_guilds:
+    handler: lambdas/api/guilds/list_guilds.handler
+    name: list_guilds
     description: 사용자가 관리자인 디스코드 서버 목록을 가져옵니다.
     events:
       - http:
@@ -125,9 +125,9 @@ functions:
           method: get
           cors: true
 
-  discord_guild_by_id:
-    handler: lambdas/api/guilds/discord_guild_by_id.handler
-    name: discord_guild_by_id_v2
+  get_guild:
+    handler: lambdas/api/guilds/get_guild.handler
+    name: get_guild
     description: 디스코드 서버 정보를 가져옵니다. 봇이 없는 서버면 오류를 반환합니다.
     events:
       - http:
@@ -137,7 +137,7 @@ functions:
 
   sync_guild_slots:
     handler: lambdas/api/guilds/sync_guild_slots.handler
-    name: sync_guild_slots_v2
+    name: sync_guild_slots
     description: 실제 알림 수를 다시 세서 디스코드 서버의 사용 중인 슬롯 수를 맞춥니다.
     events:
       - http:
@@ -145,9 +145,9 @@ functions:
           method: post
           cors: true
 
-  get_guild_channels:
-    handler: lambdas/api/guilds/get_guild_channels.handler
-    name: get_guild_channels_v2
+  list_guild_channels:
+    handler: lambdas/api/guilds/list_guild_channels.handler
+    name: list_guild_channels
     description: 디스코드 서버의 채널 목록을 가져옵니다. 봇이 없는 서버면 오류를 반환합니다.
     events:
       - http:
@@ -155,9 +155,9 @@ functions:
           method: get
           cors: true
 
-  post_notification:
-    handler: lambdas/api/notifications/post_notification.handler
-    name: post_notification_v2
+  create_notification:
+    handler: lambdas/api/notifications/create_notification.handler
+    name: create_notification
     description: 치지직 채널 알림을 등록하고 네이버 계정이 그 채널을 팔로우하게 합니다.
     events:
       - http:
@@ -165,9 +165,9 @@ functions:
           method: post
           cors: true
 
-  get_notification_by_guild_id:
-    handler: lambdas/api/notifications/get_notification_by_guild_id.handler
-    name: get_notification_by_guild_id_v2
+  list_guild_notifications:
+    handler: lambdas/api/notifications/list_guild_notifications.handler
+    name: list_guild_notifications
     description: 디스코드 서버에 등록된 알림 목록을 가져옵니다.
     events:
       - http:
@@ -177,7 +177,7 @@ functions:
 
   delete_notification:
     handler: lambdas/api/notifications/delete_notification.handler
-    name: delete_notification_v2
+    name: delete_notification
     description: 알림을 삭제하고 디스코드 서버의 사용 중인 슬롯 수를 줄입니다.
     events:
       - http:
@@ -187,7 +187,7 @@ functions:
 
   send_test_notification:
     handler: lambdas/api/notifications/send_test_notification.handler
-    name: send_test_notification_v2
+    name: send_test_notification
     description: 등록된 알림 설정 그대로 테스트 메시지를 보냅니다.
     events:
       - http:
@@ -197,7 +197,7 @@ functions:
 
   update_notification:
     handler: lambdas/api/notifications/update_notification.handler
-    name: update_notification_v2
+    name: update_notification
     description: 알림 설정(메시지, 표시 옵션 등)을 수정합니다.
     events:
       - http:
@@ -205,6 +205,7 @@ functions:
           method: put
           cors: true
 
+  # TODO: debug 로그로 실행 시간 분석이 끝나면(2026-11-14쯤) check_live_streams로 이름을 바꾸고 _v2를 제거
   live_check:
     handler: lambdas/cron/live_check.handler
     name: live_check_v2
@@ -256,9 +257,9 @@ functions:
           input:
             index: 6
 
-  naver_session_renew:
-    handler: lambdas/cron/naver_session_renew.handler
-    name: naver_session_renew_v2
+  renew_naver_sessions:
+    handler: lambdas/cron/renew_naver_sessions.handler
+    name: renew_naver_sessions
     description: 주기적으로 네이버 계정의 세션 쿠키를 갱신합니다.
     timeout: 60
     maximumRetryAttempts: 0
@@ -269,7 +270,7 @@ functions:
 
   sync_koreanbots_stats:
     handler: lambdas/cron/sync_koreanbots_stats.handler
-    name: sync_koreanbots_stats_v2
+    name: sync_koreanbots_stats
     description: 주기적으로 봇의 서버 수를 한국 디스코드 리스트(KoreanBots)에 올립니다.
     maximumRetryAttempts: 0
     events:
@@ -279,7 +280,7 @@ functions:
 
   cleanup_orphan_chzzk_channels:
     handler: lambdas/cron/cleanup_orphan_chzzk_channels.handler
-    name: cleanup_orphan_chzzk_channels_v2
+    name: cleanup_orphan_chzzk_channels
     description: 주기적으로 알림이 없는 치지직 채널의 팔로우를 해제하고 삭제한 뒤 보고서를 보냅니다.
     timeout: 600
     memorySize: 256
@@ -290,9 +291,9 @@ functions:
           rate: cron(30 5 1 * ? *) # 매월 1일 05:30 KST
           timezone: Asia/Seoul
 
-  weekly_report:
-    handler: lambdas/cron/weekly_report.handler
-    name: weekly_report_v2
+  send_weekly_report:
+    handler: lambdas/cron/send_weekly_report.handler
+    name: send_weekly_report
     description: 주기적으로 주간 운영 리포트를 디스코드 채널에 보냅니다.
     timeout: 600
     maximumRetryAttempts: 0
@@ -302,9 +303,9 @@ functions:
           rate: cron(0 1 ? * MON *) # 매주 월요일 01:00 KST
           timezone: Asia/Seoul
 
-  subscription_expiry:
-    handler: lambdas/cron/subscription_expiry.handler
-    name: subscription_expiry_v2
+  expire_subscriptions:
+    handler: lambdas/cron/expire_subscriptions.handler
+    name: expire_subscriptions
     description: 주기적으로 만료된 구독을 종료하고 디스코드 서버의 슬롯 한도를 되돌립니다.
     timeout: 300
     maximumRetryAttempts: 0
@@ -314,9 +315,9 @@ functions:
           rate: cron(5 0 * * ? *) # 매일 00:05 KST
           timezone: Asia/Seoul
 
-  chzzk_unfollow:
-    handler: lambdas/admin/chzzk_unfollow.handler
-    name: chzzk_unfollow_v2
+  unfollow_chzzk_channel:
+    handler: lambdas/admin/unfollow_chzzk_channel.handler
+    name: unfollow_chzzk_channel
     description: 치지직 채널 팔로우를 수동으로 해제합니다. 관리자가 직접 호출합니다.
 
 package:
