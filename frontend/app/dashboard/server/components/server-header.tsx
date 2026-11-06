@@ -31,7 +31,7 @@ export default function ServerHeader({ server }: ServerHeaderProps) {
           </Link>
 
           <div className="flex items-center gap-4 mt-2 lg:mt-0">
-            <Avatar className="w-20 h-20 border-2 border-primary/30">
+            <Avatar className="w-20 h-20 shrink-0 border-2 border-primary/30">
               <AvatarImage
                 src={getDiscordIconUrl(server.id, server.icon)}
                 alt={server.name}
@@ -40,8 +40,8 @@ export default function ServerHeader({ server }: ServerHeaderProps) {
                 {server.name.slice(0, 2)}
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1">
-              <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-3xl sm:text-4xl font-bold text-foreground break-words">
                 {server.name}
               </h1>
 
