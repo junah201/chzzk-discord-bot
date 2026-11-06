@@ -56,29 +56,32 @@ export interface LogoProps
   extends Omit<HTMLMotionProps<"a">, "size">,
     VariantProps<typeof logoVariants> {
   showText?: boolean;
+  ref?: React.Ref<HTMLAnchorElement>;
 }
 
-const Logo = React.forwardRef<HTMLAnchorElement, LogoProps>(
-  ({ className, size, showText = true, ...props }, ref) => {
-    return (
-      <MotionLink
-        ref={ref}
-        href={routeMap.HOME}
-        className={cn(logoVariants({ size, className }))}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        {...props}
-      >
-        <div className="relative flex items-center justify-center">
-          <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full group-hover:bg-primary/30 transition-all" />
-          <Zap className={cn(iconVariants({ size }))} fill="currentColor" />
-        </div>
-        {showText && <span className={cn(textVariants({ size }))}>치직</span>}
-      </MotionLink>
-    );
-  },
-);
-
-Logo.displayName = "Logo";
+const Logo = ({
+  className,
+  size,
+  showText = true,
+  ref,
+  ...props
+}: LogoProps) => {
+  return (
+    <MotionLink
+      ref={ref}
+      href={routeMap.HOME}
+      className={cn(logoVariants({ size, className }))}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      {...props}
+    >
+      <div className="relative flex items-center justify-center">
+        <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full group-hover:bg-primary/30 transition-all" />
+        <Zap className={cn(iconVariants({ size }))} fill="currentColor" />
+      </div>
+      {showText && <span className={cn(textVariants({ size }))}>치직</span>}
+    </MotionLink>
+  );
+};
 
 export { Logo, logoVariants };

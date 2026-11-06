@@ -42,6 +42,7 @@ export interface ButtonProps
   extends Omit<HTMLMotionProps<"button">, "size" | "children">,
     VariantProps<typeof buttonVariants> {
   children: React.ReactNode;
+  ref?: React.Ref<HTMLButtonElement>;
 }
 
 const ButtonInnerContent = ({
@@ -75,22 +76,26 @@ const ButtonInnerContent = ({
   </>
 );
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, effect, children, ...props }, ref) => {
-    return (
-      <motion.button
-        className={cn(buttonVariants({ variant, size, effect, className }))}
-        ref={ref}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        {...props}
-      >
-        <ButtonInnerContent effect={effect}>{children}</ButtonInnerContent>
-      </motion.button>
-    );
-  },
-);
-
-Button.displayName = "Button";
+const Button = ({
+  className,
+  variant,
+  size,
+  effect,
+  children,
+  ref,
+  ...props
+}: ButtonProps) => {
+  return (
+    <motion.button
+      className={cn(buttonVariants({ variant, size, effect, className }))}
+      ref={ref}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      {...props}
+    >
+      <ButtonInnerContent effect={effect}>{children}</ButtonInnerContent>
+    </motion.button>
+  );
+};
 
 export { Button, ButtonInnerContent, buttonVariants };
