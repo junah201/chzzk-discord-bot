@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Lock, Sparkles } from "lucide-react";
+import { ArrowRight, Lock } from "lucide-react";
 
 import routeMap from "@/constants/route-map";
 import { cn } from "@/lib/utils";
@@ -20,11 +20,7 @@ export default function SubscriberSection({
     >
       <div className="flex items-center justify-between gap-3 border-b border-primary/15 bg-primary/5 px-4 py-2.5">
         <div className="flex items-center gap-2 text-sm font-medium">
-          {locked ? (
-            <Lock className="size-3.5 text-primary" />
-          ) : (
-            <Sparkles className="size-3.5 text-primary" />
-          )}
+          {locked && <Lock className="size-3.5 text-primary" />}
           구독자 전용
           {locked && (
             <span className="hidden font-normal text-muted-foreground sm:inline">
