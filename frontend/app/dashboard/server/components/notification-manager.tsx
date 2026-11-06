@@ -49,6 +49,7 @@ export default function NotificationManager({
     meta: { inlineError: true },
   });
   const [feedback, setFeedback] = useState<Feedback | null>(null);
+  const [feedbackKey, setFeedbackKey] = useState(0);
   const feedbackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -59,6 +60,11 @@ export default function NotificationManager({
       });
     }
   }, [feedback]);
+
+  const handleFeedback = (next: Feedback) => {
+    setFeedback(next);
+    setFeedbackKey((key) => key + 1);
+  };
 
   const notifications = Array.isArray(data) ? data : [];
 
@@ -80,7 +86,11 @@ export default function NotificationManager({
 
       {feedback && (
         <div ref={feedbackRef} className="scroll-mt-6">
-          <Alert variant={feedback.variant} onClose={() => setFeedback(null)}>
+          <Alert
+            key={feedbackKey}
+            variant={feedback.variant}
+            onClose={() => setFeedback(null)}
+          >
             <AlertTitle>{feedback.title}</AlertTitle>
             {feedback.description && (
               <AlertDescription className="whitespace-pre-line">
@@ -117,7 +127,7 @@ export default function NotificationManager({
           <NotificationTable
             notifications={notifications}
             isSubscription={isSubscription}
-            onFeedback={setFeedback}
+            onFeedback={handleFeedback}
           />
         )}
       </div>
