@@ -1,18 +1,10 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Check, Crown, Shield, Star, Zap } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Check } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { pricingPlans } from "./pricing-plans";
-
-const planIcons = {
-  crown: Crown,
-  shield: Shield,
-  star: Star,
-  zap: Zap,
-} as const;
 
 interface PricingCardProps {
   plan: (typeof pricingPlans)[number];
@@ -20,8 +12,6 @@ interface PricingCardProps {
 }
 
 export default function PricingCard({ plan, index }: PricingCardProps) {
-  const PlanIcon = planIcons[plan.icon];
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -31,73 +21,48 @@ export default function PricingCard({ plan, index }: PricingCardProps) {
     >
       <Card
         className={cn(
-          "h-full bg-card border border-border rounded-2xl p-6 sm:p-8",
+          "h-full gap-0 rounded-2xl p-6 sm:p-8",
           plan.isRecommended && "border-2 border-primary/50",
         )}
       >
-        {plan.badge && (
-          <div className="mb-4 flex items-center gap-2 flex-wrap">
-            <Badge
-              variant="outline"
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-base font-semibold text-foreground break-keep">
+            {plan.name}
+          </h3>
+          {plan.tag && (
+            <span className="shrink-0 rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-medium text-primary">
+              {plan.tag}
+            </span>
+          )}
+        </div>
+
+        <p className="mt-4 flex items-baseline gap-1.5">
+          <span className="text-4xl font-bold tracking-tight text-foreground tabular-nums">
+            {plan.price}
+          </span>
+          {plan.unit && (
+            <span className="text-sm text-muted-foreground">/ {plan.unit}</span>
+          )}
+        </p>
+
+        <p className="mt-3 text-sm text-muted-foreground break-keep">
+          {plan.description}
+        </p>
+
+        <ul className="mt-6 space-y-3 border-t border-border pt-6 text-sm text-muted-foreground">
+          {plan.features.map((feature, idx) => (
+            <li
+              key={idx}
               className={cn(
-                "text-xs font-medium px-3 py-1",
-                plan.isRecommended || plan.isPopular
-                  ? "border-primary/50 text-primary"
-                  : "border-border/50 text-muted-foreground",
+                "flex items-start gap-2",
+                idx === 0 && "font-medium text-foreground",
               )}
             >
-              {plan.badge}
-            </Badge>
-            {plan.isPopular && (
-              <span className="text-xs bg-primary/20 text-primary rounded-full px-2 py-0.5">
-                인기
-              </span>
-            )}
-            {plan.isRecommended && (
-              <span className="text-xs bg-primary/20 text-primary rounded-full px-2 py-0.5">
-                추천
-              </span>
-            )}
-          </div>
-        )}
-
-        <div
-          className={cn(
-            "mb-6 flex size-12 items-center justify-center rounded-xl border",
-            plan.isRecommended
-              ? "border-primary/40 bg-primary/15 text-primary"
-              : "border-border bg-secondary text-foreground/80",
-          )}
-        >
-          <PlanIcon className="size-6" />
-        </div>
-
-        <CardHeader className="px-0 pt-0 pb-4">
-          <CardTitle className="text-2xl xl:text-xl font-bold text-foreground mb-2 break-keep">
-            {plan.name}
-          </CardTitle>
-          <CardTitle className="text-lg font-semibold text-primary mb-1">
-            {plan.price}
-          </CardTitle>
-          <CardTitle className="text-sm text-muted-foreground font-normal">
-            {plan.period}
-          </CardTitle>
-        </CardHeader>
-
-        <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
-
-        <div className="mb-4 px-4 py-3 bg-secondary/50 rounded-lg border border-border/50">
-          <p className="text-sm font-semibold text-primary">{plan.slotsText}</p>
-        </div>
-
-        <CardContent className="px-0 space-y-3 mb-6 text-sm text-muted-foreground">
-          {plan.features.map((feature, idx) => (
-            <div key={idx} className="flex items-start gap-2">
-              <Check className="w-3 h-3 text-primary mt-0.5 shrink-0" />
+              <Check className="mt-0.5 size-4 shrink-0 text-primary" />
               <span>{feature}</span>
-            </div>
+            </li>
           ))}
-        </CardContent>
+        </ul>
       </Card>
     </motion.div>
   );
