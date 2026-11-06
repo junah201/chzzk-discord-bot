@@ -26,6 +26,9 @@ export const CheckboxInput = (props: BasicInputProps) => {
     ...rest
   } = props;
 
+  const labelId = `${name}-label`;
+  const descriptionId = `${name}-description`;
+
   return (
     <FieldLabel>
       <Field orientation="horizontal">
@@ -34,20 +37,23 @@ export const CheckboxInput = (props: BasicInputProps) => {
           name={name}
           checked={value}
           onCheckedChange={onChange}
+          aria-labelledby={label ? labelId : undefined}
+          aria-describedby={descriptionId}
+          aria-required={required}
           {...rest}
         />
         <FieldContent>
           {label && (
-            <FieldTitle id={name} aria-required={required}>
+            <FieldTitle id={labelId}>
               {label} {required ? "*" : ""}
             </FieldTitle>
           )}
           {Boolean(errorMessage) ? (
-            <FieldError>
+            <FieldError id={descriptionId}>
               {errorMessage} {helperText}
             </FieldError>
           ) : (
-            <FieldDescription>{helperText}</FieldDescription>
+            <FieldDescription id={descriptionId}>{helperText}</FieldDescription>
           )}
         </FieldContent>
       </Field>
