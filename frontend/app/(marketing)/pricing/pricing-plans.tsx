@@ -1,5 +1,6 @@
 import routeMap from "@/constants/route-map";
 import Link from "next/link";
+import { Fragment } from "react";
 
 export const pricingPlans = [
   {
@@ -37,7 +38,7 @@ export const pricingPlans = [
     features: [
       "알림 슬롯 250개",
       "실시간 알림",
-      <>
+      <Fragment key="custom-webhook">
         <Link
           href={routeMap.DOCS.CUSTOM_WEBHOOK}
           className="underline hover:text-primary transition-colors "
@@ -45,7 +46,7 @@ export const pricingPlans = [
           커스텀 웹훅
         </Link>{" "}
         기능 지원
-      </>,
+      </Fragment>,
       "임베드 색상 변경",
       "고급 필터링 기능 (지원 예정)",
     ],
