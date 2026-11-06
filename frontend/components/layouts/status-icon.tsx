@@ -5,12 +5,14 @@ interface StatusIconProps {
   icon: ReactNode;
   badge?: ReactNode;
   glowClassName?: string;
+  badgeClassName?: string;
 }
 
 export function StatusIcon({
   icon,
   badge,
   glowClassName = "bg-primary/20",
+  badgeClassName = "bg-destructive text-destructive-foreground",
 }: StatusIconProps) {
   return (
     <>
@@ -23,7 +25,12 @@ export function StatusIcon({
         </div>
 
         {badge && (
-          <div className="absolute -bottom-2 -right-2 bg-destructive text-destructive-foreground p-2 rounded-full border-4 border-background">
+          <div
+            className={cn(
+              "absolute -bottom-2 -right-2 p-2 rounded-full border-4 border-background",
+              badgeClassName,
+            )}
+          >
             <div className="w-6 h-6 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full">
               {badge}
             </div>

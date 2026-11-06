@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { LifeBuoy, Loader2, MessageCircle } from "lucide-react";
+import { SiDiscord } from "@icons-pack/react-simple-icons";
+import { ExternalLink, Loader2 } from "lucide-react";
 import { StatusPageLayout } from "@/components/layouts/status-page-layout";
 import { StatusIcon } from "@/components/layouts/status-icon";
 import { LinkButton } from "@/components/ui/link-button";
@@ -26,9 +27,10 @@ export default function SupportRedirectPage() {
     <StatusPageLayout
       icon={
         <StatusIcon
-          icon={<LifeBuoy />}
+          icon={<SiDiscord />}
           badge={<Loader2 className="animate-spin" />}
-          glowClassName="bg-orange-500/30"
+          glowClassName="bg-primary/30"
+          badgeClassName="bg-primary text-primary-foreground"
         />
       }
       title="서포트 서버로 이동 중..."
@@ -52,7 +54,7 @@ export default function SupportRedirectPage() {
             });
           }}
         >
-          <MessageCircle className="w-5 h-5 mr-2" />
+          <ExternalLink className="w-5 h-5 mr-2" />
           바로 이동하기
         </LinkButton>
       </div>
