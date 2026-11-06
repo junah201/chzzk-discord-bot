@@ -17,8 +17,8 @@ const footerLinks: FooterSection[] = [
   {
     title: "제품",
     links: [
-      { name: "기능", href: "#features" },
-      { name: "통계", href: "#metrics" },
+      { name: "기능", href: "/#features" },
+      { name: "통계", href: "/#metrics" },
       { name: "문서", href: routeMap.DOCS.HOME },
       { name: "요금제", href: routeMap.PRICING },
     ],
