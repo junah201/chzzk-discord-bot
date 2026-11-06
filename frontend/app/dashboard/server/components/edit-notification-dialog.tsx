@@ -83,51 +83,55 @@ export default function EditNotificationDialog({
           <DialogDescription>저장된 알림 설정을 변경합니다.</DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-8 py-4 @5xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
-          <NotificationSettingsFields control={control} />
-          <div className="@5xl:sticky @5xl:top-0 @5xl:self-start">
-            <NotificationPreviewPanel
-              control={control}
-              chzzkName={notification.chzzk_name}
-              chzzkImageUrl={notification.chzzk_image_url}
-            />
+        <form
+          noValidate
+          onSubmit={handleSubmit((data) =>
+            update.mutate(data, {
+              onSuccess: () => {
+                setOpen(false);
+                onFeedback?.({
+                  variant: "success",
+                  title: `${getNotificationLabel(notification)} 알림을 수정했습니다.`,
+                });
+              },
+            }),
+          )}
+          className="flex flex-col gap-4"
+        >
+          <div className="grid gap-8 py-4 @5xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
+            <NotificationSettingsFields control={control} />
+            <div className="@5xl:sticky @5xl:top-0 @5xl:self-start">
+              <NotificationPreviewPanel
+                control={control}
+                chzzkName={notification.chzzk_name}
+                chzzkImageUrl={notification.chzzk_image_url}
+              />
+            </div>
           </div>
-        </div>
 
-        <MutationAlert
-          error={update.error}
-          errorTitle="알림 설정을 저장하지 못했습니다"
-          onClose={update.reset}
-        />
+          <MutationAlert
+            error={update.error}
+            errorTitle="알림 설정을 저장하지 못했습니다"
+            onClose={update.reset}
+          />
 
-        <div className="flex justify-end gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setOpen(false)}
-            disabled={update.isPending}
-          >
-            취소
-          </Button>
-          <Button
-            onClick={handleSubmit((data) =>
-              update.mutate(data, {
-                onSuccess: () => {
-                  setOpen(false);
-                  onFeedback?.({
-                    variant: "success",
-                    title: `${getNotificationLabel(notification)} 알림을 수정했습니다.`,
-                  });
-                },
-              }),
-            )}
-            disabled={update.isPending}
-          >
-            {update.isPending && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            변경사항 저장
-          </Button>
-        </div>
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+              disabled={update.isPending}
+            >
+              취소
+            </Button>
+            <Button type="submit" disabled={update.isPending}>
+              {update.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              변경사항 저장
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );

@@ -49,7 +49,17 @@ export default function AddNotificationForm() {
       </div>
       <Card className="bg-card border-border h-full flex flex-col z-10 @container">
         <CardContent className="grid gap-8 @5xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
-          <div className="flex flex-col gap-4">
+          <form
+            noValidate
+            onSubmit={handleSubmit((data) =>
+              add.mutate(data, {
+                onSuccess: () => {
+                  reset();
+                },
+              }),
+            )}
+            className="flex flex-col gap-4"
+          >
             <NotificationTargetFields control={control} />
             <NotificationSettingsFields control={control} />
             <MutationAlert
@@ -60,13 +70,7 @@ export default function AddNotificationForm() {
               onClose={add.reset}
             />
             <Button
-              onClick={handleSubmit((data) =>
-                add.mutate(data, {
-                  onSuccess: () => {
-                    reset();
-                  },
-                }),
-              )}
+              type="submit"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               disabled={add.isPending}
@@ -78,7 +82,7 @@ export default function AddNotificationForm() {
               )}
               알림 추가
             </Button>
-          </div>
+          </form>
           <div className="@5xl:sticky @5xl:top-6 @5xl:self-start">
             <NotificationPreviewPanel control={control} />
           </div>
