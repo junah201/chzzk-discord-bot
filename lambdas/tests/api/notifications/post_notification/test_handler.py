@@ -225,23 +225,27 @@ class TestValidation:
         get_channel.assert_not_called()
 
     @pytest.mark.parametrize(
-        ("body", "message"),
+        ("body", "code", "message"),
         [
             (
                 {"webhook_url": "https://example.com/hook"},
-                "유효한 디스코드 웹훅 URL을 입력해주세요.",
+                "INVALID_WEBHOOK_URL",
+                "디스코드 웹훅 URL 형식이 아닙니다.",
             ),
             (
                 {"webhook_url": WEBHOOK_URL},
-                "커스텀 웹훅은 활성 월간 정기 구독 서버에서만 사용할 수 있습니다.",
+                "SUBSCRIPTION_REQUIRED",
+                "커스텀 웹훅은 월간 구독 서버 전용 기능입니다.",
             ),
             (
                 {"embed_color": "red"},
-                "임베드 색상은 #RRGGBB 형식 또는 0~16777215 사이의 숫자여야 합니다.",
+                "INVALID_EMBED_COLOR",
+                "임베드 색상은 #RRGGBB 형식으로 입력해 주세요.",
             ),
             (
                 {"embed_color": "#FF0000"},
-                "커스텀 임베드 색상은 활성 월간 정기 구독 서버에서만 사용할 수 있습니다.",
+                "SUBSCRIPTION_REQUIRED",
+                "커스텀 임베드 색상은 월간 구독 서버 전용 기능입니다.",
             ),
         ],
         ids=[
@@ -252,11 +256,12 @@ class TestValidation:
         ],
     )
     def test_subscriber_option_errors(
-        self, ddb, get_channel, verify_webhook, body, message
+        self, ddb, get_channel, verify_webhook, body, code, message
     ):
         res, response = call(**body)
 
         assert res["statusCode"] == 400
+        assert response["code"] == code
         assert response["message"] == message
         get_channel.assert_not_called()
         verify_webhook.assert_not_called()
@@ -290,9 +295,8 @@ class TestDiscordChannel:
         res, body = call()
 
         assert res["statusCode"] == 400
-        assert body["message"].startswith(
-            "봇이 해당 디스코드 채널에 접근할 권한이 없습니다."
-        )
+        assert body["code"] == "BOT_CHANNEL_ACCESS_DENIED"
+        assert body["message"].startswith("치직 봇이 이 채널에 접근할 수 없습니다.")
         follow.assert_not_called()
 
     def test_channel_of_other_guild_is_400(self, get_channel, follow):
@@ -323,9 +327,9 @@ class TestLimitAndChzzk:
         res, body = call()
 
         assert res["statusCode"] == 400
-        assert body["message"] == (
-            "알림 등록 제한을 초과했습니다. (최대 5개 등록 가능 / 현재 5개)"
-        )
+        assert body["code"] == "NOTIFICATION_LIMIT_REACHED"
+        assert (body["max_limit"], body["current_count"]) == (5, 5)
+        assert body["message"] == ("알림 슬롯 5개를 모두 사용했습니다.")
         get_chzzk.assert_not_called()
         follow.assert_not_called()
 
@@ -335,7 +339,10 @@ class TestLimitAndChzzk:
         res, body = call()
 
         assert res["statusCode"] == 400
-        assert body["message"].startswith("해당 치지직 채널을 찾을 수 없습니다.")
+        assert body["code"] == "CHZZK_CHANNEL_NOT_FOUND"
+        assert (
+            body["message"] == "치지직 채널을 찾지 못했습니다. 채널 ID를 확인해 주세요."
+        )
         follow.assert_not_called()
         assert get_item(ddb.table, f"CHZZK#{CHZZK_ID}", f"CHZZK#{CHZZK_ID}") is None
 
@@ -364,32 +371,40 @@ class TestFollow:
         assert get_noti(ddb.table) is None
 
     @pytest.mark.parametrize(
-        ("err_message", "status", "prefix"),
+        ("err_message", "status", "code", "prefix"),
         [
             (
                 "채널에서 영구 활동 제한된 사용자입니다.",
                 400,
+                None,
                 "서비스 내부 계정이 해당 치지직 채널에서 차단되어",
             ),
             (
                 "최대 팔로우 수를 초과했습니다.",
-                400,
-                "현재 서비스 계정의 팔로우 한도가 초과되어",
+                503,
+                "SERVICE_FOLLOW_LIMIT_REACHED",
+                "서비스 계정의 팔로우 한도가 가득 찼습니다.",
             ),
             (
                 "TimeoutError: read timed out",
                 500,
+                None,
                 "치지직 채널 팔로우 처리에 실패했습니다.",
             ),
         ],
         ids=["blocked", "follow-limit", "other"],
     )
-    def test_follow_failure(self, ddb, follow, alert, err_message, status, prefix):
+    def test_follow_failure(
+        self, ddb, follow, alert, err_message, status, code, prefix
+    ):
         follow.return_value = (False, 400, err_message)
 
         res, body = call()
 
         assert res["statusCode"] == status
+        assert body.get("code") == code
+        if code:
+            assert body["account_index"] == 1
         assert body["message"].startswith(prefix)
         assert body["message"].endswith("(1)")
         assert get_noti(ddb.table) is None
@@ -422,8 +437,9 @@ class TestDuplicate:
         res, body = call()
 
         assert res["statusCode"] == 400
+        assert body["code"] == "NOTIFICATION_ALREADY_EXISTS"
         assert body["message"].startswith(
-            "이미 해당 디스코드 채널에 등록된 치지직 채널입니다."
+            "이 디스코드 채널에 이미 등록된 치지직 채널입니다."
         )
         assert get_guild(ddb.table)["current_count"] == 1
 

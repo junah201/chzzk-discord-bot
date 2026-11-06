@@ -5,10 +5,13 @@ from requests import Response
 
 
 class BaseException(Exception):
-    def __init__(self, status_code: int, code: str, message: str):
+    def __init__(
+        self, status_code: int, code: str, message: str, details: dict | None = None
+    ):
         self.status_code = status_code
         self.code = code
         self.message = message
+        self.details = details or {}
         super().__init__(message)
 
     def to_dict(self):
@@ -18,14 +21,20 @@ class BaseException(Exception):
                 {
                     "code": self.code,
                     "message": self.message,
+                    **self.details,
                 }
             ),
         }
 
 
 class BadRequestError(BaseException):
-    def __init__(self, message="잘못된 요청입니다."):
-        super().__init__(400, "INVALID_REQUEST", message)
+    def __init__(
+        self,
+        message="잘못된 요청입니다.",
+        code="INVALID_REQUEST",
+        details: dict | None = None,
+    ):
+        super().__init__(400, code, message, details)
 
 
 class UnauthorizedError(BaseException):
@@ -51,6 +60,58 @@ class BotNotJoinedError(BaseException):
 class ServerNotFoundError(BaseException):
     def __init__(self):
         super().__init__(404, "SERVER_NOT_FOUND", "서버를 찾을 수 없습니다.")
+
+
+class NotificationNotFoundError(BaseException):
+    def __init__(self):
+        super().__init__(
+            404,
+            "NOTIFICATION_NOT_FOUND",
+            "알림을 찾을 수 없습니다. 새로고침 후 다시 시도해 주세요.",
+        )
+
+
+class ChzzkChannelNotFoundError(BaseException):
+    def __init__(
+        self, message="치지직 채널을 찾지 못했습니다. 채널 ID를 확인해 주세요."
+    ):
+        super().__init__(400, "CHZZK_CHANNEL_NOT_FOUND", message)
+
+
+class ChzzkChannelUnavailableError(BaseException):
+    def __init__(
+        self,
+        message="치지직에서 채널 정보를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    ):
+        super().__init__(502, "CHZZK_CHANNEL_UNAVAILABLE", message)
+
+
+class ServiceFollowLimitError(BaseException):
+    def __init__(self, account_index: int):
+        super().__init__(
+            503,
+            "SERVICE_FOLLOW_LIMIT_REACHED",
+            "서비스 계정의 팔로우 한도가 가득 찼습니다. "
+            f"서포트 서버로 문의해 주세요. ({account_index})",
+            {"account_index": account_index},
+        )
+
+
+class SendTestNotificationError(BaseException):
+    def __init__(self, *, via_webhook=False, discord_message: str | None = None):
+        message = (
+            "커스텀 웹훅으로 테스트 알림을 보내지 못했습니다. 웹훅 URL을 확인해 주세요."
+            if via_webhook
+            else "테스트 알림을 보내지 못했습니다. 치직 봇의 채널 권한을 확인해 주세요."
+        )
+        super().__init__(
+            500,
+            "TEST_NOTIFICATION_WEBHOOK_FAILED"
+            if via_webhook
+            else "TEST_NOTIFICATION_FAILED",
+            message,
+            {"discord_message": discord_message} if discord_message else None,
+        )
 
 
 class RateLimitError(BaseException):

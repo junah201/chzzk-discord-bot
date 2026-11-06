@@ -2,6 +2,7 @@ import json
 import logging
 
 import boto3
+from shared.exceptions import BadRequestError
 from shared.notification_dispatcher import is_guild_subscription_active
 
 dynamodb = boto3.client("dynamodb")
@@ -10,11 +11,8 @@ table = boto3.resource("dynamodb").Table("chzzk-bot-db")
 logger = logging.getLogger()
 
 
-def check_guild_limit(guild_id: str) -> tuple[bool, str]:
-    """
-    서버의 알림 등록 제한 검증
-    반환값: (통과 여부, 에러 메시지)
-    """
+def check_guild_limit(guild_id: str) -> None:
+    """서버의 알림 등록 제한 검증. 슬롯이 없으면 BadRequestError를 던진다."""
     guild_res = table.get_item(
         Key={"PK": f"GUILD#{guild_id}", "SK": f"GUILD#{guild_id}"}
     )
@@ -24,12 +22,11 @@ def check_guild_limit(guild_id: str) -> tuple[bool, str]:
     current_count = int(guild_item.get("current_count", 0)) if guild_item else 0
 
     if current_count >= max_limit:
-        return (
-            False,
-            f"알림 등록 제한을 초과했습니다. (최대 {max_limit}개 등록 가능 / 현재 {current_count}개)",
+        raise BadRequestError(
+            f"알림 슬롯 {max_limit}개를 모두 사용했습니다.",
+            code="NOTIFICATION_LIMIT_REACHED",
+            details={"max_limit": max_limit, "current_count": current_count},
         )
-
-    return True, ""
 
 
 def is_chzzk_registered(chzzk_id: str) -> bool:

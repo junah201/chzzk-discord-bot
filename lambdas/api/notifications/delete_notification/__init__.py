@@ -4,7 +4,7 @@ import logging
 import boto3
 from botocore.exceptions import ClientError
 from shared import middleware
-from shared.exceptions import BadRequestError
+from shared.exceptions import BadRequestError, NotificationNotFoundError
 from shared.utils import build_response
 
 dynamodb = boto3.client("dynamodb")
@@ -76,7 +76,7 @@ def handler(event, _context):
             reason.get("Code") == "ConditionalCheckFailed"
             for reason in e.response.get("CancellationReasons", [])
         ):
-            return build_response(404, "알림을 찾을 수 없거나 권한이 없습니다.")
+            raise NotificationNotFoundError() from e
 
         logger.error(
             json.dumps(

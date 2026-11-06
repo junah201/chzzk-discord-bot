@@ -87,14 +87,17 @@ def test_missing_field_is_400(missing):
 
 
 @pytest.mark.usefixtures("mock_requests")
-def test_unknown_chzzk_channel_is_400(ddb, get_chzzk):
+def test_chzzk_lookup_failure_is_502(ddb, get_chzzk):
     put_noti(ddb.table)
     get_chzzk.return_value = None
 
     res, body = call()
 
-    assert res["statusCode"] == 400
-    assert body["message"] == "해당 치지직 채널을 찾을 수 없습니다."
+    assert res["statusCode"] == 502
+    assert body["code"] == "CHZZK_CHANNEL_UNAVAILABLE"
+    assert body["message"] == (
+        "치지직에서 채널 정보를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요."
+    )
 
 
 @pytest.mark.usefixtures("mock_requests")
@@ -102,7 +105,7 @@ def test_missing_notification_is_404():
     res, body = call()
 
     assert res["statusCode"] == 404
-    assert body["message"] == "해당 알림이 존재하지 않습니다."
+    assert body["code"] == "NOTIFICATION_NOT_FOUND"
 
 
 @pytest.mark.usefixtures("mock_requests")
@@ -112,7 +115,7 @@ def test_notification_of_other_guild_is_404(ddb):
     res, body = call(guild_id="2")
 
     assert res["statusCode"] == 404
-    assert body["message"] == "해당 알림이 존재하지 않습니다."
+    assert body["code"] == "NOTIFICATION_NOT_FOUND"
     assert get_noti(ddb.table) is not None
 
 
@@ -207,5 +210,25 @@ def test_other_send_failure_is_500_and_keeps_notification(ddb, mock_requests):
     res, body = call()
 
     assert res["statusCode"] == 500
-    assert "Missing Permissions" in body["message"]
+    assert body["code"] == "TEST_NOTIFICATION_FAILED"
+    assert body["message"] == (
+        "테스트 알림을 보내지 못했습니다. 치직 봇의 채널 권한을 확인해 주세요."
+    )
+    assert body["discord_message"] == "Missing Permissions"
     assert get_noti(ddb.table) is not None
+
+
+def test_webhook_send_failure_points_to_webhook(ddb, mock_requests):
+    put_noti(ddb.table, is_subscription_active=True, webhook_url=WEBHOOK_URL)
+    mock_requests.post(
+        WEBHOOK_URL, status=401, json={"message": "Invalid Webhook Token"}
+    )
+
+    res, body = call()
+
+    assert res["statusCode"] == 500
+    assert body["code"] == "TEST_NOTIFICATION_WEBHOOK_FAILED"
+    assert body["discord_message"] == "Invalid Webhook Token"
+    assert body["message"] == (
+        "커스텀 웹훅으로 테스트 알림을 보내지 못했습니다. 웹훅 URL을 확인해 주세요."
+    )

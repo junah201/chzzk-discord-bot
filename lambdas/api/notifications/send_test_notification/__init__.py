@@ -4,7 +4,12 @@ from datetime import UTC, datetime
 
 import boto3
 from shared import get_chzzk, middleware
-from shared.exceptions import BadRequestError
+from shared.exceptions import (
+    BadRequestError,
+    ChzzkChannelUnavailableError,
+    NotificationNotFoundError,
+    SendTestNotificationError,
+)
 from shared.live_message import build_live_message
 from shared.notification_dispatcher import send_notification_message
 from shared.utils import build_response
@@ -28,7 +33,7 @@ def handler(event, _context):
 
     chzzk = get_chzzk(chzzk_id)
     if not chzzk:
-        return build_response(400, "해당 치지직 채널을 찾을 수 없습니다.")
+        raise ChzzkChannelUnavailableError()
 
     res = dynamodb.query(
         TableName="chzzk-bot-db",
@@ -42,7 +47,7 @@ def handler(event, _context):
     )
 
     if res["Count"] < 1:
-        return build_response(404, "해당 알림이 존재하지 않습니다.")
+        raise NotificationNotFoundError()
 
     item = res["Items"][0]
 
@@ -95,13 +100,16 @@ def handler(event, _context):
         )
 
         try:
-            error_detail = res.json()
+            error_detail = res.json().get("message", res.text)
         except Exception:
             error_detail = res.text
 
-        return build_response(
-            500,
-            f"테스트 알림 전송에 실패했습니다. 치직 봇이 해당 채널에 메시지를 보낼 권한이 있는지 확인해주세요. ({error_detail})",
+        uses_webhook = item.get("webhook_url", {}).get("S") and item.get(
+            "is_subscription_active", {}
+        ).get("BOOL", False)
+        raise SendTestNotificationError(
+            via_webhook=bool(uses_webhook),
+            discord_message=error_detail,
         )
 
     logger.info(

@@ -72,7 +72,8 @@ def verify_webhook_guild(webhook_url: str, guild_id: str) -> None:
         raise RateLimitError(retry_after)
     if res.status_code in (401, 404):
         raise BadRequestError(
-            "디스코드 웹훅을 찾을 수 없습니다. 웹훅이 삭제되지 않았는지, URL을 정확히 복사했는지 확인해주세요."
+            "디스코드 웹훅을 찾을 수 없습니다. 웹훅 URL을 확인해 주세요.",
+            code="WEBHOOK_NOT_FOUND",
         )
     if res.status_code != 200:
         logger.error(
@@ -90,7 +91,9 @@ def verify_webhook_guild(webhook_url: str, guild_id: str) -> None:
 
     webhook = res.json()
     if webhook.get("type") != _INCOMING_WEBHOOK_TYPE:
-        raise BadRequestError("유효한 디스코드 웹훅 URL을 입력해주세요.")
+        raise BadRequestError(
+            "디스코드 웹훅 URL 형식이 아닙니다.", code="INVALID_WEBHOOK_URL"
+        )
     if webhook.get("guild_id") != str(guild_id):
         logger.warning(
             json.dumps(
@@ -103,7 +106,8 @@ def verify_webhook_guild(webhook_url: str, guild_id: str) -> None:
             )
         )
         raise BadRequestError(
-            "다른 디스코드 서버의 웹훅입니다. 알림을 등록하려는 서버에서 만든 웹훅을 입력해주세요."
+            "다른 디스코드 서버에서 만든 웹훅입니다.",
+            code="WEBHOOK_GUILD_MISMATCH",
         )
 
 

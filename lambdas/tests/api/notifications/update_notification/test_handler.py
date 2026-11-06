@@ -229,23 +229,27 @@ class TestValidation:
         assert get_noti(setup.table)["custom_message"] == "예전 메시지"
 
     @pytest.mark.parametrize(
-        ("body", "message"),
+        ("body", "code", "message"),
         [
             (
                 {"webhook_url": "https://example.com/hook"},
-                "유효한 디스코드 웹훅 URL을 입력해주세요.",
+                "INVALID_WEBHOOK_URL",
+                "디스코드 웹훅 URL 형식이 아닙니다.",
             ),
             (
                 {"webhook_url": WEBHOOK_URL},
-                "커스텀 웹훅은 활성 월간 정기 구독 서버에서만 사용할 수 있습니다.",
+                "SUBSCRIPTION_REQUIRED",
+                "커스텀 웹훅은 월간 구독 서버 전용 기능입니다.",
             ),
             (
                 {"embed_color": "red"},
-                "임베드 색상은 #RRGGBB 형식 또는 0~16777215 사이의 숫자여야 합니다.",
+                "INVALID_EMBED_COLOR",
+                "임베드 색상은 #RRGGBB 형식으로 입력해 주세요.",
             ),
             (
                 {"embed_color": "#FF0000"},
-                "커스텀 임베드 색상은 활성 월간 정기 구독 서버에서만 사용할 수 있습니다.",
+                "SUBSCRIPTION_REQUIRED",
+                "커스텀 임베드 색상은 월간 구독 서버 전용 기능입니다.",
             ),
         ],
         ids=[
@@ -255,10 +259,11 @@ class TestValidation:
             "color-without-subscription",
         ],
     )
-    def test_subscriber_option_errors(self, setup, verify_webhook, body, message):
+    def test_subscriber_option_errors(self, setup, verify_webhook, body, code, message):
         res, response = call(custom_message="바뀌면 안 됨", **body)
 
         assert res["statusCode"] == 400
+        assert response["code"] == code
         assert response["message"] == message
         assert get_noti(setup.table)["custom_message"] == "예전 메시지"
         verify_webhook.assert_not_called()
@@ -291,7 +296,7 @@ class TestNotFound:
         res, body = call()
 
         assert res["statusCode"] == 404
-        assert body["message"] == "알림 설정을 찾을 수 없거나 권한이 없습니다."
+        assert body["code"] == "NOTIFICATION_NOT_FOUND"
         assert (
             ddb.table.get_item(
                 Key={"PK": f"CHZZK#{CHZZK_ID}", "SK": f"NOTI#{CHANNEL_ID}"}
@@ -318,9 +323,10 @@ class TestOverLimit:
         res, body = call(custom_message="바뀌면 안 됨")
 
         assert res["statusCode"] == 400
+        assert body["code"] == "NOTIFICATION_LIMIT_EXCEEDED"
+        assert (body["max_limit"], body["current_count"]) == (5, 6)
         assert body["message"] == (
-            "현재 서버에 등록된 알림이 제한 개수(5개)를 초과하여 설정을 수정할 수 없습니다. "
-            "초과된 알림(6/5)을 정리(삭제)한 후 다시 시도해주세요."
+            "등록된 알림 6개가 슬롯 5개를 넘어 수정할 수 없습니다."
         )
         assert get_noti(ddb.table)["custom_message"] == "예전 메시지"
 

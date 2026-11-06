@@ -96,7 +96,10 @@ class TestVerifyWebhookGuild:
                 "https://discord.com/api/webhooks/123/abc-DEF_123", self.GUILD_ID
             )
 
-        assert exc_info.value.message.startswith("다른 디스코드 서버의 웹훅입니다.")
+        assert exc_info.value.code == "WEBHOOK_GUILD_MISMATCH"
+        assert exc_info.value.message.startswith(
+            "다른 디스코드 서버에서 만든 웹훅입니다."
+        )
 
     @pytest.mark.parametrize(
         "webhook",
@@ -111,7 +114,8 @@ class TestVerifyWebhookGuild:
                 "https://discord.com/api/webhooks/123/abc-DEF_123", self.GUILD_ID
             )
 
-        assert exc_info.value.message == "유효한 디스코드 웹훅 URL을 입력해주세요."
+        assert exc_info.value.code == "INVALID_WEBHOOK_URL"
+        assert exc_info.value.message == "디스코드 웹훅 URL 형식이 아닙니다."
 
     @pytest.mark.parametrize("status", [401, 404])
     def test_unknown_webhook_is_rejected(self, mock_requests, status):
@@ -124,6 +128,7 @@ class TestVerifyWebhookGuild:
                 "https://discord.com/api/webhooks/123/abc-DEF_123", self.GUILD_ID
             )
 
+        assert exc_info.value.code == "WEBHOOK_NOT_FOUND"
         assert exc_info.value.message.startswith("디스코드 웹훅을 찾을 수 없습니다.")
 
     def test_rate_limit_raises_rate_limit_error(self, mock_requests):

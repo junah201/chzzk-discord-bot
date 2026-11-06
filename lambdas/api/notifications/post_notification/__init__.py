@@ -11,7 +11,11 @@ from api.notifications.post_notification.service import (
     save_notification_and_increment_counter,
 )
 from shared import build_response, get_channel, get_chzzk, middleware
-from shared.exceptions import BadRequestError
+from shared.exceptions import (
+    BadRequestError,
+    ChzzkChannelNotFoundError,
+    ServiceFollowLimitError,
+)
 from shared.notification_dispatcher import (
     is_guild_subscription_active,
     is_valid_webhook_url,
@@ -39,18 +43,23 @@ def handler(event, _context):
         raise BadRequestError()
     is_subscription_active = is_guild_subscription_active(guild_id)
     if webhook_url and not is_valid_webhook_url(webhook_url):
-        raise BadRequestError("유효한 디스코드 웹훅 URL을 입력해주세요.")
+        raise BadRequestError(
+            "디스코드 웹훅 URL 형식이 아닙니다.", code="INVALID_WEBHOOK_URL"
+        )
     if webhook_url and not is_subscription_active:
         raise BadRequestError(
-            "커스텀 웹훅은 활성 월간 정기 구독 서버에서만 사용할 수 있습니다."
+            "커스텀 웹훅은 월간 구독 서버 전용 기능입니다.",
+            code="SUBSCRIPTION_REQUIRED",
         )
     if embed_color and parse_embed_color(embed_color) is None:
         raise BadRequestError(
-            "임베드 색상은 #RRGGBB 형식 또는 0~16777215 사이의 숫자여야 합니다."
+            "임베드 색상은 #RRGGBB 형식으로 입력해 주세요.",
+            code="INVALID_EMBED_COLOR",
         )
     if embed_color and not is_subscription_active:
         raise BadRequestError(
-            "커스텀 임베드 색상은 활성 월간 정기 구독 서버에서만 사용할 수 있습니다."
+            "커스텀 임베드 색상은 월간 구독 서버 전용 기능입니다.",
+            code="SUBSCRIPTION_REQUIRED",
         )
     if webhook_url:
         verify_webhook_guild(webhook_url, guild_id)
@@ -58,10 +67,9 @@ def handler(event, _context):
     # 1. 디스코드 채널 및 서버 소속 검증
     channel_data = get_channel(channel_id)
     if not channel_data:
-        return build_response(
-            400,
-            "봇이 해당 디스코드 채널에 접근할 권한이 없습니다. "
-            "디스코드 채널이 삭제되었거나, 서버 내 봇의 권한(채널 보기, 메시지 보내기)을 확인하시거나, 봇을 서버에 다시 초대해 주세요.",
+        raise BadRequestError(
+            "치직 봇이 이 채널에 접근할 수 없습니다. 채널 권한을 확인해 주세요.",
+            code="BOT_CHANNEL_ACCESS_DENIED",
         )
 
     if channel_data.get("guild_id") != guild_id:
@@ -71,20 +79,12 @@ def handler(event, _context):
         )
 
     # 2. 서버 알림 개수 제한 검증
-    is_valid, err_msg = check_guild_limit(guild_id)
-    if not is_valid:
-        return build_response(400, err_msg)
+    check_guild_limit(guild_id)
 
     # 3. 치지직 채널 존재 검증
     chzzk_data = get_chzzk(chzzk_id)
     if not chzzk_data:
-        return build_response(
-            400,
-            "해당 치지직 채널을 찾을 수 없습니다.\n"
-            "• 치지직 ID를 잘못 입력했을 가능성이 큽니다. 채널 URL의 맨 뒷부분이 정확한지 확인해주세요. (닉네임이 아니라 영문/숫자로 된 고유 ID여야 합니다.)\n"
-            "• 한 번도 방송을 켜지 않은 채널은 등록할 수 없습니다.\n"
-            "• 너무 오래 전에 방송을 켰던 채널은 치지직에서 채널 정보를 가져올 수 없어 등록이 불가능할 수 있습니다.",
-        )
+        raise ChzzkChannelNotFoundError()
 
     # 4. 치지직 채널 DB 저장 및 샤딩 인덱스 처리
     # 팔로우 한도가 찬 계정은 건너뛰고 다음 계정에 배정한다.
@@ -111,11 +111,7 @@ def handler(event, _context):
                     f"채널 관리자(스트리머/매니저)에게 차단 해제를 요청해 주세요. ({index})",
                 )
             elif "최대 팔로우 수를 초과" in err_message:
-                return build_response(
-                    400,
-                    f"현재 서비스 계정의 팔로우 한도가 초과되어 등록할 수 없습니다. "
-                    f"서포트 서버로 문의해 주시면 관리자가 조치해 드리겠습니다. ({index})",
-                )
+                raise ServiceFollowLimitError(index)
             return build_response(
                 500,
                 f"치지직 채널 팔로우 처리에 실패했습니다. 잠시 후 다시 시도한 후에도 동일한 현상이 발생하면 서포트 서버로 문의해 주세요. ({index})",
@@ -128,10 +124,9 @@ def handler(event, _context):
 
     # 6. 알림 중복 확인
     if is_notification_exists(chzzk_id, channel_id, guild_id):
-        return build_response(
-            400,
-            "이미 해당 디스코드 채널에 등록된 치지직 채널입니다.\n"
-            "한 디스코드 채널에 동일한 치지직 방송 알림을 중복해서 등록할 수 없습니다.",
+        raise BadRequestError(
+            "이 디스코드 채널에 이미 등록된 치지직 채널입니다.",
+            code="NOTIFICATION_ALREADY_EXISTS",
         )
 
     # 7. NOTI 저장 및 GUILD 카운터 증가 (+1)

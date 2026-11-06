@@ -1,6 +1,7 @@
 import importlib
 
 import pytest
+from shared.exceptions import BadRequestError
 
 service = importlib.import_module("api.notifications.post_notification.service")
 
@@ -71,7 +72,7 @@ def save(body=None, channel_id=CHANNEL_ID, guild_id=GUILD_ID, chzzk_id=CHZZK_ID)
 
 class TestCheckGuildLimit:
     def test_new_guild_uses_default_limit(self):
-        assert service.check_guild_limit(GUILD_ID) == (True, "")
+        service.check_guild_limit(GUILD_ID)
 
     @pytest.mark.parametrize(
         ("current_count", "max_limit"), [(0, 5), (4, 5), (249, 250)]
@@ -79,7 +80,7 @@ class TestCheckGuildLimit:
     def test_under_limit(self, ddb, current_count, max_limit):
         put_guild(ddb.table, current_count=current_count, max_limit=max_limit)
 
-        assert service.check_guild_limit(GUILD_ID) == (True, "")
+        service.check_guild_limit(GUILD_ID)
 
     @pytest.mark.parametrize(
         ("current_count", "max_limit"), [(5, 5), (6, 5), (250, 250)]
@@ -87,15 +88,22 @@ class TestCheckGuildLimit:
     def test_at_or_over_limit(self, ddb, current_count, max_limit):
         put_guild(ddb.table, current_count=current_count, max_limit=max_limit)
 
-        assert service.check_guild_limit(GUILD_ID) == (
-            False,
-            f"알림 등록 제한을 초과했습니다. (최대 {max_limit}개 등록 가능 / 현재 {current_count}개)",
+        with pytest.raises(BadRequestError) as exc_info:
+            service.check_guild_limit(GUILD_ID)
+
+        assert exc_info.value.code == "NOTIFICATION_LIMIT_REACHED"
+        assert exc_info.value.details == {
+            "max_limit": max_limit,
+            "current_count": current_count,
+        }
+        assert exc_info.value.message == (
+            f"알림 슬롯 {max_limit}개를 모두 사용했습니다."
         )
 
     def test_missing_attributes_use_defaults(self, ddb):
         put_guild(ddb.table, current_count=None, max_limit=None)
 
-        assert service.check_guild_limit(GUILD_ID) == (True, "")
+        service.check_guild_limit(GUILD_ID)
 
 
 class TestChzzkChannel:
@@ -308,8 +316,8 @@ class TestSaveNotification:
     def test_two_first_notifications_count_two(self, ddb):
         # 새 서버에서 처음 등록이 겹쳐도(둘 다 check_guild_limit에서 GUILD가 없다고 본 경우)
         # GUILD를 덮어쓰지 않고 카운트가 모두 반영된다.
-        assert service.check_guild_limit(GUILD_ID) == (True, "")
-        assert service.check_guild_limit(GUILD_ID) == (True, "")
+        service.check_guild_limit(GUILD_ID)
+        service.check_guild_limit(GUILD_ID)
 
         save(channel_id="10")
         save(channel_id="11")
@@ -319,7 +327,7 @@ class TestSaveNotification:
 
     def test_guild_created_meanwhile_keeps_its_values(self, ddb):
         # check_guild_limit 이후 다른 요청이 GUILD를 만들거나 슬롯을 늘려도 덮어쓰지 않는다.
-        assert service.check_guild_limit(GUILD_ID) == (True, "")
+        service.check_guild_limit(GUILD_ID)
         put_guild(ddb.table, current_count=3, max_limit=250)
 
         save()

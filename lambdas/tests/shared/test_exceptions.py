@@ -73,6 +73,16 @@ def test_custom_message(error_cls):
     assert json.loads(error.to_dict()["body"])["message"] == "커스텀 메시지"
 
 
+def test_bad_request_with_code_and_details():
+    error = BadRequestError("메시지", code="SOME_CODE", details={"max_limit": 5})
+
+    assert json.loads(error.to_dict()["body"]) == {
+        "code": "SOME_CODE",
+        "message": "메시지",
+        "max_limit": 5,
+    }
+
+
 def test_base_exception_is_a_builtin_exception():
     # middleware가 `except BaseException` 다음 `except Exception`으로 처리하므로 Exception 하위여야 한다.
     assert issubclass(BaseException, Exception)

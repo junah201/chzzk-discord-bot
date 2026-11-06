@@ -4,7 +4,7 @@ import logging
 import boto3
 from botocore.exceptions import ClientError
 from shared import middleware
-from shared.exceptions import BadRequestError
+from shared.exceptions import BadRequestError, NotificationNotFoundError
 from shared.notification_dispatcher import (
     is_guild_subscription_active,
     is_valid_webhook_url,
@@ -41,18 +41,23 @@ def handler(event, _context):
     if not all([chzzk_id, guild_id, channel_id]):
         raise BadRequestError()
     if webhook_url and not is_valid_webhook_url(webhook_url):
-        raise BadRequestError("유효한 디스코드 웹훅 URL을 입력해주세요.")
+        raise BadRequestError(
+            "디스코드 웹훅 URL 형식이 아닙니다.", code="INVALID_WEBHOOK_URL"
+        )
     if webhook_url and not is_guild_subscription_active(guild_id):
         raise BadRequestError(
-            "커스텀 웹훅은 활성 월간 정기 구독 서버에서만 사용할 수 있습니다."
+            "커스텀 웹훅은 월간 구독 서버 전용 기능입니다.",
+            code="SUBSCRIPTION_REQUIRED",
         )
     if embed_color and parse_embed_color(embed_color) is None:
         raise BadRequestError(
-            "임베드 색상은 #RRGGBB 형식 또는 0~16777215 사이의 숫자여야 합니다."
+            "임베드 색상은 #RRGGBB 형식으로 입력해 주세요.",
+            code="INVALID_EMBED_COLOR",
         )
     if embed_color and not is_subscription_active:
         raise BadRequestError(
-            "커스텀 임베드 색상은 활성 월간 정기 구독 서버에서만 사용할 수 있습니다."
+            "커스텀 임베드 색상은 월간 구독 서버 전용 기능입니다.",
+            code="SUBSCRIPTION_REQUIRED",
         )
     if webhook_url:
         verify_webhook_guild(webhook_url, guild_id)
@@ -78,10 +83,10 @@ def handler(event, _context):
         max_limit = int(guild_item.get("max_limit", {"N": "5"})["N"])
 
         if current_count > max_limit:
-            return build_response(
-                400,
-                f"현재 서버에 등록된 알림이 제한 개수({max_limit}개)를 초과하여 설정을 수정할 수 없습니다. "
-                f"초과된 알림({current_count}/{max_limit})을 정리(삭제)한 후 다시 시도해주세요.",
+            raise BadRequestError(
+                f"등록된 알림 {current_count}개가 슬롯 {max_limit}개를 넘어 수정할 수 없습니다.",
+                code="NOTIFICATION_LIMIT_EXCEEDED",
+                details={"max_limit": max_limit, "current_count": current_count},
             )
 
         set_parts = [
@@ -136,7 +141,7 @@ def handler(event, _context):
 
     except ClientError as e:
         if e.response["Error"]["Code"] == "ConditionalCheckFailedException":
-            return build_response(404, "알림 설정을 찾을 수 없거나 권한이 없습니다.")
+            raise NotificationNotFoundError() from e
 
         logger.error(
             json.dumps(

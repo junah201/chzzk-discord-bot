@@ -110,7 +110,7 @@ def test_missing_notification_is_404(ddb):
     res, body = call()
 
     assert res["statusCode"] == 404
-    assert body["message"] == "알림을 찾을 수 없거나 권한이 없습니다."
+    assert body["code"] == "NOTIFICATION_NOT_FOUND"
     assert get_count(ddb.table) == 1
 
 
