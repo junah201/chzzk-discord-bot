@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { CSSProperties, useState } from "react";
 import { fromNow, formatDate } from "@/lib/date";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "motion/react";
@@ -26,6 +26,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { DISCORD_COLORS } from "@/lib/discord";
 import { useNotificationActions } from "@/hooks/use-notifications";
 import DeleteNotificationDialog from "./delete-notification-dialog";
 import EditNotificationDialog from "./edit-notification-dialog";
@@ -241,7 +242,8 @@ function NotificationRow({
           target="_blank"
           rel="noopener noreferrer"
           title={n.channel_name}
-          className="inline-flex max-w-60 items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-500/10 text-indigo-500 text-sm font-medium whitespace-nowrap hover:bg-indigo-500/20 transition-colors"
+          className="inline-flex max-w-60 items-center gap-1.5 px-2.5 py-1 rounded-md bg-(--blurple)/10 text-(--blurple) text-sm font-medium whitespace-nowrap hover:bg-(--blurple)/20 transition-colors"
+          style={{ "--blurple": DISCORD_COLORS.blurple } as CSSProperties}
         >
           <span className="text-xs">#</span>
           <span className="truncate">{n.channel_name || "채널로 이동"}</span>
