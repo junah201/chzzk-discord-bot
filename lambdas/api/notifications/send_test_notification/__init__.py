@@ -7,6 +7,7 @@ from shared import get_chzzk, middleware
 from shared.exceptions import (
     BadRequestError,
     ChzzkChannelUnavailableError,
+    DiscordChannelNotFoundError,
     NotificationNotFoundError,
     SendTestNotificationError,
 )
@@ -68,7 +69,12 @@ def handler(event, _context):
         notification_item=item,
     )
 
-    if res.status_code == 404:
+    uses_webhook = bool(
+        item.get("webhook_url", {}).get("S")
+        and item.get("is_subscription_active", {}).get("BOOL", False)
+    )
+
+    if res.status_code == 404 and not uses_webhook:
         logger.error(
             json.dumps(
                 {
@@ -82,7 +88,7 @@ def handler(event, _context):
                 ensure_ascii=False,
             )
         )
-        return build_response(404, "해당 디스코드 채널이 존재하지 않습니다.")
+        raise DiscordChannelNotFoundError()
 
     if res.status_code not in (200, 204):
         logger.error(
@@ -104,11 +110,8 @@ def handler(event, _context):
         except Exception:
             error_detail = res.text
 
-        uses_webhook = item.get("webhook_url", {}).get("S") and item.get(
-            "is_subscription_active", {}
-        ).get("BOOL", False)
         raise SendTestNotificationError(
-            via_webhook=bool(uses_webhook),
+            via_webhook=uses_webhook,
             discord_message=error_detail,
         )
 

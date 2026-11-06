@@ -186,27 +186,26 @@ export default function TroubleshootingPage() {
       <PolicyCallout variant="warning" title="테스트 알림을 보내지 못했습니다.">
         <ul className="mb-0">
           <li>
-            <Link href={routeMap.DOCS.INSTALLATION}>시작하기 문서</Link>의 채널
-            권한 설정을 보고{" "}
-            <strong>채널 보기 / 메시지 보내기 / 링크 첨부</strong> 권한이
-            허용되어 있는지 확인해 주세요.
+            <Link href={`${routeMap.DOCS.INSTALLATION}#channel-permissions`}>
+              채널 권한 설정 가이드
+            </Link>
+            를 보고 <strong>채널 보기 / 메시지 보내기 / 링크 첨부</strong>{" "}
+            권한이 허용되어 있는지 확인해 주세요.
           </li>
           <li>
-            커스텀 웹훅을 쓰고 있다면, 웹훅이 삭제되지 않았는지와 URL이 올바른지
-            확인해 주세요.
+            커스텀 웹훅을 쓰고 있다면 웹훅이 삭제되었을 수 있습니다.
+            디스코드에서 새 웹훅을 만들어 알림 설정의 웹훅 URL을 바꾸거나, 웹훅
+            칸을 비워 치직 봇으로 보내도록 해 주세요.
           </li>
         </ul>
       </PolicyCallout>
       <PolicyCallout
         variant="warning"
-        title="해당 디스코드 채널이 존재하지 않습니다."
+        title="알림을 보낼 디스코드 채널을 찾을 수 없습니다."
       >
         <ul className="mb-0">
-          <li>
-            디스코드 채널이 삭제되었거나, 치직 봇이 해당 서버에서 추방된
-            경우입니다.
-          </li>
-          <li>봇을 다시 초대하거나, 알림을 받을 채널을 다시 설정해 주세요.</li>
+          <li>알림을 등록해 둔 디스코드 채널이 삭제된 경우입니다.</li>
+          <li>이 알림을 삭제하고, 알림을 받을 채널로 다시 등록해 주세요.</li>
         </ul>
       </PolicyCallout>
       <PolicyCallout

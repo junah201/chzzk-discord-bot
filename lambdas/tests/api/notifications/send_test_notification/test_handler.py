@@ -169,27 +169,35 @@ def test_subscriber_webhook_and_color_are_used(ddb, mock_requests):
 
 
 @pytest.mark.parametrize(
-    ("noti_attrs", "url", "discord_code"),
+    ("noti_attrs", "url", "discord_error", "status", "code"),
     [
-        ({}, MESSAGE_URL, 10003),
+        (
+            {},
+            MESSAGE_URL,
+            {"code": 10003, "message": "Unknown Channel"},
+            404,
+            "DISCORD_CHANNEL_NOT_FOUND",
+        ),
         (
             {"is_subscription_active": True, "webhook_url": WEBHOOK_URL},
             WEBHOOK_URL,
-            10015,
+            {"code": 10015, "message": "Unknown Webhook"},
+            500,
+            "TEST_NOTIFICATION_WEBHOOK_FAILED",
         ),
     ],
     ids=["deleted-channel", "deleted-webhook"],
 )
 def test_discord_404_keeps_notification(
-    ddb, mock_requests, noti_attrs, url, discord_code
+    ddb, mock_requests, noti_attrs, url, discord_error, status, code
 ):
     put_noti(ddb.table, **noti_attrs)
-    mock_requests.post(url, status=404, json={"code": discord_code})
+    mock_requests.post(url, status=404, json=discord_error)
 
     res, body = call()
 
-    assert res["statusCode"] == 404
-    assert body["message"] == "해당 디스코드 채널이 존재하지 않습니다."
+    assert res["statusCode"] == status
+    assert body["code"] == code
     assert get_noti(ddb.table) == {
         "PK": f"CHZZK#{CHZZK_ID}",
         "SK": f"NOTI#{CHANNEL_ID}",

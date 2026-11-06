@@ -62,6 +62,15 @@ class ServerNotFoundError(BaseException):
         super().__init__(404, "SERVER_NOT_FOUND", "서버를 찾을 수 없습니다.")
 
 
+class DiscordChannelNotFoundError(BaseException):
+    def __init__(self):
+        super().__init__(
+            404,
+            "DISCORD_CHANNEL_NOT_FOUND",
+            "디스코드 채널을 찾을 수 없습니다. 채널이 삭제되었는지 확인해 주세요.",
+        )
+
+
 class NotificationNotFoundError(BaseException):
     def __init__(self):
         super().__init__(

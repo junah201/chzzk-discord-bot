@@ -98,6 +98,12 @@ export const ERROR_MESSAGES: Record<string, ErrorCopy> = {
     ),
     help: CHANNEL_PERMISSIONS_HELP,
   },
+  DISCORD_CHANNEL_NOT_FOUND: {
+    message: lines(
+      "알림을 보낼 디스코드 채널을 찾을 수 없습니다.",
+      "채널이 삭제되었다면 이 알림을 삭제하고 다른 채널로 다시 등록해 주세요.",
+    ),
+  },
   NOTIFICATION_NOT_FOUND: {
     message: lines(
       "이 알림을 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.",
