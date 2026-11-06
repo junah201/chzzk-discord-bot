@@ -6,6 +6,8 @@ import { DEFAULT_SLOT_LIMIT } from "@/constants/slots";
 import { getDiscordIconUrl } from "@/lib/urls";
 import { Guild } from "@/types/api";
 
+const numberFormat = new Intl.NumberFormat("ko-KR");
+
 interface ServerCardProps {
   server: Guild;
 }
@@ -33,7 +35,7 @@ export function ServerCard({ server }: ServerCardProps) {
         <div className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
           <span className="flex items-center gap-1">
             <Users className="size-3.5" />
-            멤버 {(server.approximate_member_count ?? 0).toLocaleString()}명
+            멤버 {numberFormat.format(server.approximate_member_count ?? 0)}명
           </span>
           <span className="flex items-center gap-1">
             <Bell className="size-3.5" />

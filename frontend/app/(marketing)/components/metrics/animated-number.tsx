@@ -3,6 +3,8 @@
 import { motion, useInView, useSpring, useTransform } from "motion/react";
 import { useEffect, useRef } from "react";
 
+const numberFormat = new Intl.NumberFormat("ko-KR");
+
 /** 화면에 들어오면 0부터 value까지 올라가는 숫자 */
 export function AnimatedNumber({
   value,
@@ -21,7 +23,7 @@ export function AnimatedNumber({
 
   const display = useTransform(spring, (current) => {
     if (value >= 100) {
-      return Math.floor(current).toLocaleString();
+      return numberFormat.format(Math.floor(current));
     }
     return current.toFixed(1);
   });
