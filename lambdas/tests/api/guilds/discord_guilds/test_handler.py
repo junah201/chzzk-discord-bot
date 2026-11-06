@@ -52,6 +52,7 @@ def test_missing_token_is_401(get_admin_guilds):
 
     assert res["statusCode"] == 401
     assert body["code"] == "UNAUTHORIZED"
+    assert body["message"] == "로그인이 필요합니다. 다시 로그인해 주세요."
     get_admin_guilds.assert_not_called()
 
 
@@ -71,13 +72,16 @@ def test_rate_limited_is_429(get_admin_guilds, batch_get_item):
     assert res["statusCode"] == 429
     assert body["code"] == "RATE_LIMITED"
     assert body["retry_after"] == 1.5
+    assert body["message"] == (
+        "디스코드에 요청이 몰려 일시적으로 제한되었습니다. 약 2초 뒤 다시 시도해 주세요."
+    )
     batch_get_item.assert_not_called()
 
 
 @pytest.mark.parametrize(
     "status_code",
-    [-1, -2, -3, 401, 403, 500],
-    ids=["timeout", "connection-error", "invalid-response", "401", "403", "500"],
+    [-1, -2, -3, 500],
+    ids=["timeout", "connection-error", "invalid-response", "500"],
 )
 def test_discord_failure_is_502(get_admin_guilds, batch_get_item, status_code):
     get_admin_guilds.return_value = AdminGuildsResult(None, status_code, "error")
@@ -86,6 +90,25 @@ def test_discord_failure_is_502(get_admin_guilds, batch_get_item, status_code):
 
     assert res["statusCode"] == 502
     assert body["code"] == "DISCORD_API_ERROR"
+    assert body["message"] == (
+        "디스코드와 연결이 원활하지 않습니다. 잠시 뒤 다시 시도해 주세요."
+    )
+    batch_get_item.assert_not_called()
+
+
+@pytest.mark.parametrize("status_code", [401, 403])
+def test_discord_auth_failure_asks_to_log_in_again(
+    get_admin_guilds, batch_get_item, status_code
+):
+    get_admin_guilds.return_value = AdminGuildsResult(None, status_code, "error")
+
+    res, body = call()
+
+    assert res["statusCode"] == 502
+    assert body["code"] == "DISCORD_API_ERROR"
+    assert body["message"] == (
+        "디스코드 로그인이 만료되었습니다. 로그아웃한 뒤 다시 로그인해 주세요."
+    )
     batch_get_item.assert_not_called()
 
 

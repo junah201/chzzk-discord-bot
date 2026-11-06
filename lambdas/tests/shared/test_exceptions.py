@@ -19,7 +19,12 @@ from shared.exceptions import (
     ("error", "status_code", "code", "message"),
     [
         (BadRequestError(), 400, "INVALID_REQUEST", "잘못된 요청입니다."),
-        (UnauthorizedError(), 401, "UNAUTHORIZED", "로그인이 필요합니다."),
+        (
+            UnauthorizedError(),
+            401,
+            "UNAUTHORIZED",
+            "로그인이 필요합니다. 다시 로그인해 주세요.",
+        ),
         (UserNotAdminError(), 403, "USER_NOT_ADMIN", "관리자 권한이 필요합니다."),
         (
             BotForbiddenError(),
@@ -34,12 +39,17 @@ from shared.exceptions import (
             "봇이 서버에 초대되지 않았습니다.",
         ),
         (ServerNotFoundError(), 404, "SERVER_NOT_FOUND", "서버를 찾을 수 없습니다."),
-        (RateLimitError(), 429, "RATE_LIMITED", "요청이 너무 많습니다."),
+        (
+            RateLimitError(),
+            429,
+            "RATE_LIMITED",
+            "디스코드에 요청이 몰려 일시적으로 제한되었습니다. 잠시 뒤 다시 시도해 주세요.",
+        ),
         (
             DiscordApiUnavailableError(),
             502,
             "DISCORD_API_ERROR",
-            "디스코드 API 통신 중 오류가 발생했습니다.",
+            "디스코드와 연결이 원활하지 않습니다. 잠시 뒤 다시 시도해 주세요.",
         ),
     ],
     ids=lambda v: v.__class__.__name__ if isinstance(v, Exception) else None,
@@ -55,7 +65,9 @@ def test_to_dict(error, status_code, code, message):
     assert str(error) == message
 
 
-@pytest.mark.parametrize("error_cls", [BadRequestError, UnauthorizedError])
+@pytest.mark.parametrize(
+    "error_cls", [BadRequestError, UnauthorizedError, DiscordApiUnavailableError]
+)
 def test_custom_message(error_cls):
     error = error_cls("커스텀 메시지")
     assert json.loads(error.to_dict()["body"])["message"] == "커스텀 메시지"
@@ -78,9 +90,26 @@ class TestRateLimitError:
         assert error.retry_after == 1.5
         assert body == {
             "code": "RATE_LIMITED",
-            "message": "요청이 너무 많습니다.",
+            "message": "디스코드에 요청이 몰려 일시적으로 제한되었습니다. 약 2초 뒤 다시 시도해 주세요.",
             "retry_after": 1.5,
         }
+
+    @pytest.mark.parametrize(
+        ("retry_after", "wait"),
+        [
+            (0, "잠시"),
+            (-1, "잠시"),
+            (0.2, "약 1초"),
+            (59, "약 59초"),
+            (59.5, "약 1분"),
+            (60, "약 1분"),
+            (61, "약 2분"),
+        ],
+    )
+    def test_message_shows_wait_time(self, retry_after, wait):
+        assert RateLimitError(retry_after).message == (
+            f"디스코드에 요청이 몰려 일시적으로 제한되었습니다. {wait} 뒤 다시 시도해 주세요."
+        )
 
 
 class TestDiscordApiError:

@@ -219,7 +219,7 @@ class TestAdminCheck:
         assert res["statusCode"] == 429
         assert json.loads(res["body"]) == {
             "code": "RATE_LIMITED",
-            "message": "요청이 너무 많습니다.",
+            "message": "디스코드에 요청이 몰려 일시적으로 제한되었습니다. 약 3초 뒤 다시 시도해 주세요.",
             "retry_after": 2.5,
         }
         assert res["headers"] == CORS_HEADERS

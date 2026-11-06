@@ -1,4 +1,5 @@
 import json
+import math
 
 from requests import Response
 
@@ -28,7 +29,7 @@ class BadRequestError(BaseException):
 
 
 class UnauthorizedError(BaseException):
-    def __init__(self, message="로그인이 필요합니다."):
+    def __init__(self, message="로그인이 필요합니다. 다시 로그인해 주세요."):
         super().__init__(401, "UNAUTHORIZED", message)
 
 
@@ -55,7 +56,21 @@ class ServerNotFoundError(BaseException):
 class RateLimitError(BaseException):
     def __init__(self, retry_after=0):
         self.retry_after = retry_after
-        super().__init__(429, "RATE_LIMITED", "요청이 너무 많습니다.")
+        super().__init__(
+            429,
+            "RATE_LIMITED",
+            "디스코드에 요청이 몰려 일시적으로 제한되었습니다. "
+            f"{self._wait_text(retry_after)} 뒤 다시 시도해 주세요.",
+        )
+
+    @staticmethod
+    def _wait_text(retry_after) -> str:
+        if not retry_after or retry_after <= 0:
+            return "잠시"
+        seconds = math.ceil(retry_after)
+        if seconds >= 60:
+            return f"약 {math.ceil(seconds / 60)}분"
+        return f"약 {seconds}초"
 
     def to_dict(self):
         return {
@@ -73,7 +88,10 @@ class RateLimitError(BaseException):
 class DiscordApiUnavailableError(BaseException):
     """응답 객체 없이 디스코드 API 호출이 실패했을 때(Timeout, 연결 실패, 5xx 등) 사용합니다."""
 
-    def __init__(self, message="디스코드 API 통신 중 오류가 발생했습니다."):
+    def __init__(
+        self,
+        message="디스코드와 연결이 원활하지 않습니다. 잠시 뒤 다시 시도해 주세요.",
+    ):
         super().__init__(502, "DISCORD_API_ERROR", message)
 
 

@@ -14,6 +14,8 @@ from shared.utils import build_response, pick
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+DISCORD_AUTH_FAILED_STATUS_CODES = {401, 403}
+
 dynamodb_resource = boto3.resource("dynamodb")
 dynamodb_client = boto3.client("dynamodb")
 table_name = "chzzk-bot-db"
@@ -41,6 +43,10 @@ def handler(event, _context):
             raise RateLimitError(retry_after=result.retry_after)
 
         logger.error(json.dumps({"type": "GET_ADMIN_GUILDS_FAILED", **log_data}))
+        if result.status_code in DISCORD_AUTH_FAILED_STATUS_CODES:
+            raise DiscordApiUnavailableError(
+                "디스코드 로그인이 만료되었습니다. 로그아웃한 뒤 다시 로그인해 주세요."
+            )
         raise DiscordApiUnavailableError()
 
     ALLOWED_KEYS = {"id", "name", "icon", "approximate_member_count"}
