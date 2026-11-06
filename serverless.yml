@@ -255,13 +255,6 @@ functions:
     name: chzzk_unfollow_v2
     description: 치지직 채널 팔로우 해제 (관리자 전용)
 
-  noti_chzzk_id_backfill:
-    handler: lambdas/admin/noti_chzzk_id_backfill.handler
-    name: noti_chzzk_id_backfill_v2
-    description: chzzk_id가 없는 NOTI 아이템에 PK 기반 chzzk_id 채우기 (관리자 전용, 기본 dry_run)
-    timeout: 300
-    maximumRetryAttempts: 0
-
 package:
   patterns:
     - "!**"
