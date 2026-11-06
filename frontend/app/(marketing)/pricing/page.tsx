@@ -9,16 +9,16 @@ import Reveal from "./reveal";
 import SlotCalculator from "./slot-calculator";
 
 export const metadata: Metadata = {
-  title: "치직 - 요금제 - 놓치지 않는 방송 알림, 치직",
+  title: "요금제 - 치직",
   description:
     "알림 5개까지는 무료이고, 월 ₩2,000 구독이면 250개까지 쓸 수 있습니다. 필요한 알림 수에 맞는 요금제를 확인하세요.",
   openGraph: {
-    title: "치직 - 요금제 - 놓치지 않는 방송 알림, 치직",
+    title: "요금제 - 치직",
     description:
       "알림 5개까지는 무료입니다. 필요한 알림 수에 맞는 요금제를 확인하세요.",
   },
   twitter: {
-    title: "치직 - 요금제 - 놓치지 않는 방송 알림, 치직",
+    title: "요금제 - 치직",
     description:
       "알림 5개까지는 무료입니다. 필요한 알림 수에 맞는 요금제를 확인하세요.",
   },

@@ -5,6 +5,7 @@ import MobileHeader from "./components/mobile-header";
 import { AuthGuard } from "./components/auth-guard";
 
 export const metadata: Metadata = {
+  title: "치직 대시보드",
   robots: { index: false, follow: false },
 };
 
