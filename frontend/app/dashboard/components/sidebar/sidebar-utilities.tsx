@@ -1,19 +1,22 @@
 import routeMap from "@/constants/route-map";
-import { FileText, MessageSquare } from "lucide-react";
+import { SiDiscord } from "@icons-pack/react-simple-icons";
+import { BookOpen } from "lucide-react";
 import { SidebarItem } from "./sidebar-item";
 
 export default function SidebarUtilities() {
   return (
     <div className="px-3 py-4 space-y-1">
       <SidebarItem
-        icon={MessageSquare}
+        icon={SiDiscord}
+        iconClassName="size-4.5"
         href={routeMap.REDIRECTS.SUPPORT_SERVER}
         target="_blank"
+        rel="noopener noreferrer"
       >
         서포트 서버
       </SidebarItem>
       <SidebarItem
-        icon={FileText}
+        icon={BookOpen}
         href={routeMap.DOCS.HOME}
         target="_blank"
         rel="noopener noreferrer"
