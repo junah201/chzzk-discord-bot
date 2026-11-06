@@ -3,20 +3,24 @@
 import { motion } from "motion/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Bell } from "lucide-react";
+import { Bell, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import routeMap from "@/constants/route-map";
 import { PolicyCallout } from "@/components/policy/policy-callout";
+import { useSyncSlots } from "@/hooks/use-sync-slots";
 
 interface NotificationLimitCardProps {
+  serverId: string;
   currentCount: number;
   maxLimit: number;
 }
 
 export default function NotificationLimitCard({
+  serverId,
   currentCount,
   maxLimit,
 }: NotificationLimitCardProps) {
+  const syncSlots = useSyncSlots(serverId);
   const isOverLimit = currentCount > maxLimit;
   const percentage = Math.min(100, (currentCount / maxLimit) * 100);
 
@@ -54,6 +58,21 @@ export default function NotificationLimitCard({
                 요금제
               </Link>
               를 확인해 보세요.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              슬롯 개수가 실제 알림 수와 다르면{" "}
+              <button
+                type="button"
+                onClick={() => syncSlots.mutate()}
+                disabled={syncSlots.isPending}
+                className="inline-flex items-center gap-1 text-primary underline disabled:opacity-50"
+              >
+                <RefreshCw
+                  className={`w-3.5 h-3.5 ${syncSlots.isPending ? "animate-spin" : ""}`}
+                />
+                강제 새로고침
+              </button>
+              을 눌러 주세요.
             </p>
           </div>
         </CardContent>

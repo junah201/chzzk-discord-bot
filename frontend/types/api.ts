@@ -26,6 +26,12 @@ export interface Guild {
   max_limit: number;
 }
 
+export interface SlotSyncResult {
+  current_count: number;
+  previous_count: number;
+  max_limit: number;
+}
+
 export interface PermissionOverwrite {
   id: string;
   type: 0 | 1;

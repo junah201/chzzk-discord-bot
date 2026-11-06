@@ -54,6 +54,7 @@ function ServerDetail({ serverId }: { serverId: string }) {
       )}
       <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <NotificationLimitCard
+          serverId={serverId}
           currentCount={serverData?.current_count || 0}
           maxLimit={serverData?.max_limit || DEFAULT_SLOT_LIMIT}
         />

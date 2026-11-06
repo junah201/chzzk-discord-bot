@@ -135,6 +135,16 @@ functions:
           method: get
           cors: true
 
+  sync_guild_slots:
+    handler: lambdas/api/guilds/sync_guild_slots.handler
+    name: sync_guild_slots_v2
+    description: 서버의 실제 알림 수를 다시 세서 사용 중인 슬롯 수를 맞춥니다.
+    events:
+      - http:
+          path: discord/{guild_id}/slots/sync
+          method: post
+          cors: true
+
   get_guild_channels:
     handler: lambdas/api/guilds/get_guild_channels.handler
     name: get_guild_channels_v2
