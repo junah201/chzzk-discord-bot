@@ -45,6 +45,7 @@ export default function SupportRedirectPage() {
       <div className="w-full flex justify-center">
         <LinkButton
           href={SUPPORT_SERVER_INVITE_URL}
+          target="_self"
           variant="secondary"
           size="lg"
           className="w-full max-w-sm"

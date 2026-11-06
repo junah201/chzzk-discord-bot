@@ -44,6 +44,7 @@ export default function InviteRedirectPage() {
       <div className="w-full flex justify-center">
         <LinkButton
           href={BOT_INVITE_URL}
+          target="_self"
           variant="secondary"
           size="lg"
           className="w-full max-w-sm"
