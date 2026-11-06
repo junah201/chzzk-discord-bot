@@ -179,7 +179,7 @@ class TestNoNotification:
         fake.live = RuntimeError("boom")
 
         assert check() == ChannelResult()
-        assert log_types(logs) == ["GET_CHZZK_ERROR"]
+        assert log_types(logs) == ["GET_CHZZK_ITEM_END", "GET_CHZZK_ERROR"]
         assert fake.sent == []
 
     def test_chzzk_returns_nothing(self, fake):
