@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Bell, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import routeMap from "@/constants/route-map";
@@ -12,14 +13,12 @@ import MutationAlert from "./mutation-alert";
 
 interface NotificationLimitCardProps {
   serverId: string;
-  currentCount: number;
-  maxLimit: number;
+  slots?: { currentCount: number; maxLimit: number };
 }
 
 export default function NotificationLimitCard({
   serverId,
-  currentCount,
-  maxLimit,
+  slots,
 }: NotificationLimitCardProps) {
   const syncSlots = useSyncSlots(serverId);
   const syncSuccessMessage =
@@ -27,8 +26,10 @@ export default function NotificationLimitCard({
     (syncSlots.data.current_count === syncSlots.data.previous_count
       ? "슬롯 개수가 이미 실제 알림 수와 같습니다."
       : `사용 중인 슬롯을 ${syncSlots.data.previous_count}개에서 ${syncSlots.data.current_count}개로 갱신했습니다.`);
-  const isOverLimit = currentCount > maxLimit;
-  const percentage = Math.min(100, (currentCount / maxLimit) * 100);
+  const isOverLimit = slots ? slots.currentCount > slots.maxLimit : false;
+  const percentage = slots
+    ? Math.min(100, (slots.currentCount / slots.maxLimit) * 100)
+    : 0;
 
   return (
     <motion.div
@@ -43,15 +44,23 @@ export default function NotificationLimitCard({
               <Bell className="w-5 h-5 text-primary" />
               <span className="font-semibold">알림 슬롯 현황</span>
             </div>
-            <span className="text-sm font-bold">
-              {currentCount} / {maxLimit}개 사용 중
-            </span>
+            {slots ? (
+              <span className="text-sm font-bold">
+                {slots.currentCount} / {slots.maxLimit}개 사용 중
+              </span>
+            ) : (
+              <Skeleton className="h-5 w-24" />
+            )}
           </div>
 
-          <Progress
-            value={percentage}
-            className={`h-2 ${isOverLimit ? "[&>div]:bg-destructive" : ""}`}
-          />
+          {slots ? (
+            <Progress
+              value={percentage}
+              className={`h-2 ${isOverLimit ? "[&>div]:bg-destructive" : ""}`}
+            />
+          ) : (
+            <Skeleton className="h-2 w-full rounded-full" />
+          )}
 
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-1 lg:gap-3 pt-2 border-t border-border/60">
             <p className="text-sm text-muted-foreground">
@@ -100,8 +109,8 @@ export default function NotificationLimitCard({
           <PolicyCallout variant="warning" title="알림 슬롯을 초과했습니다">
             <ul className="mb-0 list-disc pl-5 text-sm">
               <li>
-                등록된 알림이 슬롯 수({maxLimit}개)보다 많아서 알림을 추가하거나
-                수정할 수 없습니다.
+                등록된 알림이 슬롯 수({slots?.maxLimit}개)보다 많아서 알림을
+                추가하거나 수정할 수 없습니다.
               </li>
               <li>이미 등록된 알림도 모두 전송되지 않습니다.</li>
               <li>알림을 삭제하거나 슬롯을 늘린 뒤 다시 이용해 주세요.</li>
