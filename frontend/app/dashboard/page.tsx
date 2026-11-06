@@ -47,12 +47,12 @@ export default function Dashboard() {
                 <h2 className="text-2xl font-bold">내 서버</h2>
                 <p className="mt-1 flex items-start gap-1.5 text-sm text-muted-foreground break-keep">
                   <Info className="mt-0.5 size-3.5 shrink-0" />
-                  {/* 검색창이 옆에 있는 넓은 화면에서만 두 줄로 나누고, 그 밖에는 한 문단으로 이어짐 */}
+                  {/* 넓은 화면에서는 로딩 여부와 관계없이 항상 두 줄(검색창 높이와 같음)로 고정해 레이아웃이 밀리지 않게 함 */}
                   <span>
-                    <span className={showSearch ? "md:block" : undefined}>
+                    <span className="md:block">
                       관리자 권한이 있는 디스코드 서버만 보입니다.
                     </span>{" "}
-                    <span className={showSearch ? "md:block" : undefined}>
+                    <span className="md:block">
                       궁금한 점은{" "}
                       <Link
                         href={routeMap.REDIRECTS.SUPPORT_SERVER}
