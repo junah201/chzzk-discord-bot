@@ -4,17 +4,27 @@ import { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "motion/react";
-import { Info, Search } from "lucide-react";
+import { Info, Loader2, RefreshCcw, Search } from "lucide-react";
 import routeMap from "@/constants/route-map";
 import { discordQueries } from "@/queries/discord";
 import { ServerCard } from "./components/server-card";
 import { ServerCardSkeleton } from "./components/server-card-skeleton";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { getErrorMessage } from "@/lib/api-error";
 
 // 서버가 이 개수 이상일 때만 검색창을 보여줌
 const SEARCH_THRESHOLD = 8;
 
 export default function Dashboard() {
-  const { data: servers = [], isLoading } = useQuery(discordQueries.guilds());
+  const {
+    data: servers = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isFetching,
+  } = useQuery(discordQueries.guilds());
   const [keyword, setKeyword] = useState("");
 
   const showSearch = servers.length >= SEARCH_THRESHOLD;
@@ -72,6 +82,29 @@ export default function Dashboard() {
                 </label>
               )}
             </div>
+
+            {isError && (
+              <Alert variant="destructive" className="mb-6">
+                <AlertTitle>서버 목록을 불러오지 못했습니다</AlertTitle>
+                <AlertDescription>
+                  <p>{getErrorMessage(error)}</p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-3"
+                    disabled={isFetching}
+                    onClick={() => refetch()}
+                  >
+                    {isFetching ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <RefreshCcw className="h-4 w-4" />
+                    )}
+                    다시 불러오기
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            )}
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
               {isLoading

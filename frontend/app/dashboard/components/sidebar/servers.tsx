@@ -10,6 +10,7 @@ import { SidebarItemSkeleton } from "./sidebar-item-skeleton";
 import routeMap from "@/constants/route-map";
 import { getDiscordIconUrl } from "@/lib/urls";
 import { cn } from "@/lib/utils";
+import { Loader2, RefreshCcw } from "lucide-react";
 
 export default function Servers() {
   const listRef = useRef<HTMLDivElement>(null);
@@ -39,7 +40,9 @@ function ServerList({
 }: {
   listRef: RefObject<HTMLDivElement | null>;
 }) {
-  const { data, isLoading } = useQuery(discordQueries.guilds());
+  const { data, isLoading, isError, refetch, isFetching } = useQuery(
+    discordQueries.guilds(),
+  );
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeServerId =
@@ -60,6 +63,27 @@ function ServerList({
   }, [activeServerId, data, listRef]);
 
   if (isLoading) return <ServerListSkeleton />;
+
+  if (isError) {
+    return (
+      <div className="px-3 py-2 text-xs text-muted-foreground">
+        <p>서버 목록을 불러오지 못했습니다.</p>
+        <button
+          type="button"
+          onClick={() => refetch()}
+          disabled={isFetching}
+          className="mt-2 inline-flex items-center gap-1.5 font-medium text-primary hover:text-primary/80 disabled:opacity-50"
+        >
+          {isFetching ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <RefreshCcw className="h-3.5 w-3.5" />
+          )}
+          다시 불러오기
+        </button>
+      </div>
+    );
+  }
 
   return data?.map((server) => {
     const active = server.id === activeServerId;
