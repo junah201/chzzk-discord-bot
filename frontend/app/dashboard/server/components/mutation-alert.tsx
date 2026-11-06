@@ -9,8 +9,7 @@ export interface Feedback {
 }
 
 export function getNotificationLabel(n: Notification) {
-  const chzzkId = n.chzzk_id || n.PK.split("#")[1] || "unknown";
-  return `${n.chzzk_name || chzzkId} → #${n.channel_name || n.channel_id}`;
+  return `${n.chzzk_name || n.chzzk_id} → #${n.channel_name || n.channel_id}`;
 }
 
 interface MutationAlertProps {

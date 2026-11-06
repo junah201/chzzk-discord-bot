@@ -170,7 +170,7 @@ function NotificationTable({
       <tbody className="divide-y divide-border bg-background">
         {notifications.map((n) => (
           <NotificationRow
-            key={`${n.PK}-${n.SK}`}
+            key={`${n.chzzk_id}-${n.channel_id}`}
             notification={n}
             isSubscription={isSubscription}
             onFeedback={onFeedback}
@@ -191,7 +191,6 @@ function NotificationRow({
   onFeedback: (feedback: Feedback) => void;
 }) {
   const { test } = useNotificationActions(n.guild_id);
-  const chzzkId = n.chzzk_id || n.PK.split("#")[1] || "unknown";
 
   return (
     <PolicyTr className="group hover:bg-muted/40 transition-colors">
@@ -199,15 +198,15 @@ function NotificationRow({
         <Avatar className="w-10 h-10 border border-border transition-colors">
           <AvatarImage
             src={getChzzkChannelImageUrl(n.chzzk_image_url)}
-            alt={n.chzzk_name || chzzkId}
+            alt={n.chzzk_name || n.chzzk_id}
           />
           <AvatarFallback className="bg-primary/20 text-primary text-lg font-semibold">
-            {(n.chzzk_name || chzzkId).slice(0, 2)}
+            {(n.chzzk_name || n.chzzk_id).slice(0, 2)}
           </AvatarFallback>
         </Avatar>
         <div className="flex flex-col">
           <a
-            href={getChzzkChannelUrl(chzzkId)}
+            href={getChzzkChannelUrl(n.chzzk_id)}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 font-medium text-foreground hover:text-primary transition-colors w-fit"
@@ -216,7 +215,7 @@ function NotificationRow({
             <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-50 transition-opacity" />
           </a>
           <span className="text-xs text-muted-foreground font-mono mt-0.5">
-            {chzzkId}
+            {n.chzzk_id}
           </span>
         </div>
       </PolicyTd>
@@ -279,7 +278,7 @@ function NotificationRow({
               {
                 guild_id: n.guild_id,
                 channel_id: n.channel_id,
-                chzzk_id: chzzkId,
+                chzzk_id: n.chzzk_id,
               },
               {
                 onSuccess: () =>

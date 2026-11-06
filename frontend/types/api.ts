@@ -49,9 +49,7 @@ export interface Channel {
 }
 
 export interface Notification {
-  PK: string;
-  SK: string;
-  chzzk_id?: string;
+  chzzk_id: string;
   chzzk_name?: string;
   chzzk_image_url?: string;
   guild_id: string;

@@ -32,8 +32,6 @@ export default function DeleteNotificationDialog({
 }: DeleteNotificationDialogProps) {
   const [open, setOpen] = useState(false);
   const { remove } = useNotificationActions(notification.guild_id);
-  const chzzkId =
-    notification.chzzk_id || notification.PK.split("#")[1] || "unknown";
 
   const handleDelete = () => {
     // 삭제되면 이 행이 언마운트되어 mutate 콜백이 실행되지 않으므로 promise로 처리
@@ -41,7 +39,7 @@ export default function DeleteNotificationDialog({
       .mutateAsync({
         guild_id: notification.guild_id,
         channel_id: notification.channel_id,
-        chzzk_id: chzzkId,
+        chzzk_id: notification.chzzk_id,
       })
       .then(() => {
         setOpen(false);
@@ -81,7 +79,7 @@ export default function DeleteNotificationDialog({
           <AlertDialogTitle>이 알림을 삭제할까요?</AlertDialogTitle>
           <AlertDialogDescription>
             <span className="font-semibold text-foreground">
-              {notification.chzzk_name || chzzkId}
+              {notification.chzzk_name || notification.chzzk_id}
             </span>{" "}
             채널의{" "}
             <span className="font-semibold text-foreground">

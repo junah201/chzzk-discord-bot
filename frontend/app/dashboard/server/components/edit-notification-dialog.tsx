@@ -36,11 +36,9 @@ export default function EditNotificationDialog({
 }: EditNotificationDialogProps) {
   const [open, setOpen] = useState(false);
   const { update } = useNotificationActions(notification.guild_id);
-  const chzzkId =
-    notification.chzzk_id || notification.PK.split("#")[1] || "unknown";
 
   const getDefaultValues = () => ({
-    chzzk_id: chzzkId,
+    chzzk_id: notification.chzzk_id,
     channel_id: notification.channel_id,
     guild_id: notification.guild_id,
     custom_message: notification.custom_message || "",
