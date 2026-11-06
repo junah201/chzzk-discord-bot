@@ -85,7 +85,15 @@ function ServerList({
     );
   }
 
-  return data?.map((server) => {
+  if (!data?.length) {
+    return (
+      <p className="px-3 py-2 text-xs text-muted-foreground break-keep">
+        관리자 권한이 있는 서버가 없습니다.
+      </p>
+    );
+  }
+
+  return data.map((server) => {
     const active = server.id === activeServerId;
 
     return (

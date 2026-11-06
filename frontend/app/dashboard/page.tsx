@@ -4,13 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "motion/react";
-import { Loader2, RefreshCcw, Search } from "lucide-react";
+import { Loader2, LogOut, RefreshCcw, Search, ServerOff } from "lucide-react";
 import routeMap from "@/constants/route-map";
 import { discordQueries } from "@/queries/discord";
 import { ServerCard } from "./components/server-card";
 import { ServerCardSkeleton } from "./components/server-card-skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { LinkButton } from "@/components/ui/link-button";
 import { getErrorMessage } from "@/lib/api-error";
 
 // 서버가 이 개수 이상일 때만 검색창을 보여줌
@@ -27,6 +28,7 @@ export default function Dashboard() {
   } = useQuery(discordQueries.guilds());
   const [keyword, setKeyword] = useState("");
 
+  const isEmpty = !isLoading && !isError && servers.length === 0;
   const showSearch = servers.length >= SEARCH_THRESHOLD;
   const normalized = keyword.trim().toLowerCase();
   const filtered = normalized
@@ -47,9 +49,13 @@ export default function Dashboard() {
                 <h2 className="text-2xl font-bold">내 서버</h2>
                 {/* 넓은 화면에서는 로딩 여부와 관계없이 항상 두 줄(검색창 높이와 같음)로 고정해 레이아웃이 밀리지 않게 함 */}
                 <p className="mt-1 text-sm text-muted-foreground break-keep">
-                  <span className="md:block">
-                    관리자 권한이 있는 디스코드 서버만 보입니다.
-                  </span>{" "}
+                  {!isEmpty && (
+                    <>
+                      <span className="md:block">
+                        관리자 권한이 있는 디스코드 서버만 보입니다.
+                      </span>{" "}
+                    </>
+                  )}
                   <span className="md:block">
                     궁금한 점은{" "}
                     <Link
@@ -119,6 +125,47 @@ export default function Dashboard() {
                     </motion.div>
                   ))}
             </div>
+
+            {isEmpty && (
+              <div className="flex flex-col items-center rounded-xl border border-border bg-card/50 px-6 py-12 text-center">
+                <div className="flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                  <ServerOff className="size-6" />
+                </div>
+                <p className="mt-4 font-semibold">
+                  관리자 권한이 있는 서버가 없습니다
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground break-keep">
+                  서버에서 관리자 권한을 받은 뒤 다시 불러와 주세요.
+                  <br className="hidden sm:block" /> 다른 디스코드 계정을 쓰고
+                  있다면 그 계정으로 로그인해 주세요.
+                </p>
+                <div className="mt-6 flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                    disabled={isFetching}
+                    onClick={() => refetch()}
+                  >
+                    {isFetching ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <RefreshCcw className="h-4 w-4" />
+                    )}
+                    다시 불러오기
+                  </Button>
+                  <LinkButton
+                    href={routeMap.AUTH.LOGOUT}
+                    size="sm"
+                    variant="ghost"
+                    className="w-full sm:w-auto"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    다른 계정으로 로그인
+                  </LinkButton>
+                </div>
+              </div>
+            )}
 
             {!isLoading && normalized && filtered.length === 0 && (
               <p className="py-12 text-center text-sm text-muted-foreground">
