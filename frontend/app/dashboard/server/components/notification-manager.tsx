@@ -29,7 +29,7 @@ import { cn } from "@/lib/utils";
 import { useNotificationActions } from "@/hooks/use-notifications";
 import DeleteNotificationDialog from "./delete-notification-dialog";
 import EditNotificationDialog from "./edit-notification-dialog";
-import { ExternalLink, Loader2, Send } from "lucide-react";
+import { Check, Copy, ExternalLink, Loader2, Send } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { getErrorMessage } from "@/lib/api-error";
@@ -159,9 +159,9 @@ function NotificationTable({
   return (
     <PolicyTable className="min-w-full text-left">
       <PolicyThead className="bg-muted/50 border-b border-border">
-        <PolicyTh className="w-48 pl-6">치지직 채널</PolicyTh>
-        <PolicyTh className="min-w-50">디스코드 채널</PolicyTh>
-        <PolicyTh className="min-w-50">최근 알림</PolicyTh>
+        <PolicyTh className="whitespace-nowrap pl-6">치지직 채널</PolicyTh>
+        <PolicyTh className="whitespace-nowrap">디스코드 채널</PolicyTh>
+        <PolicyTh className="whitespace-nowrap">최근 알림</PolicyTh>
         <PolicyTh className="w-40">테스트 알림</PolicyTh>
         <PolicyTh className="w-40">수정</PolicyTh>
         <PolicyTh className="w-40">삭제</PolicyTh>
@@ -181,6 +181,40 @@ function NotificationTable({
   );
 }
 
+function ChzzkIdCopyButton({ chzzkId }: { chzzkId: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(chzzkId);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error("치지직 채널 ID 복사 실패:", error);
+    }
+  };
+
+  const shortenedId = `${chzzkId.slice(0, 4)}…${chzzkId.slice(-4)}`;
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      title="치지직 채널 ID 복사"
+      aria-label="치지직 채널 ID 복사"
+      className="inline-flex items-center gap-1 w-fit mt-0.5 whitespace-nowrap text-xs text-muted-foreground hover:text-foreground font-mono transition-colors cursor-pointer"
+    >
+      <span className="md:hidden">{shortenedId}</span>
+      <span className="hidden md:inline">{chzzkId}</span>
+      {copied ? (
+        <Check className="w-3 h-3 text-green-500" />
+      ) : (
+        <Copy className="w-3 h-3" />
+      )}
+    </button>
+  );
+}
+
 function NotificationRow({
   notification: n,
   isSubscription,
@@ -194,7 +228,7 @@ function NotificationRow({
 
   return (
     <PolicyTr className="group hover:bg-muted/40 transition-colors">
-      <PolicyTd className="pl-6 py-4 flex items-center gap-2">
+      <PolicyTd className="pl-6 py-4 flex items-center gap-2 whitespace-nowrap">
         <Avatar className="w-10 h-10 border border-border transition-colors">
           <AvatarImage
             src={getChzzkChannelImageUrl(n.chzzk_image_url)}
@@ -214,25 +248,24 @@ function NotificationRow({
             {n.chzzk_name || "치지직 채널"}
             <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-50 transition-opacity" />
           </a>
-          <span className="text-xs text-muted-foreground font-mono mt-0.5">
-            {n.chzzk_id}
-          </span>
+          <ChzzkIdCopyButton chzzkId={n.chzzk_id} />
         </div>
       </PolicyTd>
 
-      <PolicyTd>
+      <PolicyTd className="whitespace-nowrap">
         <a
           href={getDiscordChannelUrl(n.guild_id, n.channel_id)}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-500/10 text-indigo-500 text-sm font-medium hover:bg-indigo-500/20 transition-colors"
+          title={n.channel_name}
+          className="inline-flex max-w-60 items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-500/10 text-indigo-500 text-sm font-medium whitespace-nowrap hover:bg-indigo-500/20 transition-colors"
         >
           <span className="text-xs">#</span>
-          {n.channel_name || "채널로 이동"}
+          <span className="truncate">{n.channel_name || "채널로 이동"}</span>
         </a>
       </PolicyTd>
 
-      <PolicyTd>
+      <PolicyTd className="whitespace-nowrap">
         {n.last_noti_at ? (
           <div className="flex items-center gap-1.5">
             <Tooltip delayDuration={200}>
