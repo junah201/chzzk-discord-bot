@@ -46,14 +46,10 @@ export default function Pricing() {
               <span className="text-sm text-primary">요금제</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl font-bold mb-6">
-              <span className="bg-linear-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
-                필요에 딱 맞는
-              </span>
+            <h1 className="text-4xl leading-[1.15] font-bold tracking-tight break-keep sm:text-5xl mb-6">
+              필요에 딱 맞는
               <br />
-              <span className="bg-linear-to-r from-primary via-emerald-400 to-primary bg-clip-text text-transparent">
-                알림 슬롯 요금제
-              </span>
+              <span className="text-primary">알림 슬롯 요금제</span>
             </h1>
 
             <p className="text-lg text-muted-foreground mb-16 max-w-2xl mx-auto">
@@ -91,14 +87,8 @@ export default function Pricing() {
                   <span className="text-sm text-primary">결제 안내</span>
                 </div>
 
-                <h2 className="text-3xl sm:text-4xl font-bold mb-8">
-                  <span className="bg-linear-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
-                    간편하고 안전한
-                  </span>
-                  <br />
-                  <span className="bg-linear-to-r from-primary via-emerald-400 to-primary bg-clip-text text-transparent">
-                    결제 방법
-                  </span>
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight break-keep mb-8">
+                  간편하고 안전한 결제 방법
                 </h2>
 
                 <div className="bg-card border border-border rounded-xl p-8 space-y-6 text-left">

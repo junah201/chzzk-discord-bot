@@ -32,15 +32,11 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-5xl sm:text-6xl xl:text-7xl font-bold my-6 leading-tight"
+              className="text-5xl sm:text-6xl xl:text-7xl font-bold tracking-tight break-keep my-6 leading-tight"
             >
-              <span className="bg-linear-to-r from-foreground via-foreground to-foreground/60 bg-clip-text text-transparent">
-                놓치지 않는
-              </span>
+              놓치지 않는
               <br />
-              <span className="bg-linear-to-r from-primary via-emerald-400 to-primary bg-clip-text text-transparent">
-                방송 알림, 치직
-              </span>
+              <span className="text-primary">방송 알림, 치직</span>
             </motion.h1>
 
             <motion.p
