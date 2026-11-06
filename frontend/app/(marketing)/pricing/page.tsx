@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { GlowEffect } from "@/components/ui/glow-effect";
 import { Zap, Bell } from "lucide-react";
 import { Metadata } from "next";
@@ -125,16 +124,6 @@ export default function Pricing() {
                       </div>
                     </div>
                   </div>
-                </div>
-
-                <div className="mt-12 text-center">
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    className="w-full sm:w-auto"
-                  >
-                    요금제 선택하기
-                  </Button>
                 </div>
               </div>
             </div>
