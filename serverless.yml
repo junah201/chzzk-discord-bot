@@ -263,7 +263,9 @@ functions:
     timeout: 60
     maximumRetryAttempts: 0
     events:
-      - schedule: rate(12 hours)
+      - schedule:
+          method: scheduler
+          rate: rate(12 hours)
 
   sync_koreanbots_stats:
     handler: lambdas/cron/sync_koreanbots_stats.handler
@@ -271,7 +273,9 @@ functions:
     description: Sync KoreanBots stats
     maximumRetryAttempts: 0
     events:
-      - schedule: rate(12 hours)
+      - schedule:
+          method: scheduler
+          rate: rate(12 hours)
 
   cleanup_orphan_chzzk_channels:
     handler: lambdas/cron/cleanup_orphan_chzzk_channels.handler
@@ -281,7 +285,10 @@ functions:
     memorySize: 256
     maximumRetryAttempts: 0
     events:
-      - schedule: cron(30 20 L * ? *) # 매월 1일 05:30 KST = 매월 말일 20:30 UTC
+      - schedule:
+          method: scheduler
+          rate: cron(30 5 1 * ? *) # 매월 1일 05:30 KST
+          timezone: Asia/Seoul
 
   weekly_report:
     handler: lambdas/cron/weekly_report.handler
@@ -291,8 +298,9 @@ functions:
     maximumRetryAttempts: 0
     events:
       - schedule:
-          rate: cron(0 16 ? * SUN *) # 매주 월요일 01:00 KST = 일요일 16:00 UTC
-          enabled: true
+          method: scheduler
+          rate: cron(0 1 ? * MON *) # 매주 월요일 01:00 KST
+          timezone: Asia/Seoul
 
   subscription_expiry:
     handler: lambdas/cron/subscription_expiry.handler
@@ -301,7 +309,10 @@ functions:
     timeout: 300
     maximumRetryAttempts: 0
     events:
-      - schedule: cron(5 15 * * ? *) # 매일 00:05 KST = 15:05 UTC
+      - schedule:
+          method: scheduler
+          rate: cron(5 0 * * ? *) # 매일 00:05 KST
+          timezone: Asia/Seoul
 
   chzzk_unfollow:
     handler: lambdas/admin/chzzk_unfollow.handler
