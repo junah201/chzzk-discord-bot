@@ -32,6 +32,22 @@ const INLINE_ERROR = { inlineError: true };
 export const useNotificationActions = (guildId: string) => {
   const queryClient = useQueryClient();
 
+  const adjustCurrentCount = (delta: number) => {
+    const withDelta = (guild: Guild): Guild => ({
+      ...guild,
+      current_count: Math.max(0, (guild.current_count || 0) + delta),
+    });
+
+    queryClient.setQueryData<Guild>(discordKeys.guild(guildId), (oldData) =>
+      oldData ? withDelta(oldData) : oldData,
+    );
+    queryClient.setQueryData<Guild[]>(discordKeys.guilds(), (oldData) =>
+      oldData?.map((guild) =>
+        guild.id === guildId ? withDelta(guild) : guild,
+      ),
+    );
+  };
+
   const addMutation = useMutation({
     meta: INLINE_ERROR,
     mutationFn: (data: NotificationSettings) =>
@@ -40,14 +56,7 @@ export const useNotificationActions = (guildId: string) => {
       queryClient.invalidateQueries({
         queryKey: notificationKeys.listByGuildId(guildId),
       });
-      queryClient.setQueryData<Guild>(discordKeys.guild(guildId), (oldData) => {
-        if (!oldData) return oldData;
-
-        return {
-          ...oldData,
-          current_count: (oldData.current_count || 0) + 1,
-        };
-      });
+      adjustCurrentCount(1);
 
       sendGAEvent("event", "create_notification", {
         guild_id: guildId,
@@ -75,14 +84,7 @@ export const useNotificationActions = (guildId: string) => {
           );
         },
       );
-      queryClient.setQueryData<Guild>(discordKeys.guild(guildId), (oldData) => {
-        if (!oldData) return oldData;
-
-        return {
-          ...oldData,
-          current_count: Math.max(0, (oldData.current_count || 0) - 1),
-        };
-      });
+      adjustCurrentCount(-1);
 
       sendGAEvent("event", "delete_notification", {
         guild_id: guildId,
