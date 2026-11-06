@@ -29,22 +29,24 @@ export default function InviteRedirectPage() {
           icon={<Bot />}
           badge={<Loader2 className="animate-spin" />}
           glowClassName="bg-primary/30"
+          badgeClassName="bg-primary text-primary-foreground"
         />
       }
-      title="치직 봇을 초대하러 갈게요!"
+      title="봇 초대 화면으로 이동 중..."
       description={
         <div className="text-muted-foreground">
-          잠시만 기다려주세요.
+          디스코드에서 서버를 고르고 권한을 승인하면
           <br />
-          디스코드 인증 페이지로 이동하고 있습니다.
+          초대가 완료됩니다.
         </div>
       }
     >
       <div className="w-full flex justify-center">
         <LinkButton
           href={BOT_INVITE_URL}
+          variant="secondary"
           size="lg"
-          className="w-full max-w-sm animate-pulse"
+          className="w-full max-w-sm"
           onClick={() => {
             sendGAEvent("event", "click_invite_bot", {
               location: "redirect_page",
@@ -53,7 +55,7 @@ export default function InviteRedirectPage() {
           }}
         >
           <ExternalLink className="w-5 h-5 mr-2" />
-          이동하지 않으면 클릭하세요
+          바로 이동하기
         </LinkButton>
       </div>
     </StatusPageLayout>

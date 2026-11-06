@@ -36,8 +36,9 @@ export default function SupportRedirectPage() {
       title="서포트 서버로 이동 중..."
       description={
         <div className="text-muted-foreground">
-          궁금한 점이 있으신가요?
-          <br />곧 서포트 서버로 연결됩니다.
+          서포트 서버에서 궁금한 점을 질문하거나
+          <br />
+          문제를 알려주세요.
         </div>
       }
     >
