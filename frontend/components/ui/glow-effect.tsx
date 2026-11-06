@@ -9,8 +9,10 @@ interface GlowEffectProps extends HTMLMotionProps<"div"> {
   delay?: number; // animation delay in seconds
 }
 
+const DEFAULT_DURATION = { static: 0, pulse: 4, breathing: 3 } as const;
+
 function getAnimate(
-  variant: "static" | "pulse" | "breathing" | undefined,
+  variant: "static" | "pulse" | "breathing",
   duration: number,
   delay: number,
 ) {
@@ -20,10 +22,10 @@ function getAnimate(
         opacity: [0.5, 1, 0.5],
         scale: [1, 1.05, 1],
         transition: {
-          duration: 4,
+          duration,
           repeat: Infinity,
           ease: "easeInOut" as const,
-          delay: 0,
+          delay,
         },
       };
     case "breathing":
@@ -47,7 +49,7 @@ function getAnimate(
 const GlowEffect = ({
   className,
   variant = "static",
-  duration = 3,
+  duration,
   delay = 0,
   ...props
 }: GlowEffectProps) => {
@@ -59,7 +61,11 @@ const GlowEffect = ({
         className,
       )}
       initial={variant !== "static" ? { opacity: 0.3, scale: 0.8 } : undefined}
-      animate={getAnimate(variant, duration, delay)}
+      animate={getAnimate(
+        variant,
+        duration ?? DEFAULT_DURATION[variant],
+        delay,
+      )}
       {...props}
     />
   );
