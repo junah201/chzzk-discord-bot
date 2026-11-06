@@ -18,7 +18,7 @@ export default function TroubleshootingPage() {
       <h2>알림 등록 시 발생하는 오류</h2>
       <PolicyCallout
         variant="warning"
-        title="해당 치지직 채널을 찾을 수 없습니다."
+        title="입력한 ID로 치지직 채널을 찾지 못했습니다."
       >
         <ul className="mb-0">
           <li>
@@ -35,7 +35,7 @@ export default function TroubleshootingPage() {
       </PolicyCallout>
       <PolicyCallout
         variant="warning"
-        title="이미 해당 디스코드 채널에 등록된 치지직 채널입니다."
+        title="이 디스코드 채널에는 같은 치지직 채널의 알림이 이미 있습니다."
       >
         <ul className="mb-0">
           <li>
@@ -50,7 +50,7 @@ export default function TroubleshootingPage() {
       </PolicyCallout>
       <PolicyCallout
         variant="warning"
-        title="봇이 해당 디스코드 채널에 접근할 권한이 없습니다."
+        title="치직 봇이 이 채널에 접근할 수 없습니다."
       >
         <ul className="mb-0">
           <li>
@@ -58,12 +58,15 @@ export default function TroubleshootingPage() {
             <strong>채널 보기 / 메시지 보내기</strong> 권한이 없는 경우입니다.
           </li>
           <li>
-            <Link href={routeMap.DOCS.INSTALLATION}>시작하기 문서</Link>의 채널
-            권한 설정을 확인하거나, 봇을 서버에 다시 초대해 주세요.
+            <Link href={`${routeMap.DOCS.INSTALLATION}#channel-permissions`}>
+              채널 권한 설정 가이드
+            </Link>
+            를 따라 치직을 채널 권한에 추가하거나, 봇을 서버에 다시 초대해
+            주세요.
           </li>
         </ul>
       </PolicyCallout>
-      <PolicyCallout variant="warning" title="알림 등록 제한을 초과했습니다.">
+      <PolicyCallout variant="warning" title="알림 슬롯을 모두 사용했습니다.">
         <ul className="mb-0">
           <li>
             서버의 알림 슬롯을 모두 쓴 경우입니다. 무료로는 5개까지 등록할 수
@@ -91,7 +94,7 @@ export default function TroubleshootingPage() {
       </PolicyCallout>
       <PolicyCallout
         variant="warning"
-        title="현재 서비스 계정의 팔로우 한도가 초과되어 등록할 수 없습니다."
+        title="치직 서비스 계정의 팔로우 한도가 가득 차서 지금은 이 채널을 등록할 수 없습니다."
       >
         <ul className="mb-0">
           <li>
@@ -99,7 +102,7 @@ export default function TroubleshootingPage() {
             경우입니다. 직접 해결할 수 있는 문제가 아닙니다.
           </li>
           <li>
-            오류 메시지 끝의 번호와 함께 서포트 서버로 알려 주시면 관리자가
+            오류 메시지의 계정 번호와 함께 서포트 서버로 알려 주시면 관리자가
             조치합니다.
           </li>
         </ul>
@@ -118,7 +121,7 @@ export default function TroubleshootingPage() {
       </PolicyCallout>
       <PolicyCallout
         variant="warning"
-        title="커스텀 웹훅(커스텀 임베드 색상)은 활성 월간 정기 구독 서버에서만 사용할 수 있습니다."
+        title="커스텀 웹훅과 임베드 색상은 월간 구독 서버 전용 기능입니다."
       >
         <ul className="mb-0">
           <li>
@@ -135,7 +138,7 @@ export default function TroubleshootingPage() {
       </PolicyCallout>
       <PolicyCallout
         variant="warning"
-        title="유효한 디스코드 웹훅 URL을 입력해주세요."
+        title="디스코드 웹훅 URL 형식이 아닙니다."
       >
         <ul className="mb-0">
           <li>
@@ -153,7 +156,7 @@ export default function TroubleshootingPage() {
       </PolicyCallout>
       <PolicyCallout
         variant="warning"
-        title="디스코드 웹훅을 찾을 수 없습니다."
+        title="입력한 웹훅을 디스코드에서 찾지 못했습니다."
       >
         <ul className="mb-0">
           <li>
@@ -167,7 +170,10 @@ export default function TroubleshootingPage() {
           </li>
         </ul>
       </PolicyCallout>
-      <PolicyCallout variant="warning" title="다른 디스코드 서버의 웹훅입니다.">
+      <PolicyCallout
+        variant="warning"
+        title="다른 디스코드 서버에서 만든 웹훅입니다."
+      >
         <ul className="mb-0">
           <li>
             커스텀 웹훅은 <strong>알림을 등록하는 서버에서 만든 웹훅</strong>만
@@ -177,10 +183,7 @@ export default function TroubleshootingPage() {
         </ul>
       </PolicyCallout>
       <h2>알림 전송 관련 오류</h2>
-      <PolicyCallout
-        variant="warning"
-        title="테스트 알림 전송에 실패했습니다. 치직 봇이 해당 채널에 메시지를 보낼 권한이 있는지 확인해주세요."
-      >
+      <PolicyCallout variant="warning" title="테스트 알림을 보내지 못했습니다.">
         <ul className="mb-0">
           <li>
             <Link href={routeMap.DOCS.INSTALLATION}>시작하기 문서</Link>의 채널
