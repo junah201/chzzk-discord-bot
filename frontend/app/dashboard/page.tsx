@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "motion/react";
-import { Info, Loader2, RefreshCcw, Search } from "lucide-react";
+import { Loader2, RefreshCcw, Search } from "lucide-react";
 import routeMap from "@/constants/route-map";
 import { discordQueries } from "@/queries/discord";
 import { ServerCard } from "./components/server-card";
@@ -45,25 +45,22 @@ export default function Dashboard() {
             <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div>
                 <h2 className="text-2xl font-bold">내 서버</h2>
-                <p className="mt-1 flex items-start gap-1.5 text-sm text-muted-foreground break-keep">
-                  <Info className="mt-0.5 size-3.5 shrink-0" />
-                  {/* 넓은 화면에서는 로딩 여부와 관계없이 항상 두 줄(검색창 높이와 같음)로 고정해 레이아웃이 밀리지 않게 함 */}
-                  <span>
-                    <span className="md:block">
-                      관리자 권한이 있는 디스코드 서버만 보입니다.
-                    </span>{" "}
-                    <span className="md:block">
-                      궁금한 점은{" "}
-                      <Link
-                        href={routeMap.REDIRECTS.SUPPORT_SERVER}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary underline underline-offset-2"
-                      >
-                        서포트 서버
-                      </Link>
-                      에 문의해 주세요.
-                    </span>
+                {/* 넓은 화면에서는 로딩 여부와 관계없이 항상 두 줄(검색창 높이와 같음)로 고정해 레이아웃이 밀리지 않게 함 */}
+                <p className="mt-1 text-sm text-muted-foreground break-keep">
+                  <span className="md:block">
+                    관리자 권한이 있는 디스코드 서버만 보입니다.
+                  </span>{" "}
+                  <span className="md:block">
+                    궁금한 점은{" "}
+                    <Link
+                      href={routeMap.REDIRECTS.SUPPORT_SERVER}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary underline underline-offset-2"
+                    >
+                      서포트 서버
+                    </Link>
+                    에 문의해 주세요.
                   </span>
                 </p>
               </div>
