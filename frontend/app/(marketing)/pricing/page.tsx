@@ -1,127 +1,123 @@
-import { GlowEffect } from "@/components/ui/glow-effect";
-import { Zap, Bell } from "lucide-react";
+import { GridPattern } from "@/components/ui/grid-pattern";
+import { ArrowUpRight } from "lucide-react";
 import { Metadata } from "next";
-import PricingCard from "./pricing-card";
-import { pricingPlans } from "./pricing-plans";
 import Link from "next/link";
+import CopyButton from "@/components/copy-button";
 import routeMap from "@/constants/route-map";
+import PricingFaq from "./pricing-faq";
+import Reveal from "./reveal";
+import SlotCalculator from "./slot-calculator";
 
 export const metadata: Metadata = {
   title: "치직 - 요금제 - 놓치지 않는 방송 알림, 치직",
   description:
-    "치직의 간편한 요금제를 확인하고 방송 알림을 시작하세요. 250개 슬롯까지 지원되며, 다양한 기능을 제공합니다.",
+    "알림 5개까지는 무료이고, 월 ₩2,000 구독이면 250개까지 쓸 수 있습니다. 필요한 알림 수에 맞는 요금제를 확인하세요.",
   openGraph: {
     title: "치직 - 요금제 - 놓치지 않는 방송 알림, 치직",
-    description: "치직의 간편한 요금제를 확인하고 방송 알림을 시작하세요.",
+    description:
+      "알림 5개까지는 무료입니다. 필요한 알림 수에 맞는 요금제를 확인하세요.",
   },
   twitter: {
     title: "치직 - 요금제 - 놓치지 않는 방송 알림, 치직",
-    description: "치직의 간편한 요금제를 확인하고 방송 알림을 시작하세요.",
+    description:
+      "알림 5개까지는 무료입니다. 필요한 알림 수에 맞는 요금제를 확인하세요.",
   },
 };
 
+const ACCOUNT_NUMBER = "09550105001017";
+
 export default function Pricing() {
   return (
-    <section className="relative min-h-screen pt-32 pb-20 overflow-hidden break-keep">
-      <div className="absolute inset-0 pointer-events-none">
-        <GlowEffect
-          variant="breathing"
-          duration={10}
-          className="top-0 left-1/4 w-96 h-96 bg-primary/5"
-        />
-        <GlowEffect
-          variant="breathing"
-          duration={12}
-          delay={2}
-          className="bottom-0 right-1/4 w-96 h-96 bg-emerald-500/5"
-        />
-      </div>
+    <section className="relative min-h-screen overflow-hidden pt-24 pb-24 break-keep sm:pt-28">
+      <GridPattern className="h-[640px]" />
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center py-20 sm:py-32">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-12">
-              <Zap className="w-4 h-4 text-primary" />
-              <span className="text-sm text-primary">요금제</span>
-            </div>
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl">
+          <Reveal>
+            <header className="mb-8 max-w-2xl sm:mb-10">
+              <p className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                Pricing
+              </p>
+              <h1 className="text-4xl leading-[1.15] font-bold tracking-tight sm:text-5xl">
+                필요한 알림 개수만
+                <br />
+                정하면 됩니다
+              </h1>
+              <p className="mt-5 text-lg text-muted-foreground">
+                알림이 몇 개 필요한지 고르면 가장 저렴한 요금제를 알려 드립니다.
+                5개까지는 무료입니다.
+              </p>
+            </header>
+          </Reveal>
 
-            <h1 className="text-4xl leading-[1.15] font-bold tracking-tight break-keep sm:text-5xl mb-6">
-              필요에 딱 맞는
-              <br />
-              <span className="text-primary">알림 슬롯 요금제</span>
-            </h1>
+          <Reveal delay={0.1}>
+            <SlotCalculator />
+          </Reveal>
 
-            <p className="text-lg text-muted-foreground mb-16 max-w-2xl mx-auto">
-              자유롭게 선택하고 언제든지 변경 가능한 유연한 요금제로, 스트리머와
-              시청자를 위한 최고의 알림 서비스를 경험하세요.
-            </p>
-          </div>
-
-          <h2 className="sr-only">요금제 목록</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-20">
-            {pricingPlans.map((plan, index) => (
-              <PricingCard key={plan.name} plan={plan} index={index} />
-            ))}
-          </div>
-
-          <section className="relative py-20 sm:py-32">
-            <div className="absolute inset-0 pointer-events-none">
-              <GlowEffect
-                variant="breathing"
-                duration={10}
-                className="top-0 left-1/4 w-96 h-96 bg-primary/5"
-              />
-              <GlowEffect
-                variant="breathing"
-                duration={12}
-                delay={2}
-                className="bottom-0 right-1/4 w-96 h-96 bg-emerald-500/5"
-              />
-            </div>
-
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-              <div className="max-w-2xl mx-auto text-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-12">
-                  <Bell className="w-4 h-4 text-primary" />
-                  <span className="text-sm text-primary">결제 안내</span>
-                </div>
-
-                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight break-keep mb-8">
-                  간편하고 안전한 결제 방법
+          <Reveal>
+            <section
+              id="payment"
+              aria-labelledby="payment-heading"
+              className="mt-20 grid scroll-mt-28 gap-8 border-t border-border pt-12 sm:mt-28 md:grid-cols-[1fr_1.4fr]"
+            >
+              <div>
+                <h2
+                  id="payment-heading"
+                  className="text-2xl font-bold tracking-tight"
+                >
+                  결제 방법
                 </h2>
-
-                <div className="bg-card border border-border rounded-xl p-8 space-y-6 text-left">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-primary" />
-                      [결제 안내]
-                    </h3>
-                    <ul className="list-disc pl-5 marker:text-primary text-sm text-muted-foreground leading-relaxed space-y-2">
-                      <li>
-                        결제 계좌:{" "}
-                        <strong className="text-foreground">
-                          IBK기업은행 09550105001017
-                        </strong>{" "}
-                        (예금주: 김준아)
-                      </li>
-                      <li>
-                        계좌이체로 진행되며, 입금 후
-                        <Link
-                          href={routeMap.REDIRECTS.SUPPORT_SERVER}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary underline hover:text-primary/80 transition-colors ml-1"
-                        >
-                          서포트 서버
-                        </Link>
-                        에서 말씀해 주세요.
-                      </li>
-                    </ul>
-                  </div>
-                </div>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  계좌이체로 결제합니다. 입금한 뒤 서포트 서버에 알려 주시면
+                  확인하고 요금제를 적용해 드립니다.
+                </p>
               </div>
-            </div>
-          </section>
+              <ol className="space-y-3">
+                <li className="flex items-center gap-4 rounded-xl border border-border bg-card p-4">
+                  <span className="text-sm font-semibold text-primary tabular-nums">
+                    01
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-muted-foreground">
+                      IBK기업은행 · 예금주 김준아
+                    </p>
+                    <p className="mt-0.5 truncate font-bold tabular-nums">
+                      {ACCOUNT_NUMBER}
+                    </p>
+                  </div>
+                  <CopyButton
+                    value={ACCOUNT_NUMBER}
+                    label="계좌번호 복사"
+                    className="shrink-0 gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs hover:border-primary hover:text-primary"
+                    iconClassName="size-3.5"
+                  >
+                    복사
+                  </CopyButton>
+                </li>
+                <li>
+                  <Link
+                    href={routeMap.REDIRECTS.SUPPORT_SERVER}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/50"
+                  >
+                    <span className="text-sm font-semibold text-primary tabular-nums">
+                      02
+                    </span>
+                    <span className="flex-1 text-sm">
+                      서포트 서버에 입금자명, 요금제, 적용할 디스코드 서버를
+                      알려 주세요
+                    </span>
+                    <ArrowUpRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </Link>
+                </li>
+              </ol>
+            </section>
+          </Reveal>
+
+          <Reveal className="mt-20 sm:mt-28">
+            <PricingFaq />
+          </Reveal>
         </div>
       </div>
     </section>
