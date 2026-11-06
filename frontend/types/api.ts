@@ -26,18 +26,25 @@ export interface Guild {
   max_limit: number;
 }
 
+export interface PermissionOverwrite {
+  id: string;
+  type: 0 | 1;
+  allow: string;
+  deny: string;
+}
+
 export interface Channel {
   id: string;
   type: number;
-  last_message_id: string;
+  last_message_id: string | null;
   flags: number;
   guild_id: string;
   name: string;
-  parent_id: string;
+  parent_id: string | null;
   rate_limit_per_user: number;
-  topic: null;
+  topic: string | null;
   position: number;
-  permission_overwrites: [];
+  permission_overwrites: PermissionOverwrite[];
   nsfw: boolean;
 }
 

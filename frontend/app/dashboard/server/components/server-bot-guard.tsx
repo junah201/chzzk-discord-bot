@@ -1,9 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import routeMap from "@/constants/route-map";
 import { isAxiosError } from "axios";
 import { discordQueries } from "@/queries/discord";
 import BotMissingPage from "./bot-missing";
@@ -14,20 +11,14 @@ import { useGuildOptions } from "@/hooks/use-guild-options";
 import RateLimitedPage from "./rate-limited";
 
 interface ServerBotGuardProps {
+  serverId: string;
   children: React.ReactNode;
 }
 
-export default function ServerBotGuard({ children }: ServerBotGuardProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const serverId = searchParams.get("id");
-
-  useEffect(() => {
-    if (!serverId) {
-      router.replace(routeMap.DASHBOARD.HOME);
-    }
-  }, [serverId, router]);
-
+export default function ServerBotGuard({
+  serverId,
+  children,
+}: ServerBotGuardProps) {
   const { isError: isChannelError, error: channelError } = useQuery(
     discordQueries.channels(serverId),
   );
@@ -35,8 +26,6 @@ export default function ServerBotGuard({ children }: ServerBotGuardProps) {
   const { isError: isGuildError, error: guildError } = useQuery(
     useGuildOptions(serverId),
   );
-
-  if (!serverId) return null;
 
   const getErrorCode = (error: unknown) => {
     return isAxiosError<APIError>(error) ? error.response?.data?.code : null;

@@ -6,19 +6,21 @@ import {
   FieldError,
   FieldLabel,
 } from "@/components/ui/field";
-import { BasicInputProps } from "..";
+import { TextInputProps } from "..";
 
 import { Textarea } from "@/components/ui/textarea";
 
-export const TextareaInput = (props: BasicInputProps) => {
+export const TextareaInput = (props: TextInputProps) => {
   const {
     name,
     errorMessage,
     label,
     helperText,
-    inputProps,
+    placeholder,
+    disabled,
     required,
-    ...rest
+    value,
+    onChange,
   } = props;
 
   return (
@@ -28,7 +30,14 @@ export const TextareaInput = (props: BasicInputProps) => {
           {label} {required ? "*" : ""}
         </FieldLabel>
       )}
-      <Textarea id={name} name={name} {...rest} {...inputProps} />
+      <Textarea
+        id={name}
+        name={name}
+        placeholder={placeholder}
+        disabled={disabled}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
       {Boolean(errorMessage) ? (
         <FieldError>
           {errorMessage} {helperText}

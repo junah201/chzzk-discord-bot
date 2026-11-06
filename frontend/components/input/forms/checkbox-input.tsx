@@ -8,22 +8,20 @@ import {
   FieldLabel,
   FieldTitle,
 } from "@/components/ui/field";
-import { BasicInputProps } from "..";
+import { CheckboxInputProps } from "..";
 
 import { Checkbox } from "@/components/ui/checkbox";
 
-export const CheckboxInput = (props: BasicInputProps) => {
+export const CheckboxInput = (props: CheckboxInputProps) => {
   const {
     name,
     errorMessage,
     label,
     helperText,
     required,
-    type,
-    placeholder,
+    disabled,
     value,
     onChange,
-    ...rest
   } = props;
 
   const labelId = `${name}-label`;
@@ -36,11 +34,11 @@ export const CheckboxInput = (props: BasicInputProps) => {
           id={name}
           name={name}
           checked={value}
-          onCheckedChange={onChange}
+          onCheckedChange={(checked) => onChange(checked === true)}
           aria-labelledby={label ? labelId : undefined}
           aria-describedby={descriptionId}
           aria-required={required}
-          {...rest}
+          disabled={disabled}
         />
         <FieldContent>
           {label && (

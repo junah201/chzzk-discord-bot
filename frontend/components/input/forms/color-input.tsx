@@ -21,7 +21,7 @@ import {
   toCssColor,
   toHexEmbedColor,
 } from "@/lib/discord";
-import { BasicInputProps } from "..";
+import { TextInputProps } from "..";
 
 const DEFAULT_HEX = toCssColor(DEFAULT_EMBED_COLOR).toUpperCase();
 
@@ -36,7 +36,7 @@ const PRESET_COLORS = [
   "#FFFFFF",
 ];
 
-export const ColorInput = (props: BasicInputProps) => {
+export const ColorInput = (props: TextInputProps) => {
   const {
     name,
     errorMessage,
@@ -48,7 +48,7 @@ export const ColorInput = (props: BasicInputProps) => {
     onChange,
   } = props;
 
-  const hex = toHexEmbedColor(value ?? "");
+  const hex = toHexEmbedColor(value);
   const [draft, setDraft] = useState<string | null>(null);
   const displayHex = hex || DEFAULT_HEX;
 

@@ -4,7 +4,7 @@ import React from "react";
 import {
   useController,
   Control,
-  FieldPath,
+  FieldPathByValue,
   FieldValues,
   UseControllerProps,
 } from "react-hook-form";
@@ -21,34 +21,47 @@ export interface Option {
   label: string;
   value: string;
 }
-export type InputTypes = "text" | "select" | "textarea" | "checkbox" | "color";
 
-interface BaseInputProps {
+interface CommonInputProps {
   name: string;
   label: string;
-  type: InputTypes;
   placeholder?: string;
-  helperText?: string | React.ReactNode;
-  options?: Option[] | readonly Option[];
+  helperText?: React.ReactNode;
   disabled?: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  inputProps?: any;
   required?: boolean;
+  errorMessage?: string;
 }
 
-export interface BasicInputProps extends BaseInputProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onChange: (...event: any[]) => void;
-  errorMessage?: string | undefined;
+interface StringInputProps extends CommonInputProps {
+  value: string;
+  onChange: (value: string) => void;
 }
+
+export interface TextInputProps extends StringInputProps {
+  type: "text" | "textarea" | "color";
+}
+
+export interface SelectInputProps extends StringInputProps {
+  type: "select";
+  options: readonly Option[];
+}
+
+export interface CheckboxInputProps extends CommonInputProps {
+  type: "checkbox";
+  value: boolean;
+  onChange: (value: boolean) => void;
+}
+
+export type BasicInputProps =
+  | TextInputProps
+  | SelectInputProps
+  | CheckboxInputProps;
+
+export type InputTypes = BasicInputProps["type"];
 
 export const BasicInput = (props: BasicInputProps) => {
-  const { type } = props;
-
-  const content = (inputType: InputTypes) => {
-    switch (inputType) {
+  const content = () => {
+    switch (props.type) {
       case "text":
         return <BaseInput {...props} />;
       case "textarea":
@@ -59,48 +72,44 @@ export const BasicInput = (props: BasicInputProps) => {
         return <SelectInput {...props} />;
       case "color":
         return <ColorInput {...props} />;
-      default:
-        return (
-          <p>
-            Invalid Input Type : <span className="font-bold">{props.type}</span>
-          </p>
-        );
     }
   };
 
-  return <div className="flex w-full flex-col">{content(type)}</div>;
+  return <div className="flex w-full flex-col">{content()}</div>;
 };
 
-interface InputProps<T extends FieldValues, TName extends FieldPath<T>>
-  extends Omit<BaseInputProps, "name" | "required"> {
+type ControlledProps<P extends BasicInputProps> = Omit<
+  P,
+  "name" | "value" | "onChange" | "errorMessage" | "required"
+>;
+
+interface ControllerProps<T extends FieldValues, V> {
   control: Control<T>;
-  name: TName;
-  rules?: UseControllerProps<T, TName>["rules"];
+  name: FieldPathByValue<T, V>;
+  rules?: UseControllerProps<T>["rules"];
 }
 
-export const Input = <T extends FieldValues, TName extends FieldPath<T>>({
-  control,
-  name,
-  rules,
-  ...props
-}: InputProps<T, TName>) => {
+type InputProps<T extends FieldValues> =
+  | (ControlledProps<TextInputProps> & ControllerProps<T, string>)
+  | (ControlledProps<SelectInputProps> & ControllerProps<T, string>)
+  | (ControlledProps<CheckboxInputProps> & ControllerProps<T, boolean>);
+
+export const Input = <T extends FieldValues>(props: InputProps<T>) => {
+  const { control, name, rules, ...rest } = props;
   const {
     field: { value, onChange },
     fieldState: { error },
-  } = useController({
-    name,
-    rules,
-    control,
-  });
+  } = useController<T>({ name, rules, control });
 
-  return (
-    <BasicInput
-      {...props}
-      name={name}
-      required={Boolean(rules?.required)}
-      value={value}
-      onChange={onChange}
-      errorMessage={error?.message}
-    />
-  );
+  const fieldProps = {
+    name,
+    required: Boolean(rules?.required),
+    errorMessage: error?.message,
+    onChange,
+  };
+
+  if (rest.type === "checkbox") {
+    return <BasicInput {...rest} {...fieldProps} value={Boolean(value)} />;
+  }
+  return <BasicInput {...rest} {...fieldProps} value={value ?? ""} />;
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import { Field, FieldDescription, FieldError } from "@/components/ui/field";
-import { BasicInputProps } from "..";
+import { SelectInputProps } from "..";
 
 import { Label } from "@/components/ui/label";
 import {
@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export const SelectInput = (props: BasicInputProps) => {
+export const SelectInput = (props: SelectInputProps) => {
   const {
     name,
     errorMessage,
@@ -38,7 +38,7 @@ export const SelectInput = (props: BasicInputProps) => {
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
-          {options?.map((option) => (
+          {options.map((option) => (
             <SelectItem key={option.value} value={option.value}>
               {option.label}
             </SelectItem>

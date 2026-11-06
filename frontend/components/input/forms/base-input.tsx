@@ -6,19 +6,21 @@ import {
   FieldError,
   FieldLabel,
 } from "@/components/ui/field";
-import { BasicInputProps } from "..";
+import { TextInputProps } from "..";
 
 import { Input } from "@/components/ui/input";
 
-export const BaseInput = (props: BasicInputProps) => {
+export const BaseInput = (props: TextInputProps) => {
   const {
     name,
     errorMessage,
     label,
     helperText,
-    inputProps,
+    placeholder,
+    disabled,
     required,
-    ...rest
+    value,
+    onChange,
   } = props;
 
   return (
@@ -28,7 +30,15 @@ export const BaseInput = (props: BasicInputProps) => {
           {label} {required ? "*" : ""}
         </FieldLabel>
       )}
-      <Input id={name} name={name} {...rest} {...inputProps} />
+      <Input
+        id={name}
+        name={name}
+        type="text"
+        placeholder={placeholder}
+        disabled={disabled}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
       {Boolean(errorMessage) ? (
         <FieldError>
           {errorMessage} {helperText}
