@@ -36,6 +36,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { getErrorMessage } from "@/lib/api-error";
 import { Feedback, getNotificationLabel } from "./mutation-alert";
+import TestGuideCallout from "./test-guide-callout";
 
 interface NotificationManagerProps {
   serverId: string;
@@ -90,6 +91,7 @@ export default function NotificationManager({
           )}
         </Alert>
       )}
+      {feedback?.showTestGuide && <TestGuideCallout />}
 
       <div className="">
         {isLoading ? (
@@ -309,6 +311,9 @@ function NotificationRow({
                     variant: "destructive",
                     title: `${getNotificationLabel(n)} 테스트 알림을 보내지 못했습니다`,
                     description: getErrorMessage(error),
+                    showTestGuide: getErrorMessage(error).includes(
+                      "테스트 알림 전송에 실패했습니다",
+                    ),
                   }),
               },
             )

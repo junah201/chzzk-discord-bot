@@ -9,9 +9,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import routeMap from "@/constants/route-map";
 import AddNotificationForm from "./components/add-notification-form";
 import { useGuildOptions } from "@/hooks/use-guild-options";
-import SetupGuideCallout from "./components/setup-guide-callout";
 import NotificationManager from "./components/notification-manager";
-import TestGuideCallout from "./components/test-guide-callout";
 import ServerBotGuard from "./components/server-bot-guard";
 import NotificationLimitCard from "./components/notification-limit-card";
 import { DEFAULT_SLOT_LIMIT, SUBSCRIPTION_SLOT_LIMIT } from "@/constants/slots";
@@ -64,14 +62,12 @@ function ServerDetail({ serverId }: { serverId: string }) {
           serverId={serverId}
           isSubscription={isSubscription}
         />
-        <SetupGuideCallout />
       </div>
       <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 pb-6">
         <NotificationManager
           serverId={serverId}
           isSubscription={isSubscription}
         />
-        <TestGuideCallout />
       </div>
     </ServerBotGuard>
   );

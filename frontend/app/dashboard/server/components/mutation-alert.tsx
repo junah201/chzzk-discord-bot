@@ -6,6 +6,7 @@ export interface Feedback {
   variant: "success" | "destructive";
   title: string;
   description?: string;
+  showTestGuide?: boolean;
 }
 
 export function getNotificationLabel(n: Notification) {
