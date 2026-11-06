@@ -1,7 +1,19 @@
 import routeMap from "@/constants/route-map";
 import Link from "next/link";
+import type { HTMLAttributeAnchorTarget } from "react";
 
-const footerLinks = [
+type FooterLink = {
+  name: string;
+  href: string;
+  target?: HTMLAttributeAnchorTarget;
+};
+
+type FooterSection = {
+  title: string;
+  links: FooterLink[];
+};
+
+const footerLinks: FooterSection[] = [
   {
     title: "제품",
     links: [
@@ -30,7 +42,7 @@ const footerLinks = [
       { name: "FAQ", href: routeMap.DOCS.TROUBLESHOOTING },
     ],
   },
-] as const;
+];
 
 export const FooterNav = () => {
   return (
@@ -45,6 +57,10 @@ export const FooterNav = () => {
               <li key={link.name}>
                 <Link
                   href={link.href}
+                  target={link.target}
+                  rel={
+                    link.target === "_blank" ? "noopener noreferrer" : undefined
+                  }
                   className="text-muted-foreground hover:text-primary transition-colors inline-block"
                 >
                   {link.name}
