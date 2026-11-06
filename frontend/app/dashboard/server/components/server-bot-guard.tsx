@@ -1,11 +1,10 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 import { discordQueries } from "@/queries/discord";
 import BotMissingPage from "./bot-missing";
 import UnknownErrorPage from "./unknown-error";
-import { APIError } from "@/types/api";
+import { getErrorCode } from "@/lib/api-error";
 import AdminRequiredPage from "./admin-required";
 import { useGuildOptions } from "@/hooks/use-guild-options";
 import RateLimitedPage from "./rate-limited";
@@ -26,10 +25,6 @@ export default function ServerBotGuard({
   const { isError: isGuildError, error: guildError } = useQuery(
     useGuildOptions(serverId),
   );
-
-  const getErrorCode = (error: unknown) => {
-    return isAxiosError<APIError>(error) ? error.response?.data?.code : null;
-  };
 
   const channelErrorCode = isChannelError ? getErrorCode(channelError) : null;
   const guildErrorCode = isGuildError ? getErrorCode(guildError) : null;

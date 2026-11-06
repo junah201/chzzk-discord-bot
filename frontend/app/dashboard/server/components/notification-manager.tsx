@@ -34,9 +34,12 @@ import { ExternalLink, Loader2, Send } from "lucide-react";
 import CopyButton from "@/components/copy-button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { getErrorMessage } from "@/lib/api-error";
-import { Feedback, getNotificationLabel } from "./mutation-alert";
-import TestGuideCallout from "./test-guide-callout";
+import { getErrorHelp, getErrorMessage } from "@/lib/api-error";
+import {
+  ErrorHelpLink,
+  Feedback,
+  getNotificationLabel,
+} from "./mutation-alert";
 
 interface NotificationManagerProps {
   serverId: string;
@@ -84,14 +87,14 @@ export default function NotificationManager({
           onClose={() => setFeedback(null)}
         >
           <AlertTitle>{feedback.title}</AlertTitle>
-          {feedback.description && (
+          {(feedback.description || feedback.help) && (
             <AlertDescription className="whitespace-pre-line">
               {feedback.description}
+              {feedback.help && <ErrorHelpLink help={feedback.help} />}
             </AlertDescription>
           )}
         </Alert>
       )}
-      {feedback?.showTestGuide && <TestGuideCallout />}
 
       <div className="">
         {isLoading ? (
@@ -311,9 +314,7 @@ function NotificationRow({
                     variant: "destructive",
                     title: `${getNotificationLabel(n)} 테스트 알림을 보내지 못했습니다`,
                     description: getErrorMessage(error),
-                    showTestGuide: getErrorMessage(error).includes(
-                      "테스트 알림 전송에 실패했습니다",
-                    ),
+                    help: getErrorHelp(error),
                   }),
               },
             )
