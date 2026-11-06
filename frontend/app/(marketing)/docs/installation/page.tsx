@@ -33,7 +33,7 @@ export default function InstallationPage() {
         </li>
       </ol>
 
-      <h2 id="channel-permissions">디스코드 채널 권한 설정 (중요)</h2>
+      <h2 id="channel-permissions" className="scroll-mt-32">디스코드 채널 권한 설정 (중요)</h2>
       <p>
         봇이 서버에 들어와 있어도, 알림을 보낼 채널에{" "}
         <strong>권한이 없으면 알림을 보낼 수 없습니다.</strong> 비공개 채널이나
