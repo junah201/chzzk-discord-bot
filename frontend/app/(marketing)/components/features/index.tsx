@@ -20,11 +20,7 @@ export function Features() {
             {...reveal()}
             className="break-keep lg:sticky lg:top-32 lg:self-start"
           >
-            <p className="mb-5 flex items-center gap-2 text-sm font-semibold text-primary">
-              <span className="relative flex size-2">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#e5172d] opacity-60 motion-reduce:animate-none" />
-                <span className="relative inline-flex size-2 rounded-full bg-[#e5172d]" />
-              </span>
+            <p className="mb-5 text-sm font-semibold text-primary">
               핵심 기능
             </p>
             <h2 className="text-4xl leading-[1.15] font-bold tracking-tight sm:text-5xl">
