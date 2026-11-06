@@ -7,3 +7,6 @@
 /htmlcov
 /.pytest_cache
 /CLAUDE.md
+/.claude
+/skills-lock.json
+/docs
