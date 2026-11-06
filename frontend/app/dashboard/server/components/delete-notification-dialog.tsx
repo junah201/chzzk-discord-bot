@@ -64,7 +64,7 @@ export default function DeleteNotificationDialog({
         <Button
           size="sm"
           variant="outline"
-          className="h-8 gap-1.5 border-rose-500/20 text-rose-600 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-500/30"
+          className="h-8 gap-1.5 border-rose-500/20 text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 hover:border-rose-500/30"
         >
           {remove.isPending ? (
             <Loader2 className="w-3.5 h-3.5 animate-spin" />

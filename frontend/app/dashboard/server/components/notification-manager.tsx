@@ -270,8 +270,8 @@ function NotificationRow({
               className={cn(
                 "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-medium transition-colors cursor-default",
                 n.last_noti_status === "SUCCESS"
-                  ? "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
-                  : "bg-rose-500/10 text-rose-600 hover:bg-rose-500/20",
+                  ? "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
+                  : "bg-rose-500/10 text-rose-400 hover:bg-rose-500/20",
               )}
             >
               {n.last_noti_status === "SUCCESS" ? (

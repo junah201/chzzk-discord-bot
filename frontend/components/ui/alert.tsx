@@ -12,8 +12,8 @@ const alertVariants = cva(
     variants: {
       variant: {
         default: "bg-secondary/30 border-border/50 text-foreground",
-        destructive: "bg-rose-500/5 border-rose-500/30 text-rose-600",
-        success: "bg-emerald-500/5 border-emerald-500/30 text-emerald-600",
+        destructive: "bg-rose-500/5 border-rose-500/30 text-rose-400",
+        success: "bg-emerald-500/5 border-emerald-500/30 text-emerald-400",
       },
     },
     defaultVariants: {
