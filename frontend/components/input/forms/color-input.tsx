@@ -46,6 +46,7 @@ export const ColorInput = (props: TextInputProps) => {
     disabled,
     value,
     onChange,
+    ref,
   } = props;
 
   const hex = toHexEmbedColor(value);
@@ -121,6 +122,7 @@ export const ColorInput = (props: TextInputProps) => {
             #
           </span>
           <Input
+            ref={ref}
             id={name}
             name={name}
             disabled={disabled}

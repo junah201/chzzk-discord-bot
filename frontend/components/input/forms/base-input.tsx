@@ -21,6 +21,7 @@ export const BaseInput = (props: TextInputProps) => {
     required,
     value,
     onChange,
+    ref,
   } = props;
 
   return (
@@ -31,6 +32,7 @@ export const BaseInput = (props: TextInputProps) => {
         </FieldLabel>
       )}
       <Input
+        ref={ref}
         id={name}
         name={name}
         type="text"

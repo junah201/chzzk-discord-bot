@@ -21,6 +21,7 @@ export const TextareaInput = (props: TextInputProps) => {
     required,
     value,
     onChange,
+    ref,
   } = props;
 
   return (
@@ -31,6 +32,7 @@ export const TextareaInput = (props: TextInputProps) => {
         </FieldLabel>
       )}
       <Textarea
+        ref={ref}
         id={name}
         name={name}
         placeholder={placeholder}

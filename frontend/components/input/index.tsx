@@ -6,6 +6,7 @@ import {
   Control,
   FieldPathByValue,
   FieldValues,
+  RefCallBack,
   UseControllerProps,
 } from "react-hook-form";
 
@@ -30,6 +31,7 @@ interface CommonInputProps {
   disabled?: boolean;
   required?: boolean;
   errorMessage?: string;
+  ref?: RefCallBack;
 }
 
 interface StringInputProps extends CommonInputProps {
@@ -81,7 +83,7 @@ export const BasicInput = (props: BasicInputProps) => {
 
 type ControlledProps<P extends BasicInputProps> = Omit<
   P,
-  "name" | "value" | "onChange" | "errorMessage" | "required"
+  "name" | "value" | "onChange" | "errorMessage" | "required" | "ref"
 >;
 
 interface ControllerProps<T extends FieldValues, V> {
@@ -98,7 +100,7 @@ type InputProps<T extends FieldValues> =
 export const Input = <T extends FieldValues>(props: InputProps<T>) => {
   const { control, name, rules, ...rest } = props;
   const {
-    field: { value, onChange },
+    field: { value, onChange, ref },
     fieldState: { error },
   } = useController<T>({ name, rules, control });
 
@@ -107,6 +109,7 @@ export const Input = <T extends FieldValues>(props: InputProps<T>) => {
     required: Boolean(rules?.required),
     errorMessage: error?.message,
     onChange,
+    ref,
   };
 
   if (rest.type === "checkbox") {

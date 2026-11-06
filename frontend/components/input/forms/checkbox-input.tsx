@@ -22,6 +22,7 @@ export const CheckboxInput = (props: CheckboxInputProps) => {
     disabled,
     value,
     onChange,
+    ref,
   } = props;
 
   const labelId = `${name}-label`;
@@ -31,6 +32,7 @@ export const CheckboxInput = (props: CheckboxInputProps) => {
     <FieldLabel>
       <Field orientation="horizontal">
         <Checkbox
+          ref={ref}
           id={name}
           name={name}
           checked={value}
