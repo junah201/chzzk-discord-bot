@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(*));
+
 :root {
   --font-size: 16px;
   --background: #0a0b0f;
