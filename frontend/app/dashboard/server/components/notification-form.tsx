@@ -7,6 +7,7 @@ import { discordQueries } from "@/queries/discord";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { Control } from "react-hook-form";
+import SubscriberSection from "./subscriber-section";
 
 export interface NotificationFormValues {
   chzzk_id: string;
@@ -98,41 +99,43 @@ export default function NotificationForm({
           </>
         }
       />
-      <Input
-        type="text"
-        control={control}
-        name="webhook_url"
-        label="커스텀 웹훅 URL (구독자 전용)"
-        disabled={!isSubscription}
-        placeholder="https://discord.com/api/webhooks/..."
-        helperText={
-          <>
-            치직 봇 대신 웹훅에 설정한 이름과 프로필 이미지로 알림을 보냅니다.
-            설정 방법은{" "}
-            <Link
-              href={routeMap.DOCS.CUSTOM_WEBHOOK}
-              className="underline hover:text-primary/80"
-            >
-              커스텀 웹훅 문서
-            </Link>
-            를 참고하세요.
-          </>
-        }
-      />
-      <Input
-        type="color"
-        control={control}
-        name="embed_color"
-        label="임베드 색상 (구독자 전용)"
-        disabled={!isSubscription}
-        rules={{
-          pattern: {
-            value: /^#[0-9a-fA-F]{6}$/,
-            message: "5865F2 같은 6자리 색상 코드로 입력해 주세요.",
-          },
-        }}
-        helperText="임베드 왼쪽 띠의 색입니다. 구독이 끝나면 기본 색상으로 돌아갑니다."
-      />
+      <SubscriberSection locked={!isSubscription}>
+        <Input
+          type="text"
+          control={control}
+          name="webhook_url"
+          label="커스텀 웹훅 URL"
+          disabled={!isSubscription}
+          placeholder="https://discord.com/api/webhooks/..."
+          helperText={
+            <>
+              치직 봇 대신 웹훅에 설정한 이름과 프로필 이미지로 알림을 보냅니다.
+              설정 방법은{" "}
+              <Link
+                href={routeMap.DOCS.CUSTOM_WEBHOOK}
+                className="underline hover:text-primary/80"
+              >
+                커스텀 웹훅 문서
+              </Link>
+              를 참고하세요.
+            </>
+          }
+        />
+        <Input
+          type="color"
+          control={control}
+          name="embed_color"
+          label="임베드 색상"
+          disabled={!isSubscription}
+          rules={{
+            pattern: {
+              value: /^#[0-9a-fA-F]{6}$/,
+              message: "5865F2 같은 6자리 색상 코드로 입력해 주세요.",
+            },
+          }}
+          helperText="임베드 왼쪽 띠의 색입니다. 구독이 끝나면 기본 색상으로 돌아갑니다."
+        />
+      </SubscriberSection>
       <Input
         type="checkbox"
         control={control}
