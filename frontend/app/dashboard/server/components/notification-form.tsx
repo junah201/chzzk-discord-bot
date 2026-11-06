@@ -24,73 +24,74 @@ export interface NotificationFormValues {
   disable_notification: boolean;
 }
 
-interface NotificationFormProps {
+interface NotificationFieldsProps {
   control: Control<NotificationFormValues>;
-  isEdit?: boolean;
 }
 
-export default function NotificationForm({
-  control,
-  isEdit = false,
-}: NotificationFormProps) {
-  const { serverId, isSubscription } = use(ServerContext);
+export function NotificationTargetFields({ control }: NotificationFieldsProps) {
+  const { serverId } = use(ServerContext);
   const queryClient = useQueryClient();
   const { data, isFetching } = useQuery(discordQueries.channels(serverId));
   const channels = data || [];
 
   return (
     <div className="flex flex-col gap-4">
-      {!isEdit && (
-        <>
-          <Input
-            type="text"
-            control={control}
-            name="chzzk_id"
-            label="치지직 ID"
-            placeholder="bb382c2c0cc9fa7c86"
-            rules={{ required: "치지직 ID를 입력해 주세요." }}
-            helperText={
-              <>
-                치지직 ID를 찾는 방법은{" "}
-                <Link href={routeMap.DOCS.NOTIFICATIONS}>알림 등록 문서</Link>를
-                참고하세요.
-              </>
-            }
-            disabled={isEdit}
-          />
-          <Input
-            type="select"
-            control={control}
-            name="channel_id"
-            label="디스코드 채널"
-            rules={{ required: "알림을 받을 디스코드 채널을 선택해 주세요." }}
-            helperText={
-              <>
-                새로 만든 채널이 보이지 않으면 채널 목록을
-                <button
-                  type="button"
-                  onClick={() =>
-                    queryClient.invalidateQueries({
-                      queryKey: keys.channels(serverId),
-                    })
-                  }
-                  disabled={isFetching}
-                  className="underline hover:text-primary/80 mx-1 disabled:opacity-50 disabled:cursor-wait"
-                >
-                  {isFetching ? "불러오는 중" : "새로고침"}
-                </button>
-                해 주세요.
-              </>
-            }
-            options={channels.map((channel) => ({
-              label: `#${channel.name}`,
-              value: channel.id,
-            }))}
-            isLoading={isFetching}
-            disabled={isEdit}
-          />
-        </>
-      )}
+      <Input
+        type="text"
+        control={control}
+        name="chzzk_id"
+        label="치지직 ID"
+        placeholder="bb382c2c0cc9fa7c86"
+        rules={{ required: "치지직 ID를 입력해 주세요." }}
+        helperText={
+          <>
+            치지직 ID를 찾는 방법은{" "}
+            <Link href={routeMap.DOCS.NOTIFICATIONS}>알림 등록 문서</Link>를
+            참고하세요.
+          </>
+        }
+      />
+      <Input
+        type="select"
+        control={control}
+        name="channel_id"
+        label="디스코드 채널"
+        rules={{ required: "알림을 받을 디스코드 채널을 선택해 주세요." }}
+        helperText={
+          <>
+            새로 만든 채널이 보이지 않으면 채널 목록을
+            <button
+              type="button"
+              onClick={() =>
+                queryClient.invalidateQueries({
+                  queryKey: keys.channels(serverId),
+                })
+              }
+              disabled={isFetching}
+              className="underline hover:text-primary/80 mx-1 disabled:opacity-50 disabled:cursor-wait"
+            >
+              {isFetching ? "불러오는 중" : "새로고침"}
+            </button>
+            해 주세요.
+          </>
+        }
+        options={channels.map((channel) => ({
+          label: `#${channel.name}`,
+          value: channel.id,
+        }))}
+        isLoading={isFetching}
+      />
+    </div>
+  );
+}
+
+export function NotificationSettingsFields({
+  control,
+}: NotificationFieldsProps) {
+  const { isSubscription } = use(ServerContext);
+
+  return (
+    <div className="flex flex-col gap-4">
       <Input
         type="textarea"
         control={control}

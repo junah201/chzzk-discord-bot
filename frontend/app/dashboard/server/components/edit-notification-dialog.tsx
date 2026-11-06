@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { useNotificationActions } from "@/hooks/use-notifications";
 import { toHexEmbedColor } from "@/lib/discord";
 import { Notification } from "@/types/api";
-import NotificationForm from "./notification-form";
+import { NotificationSettingsFields } from "./notification-form";
 import NotificationPreviewPanel from "./notification-preview-panel";
 import MutationAlert, {
   Feedback,
@@ -84,7 +84,7 @@ export default function EditNotificationDialog({
         </DialogHeader>
 
         <div className="grid gap-8 py-4 @5xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
-          <NotificationForm control={control} isEdit />
+          <NotificationSettingsFields control={control} />
           <div className="@5xl:sticky @5xl:top-0 @5xl:self-start">
             <NotificationPreviewPanel
               control={control}
