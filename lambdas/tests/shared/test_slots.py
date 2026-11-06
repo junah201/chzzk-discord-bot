@@ -1,4 +1,4 @@
-from bot.admin_event_handler.sync_slots import SlotUsage, count_slot_usage
+from shared.slots import SlotUsage, count_notifications, count_slot_usage
 
 
 def guild(**attrs):
@@ -40,3 +40,7 @@ def test_guild_item_found_by_sk_without_type():
 
 def test_without_guild_item_returns_none():
     assert count_slot_usage("1", [noti()]) is None
+
+
+def test_count_notifications_ignores_other_types():
+    assert count_notifications([noti(), guild(), noti(), {}]) == 2

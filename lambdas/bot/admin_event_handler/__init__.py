@@ -12,11 +12,7 @@ from bot.admin_event_handler.purchase import (
     build_purchase,
     order_sk,
 )
-from bot.admin_event_handler.sync_slots import (
-    count_slot_usage,
-    fixed_message,
-    in_sync_message,
-)
+from bot.admin_event_handler.sync_slots import fixed_message, in_sync_message
 from bot.admin_event_handler.ui import (
     ADD_SUBSCRIPTION_MODAL,
     SYNC_SLOTS_MODAL,
@@ -34,6 +30,7 @@ from shared.notification_dispatcher import (
     is_guild_subscription_active,
     query_guild_items,
 )
+from shared.slots import count_slot_usage
 from shared.utils import build_response
 
 ADMIN_DISCORD_PUBLIC_KEY = os.environ.get("ADMIN_DISCORD_PUBLIC_KEY")
