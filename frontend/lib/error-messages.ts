@@ -129,6 +129,18 @@ export const ERROR_MESSAGES: Record<string, ErrorCopy> = {
       "설정을 바꾸려면 알림 목록에서 기존 알림을 수정해 주세요.",
     ),
   },
+  SERVICE_ACCOUNT_BLOCKED: {
+    message: (data) =>
+      lines(
+        "치직 서비스 계정이 이 치지직 채널에서 차단되어 알림을 등록할 수 없습니다.",
+        "스트리머나 채널 매니저에게 차단 해제를 요청한 뒤 다시 등록해 주세요.",
+        "어떤 계정을 해제해야 하는지는 서포트 서버로 문의해 주세요." +
+          (typeof data.account_index === "number"
+            ? ` (계정 번호: ${data.account_index})`
+            : ""),
+      ),
+    help: SUPPORT_SERVER_HELP,
+  },
   SERVICE_FOLLOW_LIMIT_REACHED: {
     message: (data) =>
       lines(

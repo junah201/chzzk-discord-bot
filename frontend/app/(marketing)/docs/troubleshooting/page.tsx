@@ -81,7 +81,7 @@ export default function TroubleshootingPage() {
       </PolicyCallout>
       <PolicyCallout
         variant="warning"
-        title="서비스 내부 계정이 해당 치지직 채널에서 차단되어 알림을 설정할 수 없습니다."
+        title="치직 서비스 계정이 이 치지직 채널에서 차단되어 알림을 등록할 수 없습니다."
       >
         <ul className="mb-0">
           <li>
@@ -89,7 +89,11 @@ export default function TroubleshootingPage() {
             확인합니다. 이 계정이 채널에서 활동 제한(차단)되면 알림을 등록할 수
             없습니다.
           </li>
-          <li>채널 관리자(스트리머/매니저)에게 차단 해제를 요청해 주세요.</li>
+          <li>
+            채널 관리자(스트리머/매니저)에게 차단 해제를 요청해 주세요. 어떤
+            계정을 해제해야 하는지는 오류 메시지의 계정 번호와 함께 서포트
+            서버로 문의해 주세요.
+          </li>
         </ul>
       </PolicyCallout>
       <PolicyCallout

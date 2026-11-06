@@ -115,6 +115,17 @@ class ServiceFollowLimitError(BaseException):
         )
 
 
+class ServiceAccountBlockedError(BaseException):
+    def __init__(self, account_index: int):
+        super().__init__(
+            403,
+            "SERVICE_ACCOUNT_BLOCKED",
+            "서비스 계정이 이 치지직 채널에서 차단되었습니다. "
+            f"스트리머에게 차단 해제를 요청해 주세요. ({account_index})",
+            {"account_index": account_index},
+        )
+
+
 class SendTestNotificationError(BaseException):
     def __init__(self, *, via_webhook=False, discord_message: str | None = None):
         message = (

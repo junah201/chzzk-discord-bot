@@ -15,6 +15,7 @@ from shared.exceptions import (
     BadRequestError,
     ChzzkChannelNotFoundError,
     ChzzkChannelRegisterError,
+    ServiceAccountBlockedError,
     ServiceFollowLimitError,
 )
 from shared.notification_dispatcher import (
@@ -103,11 +104,9 @@ def handler(event, _context):
         success, err_message = process_follow(chzzk_id, index, naver_item)
         if not success:
             if "영구 활동 제한" in err_message:
-                return build_response(
-                    400,
-                    f"서비스 내부 계정이 해당 치지직 채널에서 차단되어 알림을 설정할 수 없습니다. "
-                    f"채널 관리자(스트리머/매니저)에게 차단 해제를 요청해 주세요. ({index})",
-                )
+                # TODO: NAVER 계정 아이템에 치지직 닉네임도 저장해 두고, 차단 해제할 계정을
+                # account_index 대신 닉네임으로 응답에 담아 사용자가 바로 알 수 있게 하기
+                raise ServiceAccountBlockedError(index)
             elif "최대 팔로우 수를 초과" in err_message:
                 raise ServiceFollowLimitError(index)
             return build_response(
