@@ -39,21 +39,18 @@ const iconVariants = cva("text-primary relative", {
   },
 });
 
-const textVariants = cva(
-  "font-bold bg-linear-to-r from-primary to-emerald-400 bg-clip-text text-transparent",
-  {
-    variants: {
-      size: {
-        sm: "text-lg",
-        md: "text-xl",
-        lg: "text-2xl",
-      },
-    },
-    defaultVariants: {
-      size: "md",
+const textVariants = cva("font-bold text-primary", {
+  variants: {
+    size: {
+      sm: "text-lg",
+      md: "text-xl",
+      lg: "text-2xl",
     },
   },
-);
+  defaultVariants: {
+    size: "md",
+  },
+});
 
 export interface LogoProps
   extends Omit<HTMLMotionProps<"a">, "size">,

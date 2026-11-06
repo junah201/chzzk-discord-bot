@@ -93,7 +93,7 @@ export function PolicyLayout({
                 transition={{ duration: 0.6 }}
               >
                 <div className="mb-12">
-                  <h1 className="text-4xl sm:text-5xl font-bold mb-8 bg-linear-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
+                  <h1 className="text-4xl sm:text-5xl font-bold mb-8 text-foreground">
                     {title}
                   </h1>
                   <div className="bg-linear-to-br from-primary/10 to-emerald-500/5 border-l-4 border-primary rounded-xl p-6 flex gap-4">

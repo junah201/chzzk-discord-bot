@@ -49,7 +49,7 @@ export function StatusPageLayout({
           transition={{ delay: 0.2, duration: 0.4 }}
           className="space-y-4"
         >
-          <h1 className="text-3xl sm:text-4xl font-bold bg-linear-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
             {title}
           </h1>
           {description && (
