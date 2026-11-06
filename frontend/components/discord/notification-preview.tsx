@@ -90,6 +90,7 @@ export function NotificationPreview({
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
           <img
+            draggable={false}
             src="/favicon-192.png"
             alt=""
             className="mt-0.5 size-10 shrink-0 rounded-full bg-black"
@@ -145,6 +146,7 @@ export function NotificationPreview({
               <div className="mt-1 flex items-center gap-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
+                  draggable={false}
                   src={getChzzkChannelImageUrl(live.channelImageUrl)}
                   alt=""
                   className="size-6 rounded-full object-cover"
@@ -263,6 +265,7 @@ function LiveThumbnail({ live }: { live: NotificationPreviewLive }) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
+        draggable={false}
         src={live.thumbnailUrl}
         alt=""
         className="mt-4 aspect-video w-full rounded-[4px] object-cover"
@@ -289,6 +292,7 @@ function LiveThumbnail({ live }: { live: NotificationPreviewLive }) {
       <div className="absolute inset-0 flex items-center justify-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
+          draggable={false}
           src={getChzzkChannelImageUrl(live.channelImageUrl)}
           alt=""
           className="size-14 rounded-full object-cover ring-2 ring-[#00e570]/60 ring-offset-4 ring-offset-transparent"
