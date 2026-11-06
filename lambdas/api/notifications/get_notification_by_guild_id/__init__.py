@@ -9,6 +9,8 @@ dynamodb = boto3.client("dynamodb")
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+INTERNAL_KEYS = ("PK", "SK", "type")
+
 
 @middleware(logger, admin_check=True)
 def handler(event, _context):
@@ -28,6 +30,9 @@ def handler(event, _context):
         },
     )
 
-    result = [dynamo_to_python(item) for item in res.get("Items", [])]
+    result = [
+        {k: v for k, v in dynamo_to_python(item).items() if k not in INTERNAL_KEYS}
+        for item in res.get("Items", [])
+    ]
 
     return build_response(200, data=result)

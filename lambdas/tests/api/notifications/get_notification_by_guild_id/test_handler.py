@@ -35,6 +35,7 @@ def put_noti(table, channel_id, guild_id=GUILD_ID, **attrs):
             "type": "NOTI",
             "guild_id": guild_id,
             "channel_id": channel_id,
+            "chzzk_id": "abc",
             **attrs,
         }
     )
@@ -59,11 +60,9 @@ def test_returns_only_this_guilds_notifications(ddb):
     assert res["statusCode"] == 200
     assert body == [
         {
-            "PK": "CHZZK#abc",
-            "SK": "NOTI#10",
-            "type": "NOTI",
             "guild_id": GUILD_ID,
             "channel_id": "10",
+            "chzzk_id": "abc",
             "noti_fail_count": 2,
             "disable_embed": True,
         }
