@@ -38,6 +38,7 @@ export const BaseInput = (props: TextInputProps) => {
         type="text"
         placeholder={placeholder}
         disabled={disabled}
+        aria-required={required}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />

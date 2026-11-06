@@ -27,7 +27,7 @@ export const TextareaInput = (props: TextInputProps) => {
   return (
     <Field>
       {label && (
-        <FieldLabel htmlFor={name} aria-required={required}>
+        <FieldLabel htmlFor={name}>
           {label} {required ? "*" : ""}
         </FieldLabel>
       )}
@@ -37,6 +37,7 @@ export const TextareaInput = (props: TextInputProps) => {
         name={name}
         placeholder={placeholder}
         disabled={disabled}
+        aria-required={required}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />

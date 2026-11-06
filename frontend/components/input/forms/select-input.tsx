@@ -41,7 +41,13 @@ export const SelectInput = (props: SelectInputProps) => {
         onValueChange={onChange}
         disabled={disabled || isLoading}
       >
-        <SelectTrigger ref={ref} id={name} name={name} aria-busy={isLoading}>
+        <SelectTrigger
+          ref={ref}
+          id={name}
+          name={name}
+          aria-busy={isLoading}
+          aria-required={required}
+        >
           {isLoading ? (
             <span className="flex items-center gap-2 text-muted-foreground">
               <Loader2 className="size-4 animate-spin" />

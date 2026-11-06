@@ -66,7 +66,7 @@ export const ColorInput = (props: TextInputProps) => {
   return (
     <Field>
       {label && (
-        <FieldLabel htmlFor={name} aria-required={required}>
+        <FieldLabel htmlFor={name}>
           {label} {required ? "*" : ""}
         </FieldLabel>
       )}
@@ -126,6 +126,7 @@ export const ColorInput = (props: TextInputProps) => {
             id={name}
             name={name}
             disabled={disabled}
+            aria-required={required}
             aria-invalid={Boolean(errorMessage)}
             autoComplete="off"
             spellCheck={false}
