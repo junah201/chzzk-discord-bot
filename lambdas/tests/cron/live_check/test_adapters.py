@@ -133,17 +133,23 @@ class TestDynamoDB:
     def test_get_chzzk_item(self, ddb):
         self.put_chzzk(ddb.table)
 
-        item, _ = adapters.get_chzzk_item(CHZZK_ID)
+        item = adapters.get_chzzk_item(CHZZK_ID)
 
         assert item["lastLiveId"] == 100
-        assert adapters.get_chzzk_item("missing")[0] is None
+
+    def test_get_chzzk_item_missing_is_logged(self, ddb, mocker):
+        log_error = mocker.patch.object(adapters.logger, "error")
+
+        assert adapters.get_chzzk_item("missing") is None
+        logged = json.loads(log_error.call_args.args[0])
+        assert (logged["type"], logged["chzzk_id"]) == ("GET_DYNAMODB_ERROR", "missing")
 
     def test_update_last_live(self, ddb):
         self.put_chzzk(ddb.table)
 
         adapters.update_last_live(CHZZK_ID, {"liveId": 200, "liveTitle": "새 방송"})
 
-        item, _ = adapters.get_chzzk_item(CHZZK_ID)
+        item = adapters.get_chzzk_item(CHZZK_ID)
         assert (item["lastLiveId"], item["lastLiveTitle"]) == (200, "새 방송")
 
     def test_query_notifications_only_returns_this_channel(self, ddb):

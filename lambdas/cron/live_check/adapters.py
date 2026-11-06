@@ -106,10 +106,20 @@ def get_follows(NID_AUT: str, NID_SES: str, index: int) -> list[Following]:
     return follows
 
 
-def get_chzzk_item(chzzk_id: str) -> tuple[dict | None, dict | None]:
-    """CHZZK 아이템과, 없을 때 로그에 남길 ResponseMetadata를 반환합니다."""
+def get_chzzk_item(chzzk_id: str) -> dict | None:
     res = table.get_item(Key={"PK": f"CHZZK#{chzzk_id}", "SK": f"CHZZK#{chzzk_id}"})
-    return res.get("Item", None), res.get("ResponseMetadata", None)
+    item = res.get("Item", None)
+    if not item:
+        logger.error(
+            json.dumps(
+                {
+                    "type": "GET_DYNAMODB_ERROR",
+                    "chzzk_id": chzzk_id,
+                    "ResponseMetadata": res.get("ResponseMetadata", None),
+                }
+            )
+        )
+    return item
 
 
 def fetch_live(chzzk_id: str) -> dict | None:
