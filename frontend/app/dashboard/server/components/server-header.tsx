@@ -24,13 +24,13 @@ export default function ServerHeader({ server }: ServerHeaderProps) {
         >
           <Link
             href={routeMap.DASHBOARD.HOME}
-            className="flex items-center gap-2 px-2.5 py-2.5 text-base rounded-lg hover:bg-muted w-fit"
+            className="flex lg:hidden items-center gap-2 px-2.5 py-2.5 text-base rounded-lg hover:bg-muted w-fit"
           >
             <ArrowLeft className="w-4 h-4" />
             서버 목록으로 돌아가기
           </Link>
 
-          <div className="flex items-center gap-4 mt-2">
+          <div className="flex items-center gap-4 mt-2 lg:mt-0">
             <Avatar className="w-20 h-20 border-2 border-primary/30">
               <AvatarImage
                 src={getDiscordIconUrl(server.id, server.icon)}

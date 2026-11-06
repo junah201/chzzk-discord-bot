@@ -9,13 +9,13 @@ export default function ServerHeaderSkeleton() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Link
           href={routeMap.DASHBOARD.HOME}
-          className="flex items-center gap-2 px-2.5 py-2.5 text-base rounded-lg hover:bg-muted"
+          className="flex lg:hidden items-center gap-2 px-2.5 py-2.5 text-base rounded-lg hover:bg-muted"
         >
           <ArrowLeft className="w-4 h-4" />
           서버 목록으로 돌아가기
         </Link>
 
-        <div className="flex items-center gap-4 mt-2">
+        <div className="flex items-center gap-4 mt-2 lg:mt-0">
           <Skeleton className="w-20 h-20 rounded-full border-2 border-muted" />
           <div className="flex-1 space-y-2">
             <Skeleton className="h-8 sm:h-10 w-48 sm:w-64" />
