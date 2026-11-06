@@ -96,33 +96,27 @@ export default function Pricing() {
                       <span className="w-2 h-2 rounded-full bg-primary" />
                       [결제 안내]
                     </h3>
-                    <div className="text-sm text-muted-foreground leading-relaxed space-y-2">
-                      <div className="flex items-start gap-2">
-                        <span className="text-primary shrink-0">•</span>
-                        <span>
-                          결제 계좌:{" "}
-                          <strong className="text-foreground">
-                            IBK기업은행 09550105001017
-                          </strong>{" "}
-                          (예금주: 김준아)
-                        </span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <span className="text-primary shrink-0">•</span>
-                        <span>
-                          계좌이체로 진행되며, 입금 후
-                          <Link
-                            href={routeMap.REDIRECTS.SUPPORT_SERVER}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary underline hover:text-primary/80 transition-colors ml-1"
-                          >
-                            서포트 서버
-                          </Link>
-                          에서 말씀해 주세요.
-                        </span>
-                      </div>
-                    </div>
+                    <ul className="list-disc pl-5 marker:text-primary text-sm text-muted-foreground leading-relaxed space-y-2">
+                      <li>
+                        결제 계좌:{" "}
+                        <strong className="text-foreground">
+                          IBK기업은행 09550105001017
+                        </strong>{" "}
+                        (예금주: 김준아)
+                      </li>
+                      <li>
+                        계좌이체로 진행되며, 입금 후
+                        <Link
+                          href={routeMap.REDIRECTS.SUPPORT_SERVER}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary underline hover:text-primary/80 transition-colors ml-1"
+                        >
+                          서포트 서버
+                        </Link>
+                        에서 말씀해 주세요.
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
