@@ -32,8 +32,8 @@ class LiveCheckStats:
 
 
 def parse_account_index(event: dict) -> int:
-    """EventBridge 규칙 이름(live_check_trigger_for_<index>)에서 네이버 계정 번호를 꺼냅니다."""
-    return int(event.get("resources", [])[0].split("_")[-1])
+    """EventBridge Scheduler가 넘겨준 입력({"index": N})에서 네이버 계정 번호를 꺼냅니다."""
+    return int(event["index"])
 
 
 def select_live_channel_ids(follows: list[Following]) -> list[str]:

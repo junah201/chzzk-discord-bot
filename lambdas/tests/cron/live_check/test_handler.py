@@ -10,9 +10,7 @@ from cron.live_check.logic import ChannelResult, LiveCheckStats
 
 live_check = importlib.import_module("cron.live_check")
 
-EVENT = {
-    "resources": ["arn:aws:events:ap-northeast-2:123:rule/live_check_trigger_for_3"]
-}
+EVENT = {"index": 3}
 CHZZK_ID = "abcdef0123456789abcdef0123456789"
 NOW = datetime(2026, 1, 2, 3, 4, 5, tzinfo=UTC)
 NID_AUT = "AUT1" + "x" * 40 + "AUT9"

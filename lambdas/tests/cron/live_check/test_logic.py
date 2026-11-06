@@ -19,10 +19,7 @@ CHZZK = {
 
 
 def test_parse_account_index():
-    event = {
-        "resources": ["arn:aws:events:ap-northeast-2:123:rule/live_check_trigger_for_3"]
-    }
-    assert parse_account_index(event) == 3
+    assert parse_account_index({"index": 3}) == 3
 
 
 def test_select_live_channel_ids():
