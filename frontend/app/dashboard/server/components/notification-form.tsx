@@ -87,6 +87,7 @@ export default function NotificationForm({
               label: `#${channel.name}`,
               value: channel.id,
             }))}
+            isLoading={isFetching}
             disabled={isEdit}
           />
         </>

@@ -44,6 +44,7 @@ export interface TextInputProps extends StringInputProps {
 export interface SelectInputProps extends StringInputProps {
   type: "select";
   options: readonly Option[];
+  isLoading?: boolean;
 }
 
 export interface CheckboxInputProps extends CommonInputProps {

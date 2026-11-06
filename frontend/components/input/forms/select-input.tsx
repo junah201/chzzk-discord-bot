@@ -4,6 +4,7 @@ import { Field, FieldDescription, FieldError } from "@/components/ui/field";
 import { SelectInputProps } from "..";
 
 import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -24,6 +25,7 @@ export const SelectInput = (props: SelectInputProps) => {
     options,
     value,
     onChange,
+    isLoading = false,
   } = props;
 
   return (
@@ -33,9 +35,20 @@ export const SelectInput = (props: SelectInputProps) => {
           {label} {required ? "*" : ""}
         </Label>
       )}
-      <Select value={value} onValueChange={onChange} disabled={disabled}>
-        <SelectTrigger id={name} name={name}>
-          <SelectValue placeholder={placeholder} />
+      <Select
+        value={value}
+        onValueChange={onChange}
+        disabled={disabled || isLoading}
+      >
+        <SelectTrigger id={name} name={name} aria-busy={isLoading}>
+          {isLoading ? (
+            <span className="flex items-center gap-2 text-muted-foreground">
+              <Loader2 className="size-4 animate-spin" />
+              불러오는 중...
+            </span>
+          ) : (
+            <SelectValue placeholder={placeholder} />
+          )}
         </SelectTrigger>
         <SelectContent>
           {options.map((option) => (
