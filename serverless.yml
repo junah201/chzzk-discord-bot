@@ -13,6 +13,8 @@ provider:
   timeout: 10
   versionFunctions: false
   stage: prodV2
+  tags:
+    version: v2
   environment:
     PYTHONPATH: "/var/task/lambdas:/opt/python"
     DISCORD_PUBLIC_KEY: ${env:DISCORD_PUBLIC_KEY}
@@ -77,6 +79,8 @@ functions:
     handler: lambdas/bot/discord_interactions.handler
     name: discord_interactions
     description: 디스코드 봇의 슬래시 명령어와 인터랙션을 처리합니다.
+    tags:
+      type: bot
     events:
       - http:
           path: event
@@ -88,6 +92,8 @@ functions:
     handler: lambdas/bot/admin_discord_interactions.handler
     name: admin_discord_interactions
     description: 관리자 봇 명령어로 슬롯 구매와 구독을 처리합니다.
+    tags:
+      type: bot
     events:
       - http:
           path: admin/event
@@ -99,6 +105,8 @@ functions:
     handler: lambdas/api/auth/exchange_oauth2_token.handler
     name: exchange_oauth2_token
     description: 디스코드 OAuth2 인가 코드를 액세스 토큰으로 교환합니다.
+    tags:
+      type: api
     events:
       - http:
           path: oauth/token
@@ -109,6 +117,8 @@ functions:
     handler: lambdas/api/auth/get_me.handler
     name: get_me
     description: 로그인한 사용자의 디스코드 프로필을 가져옵니다.
+    tags:
+      type: api
     events:
       - http:
           path: discord/me
@@ -119,6 +129,8 @@ functions:
     handler: lambdas/api/guilds/list_guilds.handler
     name: list_guilds
     description: 사용자가 관리자인 디스코드 서버 목록을 가져옵니다.
+    tags:
+      type: api
     events:
       - http:
           path: discord/guilds
@@ -129,6 +141,8 @@ functions:
     handler: lambdas/api/guilds/get_guild.handler
     name: get_guild
     description: 디스코드 서버 정보를 가져옵니다. 봇이 없는 서버면 오류를 반환합니다.
+    tags:
+      type: api
     events:
       - http:
           path: discord/{guild_id}
@@ -139,6 +153,8 @@ functions:
     handler: lambdas/api/guilds/sync_guild_slots.handler
     name: sync_guild_slots
     description: 실제 알림 수를 다시 세서 디스코드 서버의 사용 중인 슬롯 수를 맞춥니다.
+    tags:
+      type: api
     events:
       - http:
           path: discord/{guild_id}/slots/sync
@@ -149,6 +165,8 @@ functions:
     handler: lambdas/api/guilds/list_guild_channels.handler
     name: list_guild_channels
     description: 디스코드 서버의 채널 목록을 가져옵니다. 봇이 없는 서버면 오류를 반환합니다.
+    tags:
+      type: api
     events:
       - http:
           path: discord/{guild_id}/channels
@@ -159,6 +177,8 @@ functions:
     handler: lambdas/api/notifications/create_notification.handler
     name: create_notification
     description: 치지직 채널 알림을 등록하고 네이버 계정이 그 채널을 팔로우하게 합니다.
+    tags:
+      type: api
     events:
       - http:
           path: notifications
@@ -169,6 +189,8 @@ functions:
     handler: lambdas/api/notifications/list_guild_notifications.handler
     name: list_guild_notifications
     description: 디스코드 서버에 등록된 알림 목록을 가져옵니다.
+    tags:
+      type: api
     events:
       - http:
           path: notifications/{guild_id}
@@ -179,6 +201,8 @@ functions:
     handler: lambdas/api/notifications/delete_notification.handler
     name: delete_notification
     description: 알림을 삭제하고 디스코드 서버의 사용 중인 슬롯 수를 줄입니다.
+    tags:
+      type: api
     events:
       - http:
           path: notifications
@@ -189,6 +213,8 @@ functions:
     handler: lambdas/api/notifications/send_test_notification.handler
     name: send_test_notification
     description: 등록된 알림 설정 그대로 테스트 메시지를 보냅니다.
+    tags:
+      type: api
     events:
       - http:
           path: notifications/test
@@ -199,6 +225,8 @@ functions:
     handler: lambdas/api/notifications/update_notification.handler
     name: update_notification
     description: 알림 설정(메시지, 표시 옵션 등)을 수정합니다.
+    tags:
+      type: api
     events:
       - http:
           path: notifications
@@ -210,6 +238,8 @@ functions:
     handler: lambdas/cron/live_check.handler
     name: live_check_v2
     description: 주기적으로 네이버 계정의 팔로우 목록에서 방송을 시작한 채널을 찾아 알림을 보냅니다.
+    tags:
+      type: cron
     timeout: 285
     memorySize: 160
     maximumRetryAttempts: 0
@@ -261,6 +291,8 @@ functions:
     handler: lambdas/cron/renew_naver_sessions.handler
     name: renew_naver_sessions
     description: 주기적으로 네이버 계정의 세션 쿠키를 갱신합니다.
+    tags:
+      type: cron
     timeout: 60
     maximumRetryAttempts: 0
     events:
@@ -272,6 +304,8 @@ functions:
     handler: lambdas/cron/sync_koreanbots_stats.handler
     name: sync_koreanbots_stats
     description: 주기적으로 봇의 서버 수를 한국 디스코드 리스트(KoreanBots)에 올립니다.
+    tags:
+      type: cron
     maximumRetryAttempts: 0
     events:
       - schedule:
@@ -282,6 +316,8 @@ functions:
     handler: lambdas/cron/cleanup_orphan_chzzk_channels.handler
     name: cleanup_orphan_chzzk_channels
     description: 주기적으로 알림이 없는 치지직 채널의 팔로우를 해제하고 삭제한 뒤 보고서를 보냅니다.
+    tags:
+      type: cron
     timeout: 600
     memorySize: 256
     maximumRetryAttempts: 0
@@ -295,6 +331,8 @@ functions:
     handler: lambdas/cron/send_weekly_report.handler
     name: send_weekly_report
     description: 주기적으로 주간 운영 리포트를 디스코드 채널에 보냅니다.
+    tags:
+      type: cron
     timeout: 600
     maximumRetryAttempts: 0
     events:
@@ -307,6 +345,8 @@ functions:
     handler: lambdas/cron/expire_subscriptions.handler
     name: expire_subscriptions
     description: 주기적으로 만료된 구독을 종료하고 디스코드 서버의 슬롯 한도를 되돌립니다.
+    tags:
+      type: cron
     timeout: 300
     maximumRetryAttempts: 0
     events:
@@ -319,6 +359,8 @@ functions:
     handler: lambdas/admin/unfollow_chzzk_channel.handler
     name: unfollow_chzzk_channel
     description: 치지직 채널 팔로우를 수동으로 해제합니다. 관리자가 직접 호출합니다.
+    tags:
+      type: admin
 
 package:
   patterns:
