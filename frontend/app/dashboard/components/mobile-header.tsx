@@ -27,7 +27,12 @@ export default function MobileHeader() {
       <div className="flex items-center justify-between h-16 px-4">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
-            <Button variant="outline" className="lg:hidden" size="icon">
+            <Button
+              variant="outline"
+              className="lg:hidden"
+              size="icon"
+              aria-label="대시보드 메뉴 열기"
+            >
               <Menu className="w-6 h-6" />
             </Button>
           </SheetTrigger>
