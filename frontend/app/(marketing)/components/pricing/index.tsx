@@ -41,7 +41,7 @@ export function Pricing() {
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:gap-8 xl:grid-cols-4">
             {pricingPlans.map((plan, index) => (
-              <PricingCard key={plan.name} plan={plan} index={index} />
+              <PricingCard key={plan.id} plan={plan} index={index} />
             ))}
           </div>
         </div>
