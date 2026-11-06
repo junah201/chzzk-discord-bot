@@ -98,6 +98,19 @@ export const ERROR_MESSAGES: Record<string, ErrorCopy> = {
     ),
     help: CHANNEL_PERMISSIONS_HELP,
   },
+  DISCORD_CHANNEL_GUILD_MISMATCH: {
+    message: lines(
+      "선택한 디스코드 채널이 이 서버의 채널이 아닙니다.",
+      "페이지를 새로고침한 뒤 채널을 다시 선택해 주세요.",
+    ),
+  },
+  CHZZK_CHANNEL_REGISTER_FAILED: {
+    message: lines(
+      "치지직 채널 정보를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.",
+      "계속 실패하면 서포트 서버로 문의해 주세요.",
+    ),
+    help: SUPPORT_SERVER_HELP,
+  },
   DISCORD_CHANNEL_NOT_FOUND: {
     message: lines(
       "알림을 보낼 디스코드 채널을 찾을 수 없습니다.",

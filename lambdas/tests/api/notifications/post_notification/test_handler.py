@@ -305,9 +305,7 @@ class TestDiscordChannel:
         res, body = call()
 
         assert res["statusCode"] == 400
-        assert body["message"].startswith(
-            "해당 디스코드 채널이 서버에 속해있지 않습니다."
-        )
+        assert body["code"] == "DISCORD_CHANNEL_GUILD_MISMATCH"
         follow.assert_not_called()
 
     def test_discord_unreachable_is_502(self, get_channel, follow):
@@ -354,7 +352,7 @@ class TestLimitAndChzzk:
         res, body = call()
 
         assert res["statusCode"] == 500
-        assert body["message"].startswith("치지직 채널 정보 등록에 실패했습니다.")
+        assert body["code"] == "CHZZK_CHANNEL_REGISTER_FAILED"
         follow.assert_not_called()
         assert get_noti(ddb.table) is None
 

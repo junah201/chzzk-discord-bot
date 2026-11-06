@@ -95,6 +95,15 @@ class ChzzkChannelUnavailableError(BaseException):
         super().__init__(502, "CHZZK_CHANNEL_UNAVAILABLE", message)
 
 
+class ChzzkChannelRegisterError(BaseException):
+    def __init__(self):
+        super().__init__(
+            500,
+            "CHZZK_CHANNEL_REGISTER_FAILED",
+            "치지직 채널 정보를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.",
+        )
+
+
 class ServiceFollowLimitError(BaseException):
     def __init__(self, account_index: int):
         super().__init__(

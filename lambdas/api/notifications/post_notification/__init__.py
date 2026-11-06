@@ -14,6 +14,7 @@ from shared import build_response, get_channel, get_chzzk, middleware
 from shared.exceptions import (
     BadRequestError,
     ChzzkChannelNotFoundError,
+    ChzzkChannelRegisterError,
     ServiceFollowLimitError,
 )
 from shared.notification_dispatcher import (
@@ -73,9 +74,9 @@ def handler(event, _context):
         )
 
     if channel_data.get("guild_id") != guild_id:
-        return build_response(
-            400,
-            "해당 디스코드 채널이 서버에 속해있지 않습니다. 올바르지 않은 요청일 수 있습니다. 새로고침 후 다시 시도해주세요.",
+        raise BadRequestError(
+            "이 서버의 채널이 아닙니다. 새로고침 후 다시 시도해 주세요.",
+            code="DISCORD_CHANNEL_GUILD_MISMATCH",
         )
 
     # 2. 서버 알림 개수 제한 검증
@@ -94,10 +95,7 @@ def handler(event, _context):
         index = (index + 1) % 7
     if not is_chzzk_registered(chzzk_id):
         if not register_chzzk_channel(chzzk_id, chzzk_data, index):
-            return build_response(
-                500,
-                "치지직 채널 정보 등록에 실패했습니다. 새로고침 후 다시 시도해주세요. 만약 계속 실패하면 서포트 서버를 통해 관리자에게 문의해주세요.",
-            )
+            raise ChzzkChannelRegisterError()
 
     # 5. 연동 계정 팔로우 수행
     naver_item = get_naver_account(index)
