@@ -139,7 +139,7 @@ export function NotificationPreview({
 
           {!disableEmbed && (
             <div
-              className="mt-1 grid max-w-[432px] rounded-[4px] border-l-4 py-2 pr-4 pl-3"
+              className="mt-1 grid max-w-[432px] grid-cols-[minmax(0,1fr)] rounded-[4px] border-l-4 py-2 pr-4 pl-3"
               style={{
                 backgroundColor: DISCORD_COLORS.embed,
                 borderColor: toCssColor(embedColor),
@@ -151,10 +151,10 @@ export function NotificationPreview({
                   draggable={false}
                   src={getChzzkChannelImageUrl(live.channelImageUrl)}
                   alt=""
-                  className="size-6 rounded-full object-cover"
+                  className="size-6 shrink-0 rounded-full object-cover"
                 />
                 <span
-                  className="text-sm font-semibold"
+                  className="min-w-0 text-sm font-semibold break-words"
                   style={{ color: DISCORD_COLORS.header }}
                 >
                   {live.channelName}
@@ -167,7 +167,7 @@ export function NotificationPreview({
               >
                 {live.title}
               </p>
-              <p className="mt-2 text-sm">
+              <p className="mt-2 text-sm break-words">
                 {live.channelName} 님이 방송을 시작했습니다.
               </p>
 
