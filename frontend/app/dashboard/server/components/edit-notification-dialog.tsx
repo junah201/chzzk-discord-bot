@@ -18,15 +18,21 @@ import { toHexEmbedColor } from "@/lib/discord";
 import { Notification } from "@/types/api";
 import NotificationForm from "./notification-form";
 import NotificationPreviewPanel from "./notification-preview-panel";
+import MutationAlert, {
+  Feedback,
+  getNotificationLabel,
+} from "./mutation-alert";
 
 interface EditNotificationDialogProps {
   notification: Notification;
   isSubscription?: boolean;
+  onFeedback?: (feedback: Feedback) => void;
 }
 
 export default function EditNotificationDialog({
   notification,
   isSubscription = false,
+  onFeedback,
 }: EditNotificationDialogProps) {
   const [open, setOpen] = useState(false);
   const { update } = useNotificationActions(notification.guild_id);
@@ -54,6 +60,7 @@ export default function EditNotificationDialog({
   const handleOpenChange = (nextOpen: boolean) => {
     if (nextOpen) {
       reset(getDefaultValues());
+      update.reset();
     }
     setOpen(nextOpen);
   };
@@ -98,6 +105,12 @@ export default function EditNotificationDialog({
           </div>
         </div>
 
+        <MutationAlert
+          error={update.error}
+          errorTitle="알림 설정을 저장하지 못했습니다"
+          onClose={update.reset}
+        />
+
         <div className="flex justify-end gap-2">
           <Button
             variant="outline"
@@ -109,7 +122,13 @@ export default function EditNotificationDialog({
           <Button
             onClick={handleSubmit((data) =>
               update.mutate(data, {
-                onSuccess: () => setOpen(false),
+                onSuccess: () => {
+                  setOpen(false);
+                  onFeedback?.({
+                    variant: "success",
+                    title: `${getNotificationLabel(notification)} 알림을 수정했습니다.`,
+                  });
+                },
               }),
             )}
             disabled={update.isPending}

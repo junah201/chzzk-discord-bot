@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { fromNow, formatDate } from "@/lib/date";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "motion/react";
@@ -30,6 +31,9 @@ import DeleteNotificationDialog from "./delete-notification-dialog";
 import EditNotificationDialog from "./edit-notification-dialog";
 import { ExternalLink, Loader2, Send } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { getErrorMessage } from "@/lib/api-error";
+import { Feedback, getNotificationLabel } from "./mutation-alert";
 
 interface NotificationManagerProps {
   serverId: string;
@@ -40,9 +44,21 @@ export default function NotificationManager({
   serverId,
   isSubscription = false,
 }: NotificationManagerProps) {
-  const { data, isLoading } = useQuery(
-    notificationQueries.listByGuildId(serverId),
-  );
+  const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
+    ...notificationQueries.listByGuildId(serverId),
+    meta: { inlineError: true },
+  });
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
+  const feedbackRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (feedback) {
+      feedbackRef.current?.scrollIntoView({
+        block: "nearest",
+        behavior: "smooth",
+      });
+    }
+  }, [feedback]);
 
   const notifications = Array.isArray(data) ? data : [];
 
@@ -62,15 +78,46 @@ export default function NotificationManager({
         </div>
       </div>
 
+      {feedback && (
+        <div ref={feedbackRef} className="scroll-mt-6">
+          <Alert variant={feedback.variant} onClose={() => setFeedback(null)}>
+            <AlertTitle>{feedback.title}</AlertTitle>
+            {feedback.description && (
+              <AlertDescription className="whitespace-pre-line">
+                {feedback.description}
+              </AlertDescription>
+            )}
+          </Alert>
+        </div>
+      )}
+
       <div className="">
         {isLoading ? (
           <NotificationTableLoading />
+        ) : isError ? (
+          <Alert variant="destructive">
+            <AlertTitle>알림 목록을 불러오지 못했습니다</AlertTitle>
+            <AlertDescription>
+              <p>{getErrorMessage(error)}</p>
+              <Button
+                size="sm"
+                variant="outline"
+                className="mt-3"
+                disabled={isFetching}
+                onClick={() => refetch()}
+              >
+                {isFetching && <Loader2 className="h-4 w-4 animate-spin" />}
+                다시 시도
+              </Button>
+            </AlertDescription>
+          </Alert>
         ) : notifications.length === 0 ? (
           <NotificationTableEmpty />
         ) : (
           <NotificationTable
             notifications={notifications}
             isSubscription={isSubscription}
+            onFeedback={setFeedback}
           />
         )}
       </div>
@@ -105,9 +152,11 @@ function NotificationTableEmpty() {
 function NotificationTable({
   notifications,
   isSubscription,
+  onFeedback,
 }: {
   notifications: Notification[];
   isSubscription?: boolean;
+  onFeedback: (feedback: Feedback) => void;
 }) {
   return (
     <PolicyTable className="min-w-full text-left">
@@ -126,6 +175,7 @@ function NotificationTable({
             key={`${n.PK}-${n.SK}`}
             notification={n}
             isSubscription={isSubscription}
+            onFeedback={onFeedback}
           />
         ))}
       </tbody>
@@ -136,9 +186,11 @@ function NotificationTable({
 function NotificationRow({
   notification: n,
   isSubscription,
+  onFeedback,
 }: {
   notification: Notification;
   isSubscription?: boolean;
+  onFeedback: (feedback: Feedback) => void;
 }) {
   const { test } = useNotificationActions(n.guild_id);
   const chzzkId = n.chzzk_id || n.PK.split("#")[1] || "unknown";
@@ -225,11 +277,26 @@ function NotificationRow({
           variant="secondary"
           disabled={test.isPending}
           onClick={() =>
-            test.mutate({
-              guild_id: n.guild_id,
-              channel_id: n.channel_id,
-              chzzk_id: chzzkId,
-            })
+            test.mutate(
+              {
+                guild_id: n.guild_id,
+                channel_id: n.channel_id,
+                chzzk_id: chzzkId,
+              },
+              {
+                onSuccess: () =>
+                  onFeedback({
+                    variant: "success",
+                    title: `${getNotificationLabel(n)} 테스트 알림을 보냈습니다.`,
+                  }),
+                onError: (error) =>
+                  onFeedback({
+                    variant: "destructive",
+                    title: `${getNotificationLabel(n)} 테스트 알림을 보내지 못했습니다`,
+                    description: getErrorMessage(error),
+                  }),
+              },
+            )
           }
         >
           {test.isPending ? (
@@ -245,11 +312,12 @@ function NotificationRow({
         <EditNotificationDialog
           notification={n}
           isSubscription={isSubscription}
+          onFeedback={onFeedback}
         />
       </PolicyTd>
 
       <PolicyTd>
-        <DeleteNotificationDialog notification={n} />
+        <DeleteNotificationDialog notification={n} onFeedback={onFeedback} />
       </PolicyTd>
     </PolicyTr>
   );

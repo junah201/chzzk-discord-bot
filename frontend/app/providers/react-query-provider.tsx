@@ -12,9 +12,18 @@ import { isAxiosError } from "axios";
 import { ACCESS_TOKEN } from "@/constants/cookies";
 import routeMap from "@/constants/route-map";
 import { removeCookie } from "@/lib/cookie";
+import { getErrorMessage } from "@/lib/api-error";
 
-interface ApiErrorResponse {
-  message: string;
+interface ErrorMeta extends Record<string, unknown> {
+  // 화면에서 직접 에러를 보여주는 쿼리/뮤테이션은 전역 토스트를 띄우지 않음
+  inlineError?: boolean;
+}
+
+declare module "@tanstack/react-query" {
+  interface Register {
+    queryMeta: ErrorMeta;
+    mutationMeta: ErrorMeta;
+  }
 }
 
 // 여러 쿼리가 동시에 401을 받아도 토스트와 리다이렉트는 한 번만 실행
@@ -25,44 +34,24 @@ export default function ReactQueryProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const handleError = (error: unknown) => {
-    if (isAxiosError<ApiErrorResponse>(error)) {
-      if (error.response) {
-        const { status, data } = error.response;
+  const handleError = (error: unknown, meta?: ErrorMeta) => {
+    if (isAxiosError(error) && error.response?.status === 401) {
+      if (isRedirectingToLogin) return;
 
-        if (status === 401) {
-          if (isRedirectingToLogin) return;
+      toast.error("로그인이 만료되었습니다. 다시 로그인해 주세요.");
+      removeCookie(ACCESS_TOKEN.key);
 
-          toast.error("로그인이 만료되었습니다. 다시 로그인해 주세요.");
-          removeCookie(ACCESS_TOKEN.key);
-
-          if (window.location.pathname !== routeMap.AUTH.LOGIN) {
-            // 전체 페이지 이동이라 새 페이지에서는 플래그가 다시 false로 시작함
-            isRedirectingToLogin = true;
-            window.location.href = routeMap.AUTH.LOGIN;
-          }
-          return;
-        }
-
-        const message =
-          data?.message ||
-          "서버에서 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.";
-        toast.error(message);
-        return;
+      if (window.location.pathname !== routeMap.AUTH.LOGIN) {
+        // 전체 페이지 이동이라 새 페이지에서는 플래그가 다시 false로 시작함
+        isRedirectingToLogin = true;
+        window.location.href = routeMap.AUTH.LOGIN;
       }
-
-      if (error.request) {
-        toast.error("서버에 연결할 수 없습니다. 인터넷 연결을 확인해 주세요.");
-        return;
-      }
-    }
-
-    if (error instanceof Error) {
-      toast.error(error.message);
       return;
     }
 
-    toast.error("알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+    if (meta?.inlineError) return;
+
+    toast.error(getErrorMessage(error));
   };
 
   const [queryClient] = useState(
@@ -82,10 +71,11 @@ export default function ReactQueryProvider({
           },
         },
         queryCache: new QueryCache({
-          onError: handleError,
+          onError: (error, query) => handleError(error, query.meta),
         }),
         mutationCache: new MutationCache({
-          onError: handleError,
+          onError: (error, _variables, _context, mutation) =>
+            handleError(error, mutation.meta),
         }),
       }),
   );

@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import NotificationForm from "./notification-form";
 import NotificationPreviewPanel from "./notification-preview-panel";
+import MutationAlert from "./mutation-alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,13 @@ export default function AddNotificationForm({
               serverId={serverId}
               control={control}
               isSubscription={isSubscription}
+            />
+            <MutationAlert
+              error={add.error}
+              isSuccess={add.isSuccess}
+              errorTitle="알림을 추가하지 못했습니다"
+              successMessage="새 알림이 등록되었습니다."
+              onClose={add.reset}
             />
             <Button
               onClick={handleSubmit((data) =>

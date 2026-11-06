@@ -16,13 +16,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { useNotificationActions } from "@/hooks/use-notifications";
 import { Notification } from "@/types/api";
+import MutationAlert, {
+  Feedback,
+  getNotificationLabel,
+} from "./mutation-alert";
 
 interface DeleteNotificationDialogProps {
   notification: Notification;
+  onFeedback?: (feedback: Feedback) => void;
 }
 
 export default function DeleteNotificationDialog({
   notification,
+  onFeedback,
 }: DeleteNotificationDialogProps) {
   const [open, setOpen] = useState(false);
   const { remove } = useNotificationActions(notification.guild_id);
@@ -30,20 +36,32 @@ export default function DeleteNotificationDialog({
     notification.chzzk_id || notification.PK.split("#")[1] || "unknown";
 
   const handleDelete = () => {
-    remove.mutate(
-      {
+    // 삭제되면 이 행이 언마운트되어 mutate 콜백이 실행되지 않으므로 promise로 처리
+    remove
+      .mutateAsync({
         guild_id: notification.guild_id,
         channel_id: notification.channel_id,
         chzzk_id: chzzkId,
-      },
-      {
-        onSuccess: () => setOpen(false),
-      },
-    );
+      })
+      .then(() => {
+        setOpen(false);
+        onFeedback?.({
+          variant: "success",
+          title: `${getNotificationLabel(notification)} 알림을 삭제했습니다.`,
+        });
+      })
+      .catch(() => {});
+  };
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
+      remove.reset();
+    }
+    setOpen(nextOpen);
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog open={open} onOpenChange={handleOpenChange}>
       <AlertDialogTrigger asChild>
         <Button
           size="sm"
@@ -73,6 +91,11 @@ export default function DeleteNotificationDialog({
             <br />이 작업은 되돌릴 수 없습니다.
           </AlertDialogDescription>
         </AlertDialogHeader>
+        <MutationAlert
+          error={remove.error}
+          errorTitle="알림을 삭제하지 못했습니다"
+          onClose={remove.reset}
+        />
         <AlertDialogFooter>
           <AlertDialogCancel disabled={remove.isPending}>
             취소

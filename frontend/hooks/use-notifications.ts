@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { api } from "@/lib/api-client";
 import { Guild, Notification } from "@/types/api";
 import { keys as notificationKeys } from "@/queries/notifications";
@@ -28,14 +27,16 @@ const ROUTES = {
   TEST: "/notifications/test",
 };
 
+const INLINE_ERROR = { inlineError: true };
+
 export const useNotificationActions = (guildId: string) => {
   const queryClient = useQueryClient();
 
   const addMutation = useMutation({
+    meta: INLINE_ERROR,
     mutationFn: (data: NotificationSettings) =>
       api.post<Notification>(ROUTES.BASE, data),
     onSuccess: (_, variables) => {
-      toast.success("새 알림이 등록되었습니다.");
       queryClient.invalidateQueries({
         queryKey: notificationKeys.listByGuildId(guildId),
       });
@@ -57,9 +58,9 @@ export const useNotificationActions = (guildId: string) => {
   });
 
   const deleteMutation = useMutation({
+    meta: INLINE_ERROR,
     mutationFn: (data: NotificationBase) => api.delete(ROUTES.BASE, { data }),
     onSuccess: (_, variables) => {
-      toast.success("알림이 삭제되었습니다.");
       queryClient.setQueryData<Notification[]>(
         notificationKeys.listByGuildId(guildId),
         (oldData) => {
@@ -92,10 +93,10 @@ export const useNotificationActions = (guildId: string) => {
   });
 
   const updateMutation = useMutation({
+    meta: INLINE_ERROR,
     mutationFn: (data: NotificationSettings) =>
       api.put<Notification>(ROUTES.BASE, data),
     onSuccess: (_, variables) => {
-      toast.success("알림이 수정되었습니다.");
       queryClient.invalidateQueries({
         queryKey: notificationKeys.listByGuildId(guildId),
       });
@@ -109,10 +110,9 @@ export const useNotificationActions = (guildId: string) => {
   });
 
   const testMutation = useMutation({
+    meta: INLINE_ERROR,
     mutationFn: (data: NotificationBase) => api.post(ROUTES.TEST, data),
     onSuccess: (_, variables) => {
-      toast.success("테스트 알림이 전송되었습니다.");
-
       sendGAEvent("event", "test_notification", {
         guild_id: guildId,
         chzzk_id: variables.chzzk_id,
