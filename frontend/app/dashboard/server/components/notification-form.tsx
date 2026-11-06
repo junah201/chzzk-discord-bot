@@ -3,8 +3,8 @@
 import { Input } from "@/components/input";
 import routeMap from "@/constants/route-map";
 
-import { discordQueries } from "@/queries/discord";
-import { useQuery } from "@tanstack/react-query";
+import { discordQueries, keys } from "@/queries/discord";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { Control } from "react-hook-form";
 import SubscriberSection from "./subscriber-section";
@@ -35,7 +35,8 @@ export default function NotificationForm({
   isEdit = false,
   isSubscription = false,
 }: NotificationFormProps) {
-  const { data } = useQuery(discordQueries.channels(serverId));
+  const queryClient = useQueryClient();
+  const { data, isFetching } = useQuery(discordQueries.channels(serverId));
   const channels = data || [];
 
   return (
@@ -66,14 +67,19 @@ export default function NotificationForm({
             rules={{ required: "알림을 받을 디스코드 채널을 선택해 주세요." }}
             helperText={
               <>
-                새로 만든 채널이 보이지 않으면 페이지를
-                <a
-                  href=""
-                  onClick={() => location.reload()}
-                  className="underline hover:text-primary/80 mx-1"
+                새로 만든 채널이 보이지 않으면 채널 목록을
+                <button
+                  type="button"
+                  onClick={() =>
+                    queryClient.invalidateQueries({
+                      queryKey: keys.channels(serverId),
+                    })
+                  }
+                  disabled={isFetching}
+                  className="underline hover:text-primary/80 mx-1 disabled:opacity-50 disabled:cursor-wait"
                 >
-                  새로고침
-                </a>
+                  {isFetching ? "불러오는 중" : "새로고침"}
+                </button>
                 해 주세요.
               </>
             }
