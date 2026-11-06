@@ -1,5 +1,6 @@
 "use client";
 
+import { use } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Control, useWatch } from "react-hook-form";
 import { BellOff, Eye } from "lucide-react";
@@ -8,23 +9,21 @@ import { NotificationPreview } from "@/components/discord/notification-preview";
 import { DEFAULT_EMBED_COLOR, parseEmbedColor } from "@/lib/discord";
 import { discordQueries } from "@/queries/discord";
 import { NotificationFormValues } from "./notification-form";
+import { ServerContext } from "../server-context";
 
 interface NotificationPreviewPanelProps {
-  serverId: string;
   control: Control<NotificationFormValues>;
-  isSubscription?: boolean;
   chzzkName?: string;
   chzzkImageUrl?: string;
 }
 
 /** 폼 입력을 그대로 반영하는 디스코드 알림 미리보기 */
 export default function NotificationPreviewPanel({
-  serverId,
   control,
-  isSubscription = false,
   chzzkName,
   chzzkImageUrl,
 }: NotificationPreviewPanelProps) {
+  const { serverId, isSubscription } = use(ServerContext);
   const values = useWatch({ control });
   const { data: channels = [] } = useQuery(discordQueries.channels(serverId));
 

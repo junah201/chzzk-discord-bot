@@ -1,5 +1,6 @@
 "use client";
 
+import { use } from "react";
 import { Input } from "@/components/input";
 import routeMap from "@/constants/route-map";
 
@@ -8,6 +9,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { Control } from "react-hook-form";
 import SubscriberSection from "./subscriber-section";
+import { ServerContext } from "../server-context";
 
 export interface NotificationFormValues {
   chzzk_id: string;
@@ -23,18 +25,15 @@ export interface NotificationFormValues {
 }
 
 interface NotificationFormProps {
-  serverId: string;
   control: Control<NotificationFormValues>;
   isEdit?: boolean;
-  isSubscription?: boolean;
 }
 
 export default function NotificationForm({
-  serverId,
   control,
   isEdit = false,
-  isSubscription = false,
 }: NotificationFormProps) {
+  const { serverId, isSubscription } = use(ServerContext);
   const queryClient = useQueryClient();
   const { data, isFetching } = useQuery(discordQueries.channels(serverId));
   const channels = data || [];

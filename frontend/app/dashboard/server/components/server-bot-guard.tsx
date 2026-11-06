@@ -1,5 +1,6 @@
 "use client";
 
+import { use } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { discordQueries } from "@/queries/discord";
 import BotMissingPage from "./bot-missing";
@@ -8,16 +9,14 @@ import { getErrorCode } from "@/lib/api-error";
 import AdminRequiredPage from "./admin-required";
 import { useGuildOptions } from "@/hooks/use-guild-options";
 import RateLimitedPage from "./rate-limited";
+import { ServerContext } from "../server-context";
 
 interface ServerBotGuardProps {
-  serverId: string;
   children: React.ReactNode;
 }
 
-export default function ServerBotGuard({
-  serverId,
-  children,
-}: ServerBotGuardProps) {
+export default function ServerBotGuard({ children }: ServerBotGuardProps) {
+  const { serverId } = use(ServerContext);
   const { isError: isChannelError, error: channelError } = useQuery(
     discordQueries.channels(serverId),
   );

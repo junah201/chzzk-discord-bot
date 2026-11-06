@@ -1,5 +1,6 @@
 "use client";
 
+import { use } from "react";
 import { motion } from "motion/react";
 import NotificationForm from "./notification-form";
 import NotificationPreviewPanel from "./notification-preview-panel";
@@ -9,16 +10,10 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { useNotificationActions } from "@/hooks/use-notifications";
 import { Loader2, Plus } from "lucide-react";
+import { ServerContext } from "../server-context";
 
-interface AddNotificationFormProps {
-  serverId: string;
-  isSubscription?: boolean;
-}
-
-export default function AddNotificationForm({
-  serverId,
-  isSubscription = false,
-}: AddNotificationFormProps) {
+export default function AddNotificationForm() {
+  const { serverId } = use(ServerContext);
   const { add } = useNotificationActions(serverId);
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
@@ -52,11 +47,7 @@ export default function AddNotificationForm({
       <Card className="bg-card border-border h-full flex flex-col z-10 @container">
         <CardContent className="grid gap-8 @5xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
           <div className="flex flex-col gap-4">
-            <NotificationForm
-              serverId={serverId}
-              control={control}
-              isSubscription={isSubscription}
-            />
+            <NotificationForm control={control} />
             <MutationAlert
               error={add.error}
               isSuccess={add.isSuccess}
@@ -85,11 +76,7 @@ export default function AddNotificationForm({
             </Button>
           </div>
           <div className="@5xl:sticky @5xl:top-6 @5xl:self-start">
-            <NotificationPreviewPanel
-              serverId={serverId}
-              control={control}
-              isSubscription={isSubscription}
-            />
+            <NotificationPreviewPanel control={control} />
           </div>
         </CardContent>
       </Card>

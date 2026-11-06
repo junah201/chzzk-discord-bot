@@ -13,6 +13,7 @@ import NotificationManager from "./components/notification-manager";
 import ServerBotGuard from "./components/server-bot-guard";
 import NotificationLimitCard from "./components/notification-limit-card";
 import { DEFAULT_SLOT_LIMIT, SUBSCRIPTION_SLOT_LIMIT } from "@/constants/slots";
+import { ServerProvider } from "./server-context";
 
 export default function ServerDetailPage() {
   return (
@@ -44,35 +45,30 @@ function ServerDetail({ serverId }: { serverId: string }) {
   const isSubscription = serverData?.max_limit === SUBSCRIPTION_SLOT_LIMIT;
 
   return (
-    <ServerBotGuard serverId={serverId}>
-      {serverData ? (
-        <ServerHeader server={serverData} />
-      ) : (
-        <ServerHeaderSkeleton />
-      )}
-      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <NotificationLimitCard
-          serverId={serverId}
-          slots={
-            serverData && {
-              currentCount: serverData.current_count || 0,
-              maxLimit: serverData.max_limit || DEFAULT_SLOT_LIMIT,
+    <ServerProvider value={{ serverId, isSubscription }}>
+      <ServerBotGuard>
+        {serverData ? (
+          <ServerHeader server={serverData} />
+        ) : (
+          <ServerHeaderSkeleton />
+        )}
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <NotificationLimitCard
+            slots={
+              serverData && {
+                currentCount: serverData.current_count || 0,
+                maxLimit: serverData.max_limit || DEFAULT_SLOT_LIMIT,
+              }
             }
-          }
-        />
-      </div>
-      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <AddNotificationForm
-          serverId={serverId}
-          isSubscription={isSubscription}
-        />
-      </div>
-      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 pb-6">
-        <NotificationManager
-          serverId={serverId}
-          isSubscription={isSubscription}
-        />
-      </div>
-    </ServerBotGuard>
+          />
+        </div>
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <AddNotificationForm />
+        </div>
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 pb-6">
+          <NotificationManager />
+        </div>
+      </ServerBotGuard>
+    </ServerProvider>
   );
 }

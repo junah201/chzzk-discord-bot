@@ -1,5 +1,6 @@
 "use client";
 
+import { use } from "react";
 import { motion } from "motion/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -10,16 +11,16 @@ import routeMap from "@/constants/route-map";
 import { PolicyCallout } from "@/components/policy/policy-callout";
 import { useSyncSlots } from "@/hooks/use-sync-slots";
 import MutationAlert from "./mutation-alert";
+import { ServerContext } from "../server-context";
 
 interface NotificationLimitCardProps {
-  serverId: string;
   slots?: { currentCount: number; maxLimit: number };
 }
 
 export default function NotificationLimitCard({
-  serverId,
   slots,
 }: NotificationLimitCardProps) {
+  const { serverId } = use(ServerContext);
   const syncSlots = useSyncSlots(serverId);
   const syncSuccessMessage =
     syncSlots.data &&

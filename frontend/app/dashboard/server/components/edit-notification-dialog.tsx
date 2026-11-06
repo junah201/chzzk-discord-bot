@@ -25,13 +25,11 @@ import MutationAlert, {
 
 interface EditNotificationDialogProps {
   notification: Notification;
-  isSubscription?: boolean;
   onFeedback?: (feedback: Feedback) => void;
 }
 
 export default function EditNotificationDialog({
   notification,
-  isSubscription = false,
   onFeedback,
 }: EditNotificationDialogProps) {
   const [open, setOpen] = useState(false);
@@ -86,17 +84,10 @@ export default function EditNotificationDialog({
         </DialogHeader>
 
         <div className="grid gap-8 py-4 @5xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
-          <NotificationForm
-            serverId={notification.guild_id}
-            control={control}
-            isEdit
-            isSubscription={isSubscription}
-          />
+          <NotificationForm control={control} isEdit />
           <div className="@5xl:sticky @5xl:top-0 @5xl:self-start">
             <NotificationPreviewPanel
-              serverId={notification.guild_id}
               control={control}
-              isSubscription={isSubscription}
               chzzkName={notification.chzzk_name}
               chzzkImageUrl={notification.chzzk_image_url}
             />

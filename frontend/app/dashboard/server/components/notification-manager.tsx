@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties, useState } from "react";
+import { CSSProperties, use, useState } from "react";
 import { fromNow, formatDate } from "@/lib/date";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "motion/react";
@@ -40,16 +40,10 @@ import {
   Feedback,
   getNotificationLabel,
 } from "./mutation-alert";
+import { ServerContext } from "../server-context";
 
-interface NotificationManagerProps {
-  serverId: string;
-  isSubscription?: boolean;
-}
-
-export default function NotificationManager({
-  serverId,
-  isSubscription = false,
-}: NotificationManagerProps) {
+export default function NotificationManager() {
+  const { serverId } = use(ServerContext);
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
     ...notificationQueries.listByGuildId(serverId),
     meta: { inlineError: true },
@@ -121,7 +115,6 @@ export default function NotificationManager({
         ) : (
           <NotificationTable
             notifications={notifications}
-            isSubscription={isSubscription}
             onFeedback={handleFeedback}
           />
         )}
@@ -156,11 +149,9 @@ function NotificationTableEmpty() {
 
 function NotificationTable({
   notifications,
-  isSubscription,
   onFeedback,
 }: {
   notifications: Notification[];
-  isSubscription?: boolean;
   onFeedback: (feedback: Feedback) => void;
 }) {
   return (
@@ -179,7 +170,6 @@ function NotificationTable({
           <NotificationRow
             key={`${n.chzzk_id}-${n.channel_id}`}
             notification={n}
-            isSubscription={isSubscription}
             onFeedback={onFeedback}
           />
         ))}
@@ -206,11 +196,9 @@ function ChzzkIdCopyButton({ chzzkId }: { chzzkId: string }) {
 
 function NotificationRow({
   notification: n,
-  isSubscription,
   onFeedback,
 }: {
   notification: Notification;
-  isSubscription?: boolean;
   onFeedback: (feedback: Feedback) => void;
 }) {
   const { test } = useNotificationActions(n.guild_id);
@@ -330,11 +318,7 @@ function NotificationRow({
       </PolicyTd>
 
       <PolicyTd>
-        <EditNotificationDialog
-          notification={n}
-          isSubscription={isSubscription}
-          onFeedback={onFeedback}
-        />
+        <EditNotificationDialog notification={n} onFeedback={onFeedback} />
       </PolicyTd>
 
       <PolicyTd>
