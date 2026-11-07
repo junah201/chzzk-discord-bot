@@ -99,7 +99,7 @@ export default function EditNotificationDialog({
           )}
           className="flex flex-col gap-4"
         >
-          <div className="grid gap-8 py-4 @5xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-8 py-4 @5xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
             <NotificationSettingsFields control={control} />
             <div className="@5xl:sticky @5xl:top-0 @5xl:self-start">
               <NotificationPreviewPanel

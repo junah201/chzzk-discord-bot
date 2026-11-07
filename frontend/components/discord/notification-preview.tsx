@@ -122,7 +122,7 @@ export function NotificationPreview({
           </div>
 
           {content.trim() && (
-            <p className="break-words whitespace-pre-wrap">
+            <p className="wrap-anywhere whitespace-pre-wrap">
               <MessageContent content={content} channelNames={channelNames} />
             </p>
           )}

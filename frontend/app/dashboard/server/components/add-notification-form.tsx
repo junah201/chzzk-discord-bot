@@ -49,7 +49,7 @@ export default function AddNotificationForm() {
         </div>
       </div>
       <Card className="bg-card border-border h-full flex flex-col z-10 @container">
-        <CardContent className="grid gap-8 @5xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
+        <CardContent className="grid grid-cols-[minmax(0,1fr)] gap-8 @5xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
           <form
             noValidate
             onSubmit={handleSubmit((data) =>
