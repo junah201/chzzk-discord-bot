@@ -10,7 +10,7 @@ from shared.live_message import build_live_message
 from shared.utils import mask_secret
 
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
 @middleware(logger)
