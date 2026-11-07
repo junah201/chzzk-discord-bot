@@ -22,7 +22,7 @@ const socialLinks = [
 
 export const FooterBrand = () => {
   return (
-    <div className="lg:col-span-2 flex flex-col items-start justify-between">
+    <div className="lg:col-span-2 flex flex-col items-start justify-between lg:space-y-0 space-y-6">
       <Logo />
       <p className="text-muted-foreground max-w-sm">
         치지직 스트리머가 방송을 시작하면 디스코드 채널로 알려드립니다.

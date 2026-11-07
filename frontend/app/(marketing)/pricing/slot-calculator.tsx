@@ -334,7 +334,7 @@ export default function SlotCalculator() {
 
           <PolicyTable className="min-w-[640px]">
             <PolicyThead className="normal-case text-sm">
-              <PolicyTh className="sticky left-0 z-10 w-[28%] bg-card shadow-[1px_0_0_var(--border)]">
+              <PolicyTh className="sticky left-0 z-10 min-w-24 bg-card shadow-[1px_0_0_var(--border)]">
                 <span className="sr-only">항목</span>
               </PolicyTh>
               {plans.map((p) => {
