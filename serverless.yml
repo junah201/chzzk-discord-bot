@@ -9,7 +9,7 @@ provider:
   profile: chzzk
   logRetentionInDays: 14
   architecture: x86_64
-  memorySize: 128
+  memorySize: 256
   timeout: 10
   versionFunctions: false
   stage: prodV2
@@ -321,7 +321,6 @@ functions:
     tags:
       type: cron
     timeout: 600
-    memorySize: 256
     maximumRetryAttempts: 0
     events:
       - schedule:
