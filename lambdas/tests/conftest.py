@@ -28,6 +28,7 @@ os.environ["ADMIN_DISCORD_PUBLIC_KEY"] = "test-admin-discord-public-key"
 os.environ["ADMIN_DISCORD_USER_ID"] = "1"
 os.environ["ADMIN_DISCORD_TOKEN"] = "test-admin-discord-token"
 os.environ["KOREANBOTS_TOKEN"] = "test-koreanbots-token"
+os.environ["LIVE_STREAMS_SOURCE_URL"] = "https://chzzk.test/live-streams"
 for _name in (
     "DISCORD_NAVER_SESSION_RENEW_EXPIRED_CHANNEL_ID",
     "DISCORD_GET_FOLLOWING_ERROR_CHANNEL_ID",

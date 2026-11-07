@@ -5,7 +5,6 @@ from cron import send_weekly_report
 from cron.send_weekly_report import (
     KST,
     build_report,
-    format_index_stats,
     format_servers,
 )
 
@@ -24,14 +23,12 @@ def query_results(**overrides):
                 "live_start": "5",
                 "noti_send": "40",
                 "noti_fail": "2",
-                "follows": "300",
             },
             {
                 "index": "0",
                 "live_start": "7",
                 "noti_send": "60.0",
                 "noti_fail": "0",
-                "follows": "450",
             },
         ],
         "servers": [{"servers": "1200"}],
@@ -65,14 +62,12 @@ class TestBuildReport:
                         "live_start": 7,
                         "noti_send": 60,
                         "noti_fail": 0,
-                        "follows": 450,
                     },
                     {
                         "index": 1,
                         "live_start": 5,
                         "noti_send": 40,
                         "noti_fail": 2,
-                        "follows": 300,
                     },
                 ],
             },
@@ -115,24 +110,6 @@ class TestBuildReport:
 )
 def test_format_servers(current, previous, expected):
     assert format_servers({"current": current, "previous": previous}) == expected
-
-
-class TestFormatIndexStats:
-    def test_lists_follows_per_index(self):
-        stats = [{"index": 0, "follows": 1500}, {"index": 1, "follows": 20}]
-
-        assert format_index_stats(stats) == "`#0` 팔로우 `1,500`명\n`#1` 팔로우 `20`명"
-
-    def test_empty(self):
-        assert format_index_stats([]) == "`데이터 없음`"
-
-    def test_truncated_to_embed_field_limit(self):
-        stats = [{"index": i, "follows": 1000} for i in range(100)]
-
-        value = format_index_stats(stats)
-
-        assert len(value) <= 1024
-        assert value.endswith("\n...")
 
 
 class TestHandler:

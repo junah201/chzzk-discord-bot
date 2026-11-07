@@ -1,7 +1,8 @@
 from dataclasses import dataclass, fields
 from datetime import datetime
 
-from shared import Following
+from shared import ChzzkLive, Following
+from shared.discord.utils import NETWORK_ERROR_STATUS_CODE
 
 SUCCESS_STATUS_CODES = (200, 204)
 MAX_NOTI_FAIL_COUNT = 3
@@ -17,7 +18,6 @@ class ChannelResult:
 @dataclass
 class LiveCheckStats:
     index: int
-    total_follows_count: int = 0
     total_live_channels_count: int = 0
     total_live_start_cnt: int = 0
     total_noti_send_cnt: int = 0
@@ -37,11 +37,18 @@ def parse_account_index(event: dict) -> int:
     return int(event["index"])
 
 
-def select_live_channel_ids(follows: list[Following]) -> list[str]:
-    return [f["channel"]["channelId"] for f in follows if f["streamer"]["openLive"]]
+def live_from_following(following: Following) -> ChzzkLive | None:
+    """라이브 팔로우 목록 항목을 live-detail과 같은 모양(liveInfo + channel)으로 바꿉니다."""
+    live_info = following.get("liveInfo")
+    if not live_info or live_info.get("liveId") is None:
+        return None
+    live = {**live_info, "channel": following["channel"]}
+    if live.get("adult"):
+        live["liveImageUrl"] = None
+    return live
 
 
-def is_new_live(chzzk: dict, last_live_id) -> bool:
+def is_new_live(chzzk: ChzzkLive, last_live_id) -> bool:
     return str(chzzk["liveId"]) != str(last_live_id)
 
 
@@ -61,12 +68,15 @@ def delivery_update(
     now: datetime,
 ) -> dict:
     """전송 결과를 NOTI 아이템에 기록할 속성(DynamoDB client 형식)을 만듭니다."""
+    prev_fail_count = int(notification_item.get("noti_fail_count", {"N": "0"})["N"])
+    # 599는 응답을 못 받은 경우라 실제로는 전달됐을 수 있어 자동 끄기 횟수에 세지 않는다.
+    counts_as_failure = status_code != NETWORK_ERROR_STATUS_CODE
     if is_delivered(status_code):
         status = "SUCCESS"
         fail_count = 0
     else:
         status = f"FAIL_{status_code}"
-        fail_count = int(notification_item.get("noti_fail_count", {"N": "0"})["N"]) + 1
+        fail_count = prev_fail_count + 1 if counts_as_failure else prev_fail_count
 
     attrs = {
         "last_noti_status": {"S": status},
@@ -76,6 +86,6 @@ def delivery_update(
         "chzzk_image_url": {"S": chzzk["channel"]["channelImageUrl"] or ""},
         "chzzk_id": {"S": f"{chzzk_id}"},
     }
-    if fail_count >= MAX_NOTI_FAIL_COUNT:
+    if counts_as_failure and fail_count >= MAX_NOTI_FAIL_COUNT:
         attrs["disable_notification"] = {"BOOL": True}
     return attrs

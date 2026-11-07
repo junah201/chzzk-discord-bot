@@ -237,7 +237,9 @@ functions:
   live_check:
     handler: lambdas/cron/live_check.handler
     name: live_check_v2
-    description: 주기적으로 네이버 계정의 팔로우 목록에서 방송을 시작한 채널을 찾아 알림을 보냅니다.
+    environment:
+      LIVE_STREAMS_SOURCE_URL: ${env:LIVE_STREAMS_SOURCE_URL}
+    description: 주기적으로 방송을 시작한 채널을 찾아 알림을 보냅니다.
     tags:
       type: cron
     timeout: 285

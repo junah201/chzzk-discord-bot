@@ -41,8 +41,7 @@ LIVE_CHECK_QUERY = """
 filter type = "LIVE_CHECK_RESULT"
 | stats sum(total_live_start_cnt) as live_start,
         sum(total_noti_send_cnt) as noti_send,
-        sum(total_noti_fail_cnt) as noti_fail,
-        latest(total_follows_count) as follows
+        sum(total_noti_fail_cnt) as noti_fail
   by `index`
 """
 
@@ -199,7 +198,6 @@ def build_report(start: datetime, end: datetime) -> dict:
                 "live_start": to_int(row.get("live_start")),
                 "noti_send": to_int(row.get("noti_send")),
                 "noti_fail": to_int(row.get("noti_fail")),
-                "follows": to_int(row.get("follows")),
             }
         )
     index_stats.sort(key=lambda x: x["index"])
@@ -236,17 +234,6 @@ def format_servers(servers: dict) -> str:
     diff = current - previous
     sign = "+" if diff > 0 else ""
     return f"`{current:,}`개 (전주 대비 `{sign}{diff:,}`)"
-
-
-def format_index_stats(by_index: list) -> str:
-    if not by_index:
-        return "`데이터 없음`"
-
-    lines = [f"`#{s['index']}` 팔로우 `{s['follows']:,}`명" for s in by_index]
-    value = "\n".join(lines)
-    if len(value) > 1000:  # 디스코드 embed field 길이 제한(1024)
-        value = value[:1000] + "\n..."
-    return value
 
 
 def save_report(report: dict):
@@ -302,11 +289,6 @@ def send_report(report: dict):
                                 f"발송된 알림: `{live['total_noti_send']:,}`건\n"
                                 f"실패한 알림: `{live['total_noti_fail']:,}`건"
                             ),
-                            "inline": False,
-                        },
-                        {
-                            "name": "Index 별 팔로우 수 (마지막 기록)",
-                            "value": format_index_stats(live["by_index"]),
                             "inline": False,
                         },
                         {

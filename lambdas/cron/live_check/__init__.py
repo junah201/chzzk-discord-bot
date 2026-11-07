@@ -27,7 +27,7 @@ def run(index: int, now: datetime) -> logic.LiveCheckStats:
     started_at = perf_counter()
     NID_AUT, NID_SES = adapters.get_naver_session(index)
     _log(
-        logging.DEBUG,
+        logging.INFO,
         {"type": "GET_NAVER_SESSION_END", "time": perf_counter() - started_at},
     )
     _log(
@@ -41,41 +41,36 @@ def run(index: int, now: datetime) -> logic.LiveCheckStats:
     )
 
     started_at = perf_counter()
-    follows = adapters.get_follows(NID_AUT, NID_SES, index)
-    _log(
-        logging.DEBUG,
-        {"type": "GET_FOLLOWINGS_END", "time": perf_counter() - started_at},
-    )
-    live_channels = logic.select_live_channel_ids(follows)
-    live_sample = next((f for f in follows if f["streamer"]["openLive"]), None)
-    if live_sample:
-        _log(
-            logging.DEBUG,
-            {
-                "type": "LIVE_FOLLOWING_SAMPLE",
-                "channel_id": live_sample["channel"]["channelId"],
-                "liveInfo": live_sample.get("liveInfo"),
-                "streamer": live_sample.get("streamer"),
-            },
-        )
+    follows = adapters.fetch_live_streams(NID_AUT, NID_SES, index)
+    live_streams = {f["channel"]["channelId"]: f for f in follows}
     _log(
         logging.INFO,
         {
-            "type": "GET_FOLLOWINGS_SUCCESS",
-            "follows_count": len(follows),
-            "live_count": len(live_channels),
+            "type": "FETCH_LIVE_STREAMS_END",
+            "live_count": len(live_streams),
+            "time": perf_counter() - started_at,
+        },
+    )
+
+    started_at = perf_counter()
+    items = adapters.get_chzzk_items(list(live_streams))
+    _log(
+        logging.INFO,
+        {
+            "type": "GET_CHZZK_ITEMS_END",
+            "item_count": len(items),
+            "time": perf_counter() - started_at,
         },
     )
 
     stats = logic.LiveCheckStats(
         index=index,
-        total_follows_count=len(follows),
-        total_live_channels_count=len(live_channels),
+        total_live_channels_count=len(live_streams),
     )
     started_at = perf_counter()
-    for chzzk_id in live_channels:
+    for chzzk_id, following in live_streams.items():
         try:
-            stats.add(check_channel(chzzk_id, now))
+            stats.add(check_channel(chzzk_id, items.get(chzzk_id), following, now))
         except Exception as e:
             _log(
                 logging.ERROR,
@@ -88,53 +83,24 @@ def run(index: int, now: datetime) -> logic.LiveCheckStats:
             )
 
     _log(
-        logging.DEBUG,
+        logging.INFO,
         {"type": "CHECK_CHANNELS_END", "time": perf_counter() - started_at},
     )
     _log(logging.INFO, {"type": "LIVE_CHECK_RESULT", **stats.to_dict()})
     return stats
 
 
-def check_channel(chzzk_id: str, now: datetime) -> logic.ChannelResult:
+def check_channel(
+    chzzk_id: str, item: dict | None, following: dict, now: datetime
+) -> logic.ChannelResult:
     result = logic.ChannelResult()
 
-    started_at = perf_counter()
-    item = adapters.get_chzzk_item(chzzk_id)
-    _log(
-        logging.DEBUG,
-        {
-            "type": "GET_CHZZK_ITEM_END",
-            "chzzk_id": chzzk_id,
-            "time": perf_counter() - started_at,
-        },
-    )
     if not item:
         return result
 
-    try:
-        started_at = perf_counter()
-        chzzk = adapters.fetch_live(chzzk_id)
-        _log(
-            logging.INFO,
-            {
-                "type": "GET_CHZZK_END",
-                "channel_id": chzzk_id,
-                "time": perf_counter() - started_at,
-                "chzzk": {
-                    "liveId": (chzzk or {}).get("liveId", None),
-                    "liveTitle": (chzzk or {}).get("liveTitle", None),
-                    "status": (chzzk or {}).get("status", None),
-                },
-            },
-        )
-    except Exception as e:
-        _log(
-            logging.ERROR,
-            {"type": "GET_CHZZK_ERROR", "channel_id": chzzk_id, "error": str(e)},
-        )
-        return result
-
+    chzzk = logic.live_from_following(following)
     if not chzzk:
+        _log(logging.ERROR, {"type": "LIVE_INFO_MISSING", "chzzk_id": chzzk_id})
         return result
 
     if not logic.is_new_live(chzzk, item["lastLiveId"]):
@@ -162,7 +128,7 @@ def check_channel(chzzk_id: str, now: datetime) -> logic.ChannelResult:
     adapters.update_last_live(chzzk_id, chzzk)
     notifications = adapters.query_notifications(chzzk_id)
     _log(
-        logging.DEBUG,
+        logging.INFO,
         {
             "type": "UPDATE_AND_QUERY_END",
             "chzzk_id": chzzk_id,
@@ -184,7 +150,7 @@ def check_channel(chzzk_id: str, now: datetime) -> logic.ChannelResult:
         started_at = perf_counter()
         is_delivered = _deliver(chzzk_id, chzzk, noti, now)
         _log(
-            logging.DEBUG,
+            logging.INFO,
             {
                 "type": "DELIVER_END",
                 "chzzk_id": chzzk_id,

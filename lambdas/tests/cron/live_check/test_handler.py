@@ -21,17 +21,24 @@ def live(**overrides):
     data = {
         "liveId": 200,
         "liveTitle": "새 방송",
-        "status": "OPEN",
         "liveCategoryValue": "Just Chatting",
         "liveImageUrl": "https://example.com/live_{type}.jpg",
-        "channel": {
-            "channelId": CHZZK_ID,
-            "channelName": "스트리머",
-            "channelImageUrl": "https://example.com/profile.png",
-        },
     }
     data.update(overrides)
     return data
+
+
+def following(chzzk_id=CHZZK_ID, **live_overrides):
+    return {
+        "channelId": chzzk_id,
+        "channel": {
+            "channelId": chzzk_id,
+            "channelName": "스트리머",
+            "channelImageUrl": "https://example.com/profile.png",
+        },
+        "streamer": {"openLive": True},
+        "liveInfo": live(**live_overrides),
+    }
 
 
 def noti(channel_id, guild_id="1", **attrs):
@@ -50,7 +57,6 @@ class Fake:
 
     def __init__(self):
         self.chzzk_items = {CHZZK_ID: {"lastLiveId": 100}}
-        self.live = live()
         self.follows = []
         self.notifications = []
         self.status_by_channel = {}
@@ -61,16 +67,11 @@ class Fake:
     def get_naver_session(self, index):
         return NID_AUT, NID_SES
 
-    def get_follows(self, nid_aut, nid_ses, index):
+    def fetch_live_streams(self, nid_aut, nid_ses, index):
         return self.follows
 
-    def get_chzzk_item(self, chzzk_id):
-        return self.chzzk_items.get(chzzk_id)
-
-    def fetch_live(self, chzzk_id):
-        if isinstance(self.live, Exception):
-            raise self.live
-        return self.live
+    def get_chzzk_items(self, chzzk_ids):
+        return {i: self.chzzk_items[i] for i in chzzk_ids if i in self.chzzk_items}
 
     def update_last_live(self, chzzk_id, chzzk):
         self.last_live_updates.append((chzzk_id, chzzk["liveId"]))
@@ -117,17 +118,17 @@ def log_types(logs):
     return [entry["type"] for entry in logs()]
 
 
-def check():
-    return live_check.check_channel(CHZZK_ID, NOW)
+def check(item=None, **live_overrides):
+    item = {"lastLiveId": 100} if item is None else item
+    return live_check.check_channel(CHZZK_ID, item, following(**live_overrides), NOW)
 
 
 def test_fake_covers_every_adapter():
     assert sorted(ADAPTER_NAMES) == sorted(
         [
             "get_naver_session",
-            "get_follows",
-            "get_chzzk_item",
-            "fetch_live",
+            "fetch_live_streams",
+            "get_chzzk_items",
             "update_last_live",
             "query_notifications",
             "send_notification",
@@ -144,7 +145,6 @@ class TestHandler:
             "run",
             return_value=LiveCheckStats(
                 index=3,
-                total_follows_count=3,
                 total_live_channels_count=2,
                 total_live_start_cnt=2,
                 total_noti_send_cnt=2,
@@ -158,7 +158,6 @@ class TestHandler:
         assert res["statusCode"] == 200
         assert json.loads(res["body"]) == {
             "index": 3,
-            "total_follows_count": 3,
             "total_live_channels_count": 2,
             "total_live_start_cnt": 2,
             "total_noti_send_cnt": 2,
@@ -168,32 +167,29 @@ class TestHandler:
 
 class TestNoNotification:
     def test_unregistered_channel(self, fake):
-        fake.chzzk_items = {}
-
-        assert check() == ChannelResult()
-        assert fake.sent == []
-
-    def test_chzzk_api_error(self, fake, logs):
-        fake.live = RuntimeError("boom")
-
-        assert check() == ChannelResult()
-        assert log_types(logs) == ["GET_CHZZK_ITEM_END", "GET_CHZZK_ERROR"]
-        assert fake.sent == []
-
-    def test_chzzk_returns_nothing(self, fake):
-        fake.live = None
-        fake.notifications = [noti("10")]
-
-        assert check() == ChannelResult()
-        assert fake.last_live_updates == []
+        assert live_check.check_channel(CHZZK_ID, None, following(), NOW) == (
+            ChannelResult()
+        )
         assert fake.sent == []
 
     @pytest.mark.parametrize("live_id", [100, "100"], ids=["int", "str"])
     def test_same_live_is_notified_once(self, fake, live_id):
-        fake.live = live(liveId=live_id)
         fake.notifications = [noti("10")]
 
-        assert check() == ChannelResult()
+        assert check(liveId=live_id) == ChannelResult()
+        assert fake.last_live_updates == []
+        assert fake.sent == []
+
+    @pytest.mark.parametrize("live_info", [None, {"liveTitle": "x"}])
+    def test_missing_live_info_is_logged(self, fake, logs, live_info):
+        entry = following()
+        entry["liveInfo"] = live_info
+        fake.notifications = [noti("10")]
+
+        result = live_check.check_channel(CHZZK_ID, {"lastLiveId": 100}, entry, NOW)
+
+        assert result == ChannelResult()
+        assert log_types(logs) == ["LIVE_INFO_MISSING"]
         assert fake.sent == []
 
 
@@ -201,6 +197,18 @@ class TestNewLive:
     def test_updates_last_live(self, fake):
         assert check() == ChannelResult(1, 0, 0)
         assert fake.last_live_updates == [(CHZZK_ID, 200)]
+
+    def test_message_uses_live_stream_entry(self, fake):
+        fake.notifications = [noti("10")]
+
+        check(liveTitle="제목", tags=["버튜버"])
+
+        [(_, data)] = fake.sent
+        embed = data["embeds"][0]
+        assert embed["title"] == "제목"
+        assert embed["author"]["name"] == "스트리머"
+        assert embed["image"]["url"] == "https://example.com/live_1080.jpg"
+        assert {"name": "태그", "value": "`버튜버`"} in embed["fields"]
 
     def test_sends_to_every_notification(self, fake):
         fake.notifications = [noti("10", "1"), noti("11", "2")]
@@ -295,12 +303,9 @@ class TestDeliveryResult:
 
 
 class TestRun:
-    def test_checks_only_live_channels_and_sums_results(self, fake, mocker):
-        fake.follows = [
-            {"channel": {"channelId": "a"}, "streamer": {"openLive": True}},
-            {"channel": {"channelId": "b"}, "streamer": {"openLive": False}},
-            {"channel": {"channelId": "c"}, "streamer": {"openLive": True}},
-        ]
+    def test_checks_every_live_channel_and_sums_results(self, fake, mocker):
+        fake.follows = [following("a"), following("c")]
+        fake.chzzk_items = {"a": {"lastLiveId": 1}}
         check_channel = mocker.patch.object(
             live_check,
             "check_channel",
@@ -310,12 +315,11 @@ class TestRun:
         stats = live_check.run(3, NOW)
 
         assert [c.args for c in check_channel.call_args_list] == [
-            ("a", NOW),
-            ("c", NOW),
+            ("a", {"lastLiveId": 1}, following("a"), NOW),
+            ("c", None, following("c"), NOW),
         ]
         assert stats.to_dict() == {
             "index": 3,
-            "total_follows_count": 3,
             "total_live_channels_count": 2,
             "total_live_start_cnt": 2,
             "total_noti_send_cnt": 2,
@@ -323,10 +327,7 @@ class TestRun:
         }
 
     def test_one_channel_error_does_not_stop_others(self, fake, mocker, logs):
-        fake.follows = [
-            {"channel": {"channelId": "a"}, "streamer": {"openLive": True}},
-            {"channel": {"channelId": "b"}, "streamer": {"openLive": True}},
-        ]
+        fake.follows = [following("a"), following("b")]
         mocker.patch.object(
             live_check,
             "check_channel",
@@ -355,5 +356,14 @@ class TestRun:
             "total_live_start_cnt",
             "total_noti_send_cnt",
             "total_noti_fail_cnt",
-            "total_follows_count",
         } <= result.keys()
+
+    def test_end_to_end_notifies_new_live_only(self, fake):
+        fake.follows = [following(CHZZK_ID, liveId=200), following("b", liveId=5)]
+        fake.chzzk_items = {CHZZK_ID: {"lastLiveId": 100}, "b": {"lastLiveId": 5}}
+        fake.notifications = [noti("10")]
+
+        stats = live_check.run(3, NOW)
+
+        assert fake.last_live_updates == [(CHZZK_ID, 200)]
+        assert (stats.total_live_start_cnt, stats.total_noti_send_cnt) == (1, 1)

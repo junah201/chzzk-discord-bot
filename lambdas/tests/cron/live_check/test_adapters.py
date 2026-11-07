@@ -7,7 +7,6 @@ from responses import matchers
 from shared.discord.utils import DISCORD_API_BASE_URL
 
 CHZZK_ID = "abcdef0123456789abcdef0123456789"
-FOLLOWINGS_URL = "https://api.chzzk.naver.com/service/v1/channels/followings"
 ERROR_CHANNEL_URL = (
     f"{DISCORD_API_BASE_URL}/channels/"
     f"{adapters.DISCORD_GET_FOLLOWING_ERROR_CHANNEL_ID}/messages"
@@ -21,56 +20,36 @@ def ddb(mocker, dynamodb_table):
     return dynamodb_table
 
 
-class TestGetFollows:
-    @staticmethod
-    def following(channel_id, open_live=False):
-        return {
-            "channel": {"channelId": channel_id},
-            "streamer": {"openLive": open_live},
-        }
+class TestFetchLiveStreams:
+    @pytest.fixture(autouse=True)
+    def quiet_logs(self, mocker):
+        mocker.patch.object(adapters.logger, "info")
 
-    @staticmethod
-    def page(mock_requests, number, followings, total_page):
+    def test_returns_following_list(self, mock_requests):
+        followings = [{"channel": {"channelId": "a"}, "streamer": {"openLive": True}}]
         mock_requests.get(
-            FOLLOWINGS_URL,
-            json={"content": {"totalPage": total_page, "followingList": followings}},
+            adapters.LIVE_STREAMS_SOURCE_URL,
+            json={"code": 200, "content": {"followingList": followings}},
             match=[
-                matchers.query_param_matcher(
-                    {"page": str(number), "size": "505"}, strict_match=False
-                ),
                 matchers.header_matcher(
                     {"Cookie": "NID_AUT=aut; NID_SES=ses"}, strict_match=False
                 ),
             ],
         )
 
-    @pytest.fixture(autouse=True)
-    def quiet_logs(self, mocker):
-        mocker.patch.object(adapters.logger, "info")
+        assert adapters.fetch_live_streams("aut", "ses", 0) == followings
 
-    def test_single_page(self, mock_requests):
-        followings = [self.following("a", True), self.following("b")]
-        self.page(mock_requests, 0, followings, total_page=1)
+    def test_no_content(self, mock_requests):
+        mock_requests.get(
+            adapters.LIVE_STREAMS_SOURCE_URL, json={"code": 200, "content": None}
+        )
 
-        assert adapters.get_follows("aut", "ses", 0) == followings
-
-    def test_collects_every_page(self, mock_requests):
-        for number, channel_id in enumerate("abc"):
-            self.page(mock_requests, number, [self.following(channel_id)], 3)
-
-        follows = adapters.get_follows("aut", "ses", 0)
-
-        assert [f["channel"]["channelId"] for f in follows] == ["a", "b", "c"]
-
-    def test_no_followings(self, mock_requests):
-        self.page(mock_requests, 0, [], total_page=0)
-
-        assert adapters.get_follows("aut", "ses", 0) == []
+        assert adapters.fetch_live_streams("aut", "ses", 0) == []
 
     def test_error_response_is_reported_to_admin_channel(self, mocker, mock_requests):
         log_error = mocker.patch.object(adapters.logger, "error")
         mock_requests.get(
-            FOLLOWINGS_URL, status=401, json={"code": 401, "message": "로그인 필요"}
+            adapters.LIVE_STREAMS_SOURCE_URL, status=401, json={"code": 401}
         )
         mock_requests.post(
             ERROR_CHANNEL_URL,
@@ -83,7 +62,7 @@ class TestGetFollows:
             ],
         )
 
-        assert adapters.get_follows("aut", "ses", 4) == []
+        assert adapters.fetch_live_streams("aut", "ses", 4) == []
 
         log = json.loads(log_error.call_args.args[0])
         assert (log["type"], log["status_code"], log["index"]) == (
@@ -130,27 +109,133 @@ class TestDynamoDB:
         )
         assert adapters.get_naver_session(3) == ("aut", "ses")
 
-    def test_get_chzzk_item(self, ddb):
+    def test_get_chzzk_items(self, ddb):
         self.put_chzzk(ddb.table)
 
-        item = adapters.get_chzzk_item(CHZZK_ID)
+        items = adapters.get_chzzk_items([CHZZK_ID])
 
-        assert item["lastLiveId"] == 100
+        assert list(items) == [CHZZK_ID]
+        assert items[CHZZK_ID]["lastLiveId"] == 100
 
-    def test_get_chzzk_item_missing_is_logged(self, ddb, mocker):
+    def test_get_chzzk_items_in_chunks_of_100(self, ddb, mocker):
+        ids = [f"{i:032x}" for i in range(250)]
+        for chzzk_id in ids:
+            ddb.table.put_item(
+                Item={"PK": f"CHZZK#{chzzk_id}", "SK": f"CHZZK#{chzzk_id}"}
+            )
+        spy = mocker.spy(ddb.table.meta.client, "batch_get_item")
+
+        items = adapters.get_chzzk_items(ids + ids[:3])
+
+        assert sorted(items) == ids
+        sizes = [
+            len(c.kwargs["RequestItems"][adapters.TABLE_NAME]["Keys"])
+            for c in spy.call_args_list
+        ]
+        assert sizes == [100, 100, 50]
+
+    def test_get_chzzk_items_missing_is_logged(self, ddb, mocker):
+        self.put_chzzk(ddb.table)
         log_error = mocker.patch.object(adapters.logger, "error")
 
-        assert adapters.get_chzzk_item("missing") is None
+        assert list(adapters.get_chzzk_items([CHZZK_ID, "missing"])) == [CHZZK_ID]
         logged = json.loads(log_error.call_args.args[0])
-        assert (logged["type"], logged["chzzk_id"]) == ("GET_DYNAMODB_ERROR", "missing")
+        assert logged == {"type": "GET_DYNAMODB_ERROR", "chzzk_ids": ["missing"]}
+
+    def test_get_chzzk_items_retries_unprocessed_keys(self, ddb, mocker):
+        sleep = mocker.patch.object(adapters.time, "sleep")
+        key_b = {"PK": "CHZZK#b", "SK": "CHZZK#b"}
+        batch_get = mocker.patch.object(
+            ddb.table.meta.client,
+            "batch_get_item",
+            side_effect=[
+                {
+                    "Responses": {adapters.TABLE_NAME: [{"PK": "CHZZK#a"}]},
+                    "UnprocessedKeys": {adapters.TABLE_NAME: {"Keys": [key_b]}},
+                },
+                {
+                    "Responses": {adapters.TABLE_NAME: [{"PK": "CHZZK#b"}]},
+                    "UnprocessedKeys": {},
+                },
+            ],
+        )
+
+        items = adapters.get_chzzk_items(["a", "b"])
+
+        assert sorted(items) == ["a", "b"]
+        assert batch_get.call_args_list[1].kwargs["RequestItems"] == {
+            adapters.TABLE_NAME: {"Keys": [key_b]}
+        }
+        sleep.assert_called_once_with(adapters.BATCH_GET_BACKOFF_SEC)
+
+    def test_get_chzzk_items_gives_up_after_max_attempts(self, ddb, mocker):
+        mocker.patch.object(adapters.time, "sleep")
+        log_error = mocker.patch.object(adapters.logger, "error")
+        unprocessed = {
+            "Responses": {},
+            "UnprocessedKeys": {
+                adapters.TABLE_NAME: {"Keys": [{"PK": "CHZZK#a", "SK": "CHZZK#a"}]}
+            },
+        }
+        batch_get = mocker.patch.object(
+            ddb.table.meta.client, "batch_get_item", return_value=unprocessed
+        )
+
+        assert adapters.get_chzzk_items(["a"]) == {}
+        assert batch_get.call_count == adapters.BATCH_GET_MAX_ATTEMPTS
+        logged = json.loads(log_error.call_args.args[0])
+        assert logged == {"type": "BATCH_GET_UNPROCESSED_KEYS", "chzzk_ids": ["a"]}
+
+    def test_get_chzzk_items_error_only_skips_that_chunk(self, ddb, mocker):
+        ids = [f"{i:032x}" for i in range(150)]
+        for chzzk_id in ids:
+            ddb.table.put_item(
+                Item={"PK": f"CHZZK#{chzzk_id}", "SK": f"CHZZK#{chzzk_id}"}
+            )
+        log_error = mocker.patch.object(adapters.logger, "error")
+        client = ddb.table.meta.client
+        real_batch_get = client.batch_get_item
+        calls = []
+
+        def fail_first_chunk(**kwargs):
+            calls.append(kwargs)
+            if len(calls) == 1:
+                raise RuntimeError("throttled")
+            return real_batch_get(**kwargs)
+
+        mocker.patch.object(client, "batch_get_item", side_effect=fail_first_chunk)
+
+        items = adapters.get_chzzk_items(ids)
+
+        assert sorted(items) == ids[100:]
+        [logged] = [json.loads(c.args[0]) for c in log_error.call_args_list]
+        assert (logged["type"], logged["chzzk_ids"], logged["error"]) == (
+            "BATCH_GET_ERROR",
+            ids[:100],
+            "throttled",
+        )
+
+    def test_get_chzzk_items_empty(self, ddb, mocker):
+        spy = mocker.spy(ddb.table.meta.client, "batch_get_item")
+
+        assert adapters.get_chzzk_items([]) == {}
+        spy.assert_not_called()
 
     def test_update_last_live(self, ddb):
         self.put_chzzk(ddb.table)
 
         adapters.update_last_live(CHZZK_ID, {"liveId": 200, "liveTitle": "새 방송"})
 
-        item = adapters.get_chzzk_item(CHZZK_ID)
+        item = adapters.get_chzzk_items([CHZZK_ID])[CHZZK_ID]
         assert (item["lastLiveId"], item["lastLiveTitle"]) == (200, "새 방송")
+
+    def test_update_last_live_without_title(self, ddb):
+        self.put_chzzk(ddb.table)
+
+        adapters.update_last_live(CHZZK_ID, {"liveId": 200, "liveTitle": None})
+
+        item = adapters.get_chzzk_items([CHZZK_ID])[CHZZK_ID]
+        assert (item["lastLiveId"], item["lastLiveTitle"]) == (200, "")
 
     def test_query_notifications_only_returns_this_channel(self, ddb):
         self.put_chzzk(ddb.table)
@@ -186,11 +271,3 @@ def test_send_notification_passes_item_fields(mocker):
     send.assert_called_once_with(
         guild_id="1", channel_id="10", data={"content": "hi"}, notification_item=item
     )
-
-
-def test_fetch_live_passes_logger(mocker):
-    get_chzzk = mocker.patch.object(adapters, "get_chzzk", return_value=None)
-
-    adapters.fetch_live(CHZZK_ID)
-
-    get_chzzk.assert_called_once_with(CHZZK_ID, logger=adapters.logger)

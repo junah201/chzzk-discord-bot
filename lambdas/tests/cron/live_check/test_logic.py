@@ -6,8 +6,8 @@ from cron.live_check.logic import (
     LiveCheckStats,
     delivery_update,
     is_new_live,
+    live_from_following,
     parse_account_index,
-    select_live_channel_ids,
     should_notify,
 )
 
@@ -22,13 +22,36 @@ def test_parse_account_index():
     assert parse_account_index({"index": 3}) == 3
 
 
-def test_select_live_channel_ids():
-    follows = [
-        {"channel": {"channelId": "a"}, "streamer": {"openLive": True}},
-        {"channel": {"channelId": "b"}, "streamer": {"openLive": False}},
-        {"channel": {"channelId": "c"}, "streamer": {"openLive": True}},
-    ]
-    assert select_live_channel_ids(follows) == ["a", "c"]
+def test_live_from_following_merges_channel_into_live_info():
+    channel = {"channelId": "a", "channelName": "n", "channelImageUrl": "i"}
+    following = {
+        "channel": channel,
+        "streamer": {"openLive": True},
+        "liveInfo": {"liveId": 1, "liveTitle": "t"},
+    }
+
+    assert live_from_following(following) == {
+        "liveId": 1,
+        "liveTitle": "t",
+        "channel": channel,
+    }
+
+
+@pytest.mark.parametrize(("adult", "expected"), [(True, None), (False, "thumb")])
+def test_live_from_following_hides_adult_thumbnail(adult, expected):
+    following = {
+        "channel": {"channelId": "a"},
+        "liveInfo": {"liveId": 1, "liveImageUrl": "thumb", "adult": adult},
+    }
+
+    assert live_from_following(following)["liveImageUrl"] == expected
+
+
+@pytest.mark.parametrize("live_info", [None, {}, {"liveTitle": "t"}])
+def test_live_from_following_without_live_id(live_info):
+    following = {"channel": {"channelId": "a"}, "liveInfo": live_info}
+
+    assert live_from_following(following) is None
 
 
 @pytest.mark.parametrize(
@@ -76,6 +99,15 @@ def test_delivery_update_failure_increments_fail_count(noti, expected):
     assert attrs["noti_fail_count"] == {"N": expected}
 
 
+@pytest.mark.parametrize("prev", ["0", "2", "5"])
+def test_delivery_update_network_error_is_not_counted(prev):
+    attrs = delivery_update(599, {"noti_fail_count": {"N": prev}}, "cid", CHZZK, NOW)
+
+    assert attrs["last_noti_status"] == {"S": "FAIL_599"}
+    assert attrs["noti_fail_count"] == {"N": prev}
+    assert "disable_notification" not in attrs
+
+
 @pytest.mark.parametrize(
     ("noti", "disabled"),
     [
@@ -103,13 +135,12 @@ def test_delivery_update_missing_image_is_empty():
 
 
 def test_stats_accumulates_channel_results():
-    stats = LiveCheckStats(index=3, total_follows_count=5, total_live_channels_count=2)
+    stats = LiveCheckStats(index=3, total_live_channels_count=2)
     stats.add(ChannelResult(1, 2, 0))
     stats.add(ChannelResult(1, 0, 1))
 
     assert stats.to_dict() == {
         "index": 3,
-        "total_follows_count": 5,
         "total_live_channels_count": 2,
         "total_live_start_cnt": 2,
         "total_noti_send_cnt": 2,
