@@ -90,6 +90,56 @@ export default function CustomizationPage() {
         입력
       </PolicyCallout>
 
+      <h2>변수 넣기</h2>
+      <p>
+        커스텀 메시지에 아래 변수를 넣으면 알림을 보낼 때 실제 방송 정보로
+        바뀝니다. 대시보드의 커스텀 메시지 입력란 아래 버튼을 눌러도 넣을 수
+        있습니다.
+      </p>
+
+      <PolicyTable>
+        <PolicyThead>
+          <PolicyTh className="min-w-[160px]">변수</PolicyTh>
+          <PolicyTh className="min-w-[200px]">바뀌는 내용</PolicyTh>
+        </PolicyThead>
+        <PolicyTbody>
+          {[
+            ["{channel.name}", "스트리머의 치지직 채널 이름"],
+            ["{channel.url}", "치지직 채널 주소"],
+            ["{stream.url}", "방송 바로 보기 주소"],
+            ["{stream.title}", "방송 제목"],
+            ["{stream.category}", "방송 카테고리 ({stream.game}도 같음)"],
+            ["{stream.tags}", "방송 태그 (쉼표로 구분)"],
+            [
+              "{stream.started_at}",
+              "방송 시작 시각 (보는 사람 기준으로 '3분 전'처럼 표시)",
+            ],
+            ["{everyone}", "@everyone 멘션"],
+            ["{here}", "@here 멘션"],
+          ].map(([variable, description]) => (
+            <PolicyTr key={variable}>
+              <PolicyTd>
+                <code>{variable}</code>
+              </PolicyTd>
+              <PolicyTd>{description}</PolicyTd>
+            </PolicyTr>
+          ))}
+        </PolicyTbody>
+      </PolicyTable>
+
+      <PolicyCallout title="변수 예시">
+        <code>
+          {"{everyone} {channel.name} 님이 방송을 켰어요! {stream.title}"}
+        </code>
+        <br />👉{" "}
+        <code>@everyone 스트리머 님이 방송을 켰어요! 오늘은 소통 방송</code>
+      </PolicyCallout>
+      <p>
+        방송 제목, 태그 등에 들어 있는 멘션과 마크다운은 그대로 보이도록
+        처리되어, 제목에 <code>@everyone</code>이 있어도 전체 멘션이 가지
+        않습니다. 지원하지 않는 변수는 바뀌지 않고 그대로 전송됩니다.
+      </p>
+
       <h2>텍스트 꾸미기 (Markdown)</h2>
       <p>
         디스코드 채팅에서 쓰는 마크다운 문법을 커스텀 메시지에도 그대로 쓸 수
