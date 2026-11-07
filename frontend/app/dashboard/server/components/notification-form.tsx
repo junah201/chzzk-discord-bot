@@ -7,7 +7,7 @@ import routeMap from "@/constants/route-map";
 import { discordQueries, keys } from "@/queries/discord";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { Control } from "react-hook-form";
+import { Control, useWatch } from "react-hook-form";
 import SubscriberSection from "./subscriber-section";
 import { ServerContext } from "../server-context";
 
@@ -18,11 +18,14 @@ export interface NotificationFormValues {
   custom_message: string;
   webhook_url: string;
   embed_color: string;
+  auto_crosspost: boolean;
   disable_embed: boolean;
   disable_tag: boolean;
   disable_button: boolean;
   disable_notification: boolean;
 }
+
+const GUILD_ANNOUNCEMENT_CHANNEL = 5;
 
 interface NotificationFieldsProps {
   control: Control<NotificationFormValues>;
@@ -88,7 +91,14 @@ export function NotificationTargetFields({ control }: NotificationFieldsProps) {
 export function NotificationSettingsFields({
   control,
 }: NotificationFieldsProps) {
-  const { isSubscription } = use(ServerContext);
+  const { serverId, isSubscription } = use(ServerContext);
+  const { data: channels } = useQuery(discordQueries.channels(serverId));
+  const [channelId, autoCrosspost] = useWatch({
+    control,
+    name: ["channel_id", "auto_crosspost"],
+  });
+  const channel = channels?.find((c) => c.id === channelId);
+  const isAnnouncement = channel?.type === GUILD_ANNOUNCEMENT_CHANNEL;
 
   return (
     <div className="flex flex-col gap-4">
@@ -141,6 +151,35 @@ export function NotificationSettingsFields({
             },
           }}
           helperText="임베드 왼쪽 띠의 색입니다. 구독이 끝나면 기본 색상으로 돌아갑니다."
+        />
+        <Input
+          type="checkbox"
+          control={control}
+          name="auto_crosspost"
+          label="공지 채널 자동 게시"
+          // 켜 둔 상태에서는 구독이 끝났거나 채널을 바꿨어도 끌 수 있게 둔다.
+          disabled={!autoCrosspost && (!isSubscription || !isAnnouncement)}
+          rules={{
+            validate: (value) =>
+              !value ||
+              !channel ||
+              isAnnouncement ||
+              "공지 채널에서만 자동 게시를 사용할 수 있습니다.",
+          }}
+          helperText={
+            <>
+              방송 알림을 보내면 바로 게시해서 이 공지 채널을 팔로우한 서버에도
+              전달합니다. 공지 채널에서만 사용할 수 있고, 커스텀 웹훅을 쓰면
+              봇에 메시지 관리 권한이 필요합니다. 자세한 내용은{" "}
+              <Link
+                href={routeMap.DOCS.AUTO_CROSSPOST}
+                className="underline hover:text-primary/80"
+              >
+                자동 게시 문서
+              </Link>
+              를 참고하세요.
+            </>
+          }
         />
       </SubscriberSection>
       <Input

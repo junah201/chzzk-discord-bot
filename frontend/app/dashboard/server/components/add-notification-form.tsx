@@ -26,6 +26,7 @@ export default function AddNotificationForm() {
       custom_message: "",
       webhook_url: "",
       embed_color: "",
+      auto_crosspost: false,
       disable_embed: false,
       disable_tag: false,
       disable_button: false,

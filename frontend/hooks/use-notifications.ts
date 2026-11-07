@@ -15,6 +15,7 @@ interface NotificationSettings extends NotificationBase {
   custom_message: string;
   webhook_url?: string;
   embed_color?: string;
+  auto_crosspost?: boolean;
   disable_embed: boolean;
   disable_tag: boolean;
   disable_button: boolean;

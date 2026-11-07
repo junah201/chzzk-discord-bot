@@ -198,10 +198,20 @@ export const ERROR_MESSAGES: Record<string, ErrorCopy> = {
   },
   SUBSCRIPTION_REQUIRED: {
     message: lines(
-      "커스텀 웹훅과 임베드 색상은 월간 구독 서버 전용 기능입니다.",
+      "커스텀 웹훅, 임베드 색상, 공지 채널 자동 게시는 월간 구독 서버 전용 기능입니다.",
       "구독하거나, 해당 항목을 비운 뒤 다시 시도해 주세요.",
     ),
     help: PRICING_HELP,
+  },
+  CROSSPOST_REQUIRES_ANNOUNCEMENT_CHANNEL: {
+    message: lines(
+      "공지 채널에서만 자동 게시를 사용할 수 있습니다.",
+      "공지 채널을 고르거나, 자동 게시를 끈 뒤 다시 시도해 주세요.",
+    ),
+    help: {
+      label: "공지 채널 자동 게시 가이드 보기",
+      href: routeMap.DOCS.AUTO_CROSSPOST,
+    },
   },
   INVALID_EMBED_COLOR: {
     message: "임베드 색상은 #RRGGBB 형식(예: #00FFA3)으로 입력해 주세요.",

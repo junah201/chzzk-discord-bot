@@ -42,6 +42,7 @@ export default function EditNotificationDialog({
     custom_message: notification.custom_message || "",
     webhook_url: notification.webhook_url || "",
     embed_color: toHexEmbedColor(notification.embed_color || ""),
+    auto_crosspost: notification.auto_crosspost || false,
     disable_embed: notification.disable_embed || false,
     disable_tag: notification.disable_tag || false,
     disable_button: notification.disable_button || false,
