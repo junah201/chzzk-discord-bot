@@ -125,18 +125,35 @@ export default function TroubleshootingPage() {
       </PolicyCallout>
       <PolicyCallout
         variant="warning"
-        title="커스텀 웹훅과 임베드 색상은 월간 구독 서버 전용 기능입니다."
+        title="커스텀 웹훅, 임베드 색상, 공지 채널 자동 게시는 월간 구독 서버 전용 기능입니다."
       >
         <ul className="mb-0">
           <li>
-            <Link href={routeMap.DOCS.CUSTOM_WEBHOOK}>커스텀 웹훅</Link>과
-            임베드 색상은 구독자 전용 기능입니다. 서버의 정기 구독이 유지되고
-            있는지 확인해 주세요.
+            <Link href={routeMap.DOCS.CUSTOM_WEBHOOK}>커스텀 웹훅</Link>, 임베드
+            색상,{" "}
+            <Link href={routeMap.DOCS.AUTO_CROSSPOST}>공지 채널 자동 게시</Link>
+            는 구독자 전용 기능입니다. 서버의 정기 구독이 유지되고 있는지 확인해
+            주세요.
           </li>
           <li>
             웹훅 URL은 <code>https://discord.com/api/webhooks/...</code>{" "}
             형식이어야 합니다. 임베드 색상은 색상 선택기에서 고르거나{" "}
             <code>5865F2</code>처럼 6자리 16진수 색상 코드로 입력해 주세요.
+          </li>
+        </ul>
+      </PolicyCallout>
+      <PolicyCallout
+        variant="warning"
+        title="공지 채널에서만 자동 게시를 사용할 수 있습니다."
+      >
+        <ul className="mb-0">
+          <li>
+            알림을 보낼 채널이 일반 텍스트 채널입니다. 디스코드 채널 설정에서
+            공지 채널로 바꾸거나, 공지 채널을 골라 다시 등록해 주세요.
+          </li>
+          <li>
+            채널을 공지 채널로 바꿨는데도 체크할 수 없다면 디스코드 채널 칸의{" "}
+            <strong>새로고침</strong>을 눌러 채널 목록을 다시 불러와 주세요.
           </li>
         </ul>
       </PolicyCallout>

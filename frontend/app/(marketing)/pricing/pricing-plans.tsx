@@ -72,6 +72,14 @@ export const pricingPlans = [
         기능 지원
       </Fragment>,
       "임베드 색상 변경",
+      <Fragment key="auto-crosspost">
+        <Link
+          href={routeMap.DOCS.AUTO_CROSSPOST}
+          className="underline hover:text-primary transition-colors "
+        >
+          공지 채널 자동 게시
+        </Link>
+      </Fragment>,
       "고급 필터링 기능 (지원 예정)",
     ],
     tag: "추천",

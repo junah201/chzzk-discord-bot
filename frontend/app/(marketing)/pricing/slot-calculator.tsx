@@ -56,6 +56,17 @@ const comparisonRows: {
   },
   { label: "임베드 색상 변경", value: (plan) => plan.subscriberFeatures },
   {
+    label: (
+      <Link
+        href={routeMap.DOCS.AUTO_CROSSPOST}
+        className="underline underline-offset-4 hover:text-primary transition-colors"
+      >
+        공지 채널 자동 게시
+      </Link>
+    ),
+    value: (plan) => plan.subscriberFeatures,
+  },
+  {
     label: "고급 필터링",
     value: (plan) =>
       plan.subscriberFeatures && (

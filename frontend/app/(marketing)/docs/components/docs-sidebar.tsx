@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { title: "3. 메시지 커스텀 (멘션)", href: routeMap.DOCS.CUSTOMIZATION },
   { title: "4. 문제 해결 (FAQ)", href: routeMap.DOCS.TROUBLESHOOTING },
   { title: "5. 커스텀 웹훅 사용하기", href: routeMap.DOCS.CUSTOM_WEBHOOK },
+  { title: "6. 공지 채널 자동 게시", href: routeMap.DOCS.AUTO_CROSSPOST },
 ];
 
 export function DocsSidebar() {

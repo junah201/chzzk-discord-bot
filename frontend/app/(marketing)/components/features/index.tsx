@@ -171,6 +171,7 @@ function CustomChips() {
     { label: "방송 태그" },
     { label: "바로가기 버튼" },
     { label: "커스텀 웹훅" },
+    { label: "공지 채널 자동 게시" },
   ];
 
   return (

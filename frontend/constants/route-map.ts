@@ -11,6 +11,7 @@ export const routeMap = {
     CUSTOMIZATION: "/docs/customization/",
     TROUBLESHOOTING: "/docs/troubleshooting/",
     CUSTOM_WEBHOOK: "/docs/custom-webhook/",
+    AUTO_CROSSPOST: "/docs/auto-crosspost/",
   },
   REDIRECTS: {
     INVITE: "/invite/",
