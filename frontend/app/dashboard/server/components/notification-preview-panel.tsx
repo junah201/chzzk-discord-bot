@@ -7,6 +7,7 @@ import { BellOff, Eye } from "lucide-react";
 
 import { NotificationPreview } from "@/components/discord/notification-preview";
 import { DEFAULT_EMBED_COLOR, parseEmbedColor } from "@/lib/discord";
+import { renderMessage } from "@/lib/message-template";
 import { discordQueries } from "@/queries/discord";
 import { NotificationFormValues } from "./notification-form";
 import { ServerContext } from "../server-context";
@@ -38,6 +39,13 @@ export default function NotificationPreviewPanel({
   const embedColor =
     (isSubscription && parseEmbedColor(values.embed_color ?? "")) ||
     DEFAULT_EMBED_COLOR;
+  const live = {
+    channelName: chzzkName || "스트리머",
+    channelImageUrl: chzzkImageUrl,
+    title: "방송 제목이 여기에 표시됩니다",
+    category: "카테고리",
+    tags: ["방송 태그", "예시"],
+  };
 
   return (
     <div className="flex flex-col gap-2">
@@ -54,20 +62,21 @@ export default function NotificationPreviewPanel({
       <div className="relative overflow-hidden rounded-lg border border-border">
         <NotificationPreview
           className={values.disable_notification ? "opacity-40" : undefined}
-          content={values.custom_message ?? ""}
+          content={renderMessage(values.custom_message ?? "", {
+            chzzkId: values.chzzk_id?.trim() || "치지직ID",
+            channelName: live.channelName,
+            title: live.title,
+            category: live.category,
+            tags: live.tags,
+            startedAtLabel: "방금",
+          })}
           embedColor={embedColor}
           disableEmbed={values.disable_embed}
           disableTag={values.disable_tag}
           disableButton={values.disable_button}
           channelNames={channelNames}
           customSender={usesWebhook}
-          live={{
-            channelName: chzzkName || "스트리머",
-            channelImageUrl: chzzkImageUrl,
-            title: "방송 제목이 여기에 표시됩니다",
-            category: "카테고리",
-            tags: ["방송 태그", "예시"],
-          }}
+          live={live}
         />
         {values.disable_notification && (
           <div className="absolute inset-0 flex items-center justify-center p-6">
@@ -80,7 +89,8 @@ export default function NotificationPreviewPanel({
       </div>
 
       <p className="text-xs text-muted-foreground/70">
-        방송 제목, 카테고리, 태그, 썸네일은 실제 방송 정보로 채워집니다.
+        방송 제목, 카테고리, 태그, 썸네일과 메시지 변수는 실제 방송 정보로
+        채워집니다.
         {usesWebhook &&
           " 커스텀 웹훅으로 보내므로 이름과 프로필 이미지는 웹훅에 설정한 값으로 표시됩니다."}
       </p>

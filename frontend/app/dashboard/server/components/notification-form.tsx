@@ -8,6 +8,7 @@ import { discordQueries, keys } from "@/queries/discord";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { Control, useWatch } from "react-hook-form";
+import MessageVariablePicker from "./message-variable-picker";
 import SubscriberSection from "./subscriber-section";
 import { ServerContext } from "../server-context";
 
@@ -110,12 +111,13 @@ export function NotificationSettingsFields({
         placeholder="@everyone 새로운 방송이 시작되었습니다! 시청하러 가볼까요?"
         helperText={
           <>
-            멘션을 넣는 방법은{" "}
+            아래 버튼으로 방송 제목 같은 변수를 넣을 수 있습니다. 멘션과 변수는{" "}
             <Link href={routeMap.DOCS.CUSTOMIZATION}>메시지 커스텀 문서</Link>를
             참고하세요.
           </>
         }
       />
+      <MessageVariablePicker control={control} />
       <SubscriberSection locked={!isSubscription}>
         <Input
           type="text"
