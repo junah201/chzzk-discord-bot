@@ -269,5 +269,9 @@ def test_send_notification_passes_item_fields(mocker):
     adapters.send_notification(item, {"content": "hi"})
 
     send.assert_called_once_with(
-        guild_id="1", channel_id="10", data={"content": "hi"}, notification_item=item
+        guild_id="1",
+        channel_id="10",
+        data={"content": "hi"},
+        notification_item=item,
+        crosspost=True,
     )

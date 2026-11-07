@@ -349,3 +349,67 @@ def test_other_dynamodb_error_is_500(mocker, setup):
     assert (
         json.loads(log_error.call_args.args[0])["type"] == "UPDATE_NOTIFICATION_ERROR"
     )
+
+
+class TestAutoCrosspost:
+    @pytest.fixture
+    def get_channel(self, mocker):
+        return mocker.patch.object(
+            update_notification,
+            "get_channel",
+            return_value={"id": CHANNEL_ID, "guild_id": GUILD_ID, "type": 5},
+        )
+
+    def test_enabling_is_saved(self, setup, get_channel):
+        put_subscription(setup.table)
+
+        res, _ = call(auto_crosspost=True)
+
+        assert res["statusCode"] == 204
+        get_channel.assert_called_once_with(CHANNEL_ID)
+        noti = get_noti(setup.table)
+        assert noti["auto_crosspost"] is True
+        assert noti["is_subscription_active"] is True
+
+    def test_disabling_needs_no_subscription_or_channel_check(self, setup, get_channel):
+        put_noti(setup.table, auto_crosspost=True)
+
+        res, _ = call(auto_crosspost=False)
+
+        assert res["statusCode"] == 204
+        get_channel.assert_not_called()
+        assert get_noti(setup.table)["auto_crosspost"] is False
+
+    def test_omitted_option_is_kept(self, setup, get_channel):
+        put_noti(setup.table, auto_crosspost=True)
+
+        call(custom_message="x")
+
+        get_channel.assert_not_called()
+        assert get_noti(setup.table)["auto_crosspost"] is True
+
+    def test_without_subscription_is_400(self, setup, get_channel):
+        res, body = call(auto_crosspost=True)
+
+        assert res["statusCode"] == 400
+        assert body["code"] == "SUBSCRIPTION_REQUIRED"
+        get_channel.assert_not_called()
+        assert "auto_crosspost" not in get_noti(setup.table)
+
+    @pytest.mark.parametrize(
+        ("channel", "code"),
+        [
+            ({"id": CHANNEL_ID, "type": 0}, "CROSSPOST_REQUIRES_ANNOUNCEMENT_CHANNEL"),
+            (None, "BOT_CHANNEL_ACCESS_DENIED"),
+        ],
+        ids=["text-channel", "inaccessible-channel"],
+    )
+    def test_channel_errors(self, setup, get_channel, channel, code):
+        put_subscription(setup.table)
+        get_channel.return_value = channel
+
+        res, body = call(auto_crosspost=True)
+
+        assert res["statusCode"] == 400
+        assert body["code"] == code
+        assert "auto_crosspost" not in get_noti(setup.table)

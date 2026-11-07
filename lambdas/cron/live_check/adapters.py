@@ -196,6 +196,7 @@ def send_notification(notification_item: dict, data: dict) -> requests.Response:
         channel_id=notification_item["channel_id"]["S"],
         data=data,
         notification_item=notification_item,
+        crosspost=True,
     )
 
 

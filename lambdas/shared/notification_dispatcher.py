@@ -10,6 +10,7 @@ import requests
 from shared.discord.utils import (
     DISCORD_API_BASE_URL,
     DISCORD_API_TIMEOUT_SEC,
+    crosspost_message,
     network_error_response,
     send_message,
     session,
@@ -239,23 +240,43 @@ def query_guild_items(guild_id: str) -> list[dict]:
         query_args["ExclusiveStartKey"] = last_key
 
 
+def should_crosspost(notification_item: dict) -> bool:
+    """구독이 활성이고 자동 게시를 켠 알림인지 확인합니다."""
+    is_subscription_active = notification_item.get("is_subscription_active", {}).get(
+        "BOOL", False
+    )
+    auto_crosspost = notification_item.get("auto_crosspost", {}).get("BOOL", False)
+    return is_subscription_active and auto_crosspost
+
+
 def send_notification_message(
     *,
     guild_id: str,
     channel_id: str,
     data: dict,
     notification_item: dict,
+    crosspost: bool = False,
 ) -> requests.Response:
+    """알림을 보냅니다. crosspost가 True이고 자동 게시를 켠 구독 알림이면 보낸 메시지를 게시합니다.
+    게시 결과와 관계없이 전송 응답을 반환합니다.
+    """
     webhook_url = notification_item.get("webhook_url", {}).get("S", "")
     is_subscription_active = notification_item.get("is_subscription_active", {}).get(
         "BOOL", False
     )
+    crosspost = crosspost and should_crosspost(notification_item)
 
     if not is_subscription_active or not webhook_url:
-        return send_message(channel_id=channel_id, data=data)
+        response = send_message(channel_id=channel_id, data=data)
+        if crosspost and response.status_code == 200:
+            _crosspost(guild_id, response)
+        return response
 
     # 웹훅 메시지 전송 (유료 구독자 전용)
-    response = _send_webhook(webhook_url, data)
+    # 게시하려면 메시지 ID가 필요해서 wait=true로 메시지 객체를 받는다.
+    response = _send_webhook(webhook_url, data, wait=crosspost)
+    if crosspost and response.status_code == 200:
+        _crosspost(guild_id, response)
     if response.status_code not in (200, 204):
         logger.error(
             json.dumps(
@@ -273,12 +294,57 @@ def send_notification_message(
     return response
 
 
-def _send_webhook(webhook_url: str, data: dict) -> requests.Response:
+def _crosspost(guild_id: str, response: requests.Response) -> None:
+    """보낸 메시지를 게시하고, 실패하면 로그만 남깁니다.
+    웹훅은 알림 채널과 다른 채널로 보낼 수 있어 응답의 channel_id를 씁니다.
+    """
+    try:
+        message = response.json()
+        channel_id, message_id = message["channel_id"], message["id"]
+    except Exception as error:
+        logger.error(
+            json.dumps(
+                {
+                    "type": "DISCORD_CROSSPOST_INVALID_MESSAGE",
+                    "guild_id": guild_id,
+                    "error": str(error),
+                },
+                ensure_ascii=False,
+            )
+        )
+        return
+
+    result = crosspost_message(channel_id, message_id)
+    log_context = {
+        "guild_id": guild_id,
+        "channel_id": channel_id,
+        "message_id": message_id,
+    }
+    if result.status_code == 200:
+        logger.info(json.dumps({"type": "DISCORD_CROSSPOST_SUCCESS", **log_context}))
+        return
+    logger.error(
+        json.dumps(
+            {
+                "type": "DISCORD_CROSSPOST_FAIL",
+                **log_context,
+                "status_code": result.status_code,
+                "response_text": result.text[:1000],
+            },
+            ensure_ascii=False,
+        )
+    )
+
+
+def _send_webhook(
+    webhook_url: str, data: dict, wait: bool = False
+) -> requests.Response:
     try:
         return session.post(
             webhook_url,
             headers={"Content-Type": "application/json"},
             data=json.dumps(data),
+            params={"wait": "true"} if wait else None,
             timeout=5,
         )
     except requests.RequestException as error:

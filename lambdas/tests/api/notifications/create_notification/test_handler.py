@@ -461,3 +461,54 @@ class TestDuplicate:
         # 트랜잭션이 취소되므로 다른 서버의 알림은 그대로고, 이 서버의 GUILD도 만들어지지 않는다.
         assert get_noti(ddb.table)["guild_id"] == "999"
         assert get_guild(ddb.table) is None
+
+
+class TestAutoCrosspost:
+    ANNOUNCEMENT_CHANNEL = {
+        "id": CHANNEL_ID,
+        "guild_id": GUILD_ID,
+        "name": "공지",
+        "type": 5,
+    }
+
+    def test_announcement_channel_is_saved(self, ddb, get_channel):
+        put_subscription(ddb.table)
+        get_channel.return_value = self.ANNOUNCEMENT_CHANNEL
+
+        res, _ = call(auto_crosspost=True)
+
+        assert res["statusCode"] == 204
+        noti = get_noti(ddb.table)
+        assert noti["auto_crosspost"] is True
+        assert noti["is_subscription_active"] is True
+
+    def test_disabled_option_is_not_saved(self, ddb):
+        res, _ = call(auto_crosspost=False)
+
+        assert res["statusCode"] == 204
+        noti = get_noti(ddb.table)
+        assert "auto_crosspost" not in noti
+        assert "is_subscription_active" not in noti
+
+    def test_without_subscription_is_400(self, ddb, get_channel):
+        get_channel.return_value = self.ANNOUNCEMENT_CHANNEL
+
+        res, body = call(auto_crosspost=True)
+
+        assert res["statusCode"] == 400
+        assert body["code"] == "SUBSCRIPTION_REQUIRED"
+        assert (
+            body["message"] == "공지 채널 자동 게시는 월간 구독 서버 전용 기능입니다."
+        )
+        get_channel.assert_not_called()
+        assert get_noti(ddb.table) is None
+
+    def test_text_channel_is_400(self, ddb, follow):
+        put_subscription(ddb.table)
+
+        res, body = call(auto_crosspost=True)
+
+        assert res["statusCode"] == 400
+        assert body["code"] == "CROSSPOST_REQUIRES_ANNOUNCEMENT_CHANNEL"
+        follow.assert_not_called()
+        assert get_noti(ddb.table) is None

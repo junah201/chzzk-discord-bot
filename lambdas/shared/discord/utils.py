@@ -102,6 +102,29 @@ def send_message(
         return network_error_response(e)
 
 
+def crosspost_message(channel_id, message_id) -> requests.Response:
+    """공지 채널 메시지를 팔로우한 서버로 게시합니다. 네트워크 오류가 나면 예외 대신 상태 코드 599인 Response를 반환합니다."""
+    try:
+        return session.post(
+            f"{DISCORD_API_BASE_URL}/channels/{channel_id}/messages/{message_id}/crosspost",
+            headers={"Authorization": f"Bot {DISCORD_TOKEN}"},
+            timeout=DISCORD_API_TIMEOUT_SEC,
+        )
+    except requests.RequestException as e:
+        logger.error(
+            json.dumps(
+                {
+                    "type": "DISCORD_CROSSPOST_REQUEST_ERROR",
+                    "channel_id": str(channel_id),
+                    "message_id": str(message_id),
+                    "error": str(e),
+                },
+                ensure_ascii=False,
+            )
+        )
+        return network_error_response(e)
+
+
 def get_channel(channel_id, token=DISCORD_TOKEN) -> dict | None:
     """채널 정보를 가져옵니다. 채널이 없거나 접근할 수 없으면 None을 반환합니다.
     네트워크 오류가 나면 DiscordApiUnavailableError(502)를 던집니다.

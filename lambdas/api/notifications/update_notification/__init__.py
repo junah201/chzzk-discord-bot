@@ -3,7 +3,7 @@ import logging
 
 import boto3
 from botocore.exceptions import ClientError
-from shared import middleware
+from shared import CHANNEL_TYPE, get_channel, middleware
 from shared.exceptions import BadRequestError, NotificationNotFoundError
 from shared.notification_dispatcher import (
     is_guild_subscription_active,
@@ -36,6 +36,8 @@ def handler(event, _context):
     has_webhook_url = "webhook_url" in body
     embed_color = body.get("embed_color", "").strip()
     has_embed_color = "embed_color" in body
+    auto_crosspost = body.get("auto_crosspost", False)
+    has_auto_crosspost = "auto_crosspost" in body
     is_subscription_active = is_guild_subscription_active(guild_id)
 
     if not all([chzzk_id, guild_id, channel_id]):
@@ -59,8 +61,25 @@ def handler(event, _context):
             "커스텀 임베드 색상은 월간 구독 서버 전용 기능입니다.",
             code="SUBSCRIPTION_REQUIRED",
         )
+    if auto_crosspost and not is_subscription_active:
+        raise BadRequestError(
+            "공지 채널 자동 게시는 월간 구독 서버 전용 기능입니다.",
+            code="SUBSCRIPTION_REQUIRED",
+        )
     if webhook_url:
         verify_webhook_guild(webhook_url, guild_id)
+    if auto_crosspost:
+        channel_data = get_channel(channel_id)
+        if not channel_data:
+            raise BadRequestError(
+                "치직 봇이 이 채널에 접근할 수 없습니다. 채널 권한을 확인해 주세요.",
+                code="BOT_CHANNEL_ACCESS_DENIED",
+            )
+        if channel_data.get("type") != CHANNEL_TYPE.GUILD_NEWS:
+            raise BadRequestError(
+                "공지 채널 자동 게시는 공지 채널에서만 사용할 수 있습니다.",
+                code="CROSSPOST_REQUIRES_ANNOUNCEMENT_CHANNEL",
+            )
 
     try:
         guild_response = dynamodb.get_item(
@@ -115,6 +134,9 @@ def handler(event, _context):
         if has_embed_color:
             set_parts.append("embed_color = :ec")
             expression_values[":ec"] = {"S": embed_color}
+        if has_auto_crosspost:
+            set_parts.append("auto_crosspost = :ac")
+            expression_values[":ac"] = {"BOOL": auto_crosspost}
 
         update_expression = "SET " + ", ".join(set_parts)
 

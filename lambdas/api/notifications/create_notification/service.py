@@ -114,14 +114,17 @@ def save_notification_and_increment_counter(
     }
     webhook_url = body.get("webhook_url", "").strip()
     embed_color = body.get("embed_color", "").strip()
+    auto_crosspost = body.get("auto_crosspost", False)
 
-    if webhook_url or embed_color:
+    if webhook_url or embed_color or auto_crosspost:
         is_subscription_active = is_guild_subscription_active(guild_id)
         item["is_subscription_active"] = {"BOOL": is_subscription_active}
     if webhook_url:
         item["webhook_url"] = {"S": webhook_url}
     if embed_color:
         item["embed_color"] = {"S": embed_color}
+    if auto_crosspost:
+        item["auto_crosspost"] = {"BOOL": True}
 
     transaction_items = [
         {

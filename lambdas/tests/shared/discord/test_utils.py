@@ -13,6 +13,7 @@ from shared.discord.utils import (
     DISCORD_USER_GUILDS_URL,
     AdminCheckResult,
     AdminGuildsResult,
+    crosspost_message,
     delete_message,
     get_admin_guilds,
     get_channel,
@@ -538,3 +539,37 @@ class TestSession:
         send_message(CHANNEL_ID, {"content": "x"})
 
         assert len(discord_utils.session.cookies) == 0
+
+
+class TestCrosspostMessage:
+    URL = f"{MESSAGES_URL}/200/crosspost"
+
+    def test_crossposts_with_bot_token(self, mocker, mock_requests):
+        mock_requests.add(responses.POST, self.URL, json={"id": "200"})
+        spy = mocker.spy(discord_utils.session, "post")
+
+        res = crosspost_message(CHANNEL_ID, "200")
+
+        assert res.status_code == 200
+        assert mock_requests.calls[0].request.headers["Authorization"] == (
+            f"Bot {DISCORD_TOKEN}"
+        )
+        assert spy.call_args.kwargs["timeout"] == DISCORD_API_TIMEOUT_SEC
+
+    @pytest.mark.parametrize("status", [400, 403, 429])
+    def test_http_error_is_returned_as_is(self, mock_requests, status):
+        mock_requests.add(responses.POST, self.URL, status=status)
+
+        assert crosspost_message(CHANNEL_ID, "200").status_code == status
+
+    def test_network_error_returns_599(self, mock_requests):
+        mock_requests.add(
+            responses.POST,
+            self.URL,
+            body=requests.exceptions.ConnectionError("refused"),
+        )
+
+        res = crosspost_message(CHANNEL_ID, "200")
+
+        assert res.status_code == 599
+        assert res.text == "refused"

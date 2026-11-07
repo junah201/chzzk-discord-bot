@@ -3,6 +3,7 @@ import json
 import pytest
 import requests
 import responses
+from responses import matchers
 from shared import notification_dispatcher
 from shared.exceptions import (
     BadRequestError,
@@ -16,6 +17,7 @@ from shared.notification_dispatcher import (
     is_valid_webhook_url,
     parse_embed_color,
     send_notification_message,
+    should_crosspost,
     verify_webhook_guild,
 )
 
@@ -366,7 +368,7 @@ class TestSendNotificationMessage:
             }
         )
 
-        send_webhook.assert_called_once_with(WEBHOOK_URL, MESSAGE)
+        send_webhook.assert_called_once_with(WEBHOOK_URL, MESSAGE, wait=False)
         send_message.assert_not_called()
         log_error.assert_not_called()
         assert res is send_webhook.return_value
@@ -474,3 +476,171 @@ class TestSendWebhook:
 
         with pytest.raises(RuntimeError):
             notification_dispatcher._send_webhook(WEBHOOK_URL, MESSAGE)
+
+    def test_wait_adds_query_param(self, mock_requests):
+        mock_requests.add(
+            responses.POST,
+            WEBHOOK_URL,
+            json={"id": "1", "channel_id": "2"},
+            match=[matchers.query_param_matcher({"wait": "true"})],
+        )
+
+        res = notification_dispatcher._send_webhook(WEBHOOK_URL, MESSAGE, wait=True)
+
+        assert res.status_code == 200
+
+
+class TestShouldCrosspost:
+    @pytest.mark.parametrize(
+        "item, expected",
+        [
+            ({}, False),
+            ({"auto_crosspost": {"BOOL": True}}, False),
+            (
+                {
+                    "is_subscription_active": {"BOOL": False},
+                    "auto_crosspost": {"BOOL": True},
+                },
+                False,
+            ),
+            ({"is_subscription_active": {"BOOL": True}}, False),
+            (
+                {
+                    "is_subscription_active": {"BOOL": True},
+                    "auto_crosspost": {"BOOL": True},
+                },
+                True,
+            ),
+        ],
+    )
+    def test_requires_active_subscription_and_option(self, item, expected):
+        assert should_crosspost(item) is expected
+
+
+CROSSPOST_ITEM = {
+    "is_subscription_active": {"BOOL": True},
+    "auto_crosspost": {"BOOL": True},
+}
+
+
+class TestSendNotificationMessageCrosspost:
+    @pytest.fixture
+    def send_message(self, mocker):
+        res = mocker.Mock(status_code=200)
+        res.json.return_value = {"id": "300", "channel_id": "20"}
+        return mocker.patch.object(
+            notification_dispatcher, "send_message", return_value=res
+        )
+
+    @pytest.fixture
+    def send_webhook(self, mocker):
+        res = mocker.Mock(status_code=200, text="")
+        res.json.return_value = {"id": "400", "channel_id": "21"}
+        return mocker.patch.object(
+            notification_dispatcher, "_send_webhook", return_value=res
+        )
+
+    @pytest.fixture
+    def crosspost(self, mocker):
+        return mocker.patch.object(
+            notification_dispatcher,
+            "crosspost_message",
+            return_value=mocker.Mock(status_code=200, text=""),
+        )
+
+    @pytest.fixture
+    def log_error(self, mocker):
+        return mocker.patch.object(notification_dispatcher.logger, "error")
+
+    @staticmethod
+    def send(notification_item, crosspost=True):
+        return send_notification_message(
+            guild_id="10",
+            channel_id="20",
+            data=MESSAGE,
+            notification_item=notification_item,
+            crosspost=crosspost,
+        )
+
+    def test_crossposts_bot_message(self, send_message, crosspost, log_error):
+        res = self.send(CROSSPOST_ITEM)
+
+        crosspost.assert_called_once_with("20", "300")
+        assert res is send_message.return_value
+        log_error.assert_not_called()
+
+    def test_crossposts_webhook_message_in_its_channel(
+        self, send_message, send_webhook, crosspost
+    ):
+        res = self.send({**CROSSPOST_ITEM, "webhook_url": {"S": WEBHOOK_URL}})
+
+        send_webhook.assert_called_once_with(WEBHOOK_URL, MESSAGE, wait=True)
+        crosspost.assert_called_once_with("21", "400")
+        send_message.assert_not_called()
+        assert res is send_webhook.return_value
+
+    @pytest.mark.parametrize(
+        "item, crosspost_arg",
+        [
+            (CROSSPOST_ITEM, False),
+            ({"auto_crosspost": {"BOOL": True}}, True),
+            ({"is_subscription_active": {"BOOL": True}}, True),
+        ],
+        ids=["not-requested", "inactive-subscription", "option-off"],
+    )
+    def test_does_not_crosspost(self, send_message, crosspost, item, crosspost_arg):
+        self.send(item, crosspost=crosspost_arg)
+
+        crosspost.assert_not_called()
+
+    def test_webhook_without_crosspost_does_not_wait(self, send_webhook, crosspost):
+        self.send(
+            {
+                "is_subscription_active": {"BOOL": True},
+                "webhook_url": {"S": WEBHOOK_URL},
+            }
+        )
+
+        send_webhook.assert_called_once_with(WEBHOOK_URL, MESSAGE, wait=False)
+        crosspost.assert_not_called()
+
+    @pytest.mark.parametrize("status_code", [403, 404, 599])
+    def test_failed_send_is_not_crossposted(
+        self, mocker, send_message, crosspost, status_code
+    ):
+        send_message.return_value = mocker.Mock(status_code=status_code)
+
+        res = self.send(CROSSPOST_ITEM)
+
+        crosspost.assert_not_called()
+        assert res.status_code == status_code
+
+    @pytest.mark.parametrize("status_code", [400, 403, 429, 599])
+    def test_crosspost_failure_is_logged_and_send_result_kept(
+        self, mocker, send_message, crosspost, log_error, status_code
+    ):
+        crosspost.return_value = mocker.Mock(status_code=status_code, text="err")
+
+        res = self.send(CROSSPOST_ITEM)
+
+        assert res is send_message.return_value
+        assert json.loads(log_error.call_args.args[0]) == {
+            "type": "DISCORD_CROSSPOST_FAIL",
+            "guild_id": "10",
+            "channel_id": "20",
+            "message_id": "300",
+            "status_code": status_code,
+            "response_text": "err",
+        }
+
+    def test_invalid_message_body_is_logged(self, send_message, crosspost, log_error):
+        send_message.return_value.json.side_effect = ValueError("no json")
+
+        res = self.send(CROSSPOST_ITEM)
+
+        assert res is send_message.return_value
+        crosspost.assert_not_called()
+        assert (
+            json.loads(log_error.call_args.args[0])["type"]
+            == "DISCORD_CROSSPOST_INVALID_MESSAGE"
+        )

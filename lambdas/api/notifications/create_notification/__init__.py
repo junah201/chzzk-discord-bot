@@ -10,7 +10,7 @@ from api.notifications.create_notification.service import (
     register_chzzk_channel,
     save_notification_and_increment_counter,
 )
-from shared import build_response, get_channel, get_chzzk, middleware
+from shared import CHANNEL_TYPE, build_response, get_channel, get_chzzk, middleware
 from shared.exceptions import (
     BadRequestError,
     ChzzkChannelNotFoundError,
@@ -40,6 +40,7 @@ def handler(event, _context):
     channel_id = body.get("channel_id")
     webhook_url = body.get("webhook_url", "").strip()
     embed_color = body.get("embed_color", "").strip()
+    auto_crosspost = body.get("auto_crosspost", False)
 
     if not all([token, chzzk_id, channel_id, guild_id]):
         raise BadRequestError()
@@ -63,6 +64,11 @@ def handler(event, _context):
             "커스텀 임베드 색상은 월간 구독 서버 전용 기능입니다.",
             code="SUBSCRIPTION_REQUIRED",
         )
+    if auto_crosspost and not is_subscription_active:
+        raise BadRequestError(
+            "공지 채널 자동 게시는 월간 구독 서버 전용 기능입니다.",
+            code="SUBSCRIPTION_REQUIRED",
+        )
     if webhook_url:
         verify_webhook_guild(webhook_url, guild_id)
 
@@ -78,6 +84,12 @@ def handler(event, _context):
         raise BadRequestError(
             "이 서버의 채널이 아닙니다. 새로고침 후 다시 시도해 주세요.",
             code="DISCORD_CHANNEL_GUILD_MISMATCH",
+        )
+
+    if auto_crosspost and channel_data.get("type") != CHANNEL_TYPE.GUILD_NEWS:
+        raise BadRequestError(
+            "공지 채널 자동 게시는 공지 채널에서만 사용할 수 있습니다.",
+            code="CROSSPOST_REQUIRES_ANNOUNCEMENT_CHANNEL",
         )
 
     # 2. 서버 알림 개수 제한 검증
