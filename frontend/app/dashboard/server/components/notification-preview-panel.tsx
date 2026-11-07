@@ -68,7 +68,7 @@ export default function NotificationPreviewPanel({
             title: live.title,
             category: live.category,
             tags: live.tags,
-            startedAtLabel: "방금",
+            startedAt: new Date(),
           })}
           embedColor={embedColor}
           disableEmbed={values.disable_embed}

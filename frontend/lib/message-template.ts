@@ -29,7 +29,7 @@ export interface MessageTemplateSample {
   title: string;
   category: string;
   tags: string[];
-  startedAtLabel: string;
+  startedAt: Date;
 }
 
 export function renderMessage(template: string, sample: MessageTemplateSample) {
@@ -41,7 +41,7 @@ export function renderMessage(template: string, sample: MessageTemplateSample) {
     "stream.category": sample.category,
     "stream.game": sample.category,
     "stream.tags": sample.tags.join(", "),
-    "stream.started_at": sample.startedAtLabel,
+    "stream.started_at": `<t:${Math.floor(sample.startedAt.getTime() / 1000)}:R>`,
     everyone: "@everyone",
     here: "@here",
   };

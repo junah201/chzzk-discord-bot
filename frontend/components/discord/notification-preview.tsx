@@ -1,10 +1,17 @@
 import { Fragment } from "react";
 import { ExternalLink, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DEFAULT_EMBED_COLOR, DISCORD_COLORS, toCssColor } from "@/lib/discord";
+import {
+  DEFAULT_EMBED_COLOR,
+  DISCORD_COLORS,
+  formatDiscordTimestamp,
+  toCssColor,
+} from "@/lib/discord";
 import { getChzzkChannelImageUrl } from "@/lib/urls";
 
-const MENTION_PATTERN = /(@everyone|@here|<@&\d+>|<@!?\d+>|<#\d+>)/g;
+const MENTION_PATTERN =
+  /(@everyone|@here|<@&\d+>|<@!?\d+>|<#\d+>|<t:-?\d+(?::[tTdDfFR])?>)/g;
+const TIMESTAMP_PATTERN = /^<t:(-?\d+)(?::([tTdDfFR]))?>$/;
 
 export interface NotificationPreviewLive {
   channelName: string;
@@ -244,6 +251,21 @@ function MessageContent({
 }) {
   return content.split(MENTION_PATTERN).map((part, index) => {
     if (index % 2 === 0) return <Fragment key={index}>{part}</Fragment>;
+
+    const timestamp = TIMESTAMP_PATTERN.exec(part);
+    if (timestamp) {
+      const seconds = Number(timestamp[1]);
+      return (
+        <span
+          key={index}
+          title={formatDiscordTimestamp(seconds, "F")}
+          className="rounded-[3px] px-0.5"
+          style={{ backgroundColor: DISCORD_COLORS.timestampBg }}
+        >
+          {formatDiscordTimestamp(seconds, timestamp[2])}
+        </span>
+      );
+    }
 
     let label = part;
     if (part.startsWith("<@&")) label = "@역할";
