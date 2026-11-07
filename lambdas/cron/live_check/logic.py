@@ -4,6 +4,7 @@ from datetime import datetime
 from shared import Following
 
 SUCCESS_STATUS_CODES = (200, 204)
+MAX_NOTI_FAIL_COUNT = 3
 
 
 @dataclass
@@ -67,7 +68,7 @@ def delivery_update(
         status = f"FAIL_{status_code}"
         fail_count = int(notification_item.get("noti_fail_count", {"N": "0"})["N"]) + 1
 
-    return {
+    attrs = {
         "last_noti_status": {"S": status},
         "last_noti_at": {"S": now.isoformat()},
         "noti_fail_count": {"N": str(fail_count)},
@@ -75,3 +76,6 @@ def delivery_update(
         "chzzk_image_url": {"S": chzzk["channel"]["channelImageUrl"] or ""},
         "chzzk_id": {"S": f"{chzzk_id}"},
     }
+    if fail_count >= MAX_NOTI_FAIL_COUNT:
+        attrs["disable_notification"] = {"BOOL": True}
+    return attrs

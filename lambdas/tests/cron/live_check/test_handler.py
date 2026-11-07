@@ -257,6 +257,30 @@ class TestDeliveryResult:
             "DISCORD_CHANNEL_NOT_FOUND",
         ]
 
+    def test_third_failure_disables_notification_and_logs(self, fake, logs):
+        fake.notifications = [
+            noti("10", noti_fail_count={"N": "2"}),
+            noti("11", noti_fail_count={"N": "1"}),
+        ]
+        fake.status_by_channel = {"10": 403, "11": 403}
+
+        check()
+
+        disabled = {
+            channel_id: "disable_notification" in attrs
+            for channel_id, attrs in fake.noti_updates
+        }
+        assert disabled == {"10": True, "11": False}
+        [entry] = [e for e in logs() if e["type"] == "NOTIFICATION_AUTO_DISABLED"]
+        assert entry == {
+            "type": "NOTIFICATION_AUTO_DISABLED",
+            "chzzk_id": CHZZK_ID,
+            "discord_channel_id": "10",
+            "guild_id": "1",
+            "status_code": 403,
+            "noti_fail_count": 3,
+        }
+
     def test_send_exception_stops_remaining_notifications(self, fake):
         # 현재 동작: 전송 중 예상하지 못한 예외가 나면 그대로 올라가서 남은 알림을 보내지 않는다.
         # lastLiveId는 이미 갱신된 뒤라 다음 실행에서도 이 방송은 다시 보내지 않는다.

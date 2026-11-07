@@ -76,6 +76,27 @@ def test_delivery_update_failure_increments_fail_count(noti, expected):
     assert attrs["noti_fail_count"] == {"N": expected}
 
 
+@pytest.mark.parametrize(
+    ("noti", "disabled"),
+    [
+        ({"noti_fail_count": {"N": "1"}}, False),
+        ({"noti_fail_count": {"N": "2"}}, True),
+        ({"noti_fail_count": {"N": "5"}}, True),
+    ],
+    ids=["below", "reaches-3", "above"],
+)
+def test_delivery_update_disables_after_three_failures(noti, disabled):
+    attrs = delivery_update(500, noti, "cid", CHZZK, NOW)
+    assert ("disable_notification" in attrs) is disabled
+    if disabled:
+        assert attrs["disable_notification"] == {"BOOL": True}
+
+
+def test_delivery_update_success_never_disables():
+    attrs = delivery_update(204, {"noti_fail_count": {"N": "9"}}, "cid", CHZZK, NOW)
+    assert "disable_notification" not in attrs
+
+
 def test_delivery_update_missing_image_is_empty():
     chzzk = {"channel": {"channelName": "스트리머", "channelImageUrl": None}}
     assert delivery_update(200, {}, "cid", chzzk, NOW)["chzzk_image_url"] == {"S": ""}

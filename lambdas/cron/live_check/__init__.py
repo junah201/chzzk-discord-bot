@@ -227,7 +227,17 @@ def _deliver(chzzk_id: str, chzzk: dict, noti: dict, now: datetime) -> bool:
             },
         )
 
-    adapters.update_notification(
-        noti, logic.delivery_update(res.status_code, noti, chzzk_id, chzzk, now)
-    )
+    attrs = logic.delivery_update(res.status_code, noti, chzzk_id, chzzk, now)
+    adapters.update_notification(noti, attrs)
+    if "disable_notification" in attrs:
+        _log(
+            logging.WARNING,
+            {
+                "type": "NOTIFICATION_AUTO_DISABLED",
+                **log_context,
+                "guild_id": noti["guild_id"]["S"],
+                "status_code": res.status_code,
+                "noti_fail_count": int(attrs["noti_fail_count"]["N"]),
+            },
+        )
     return delivered
