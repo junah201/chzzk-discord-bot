@@ -81,6 +81,12 @@ def test_full_message():
     }
 
 
+def test_content_variables_are_rendered():
+    assert build(content="{everyone} {stream.title}")["content"] == (
+        "@everyone 새 방송"
+    )
+
+
 def test_missing_flags_show_embed_and_button():
     data = build(item={})
     assert "embeds" in data

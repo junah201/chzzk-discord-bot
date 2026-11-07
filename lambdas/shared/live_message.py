@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from shared.discord import BUTTON_STYLE, COMPONENT_TYPE
+from shared.message_template import render_message
 from shared.notification_dispatcher import get_embed_color, get_embed_fields
 
 ANONYMOUS_PROFILE_IMAGE_URL = "https://ssl.pstatic.net/cmstatic/nng/img/img_anonymous_square_gray_opacity2x.png?type=f120_120_na"
@@ -17,7 +18,7 @@ def build_live_message(
     """방송 시작 알림 메시지를 만듭니다. notification_item은 DynamoDB client 형식의 NOTI 아이템입니다."""
     live_url = f"https://chzzk.naver.com/live/{chzzk_id}"
     channel = chzzk["channel"]
-    data = {"content": content}
+    data = {"content": render_message(content, chzzk_id, chzzk, now)}
 
     if not notification_item.get("disable_embed", {"BOOL": False})["BOOL"]:
         data["embeds"] = [
