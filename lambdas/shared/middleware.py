@@ -47,6 +47,9 @@ def middleware(logger: logging.Logger | None = None, admin_check: bool = False):
                         logger.info(json.dumps({"type": "MISSING_GUILD_ID"}))
                         raise BadRequestError()
 
+                    # 따로 rate limit을 두지 않은 이유: token은 요청한 유저의 OAuth 토큰이다.
+                    # 디스코드는 토큰별로 rate limit을 걸기 때문에 요청을 반복한 유저만
+                    # 429를 받고, 다른 유저는 영향을 받지 않는다.
                     result = is_admin(guild_id, token)
 
                     if not result.is_admin:
