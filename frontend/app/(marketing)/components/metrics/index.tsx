@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { revealProps } from "../reveal";
 import { ArrowRight } from "lucide-react";
 import { LinkButton } from "@/components/ui/link-button";
 import routeMap from "@/constants/route-map";
@@ -29,13 +30,7 @@ export function Metrics() {
 
       <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-6xl items-end gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6 }}
-            className="break-keep"
-          >
+          <motion.div {...revealProps()} className="break-keep">
             <h2 className="mb-4 text-sm font-semibold text-primary">
               숫자로 보는 치직
             </h2>
@@ -48,12 +43,7 @@ export function Metrics() {
             </p>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-          >
+          <motion.div {...revealProps(0.1)}>
             <dl className="grid grid-cols-2 divide-x divide-border border-t border-border">
               {secondaryMetrics.map((metric) => (
                 <div

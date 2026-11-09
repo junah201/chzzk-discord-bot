@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { revealProps } from "../components/reveal";
 import { Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -13,12 +14,7 @@ interface PricingCardProps {
 
 export default function PricingCard({ plan, index }: PricingCardProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: index * 0.05 }}
-      className="relative"
-    >
+    <motion.div {...revealProps(index * 0.05)} className="relative">
       <Card
         className={cn(
           "h-full gap-0 rounded-2xl p-6 sm:p-8",

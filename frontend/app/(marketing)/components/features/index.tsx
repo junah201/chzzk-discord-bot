@@ -4,13 +4,7 @@ import { motion } from "motion/react";
 import { Bell, Radio, Zap } from "lucide-react";
 import { DISCORD_COLORS } from "@/lib/discord";
 import { cn } from "@/lib/utils";
-
-const reveal = (delay = 0) => ({
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-80px" },
-  transition: { duration: 0.5, delay },
-});
+import { revealProps } from "../reveal";
 
 export function Features() {
   return (
@@ -18,7 +12,7 @@ export function Features() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
           <motion.header
-            {...reveal()}
+            {...revealProps()}
             className="break-keep lg:sticky lg:top-32 lg:self-start"
           >
             <p className="mb-5 text-sm font-semibold text-primary">핵심 기능</p>
@@ -44,7 +38,7 @@ export function Features() {
             </Tile>
 
             <Tile
-              delay={0.08}
+              delay={0.05}
               title="간편한 설정"
               description="명령어를 외울 필요 없이, 대시보드에서 클릭 몇 번으로 등록합니다."
             >
@@ -52,7 +46,7 @@ export function Features() {
             </Tile>
 
             <Tile
-              delay={0.16}
+              delay={0.1}
               title="맞춤형 알림"
               description="알림 메시지, 멘션, 임베드 모양을 서버에 맞게 바꿀 수 있습니다."
             >
@@ -61,7 +55,7 @@ export function Features() {
 
             <Tile
               className="sm:col-span-2"
-              delay={0.24}
+              delay={0.15}
               title="안정적인 서비스"
               description="24시간 방송 상태를 확인하고, 알림이 잘 전송됐는지 대시보드에서 보여줍니다."
             >
@@ -89,7 +83,7 @@ function Tile({
 }) {
   return (
     <motion.article
-      {...reveal(delay)}
+      {...revealProps(delay)}
       className={cn(
         "flex flex-col gap-6 rounded-2xl border border-border bg-card/60 p-6 sm:p-7",
         className,

@@ -5,7 +5,7 @@ import Link from "next/link";
 import CopyButton from "@/components/copy-button";
 import routeMap from "@/constants/route-map";
 import PricingFaq from "./pricing-faq";
-import Reveal from "./reveal";
+import Reveal from "../components/reveal";
 import SlotCalculator from "./slot-calculator";
 
 export const metadata: Metadata = {
@@ -33,26 +33,22 @@ export default function Pricing() {
 
       <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
-          <Reveal>
-            <header className="mb-8 max-w-2xl sm:mb-10">
-              <p className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-                Pricing
-              </p>
-              <h1 className="text-4xl leading-[1.15] font-bold tracking-tight sm:text-5xl">
-                필요한 알림 개수만
-                <br />
-                정하면 됩니다
-              </h1>
-              <p className="mt-5 text-lg text-muted-foreground">
-                알림이 몇 개 필요한지 고르면 가장 저렴한 요금제를 알려 드립니다.
-                5개까지는 무료입니다.
-              </p>
-            </header>
-          </Reveal>
+          <header className="mb-8 max-w-2xl sm:mb-10">
+            <p className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+              Pricing
+            </p>
+            <h1 className="text-4xl leading-[1.15] font-bold tracking-tight sm:text-5xl">
+              필요한 알림 개수만
+              <br />
+              정하면 됩니다
+            </h1>
+            <p className="mt-5 text-lg text-muted-foreground">
+              알림이 몇 개 필요한지 고르면 가장 저렴한 요금제를 알려 드립니다.
+              5개까지는 무료입니다.
+            </p>
+          </header>
 
-          <Reveal delay={0.1}>
-            <SlotCalculator />
-          </Reveal>
+          <SlotCalculator />
 
           <Reveal>
             <section

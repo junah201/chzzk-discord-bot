@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 import routeMap from "@/constants/route-map";
+import { revealProps } from "../reveal";
 import PricingCard from "../../pricing/pricing-card";
 import { pricingPlans } from "../../pricing/pricing-plans";
 
@@ -13,10 +14,7 @@ export function Pricing() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6 }}
+            {...revealProps()}
             className="mb-12 flex flex-col gap-6 break-keep md:flex-row md:items-end md:justify-between"
           >
             <div>

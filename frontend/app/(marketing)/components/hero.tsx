@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "motion/react";
 import { ArrowRight, LayoutDashboard } from "lucide-react";
 import { LinkButton } from "@/components/ui/link-button";
 import { GlowEffect } from "@/components/ui/glow-effect";
@@ -28,34 +27,19 @@ export function Hero() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-5xl mx-auto text-center lg:max-w-7xl lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-center lg:gap-12 lg:text-left xl:gap-16">
           <div>
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-5xl sm:text-6xl xl:text-7xl font-bold tracking-tight break-keep my-6 leading-tight"
-            >
+            <h1 className="text-5xl sm:text-6xl xl:text-7xl font-bold tracking-tight break-keep my-6 leading-tight">
               놓치지 않는
               <br />
               <span className="text-primary">방송 알림, 치직</span>
-            </motion.h1>
+            </h1>
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-lg sm:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed lg:mx-0"
-            >
+            <p className="text-lg sm:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed lg:mx-0">
               좋아하는 치지직 스트리머가 방송을 시작하면{" "}
               <br className="hidden sm:block" />
               디스코드 채널로 알려드립니다.
-            </motion.p>
+            </p>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-4 lg:justify-start"
-            >
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 lg:justify-start">
               <LinkButton
                 href={routeMap.REDIRECTS.INVITE}
                 target="_blank"
@@ -76,17 +60,12 @@ export function Hero() {
                 <LayoutDashboard className="w-5 h-5" />
                 대시보드
               </LinkButton>
-            </motion.div>
+            </div>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="mt-20 lg:mt-0"
-          >
+          <div className="mt-20 lg:mt-0">
             <HeroNotification />
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

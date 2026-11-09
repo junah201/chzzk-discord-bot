@@ -15,7 +15,7 @@ import {
 import routeMap from "@/constants/route-map";
 import { cn } from "@/lib/utils";
 import { pricingPlans } from "./pricing-plans";
-import Reveal from "./reveal";
+import Reveal from "../components/reveal";
 
 type Plan = (typeof pricingPlans)[number];
 
