@@ -289,17 +289,34 @@ class TestDeliveryResult:
             "noti_fail_count": 3,
         }
 
-    def test_send_exception_stops_remaining_notifications(self, fake):
-        # 현재 동작: 전송 중 예상하지 못한 예외가 나면 그대로 올라가서 남은 알림을 보내지 않는다.
-        # lastLiveId는 이미 갱신된 뒤라 다음 실행에서도 이 방송은 다시 보내지 않는다.
+    def test_send_exception_does_not_stop_remaining_notifications(self, fake, logs):
         fake.notifications = [noti("10"), noti("11")]
         fake.status_by_channel = {"10": ConnectionError("refused")}
 
-        with pytest.raises(ConnectionError):
-            check()
+        assert check() == ChannelResult(1, 1, 1)
+        assert [channel_id for channel_id, _ in fake.sent] == ["10", "11"]
+        assert [channel_id for channel_id, _ in fake.noti_updates] == ["11"]
+        [entry] = [e for e in logs() if e["type"] == "DELIVER_ERROR"]
+        assert (entry["chzzk_id"], entry["sk"], entry["error"]) == (
+            CHZZK_ID,
+            "NOTI#10",
+            "refused",
+        )
 
-        assert len(fake.sent) == 1
-        assert fake.last_live_updates == [(CHZZK_ID, 200)]
+    def test_item_without_guild_and_channel_does_not_stop_others(self, fake, logs):
+        ghost = {
+            "PK": {"S": f"CHZZK#{CHZZK_ID}"},
+            "SK": {"S": "NOTI#10"},
+            "last_noti_status": {"S": "SUCCESS"},
+        }
+        fake.notifications = [noti("09"), ghost, noti("11")]
+
+        assert check() == ChannelResult(1, 2, 1)
+        assert [channel_id for channel_id, _ in fake.sent] == ["09", "11"]
+        [entry] = [e for e in logs() if e["type"] == "DELIVER_ERROR"]
+        assert entry["sk"] == "NOTI#10"
+        deliver_ends = [e for e in logs() if e["type"] == "DELIVER_END"]
+        assert [e["discord_channel_id"] for e in deliver_ends] == ["09", None, "11"]
 
 
 class TestRun:

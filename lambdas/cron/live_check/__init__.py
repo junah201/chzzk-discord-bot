@@ -148,13 +148,26 @@ def check_channel(
         if not logic.should_notify(noti):
             continue
         started_at = perf_counter()
-        is_delivered = _deliver(chzzk_id, chzzk, noti, now)
+        try:
+            is_delivered = _deliver(chzzk_id, chzzk, noti, now)
+        except Exception as e:
+            is_delivered = False
+            _log(
+                logging.ERROR,
+                {
+                    "type": "DELIVER_ERROR",
+                    "chzzk_id": chzzk_id,
+                    "sk": noti["SK"]["S"],
+                    "error": str(e),
+                    "traceback": traceback.format_exc(),
+                },
+            )
         _log(
             logging.INFO,
             {
                 "type": "DELIVER_END",
                 "chzzk_id": chzzk_id,
-                "discord_channel_id": noti["channel_id"]["S"],
+                "discord_channel_id": noti.get("channel_id", {}).get("S"),
                 "time": perf_counter() - started_at,
             },
         )
