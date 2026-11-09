@@ -72,7 +72,7 @@ export function HeroNotification() {
         </div>
       </div>
 
-      <div className="flex min-h-[26rem] flex-col justify-end pt-6 pb-2 sm:min-h-[682px]">
+      <div className="flex h-[38rem] flex-col justify-end overflow-hidden pt-6 pb-2 sm:h-[682px]">
         {/* 알림 전의 평범한 대화 */}
         {PRIOR_MESSAGES.map((message) => (
           <div
