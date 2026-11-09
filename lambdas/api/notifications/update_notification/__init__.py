@@ -6,6 +6,7 @@ from botocore.exceptions import ClientError
 from shared import CHANNEL_TYPE, get_channel, middleware
 from shared.event import get_json_body
 from shared.exceptions import BadRequestError, NotificationNotFoundError
+from shared.live_message import ensure_message_not_empty
 from shared.notification_dispatcher import (
     is_guild_subscription_active,
     is_valid_webhook_url,
@@ -43,6 +44,7 @@ def handler(event, _context):
 
     if not all([chzzk_id, guild_id, channel_id]):
         raise BadRequestError()
+    ensure_message_not_empty(body)
     if webhook_url and not is_valid_webhook_url(webhook_url):
         raise BadRequestError(
             "디스코드 웹훅 URL 형식이 아닙니다.", code="INVALID_WEBHOOK_URL"

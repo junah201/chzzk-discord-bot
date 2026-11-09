@@ -269,6 +269,35 @@ class TestValidation:
         verify_webhook.assert_not_called()
         assert get_noti(ddb.table) is None
 
+    @pytest.mark.parametrize("custom_message", [None, "", "  \n"])
+    def test_empty_message_is_400(self, ddb, get_channel, custom_message):
+        res, body = call(
+            custom_message=custom_message, disable_embed=True, disable_button=True
+        )
+
+        assert res["statusCode"] == 400
+        assert body["code"] == "EMPTY_NOTIFICATION_MESSAGE"
+        get_channel.assert_not_called()
+        assert get_noti(ddb.table) is None
+
+    @pytest.mark.parametrize(
+        "body",
+        [
+            {
+                "custom_message": "방송 시작!",
+                "disable_embed": True,
+                "disable_button": True,
+            },
+            {"disable_embed": True},
+            {"disable_button": True},
+        ],
+        ids=["message-only", "button-only", "embed-only"],
+    )
+    def test_message_with_any_content_is_registered(self, ddb, body):
+        res, _ = call(**body)
+
+        assert res["statusCode"] == 204
+
     def test_webhook_verification_error_stops_registration(
         self, ddb, get_channel, verify_webhook
     ):

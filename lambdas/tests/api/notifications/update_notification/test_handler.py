@@ -268,6 +268,18 @@ class TestValidation:
         assert get_noti(setup.table)["custom_message"] == "예전 메시지"
         verify_webhook.assert_not_called()
 
+    @pytest.mark.parametrize("custom_message", [None, "", "  \n"])
+    def test_empty_message_is_400(self, setup, custom_message):
+        res, body = call(
+            custom_message=custom_message, disable_embed=True, disable_button=True
+        )
+
+        assert res["statusCode"] == 400
+        assert body["code"] == "EMPTY_NOTIFICATION_MESSAGE"
+        noti = get_noti(setup.table)
+        assert noti["custom_message"] == "예전 메시지"
+        assert noti["disable_embed"] is False
+
     def test_webhook_verification_error_keeps_notification(self, setup, verify_webhook):
         put_subscription(setup.table)
         verify_webhook.side_effect = BadRequestError("다른 서버")

@@ -109,6 +109,13 @@ export function NotificationSettingsFields({
         name="custom_message"
         label="커스텀 메시지"
         placeholder="@everyone 새로운 방송이 시작되었습니다! 시청하러 가볼까요?"
+        rules={{
+          validate: (value, values) =>
+            Boolean(String(value).trim()) ||
+            !values.disable_embed ||
+            !values.disable_button ||
+            "보낼 내용이 없습니다. 메시지를 입력하거나 임베드·바로가기 버튼 중 하나는 표시해 주세요.",
+        }}
         helperText={
           <>
             아래 버튼으로 방송 제목 같은 변수를 넣을 수 있습니다. 멘션과 변수는{" "}
@@ -188,6 +195,7 @@ export function NotificationSettingsFields({
         type="checkbox"
         control={control}
         name="disable_embed"
+        rules={{ deps: ["custom_message"] }}
         label="임베드 숨기기"
         helperText="방송 제목과 썸네일이 담긴 임베드 없이 메시지만 보냅니다."
       />
@@ -202,6 +210,7 @@ export function NotificationSettingsFields({
         type="checkbox"
         control={control}
         name="disable_button"
+        rules={{ deps: ["custom_message"] }}
         label="바로가기 버튼 숨기기"
         helperText="알림 아래의 바로가기 버튼을 표시하지 않습니다."
       />

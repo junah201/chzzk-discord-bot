@@ -16,6 +16,7 @@ from shared.exceptions import (
     ServiceAccountBlockedError,
     ServiceFollowLimitError,
 )
+from shared.live_message import ensure_message_not_empty
 from shared.notification_dispatcher import (
     is_guild_subscription_active,
     is_valid_webhook_url,
@@ -37,6 +38,7 @@ def handler(event, _context):
 
     if not all([chzzk_id, channel_id, guild_id]):
         raise BadRequestError()
+    ensure_message_not_empty(body)
     is_subscription_active = is_guild_subscription_active(guild_id)
     if webhook_url and not is_valid_webhook_url(webhook_url):
         raise BadRequestError(
