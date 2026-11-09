@@ -201,15 +201,29 @@ def send_notification(notification_item: dict, data: dict) -> requests.Response:
 
 
 def update_notification(notification_item: dict, attrs: dict) -> None:
-    """attrs({속성 이름: DynamoDB client 형식 값})를 NOTI 아이템에 SET 합니다."""
+    """attrs({속성 이름: DynamoDB client 형식 값})를 NOTI 아이템에 SET 합니다.
+    전송하는 사이에 알림이 삭제됐으면 아이템을 다시 만들지 않고 경고 로그만 남깁니다.
+    """
     names = list(attrs)
-    dynamodb.update_item(
-        TableName=TABLE_NAME,
-        Key={"PK": notification_item["PK"], "SK": notification_item["SK"]},
-        UpdateExpression="SET "
-        + ", ".join(f"#a{i} = :a{i}" for i in range(len(names))),
-        ExpressionAttributeNames={f"#a{i}": name for i, name in enumerate(names)},
-        ExpressionAttributeValues={
-            f":a{i}": attrs[name] for i, name in enumerate(names)
-        },
-    )
+    try:
+        dynamodb.update_item(
+            TableName=TABLE_NAME,
+            Key={"PK": notification_item["PK"], "SK": notification_item["SK"]},
+            UpdateExpression="SET "
+            + ", ".join(f"#a{i} = :a{i}" for i in range(len(names))),
+            ConditionExpression="attribute_exists(guild_id)",
+            ExpressionAttributeNames={f"#a{i}": name for i, name in enumerate(names)},
+            ExpressionAttributeValues={
+                f":a{i}": attrs[name] for i, name in enumerate(names)
+            },
+        )
+    except dynamodb.exceptions.ConditionalCheckFailedException:
+        logger.warning(
+            json.dumps(
+                {
+                    "type": "NOTIFICATION_DELETED_DURING_DELIVERY",
+                    "pk": notification_item["PK"]["S"],
+                    "sk": notification_item["SK"]["S"],
+                }
+            )
+        )

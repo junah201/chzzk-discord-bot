@@ -261,6 +261,35 @@ class TestDynamoDB:
         assert saved["Item"]["noti_fail_count"] == Decimal(0)
         assert saved["Item"]["guild_id"] == "1"
 
+    def test_update_notification_does_not_recreate_deleted_item(self, ddb, mocker):
+        self.put_noti(ddb.table, "10")
+        [item] = adapters.query_notifications(CHZZK_ID)
+        ddb.table.delete_item(Key={"PK": f"CHZZK#{CHZZK_ID}", "SK": "NOTI#10"})
+        warning = mocker.patch.object(adapters.logger, "warning")
+
+        adapters.update_notification(item, {"last_noti_status": {"S": "SUCCESS"}})
+
+        saved = ddb.table.get_item(Key={"PK": f"CHZZK#{CHZZK_ID}", "SK": "NOTI#10"})
+        assert "Item" not in saved
+        assert json.loads(warning.call_args.args[0]) == {
+            "type": "NOTIFICATION_DELETED_DURING_DELIVERY",
+            "pk": f"CHZZK#{CHZZK_ID}",
+            "sk": "NOTI#10",
+        }
+
+    def test_update_notification_skips_item_without_guild_id(self, ddb, mocker):
+        key = {"PK": f"CHZZK#{CHZZK_ID}", "SK": "NOTI#10"}
+        ddb.table.put_item(Item={**key, "last_noti_status": "SUCCESS"})
+        mocker.patch.object(adapters.logger, "warning")
+
+        adapters.update_notification(
+            {"PK": {"S": key["PK"]}, "SK": {"S": key["SK"]}},
+            {"last_noti_status": {"S": "FAIL_404"}},
+        )
+
+        saved = ddb.table.get_item(Key=key)["Item"]
+        assert saved["last_noti_status"] == "SUCCESS"
+
 
 def test_send_notification_passes_item_fields(mocker):
     send = mocker.patch.object(adapters, "send_notification_message")
