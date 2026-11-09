@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 
 import boto3
 from shared import get_chzzk, middleware
+from shared.event import get_json_body
 from shared.exceptions import (
     BadRequestError,
     ChzzkChannelUnavailableError,
@@ -21,9 +22,9 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-@middleware(logger, admin_check=True)
+@middleware(require_guild_admin=True)
 def handler(event, _context):
-    body = json.loads(event.get("body", "{}"))
+    body = get_json_body(event)
 
     chzzk_id = body.get("chzzk_id", None)
     guild_id = body.get("guild_id", None)

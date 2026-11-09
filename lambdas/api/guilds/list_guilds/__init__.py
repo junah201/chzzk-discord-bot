@@ -4,6 +4,7 @@ import logging
 import boto3
 from shared import middleware
 from shared.discord.utils import get_admin_guilds
+from shared.event import get_token
 from shared.exceptions import (
     DiscordApiUnavailableError,
     RateLimitError,
@@ -22,10 +23,9 @@ table_name = "chzzk-bot-db"
 table = dynamodb_resource.Table(table_name)
 
 
-@middleware(logger, admin_check=False)
+@middleware()
 def handler(event, _context):
-    headers = event.get("headers", {})
-    token = headers.get("Authorization", None)
+    token = get_token(event)
 
     if token is None:
         logger.info(json.dumps({"type": "MISSING_TOKEN"}))

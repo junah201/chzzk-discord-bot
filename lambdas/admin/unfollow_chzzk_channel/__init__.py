@@ -13,7 +13,7 @@ dynamodb = boto3.client("dynamodb")
 table = boto3.resource("dynamodb").Table("chzzk-bot-db")
 
 
-@middleware(logger)
+@middleware()
 def handler(event, _context):
     chzzk_id = event.get("chzzk_id", None)
     index = event.get("index", None)

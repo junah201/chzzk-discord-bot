@@ -1,6 +1,3 @@
-import json
-import logging
-
 from api.notifications.create_notification.client import process_follow
 from api.notifications.create_notification.service import (
     check_guild_limit,
@@ -11,6 +8,7 @@ from api.notifications.create_notification.service import (
     save_notification_and_increment_counter,
 )
 from shared import CHANNEL_TYPE, build_response, get_channel, get_chzzk, middleware
+from shared.event import get_json_body
 from shared.exceptions import (
     BadRequestError,
     ChzzkChannelNotFoundError,
@@ -25,15 +23,10 @@ from shared.notification_dispatcher import (
     verify_webhook_guild,
 )
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 
-
-@middleware(logger, admin_check=True)
+@middleware(require_guild_admin=True)
 def handler(event, _context):
-    headers = event.get("headers", {})
-    token = headers.get("Authorization")
-    body = json.loads(event.get("body", "{}"))
+    body = get_json_body(event)
 
     chzzk_id = body.get("chzzk_id")
     guild_id = body.get("guild_id")
@@ -42,7 +35,7 @@ def handler(event, _context):
     embed_color = body.get("embed_color", "").strip()
     auto_crosspost = body.get("auto_crosspost", False)
 
-    if not all([token, chzzk_id, channel_id, guild_id]):
+    if not all([chzzk_id, channel_id, guild_id]):
         raise BadRequestError()
     is_subscription_active = is_guild_subscription_active(guild_id)
     if webhook_url and not is_valid_webhook_url(webhook_url):

@@ -7,6 +7,7 @@ from requests.adapters import HTTPAdapter
 from shared import middleware
 from shared.discord import CHANNEL_TYPE
 from shared.discord.utils import DISCORD_API_BASE_URL
+from shared.event import get_path_param
 from shared.exceptions import (
     BotNotJoinedError,
     DiscordApiError,
@@ -34,9 +35,9 @@ session.mount("https://", adapter)
 session.headers.update({"Authorization": f"Bot {DISCORD_TOKEN}"})
 
 
-@middleware(logger, admin_check=True)
+@middleware(require_guild_admin=True)
 def handler(event, _context):
-    guild_id = event.get("pathParameters", {}).get("guild_id", None)
+    guild_id = get_path_param(event, "guild_id")
 
     try:
         res = session.get(

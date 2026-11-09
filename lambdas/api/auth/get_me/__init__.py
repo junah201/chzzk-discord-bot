@@ -4,6 +4,7 @@ import logging
 import requests
 from shared import middleware
 from shared.discord.utils import DISCORD_API_BASE_URL, DISCORD_API_TIMEOUT_SEC
+from shared.event import get_token
 from shared.exceptions import UnauthorizedError
 from shared.utils import build_response
 
@@ -11,19 +12,12 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-@middleware(logger)
+@middleware()
 def handler(event, _context):
-    headers = event.get("headers", {})
-    token = headers.get("Authorization", None)
+    token = get_token(event)
 
     if token is None:
-        logger.info(
-            json.dumps(
-                {
-                    "type": "MISSING_TOKEN",
-                }
-            )
-        )
+        logger.info(json.dumps({"type": "MISSING_TOKEN"}))
         raise UnauthorizedError()
 
     res = requests.get(

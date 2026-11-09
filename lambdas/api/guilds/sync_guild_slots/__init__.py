@@ -3,6 +3,7 @@ import logging
 
 import boto3
 from shared import middleware
+from shared.event import get_path_param
 from shared.exceptions import BadRequestError
 from shared.notification_dispatcher import query_guild_items
 from shared.slots import SlotUsage, count_notifications, count_slot_usage
@@ -36,9 +37,9 @@ def set_current_count(guild_id: str, count: int) -> None:
     )
 
 
-@middleware(logger, admin_check=True)
+@middleware(require_guild_admin=True)
 def handler(event, _context):
-    guild_id = (event.get("pathParameters") or {}).get("guild_id")
+    guild_id = get_path_param(event, "guild_id")
     if not guild_id:
         raise BadRequestError()
 

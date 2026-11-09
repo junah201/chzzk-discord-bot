@@ -40,7 +40,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-@middleware(logger)
+@middleware()
 def handler(event, _context):
     raw_body = event["body"]
     if not verify_signature(ADMIN_DISCORD_PUBLIC_KEY, event["headers"], raw_body):

@@ -1,20 +1,17 @@
-import logging
-
 import boto3
 from shared import dynamo_to_python, middleware
+from shared.event import get_path_param
 from shared.utils import build_response
 
 dynamodb = boto3.client("dynamodb")
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 
 INTERNAL_KEYS = ("PK", "SK", "type")
 
 
-@middleware(logger, admin_check=True)
+@middleware(require_guild_admin=True)
 def handler(event, _context):
-    guild_id = event.get("pathParameters", {}).get("guild_id", None)
+    guild_id = get_path_param(event, "guild_id")
 
     res = dynamodb.query(
         TableName="chzzk-bot-db",

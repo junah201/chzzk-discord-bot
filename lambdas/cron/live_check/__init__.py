@@ -13,7 +13,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-@middleware(logger)
+@middleware()
 def handler(event, _context):
     stats = run(logic.parse_account_index(event), now=datetime.now(UTC))
     return {"statusCode": 200, "body": json.dumps(stats.to_dict())}

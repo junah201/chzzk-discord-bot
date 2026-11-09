@@ -43,7 +43,7 @@ DASHBOARD_GUIDE = reply(
 )
 
 
-@middleware(logger)
+@middleware()
 def handler(event, _context):
     raw_body = event["body"]
     if not verify_signature(DISCORD_PUBLIC_KEY, event["headers"], raw_body):

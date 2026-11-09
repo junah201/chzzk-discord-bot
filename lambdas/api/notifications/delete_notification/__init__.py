@@ -4,6 +4,7 @@ import logging
 import boto3
 from botocore.exceptions import ClientError
 from shared import middleware
+from shared.event import get_json_body
 from shared.exceptions import BadRequestError, NotificationNotFoundError
 from shared.utils import build_response
 
@@ -13,9 +14,9 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-@middleware(logger, admin_check=True)
+@middleware(require_guild_admin=True)
 def handler(event, _context):
-    body = json.loads(event.get("body", "{}"))
+    body = get_json_body(event)
 
     chzzk_id = body.get("chzzk_id")
     guild_id = body.get("guild_id")

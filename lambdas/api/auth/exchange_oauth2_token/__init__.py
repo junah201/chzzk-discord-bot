@@ -5,6 +5,7 @@ import os
 import requests
 from shared import middleware
 from shared.discord.utils import DISCORD_API_BASE_URL, DISCORD_API_TIMEOUT_SEC
+from shared.event import get_json_body
 from shared.exceptions import BadRequestError, UnauthorizedError
 from shared.utils import build_response, pick
 
@@ -16,9 +17,9 @@ DISCORD_CLIENT_ID = os.environ.get("DISCORD_CLIENT_ID")
 DISCORD_CLIENT_SECRET = os.environ.get("DISCORD_CLIENT_SECRET")
 
 
-@middleware(logger)
+@middleware()
 def handler(event, _context):
-    body = json.loads(event.get("body", "{}"))
+    body = get_json_body(event)
     code = body.get("code", None)
 
     if code is None:
