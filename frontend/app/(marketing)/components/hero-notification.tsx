@@ -16,6 +16,27 @@ const DEMO_LIVE: NotificationPreviewLive = {
   tags: ["한국어", "신작", "정주행"],
 };
 
+const PRIOR_MESSAGES = [
+  {
+    author: "고양이집사",
+    avatarColor: "#5865f2",
+    time: "오늘 오후 7:41",
+    lines: ["오늘 방송 하는 날 맞죠?"],
+  },
+  {
+    author: "새벽감성",
+    avatarColor: "#23a55a",
+    time: "오늘 오후 7:46",
+    lines: ["공지엔 8시쯤이라고 했어요", "켜지면 여기로 알림 와요"],
+  },
+  {
+    author: "시청자",
+    avatarColor: DISCORD_COLORS.avatar,
+    time: "오늘 오후 7:58",
+    lines: ["슬슬 켤 시간인데…"],
+  },
+];
+
 const TYPING_DURATION_MS = 1600;
 
 /** 히어로의 디스코드 채널 화면. 화면에 들어오면 봇이 입력하다가 알림이 도착하는 순간을 한 번 연출 */
@@ -53,31 +74,39 @@ export function HeroNotification() {
 
       <div className="flex min-h-[26rem] flex-col justify-end pt-6 pb-2 sm:min-h-[682px]">
         {/* 알림 전의 평범한 대화 */}
-        <div
-          className="flex gap-4 px-4 py-2 text-[15px] leading-[1.375rem]"
-          style={{ color: DISCORD_COLORS.text }}
-        >
+        {PRIOR_MESSAGES.map((message) => (
           <div
-            className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full font-semibold text-white"
-            style={{ backgroundColor: DISCORD_COLORS.avatar }}
+            key={message.time}
+            className="flex gap-4 px-4 py-2 text-[15px] leading-[1.375rem]"
+            style={{ color: DISCORD_COLORS.text }}
           >
-            시
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span
-                className="font-medium"
-                style={{ color: DISCORD_COLORS.header }}
-              >
-                시청자
-              </span>
-              <span className="text-xs" style={{ color: DISCORD_COLORS.muted }}>
-                오늘 오후 7:58
-              </span>
+            <div
+              className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full font-semibold text-white"
+              style={{ backgroundColor: message.avatarColor }}
+            >
+              {message.author[0]}
             </div>
-            <p>오늘 방송 언제 켜지려나…</p>
+            <div>
+              <div className="flex items-center gap-2">
+                <span
+                  className="font-medium"
+                  style={{ color: DISCORD_COLORS.header }}
+                >
+                  {message.author}
+                </span>
+                <span
+                  className="text-xs"
+                  style={{ color: DISCORD_COLORS.muted }}
+                >
+                  {message.time}
+                </span>
+              </div>
+              {message.lines.map((line) => (
+                <p key={line}>{line}</p>
+              ))}
+            </div>
           </div>
-        </div>
+        ))}
 
         <AnimatePresence initial={false}>
           {arrived && (
