@@ -181,22 +181,27 @@ class TestAdminCheck:
         is_admin.assert_called_once_with("123", "Bearer token")
         handler.assert_called_once_with(event, None)
 
-    @pytest.mark.parametrize(
-        "headers",
-        [{}, {"authorization": "Bearer token"}],
-        ids=["missing", "lowercase-key"],
-    )
-    def test_missing_token_is_401(self, handler, is_admin, headers):
-        # 현재 동작: 헤더 키는 대소문자를 구분해서 `Authorization`만 인식한다.
-        res = self.wrap(handler)(admin_event(headers=headers), None)
+    def test_lowercase_authorization_header_is_accepted(self, handler, is_admin):
+        event = admin_event(headers={"authorization": "Bearer token"})
+
+        res = self.wrap(handler)(event, None)
+
+        assert res["statusCode"] == 200
+        is_admin.assert_called_once_with("123", "Bearer token")
+
+    def test_missing_token_is_401(self, handler, is_admin):
+        res = self.wrap(handler)(admin_event(headers={}), None)
 
         assert res["statusCode"] == 401
         assert json.loads(res["body"])["code"] == "UNAUTHORIZED"
         is_admin.assert_not_called()
         handler.assert_not_called()
 
-    def test_event_without_headers_is_401(self, handler, is_admin):
-        res = self.wrap(handler)({}, None)
+    @pytest.mark.parametrize(
+        "event", [{}, {"headers": None}], ids=["no-headers", "null-headers"]
+    )
+    def test_event_without_headers_is_401(self, handler, is_admin, event):
+        res = self.wrap(handler)(event, None)
 
         assert res["statusCode"] == 401
         is_admin.assert_not_called()

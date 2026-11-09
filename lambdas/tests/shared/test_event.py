@@ -3,6 +3,7 @@ import json
 import pytest
 from shared.event import (
     get_guild_id,
+    get_header,
     get_json_body,
     get_path_param,
     get_token,
@@ -10,14 +11,32 @@ from shared.event import (
 from shared.exceptions import BadRequestError
 
 
-class TestGetToken:
-    def test_reads_authorization_header(self):
-        assert get_token({"headers": {"Authorization": "Bearer t"}}) == "Bearer t"
+class TestGetHeader:
+    @pytest.mark.parametrize("key", ["Origin", "origin", "ORIGIN"])
+    def test_is_case_insensitive(self, key):
+        event = {"headers": {key: "https://chzzk.junah.dev"}}
+
+        assert get_header(event, "Origin") == "https://chzzk.junah.dev"
+        assert get_header(event, "origin") == "https://chzzk.junah.dev"
 
     @pytest.mark.parametrize(
         "event",
-        [{}, {"headers": {}}, {"headers": {"authorization": "Bearer t"}}],
-        ids=["no-headers", "empty-headers", "lowercase-key"],
+        [{}, {"headers": None}, {"headers": {}}, {"headers": {"Other": "x"}}],
+        ids=["no-headers", "null-headers", "empty-headers", "other-key"],
+    )
+    def test_missing_is_none(self, event):
+        assert get_header(event, "Origin") is None
+
+
+class TestGetToken:
+    @pytest.mark.parametrize("key", ["Authorization", "authorization"])
+    def test_reads_authorization_header(self, key):
+        assert get_token({"headers": {key: "Bearer t"}}) == "Bearer t"
+
+    @pytest.mark.parametrize(
+        "event",
+        [{}, {"headers": None}, {"headers": {}}],
+        ids=["no-headers", "null-headers", "empty-headers"],
     )
     def test_missing_is_none(self, event):
         assert get_token(event) is None

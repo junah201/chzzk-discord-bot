@@ -5,7 +5,7 @@ import os
 import requests
 from shared import middleware
 from shared.discord.utils import DISCORD_API_BASE_URL, DISCORD_API_TIMEOUT_SEC
-from shared.event import get_json_body
+from shared.event import get_header, get_json_body
 from shared.exceptions import BadRequestError, UnauthorizedError
 from shared.utils import build_response, pick
 
@@ -32,8 +32,7 @@ def handler(event, _context):
         )
         raise BadRequestError()
 
-    headers = event.get("headers", {})
-    origin = headers.get("origin") or headers.get("Origin") or ""
+    origin = get_header(event, "Origin") or ""
 
     if origin.startswith("http://localhost"):
         redirect_uri = "http://localhost:3000/login/callback"

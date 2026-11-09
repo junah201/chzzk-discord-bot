@@ -5,9 +5,16 @@ from shared.exceptions import BadRequestError
 # API Gateway는 headers, pathParameters, body가 없으면 키를 빼지 않고 null을 보낸다.
 
 
+def get_header(event: dict, name: str) -> str | None:
+    """요청 헤더 값을 대소문자 구분 없이 찾습니다."""
+    name = name.lower()
+    headers = event.get("headers") or {}
+    return next((v for k, v in headers.items() if k.lower() == name), None)
+
+
 def get_token(event: dict) -> str | None:
     """요청 헤더에서 유저의 디스코드 OAuth 토큰(`Authorization`)을 꺼냅니다."""
-    return event.get("headers", {}).get("Authorization")
+    return get_header(event, "Authorization")
 
 
 def get_path_param(event: dict, name: str) -> str | None:
