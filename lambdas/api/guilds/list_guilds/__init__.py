@@ -3,19 +3,13 @@ import logging
 
 import boto3
 from shared import middleware
-from shared.discord.utils import get_admin_guilds
+from shared.discord.utils import admin_guilds_error, get_admin_guilds
 from shared.event import get_token
-from shared.exceptions import (
-    DiscordApiUnavailableError,
-    RateLimitError,
-    UnauthorizedError,
-)
+from shared.exceptions import UnauthorizedError
 from shared.utils import build_response, pick
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-
-DISCORD_AUTH_FAILED_STATUS_CODES = {401, 403}
 
 dynamodb_resource = boto3.resource("dynamodb")
 dynamodb_client = boto3.client("dynamodb")
@@ -40,14 +34,9 @@ def handler(event, _context):
         }
         if result.status_code == 429:
             logger.info(json.dumps({"type": "RATE_LIMITED", **log_data}))
-            raise RateLimitError(retry_after=result.retry_after)
-
-        logger.error(json.dumps({"type": "GET_ADMIN_GUILDS_FAILED", **log_data}))
-        if result.status_code in DISCORD_AUTH_FAILED_STATUS_CODES:
-            raise DiscordApiUnavailableError(
-                "디스코드 로그인이 만료되었습니다. 로그아웃한 뒤 다시 로그인해 주세요."
-            )
-        raise DiscordApiUnavailableError()
+        else:
+            logger.error(json.dumps({"type": "GET_ADMIN_GUILDS_FAILED", **log_data}))
+        raise admin_guilds_error(result)
 
     ALLOWED_KEYS = {"id", "name", "icon", "approximate_member_count"}
     admin_guilds = [pick(guild, ALLOWED_KEYS) for guild in result.guilds]

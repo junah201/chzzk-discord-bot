@@ -11,16 +11,20 @@ from shared.discord.utils import (
     DISCORD_MESSAGE_TIMEOUT_SEC,
     DISCORD_TOKEN,
     DISCORD_USER_GUILDS_URL,
-    AdminCheckResult,
     AdminGuildsResult,
+    admin_guilds_error,
     crosspost_message,
     delete_message,
     get_admin_guilds,
     get_channel,
-    is_admin,
+    is_guild_admin,
     send_message,
 )
-from shared.exceptions import DiscordApiUnavailableError
+from shared.exceptions import (
+    DiscordApiUnavailableError,
+    RateLimitError,
+    UnauthorizedError,
+)
 
 discord_utils = importlib.import_module("shared.discord.utils")
 
@@ -277,7 +281,30 @@ class TestInvalidResponse:
         assert logged(log_error)["type"] == "DISCORD_GET_ADMIN_GUILDS_INVALID_RESPONSE"
 
 
-class TestIsAdmin:
+class TestAdminGuildsError:
+    def test_rate_limited(self):
+        error = admin_guilds_error(AdminGuildsResult(None, 429, "", 2.5))
+
+        assert isinstance(error, RateLimitError)
+        assert error.retry_after == 2.5
+
+    @pytest.mark.parametrize("status_code", [401, 403])
+    def test_auth_failure_asks_to_log_in_again(self, status_code):
+        error = admin_guilds_error(AdminGuildsResult(None, status_code, ""))
+
+        assert isinstance(error, UnauthorizedError)
+        assert (
+            error.message == "디스코드 로그인이 만료되었습니다. 다시 로그인해 주세요."
+        )
+
+    @pytest.mark.parametrize("status_code", [-1, -2, -3, 404, 500, 503])
+    def test_other_failure_is_discord_unavailable(self, status_code):
+        error = admin_guilds_error(AdminGuildsResult(None, status_code, ""))
+
+        assert isinstance(error, DiscordApiUnavailableError)
+
+
+class TestIsGuildAdmin:
     @pytest.fixture
     def get_admin_guilds_mock(self, mocker):
         return mocker.patch.object(discord_utils, "get_admin_guilds")
@@ -287,7 +314,7 @@ class TestIsAdmin:
             [guild("1"), guild("123")], 200
         )
 
-        assert is_admin("123", TOKEN) == AdminCheckResult(True, 200, "")
+        assert is_guild_admin("123", TOKEN) is True
         get_admin_guilds_mock.assert_called_once_with(TOKEN, retry=3)
 
     @pytest.mark.parametrize(
@@ -296,40 +323,42 @@ class TestIsAdmin:
     def test_not_admin_when_guild_is_missing(self, get_admin_guilds_mock, guilds):
         get_admin_guilds_mock.return_value = AdminGuildsResult(guilds, 200)
 
-        assert is_admin("123", TOKEN) == AdminCheckResult(False, 200, "")
+        assert is_guild_admin("123", TOKEN) is False
 
     def test_passes_retry(self, get_admin_guilds_mock):
         get_admin_guilds_mock.return_value = AdminGuildsResult([], 200)
 
-        is_admin("123", TOKEN, retry=1)
+        is_guild_admin("123", TOKEN, retry=1)
 
         get_admin_guilds_mock.assert_called_once_with(TOKEN, retry=1)
 
     @pytest.mark.parametrize(
-        "failure",
+        ("failure", "error_type"),
         [
-            AdminGuildsResult(None, 429, "RateLimited: {}", 2.5),
-            AdminGuildsResult(None, -1, "TimeoutError: x"),
-            AdminGuildsResult(None, 401, "HTTPError: 401 - x"),
+            (AdminGuildsResult(None, 429, "RateLimited: {}", 2.5), RateLimitError),
+            (
+                AdminGuildsResult(None, -1, "TimeoutError: x"),
+                DiscordApiUnavailableError,
+            ),
+            (AdminGuildsResult(None, 401, "HTTPError: 401 - x"), UnauthorizedError),
         ],
-        ids=["rate-limited", "timeout", "http-error"],
+        ids=["rate-limited", "timeout", "unauthorized"],
     )
-    def test_failure_is_passed_through(self, get_admin_guilds_mock, failure):
+    def test_failure_raises(self, get_admin_guilds_mock, failure, error_type):
         get_admin_guilds_mock.return_value = failure
 
-        assert is_admin("123", TOKEN) == AdminCheckResult(
-            False, failure.status_code, failure.error_message, failure.retry_after
-        )
+        with pytest.raises(error_type):
+            is_guild_admin("123", TOKEN)
 
     def test_end_to_end_with_http(self, mock_requests):
         add_guilds(mock_requests, [guild("123", ADMIN), guild("456", MANAGE_GUILD)])
 
-        assert is_admin("123", TOKEN).is_admin is True
+        assert is_guild_admin("123", TOKEN) is True
 
     def test_end_to_end_non_admin_with_http(self, mock_requests):
         add_guilds(mock_requests, [guild("123", ADMIN), guild("456", MANAGE_GUILD)])
 
-        assert is_admin("456", TOKEN).is_admin is False
+        assert is_guild_admin("456", TOKEN) is False
 
 
 CHANNEL_ID = "100"

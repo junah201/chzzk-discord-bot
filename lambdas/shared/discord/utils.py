@@ -7,7 +7,12 @@ from typing import NamedTuple
 
 import requests
 
-from shared.exceptions import DiscordApiUnavailableError
+from shared.exceptions import (
+    BaseException,
+    DiscordApiUnavailableError,
+    RateLimitError,
+    UnauthorizedError,
+)
 
 from .dataclass import PartialGuild
 
@@ -162,13 +167,6 @@ class AdminGuildsResult(NamedTuple):
     retry_after: float = 0
 
 
-class AdminCheckResult(NamedTuple):
-    is_admin: bool
-    status_code: int
-    error_message: str = ""
-    retry_after: float = 0
-
-
 def get_admin_guilds(
     token: str, with_counts: bool = False, retry: int = 3
 ) -> AdminGuildsResult:
@@ -279,19 +277,25 @@ def get_admin_guilds(
     return AdminGuildsResult(admin_guilds, 200, "")
 
 
-def is_admin(guild_id: str, token: str = None, retry: int = 3) -> AdminCheckResult:
-    """
-    해당 유저가 관리자 권한을 가진 서버인지 확인합니다.
-    관리자면 (True, 200, "", 0.0), 관리자가 아니면 (False, 200, "", 0.0)를 반환하고,
-    실패 시 (False, status_code, error_message, retry_after)를 반환합니다.
-    status_code와 retry_after는 get_admin_guilds와 같습니다.
+def admin_guilds_error(result: AdminGuildsResult) -> BaseException:
+    """get_admin_guilds 실패 결과를 API 응답으로 보낼 예외로 바꿉니다."""
+    if result.status_code == 429:
+        return RateLimitError(retry_after=result.retry_after)
+    # 유저 토큰이 만료되었거나 guilds scope가 없다. 401을 받은 프론트엔드는 다시 로그인시킨다.
+    if result.status_code in (401, 403):
+        return UnauthorizedError(
+            "디스코드 로그인이 만료되었습니다. 다시 로그인해 주세요."
+        )
+    return DiscordApiUnavailableError()
+
+
+def is_guild_admin(guild_id: str, token: str, retry: int = 3) -> bool:
+    """유저가 해당 디스코드 서버의 관리자인지 확인합니다.
+
+    디스코드에서 서버 목록을 가져오지 못하면 admin_guilds_error의 예외를 올립니다.
     """
     result = get_admin_guilds(token, retry=retry)
     if result.guilds is None:
-        return AdminCheckResult(
-            False, result.status_code, result.error_message, result.retry_after
-        )
+        raise admin_guilds_error(result)
 
-    return AdminCheckResult(
-        any(guild["id"] == guild_id for guild in result.guilds), 200, ""
-    )
+    return any(guild["id"] == guild_id for guild in result.guilds)

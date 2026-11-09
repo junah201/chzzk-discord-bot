@@ -106,7 +106,7 @@ def test_empty_guild_needs_no_write(mocker, ddb):
 
 
 def test_non_admin_is_rejected(as_admin):
-    as_admin.return_value = as_admin.return_value._replace(is_admin=False)
+    as_admin.return_value = False
 
     res, _ = call()
 

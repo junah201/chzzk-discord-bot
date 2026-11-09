@@ -3,18 +3,14 @@ import json
 
 import pytest
 from shared import middleware
-from shared.discord.utils import AdminCheckResult
-from shared.exceptions import (
-    BadRequestError,
-    DiscordApiUnavailableError,
-    RateLimitError,
-    UserNotAdminError,
-)
-from shared.middleware import admin_check_error, with_json_headers
+from shared.discord.utils import AdminGuildsResult
+from shared.exceptions import BadRequestError, UserNotAdminError
+from shared.middleware import with_json_headers
 
 # `shared/__init__.py`가 `middleware` 함수를 같은 이름으로 re-export 하므로
 # `shared.middleware` 문자열 경로로는 함수가 잡힌다. patch 대상은 모듈 객체로 가져온다.
 middleware_module = importlib.import_module("shared.middleware")
+discord_utils = importlib.import_module("shared.discord.utils")
 
 CORS_HEADERS = {
     "Access-Control-Allow-Origin": "*",
@@ -33,10 +29,14 @@ def handler(mocker):
 
 
 @pytest.fixture
-def is_admin(mocker):
-    return mocker.patch.object(
-        middleware_module, "is_admin", return_value=AdminCheckResult(True, 200)
-    )
+def is_guild_admin(mocker):
+    return mocker.patch.object(middleware_module, "is_guild_admin", return_value=True)
+
+
+@pytest.fixture
+def get_admin_guilds(mocker):
+    """is_guild_admin은 그대로 두고 디스코드 응답만 바꿔서 오류 변환까지 확인한다."""
+    return mocker.patch.object(discord_utils, "get_admin_guilds")
 
 
 def admin_event(**overrides):
@@ -46,34 +46,6 @@ def admin_event(**overrides):
     }
     event.update(overrides)
     return event
-
-
-class TestAdminCheckError:
-    def test_admin_is_none(self):
-        assert admin_check_error(AdminCheckResult(True, 200)) is None
-
-    def test_rate_limited(self):
-        log_type, error = admin_check_error(
-            AdminCheckResult(False, 429, "", retry_after=1.5)
-        )
-
-        assert log_type == "RATE_LIMITED"
-        assert isinstance(error, RateLimitError)
-        assert error.retry_after == 1.5
-
-    @pytest.mark.parametrize("status_code", [-1, -2, -3, 500, 503])
-    def test_discord_failure(self, status_code):
-        log_type, error = admin_check_error(AdminCheckResult(False, status_code, ""))
-
-        assert log_type == "DISCORD_API_UNAVAILABLE"
-        assert isinstance(error, DiscordApiUnavailableError)
-
-    @pytest.mark.parametrize("status_code", [200, 401, 403, 404])
-    def test_not_admin(self, status_code):
-        log_type, error = admin_check_error(AdminCheckResult(False, status_code, ""))
-
-        assert log_type == "NOT_ADMIN"
-        assert isinstance(error, UserNotAdminError)
 
 
 class TestWithJsonHeaders:
@@ -172,54 +144,54 @@ class TestAdminCheck:
     def wrap(self, handler):
         return middleware(require_guild_admin=True)(handler)
 
-    def test_admin_calls_handler(self, handler, is_admin):
+    def test_admin_calls_handler(self, handler, is_guild_admin):
         event = admin_event()
 
         res = self.wrap(handler)(event, None)
 
         assert res["statusCode"] == 200
-        is_admin.assert_called_once_with("123", "Bearer token")
+        is_guild_admin.assert_called_once_with("123", "Bearer token")
         handler.assert_called_once_with(event, None)
 
-    def test_lowercase_authorization_header_is_accepted(self, handler, is_admin):
+    def test_lowercase_authorization_header_is_accepted(self, handler, is_guild_admin):
         event = admin_event(headers={"authorization": "Bearer token"})
 
         res = self.wrap(handler)(event, None)
 
         assert res["statusCode"] == 200
-        is_admin.assert_called_once_with("123", "Bearer token")
+        is_guild_admin.assert_called_once_with("123", "Bearer token")
 
-    def test_missing_token_is_401(self, handler, is_admin):
+    def test_missing_token_is_401(self, handler, is_guild_admin):
         res = self.wrap(handler)(admin_event(headers={}), None)
 
         assert res["statusCode"] == 401
         assert json.loads(res["body"])["code"] == "UNAUTHORIZED"
-        is_admin.assert_not_called()
+        is_guild_admin.assert_not_called()
         handler.assert_not_called()
 
     @pytest.mark.parametrize(
         "event", [{}, {"headers": None}], ids=["no-headers", "null-headers"]
     )
-    def test_event_without_headers_is_401(self, handler, is_admin, event):
+    def test_event_without_headers_is_401(self, handler, is_guild_admin, event):
         res = self.wrap(handler)(event, None)
 
         assert res["statusCode"] == 401
-        is_admin.assert_not_called()
+        is_guild_admin.assert_not_called()
 
-    def test_guild_id_from_body(self, handler, is_admin):
+    def test_guild_id_from_body(self, handler, is_guild_admin):
         event = admin_event(pathParameters=None, body=json.dumps({"guild_id": "456"}))
 
         res = self.wrap(handler)(event, None)
 
         assert res["statusCode"] == 200
-        is_admin.assert_called_once_with("456", "Bearer token")
+        is_guild_admin.assert_called_once_with("456", "Bearer token")
 
-    def test_path_guild_id_takes_precedence_over_body(self, handler, is_admin):
+    def test_path_guild_id_takes_precedence_over_body(self, handler, is_guild_admin):
         event = admin_event(body=json.dumps({"guild_id": "456"}))
 
         self.wrap(handler)(event, None)
 
-        is_admin.assert_called_once_with("123", "Bearer token")
+        is_guild_admin.assert_called_once_with("123", "Bearer token")
 
     @pytest.mark.parametrize(
         "overrides",
@@ -248,23 +220,23 @@ class TestAdminCheck:
             "json-string",
         ],
     )
-    def test_missing_guild_id_is_400(self, handler, is_admin, overrides):
+    def test_missing_guild_id_is_400(self, handler, is_guild_admin, overrides):
         res = self.wrap(handler)(admin_event(**overrides), None)
 
         assert res["statusCode"] == 400
         assert json.loads(res["body"])["code"] == "INVALID_REQUEST"
-        is_admin.assert_not_called()
+        is_guild_admin.assert_not_called()
         handler.assert_not_called()
 
-    def test_body_is_not_parsed_when_path_has_guild_id(self, handler, is_admin):
+    def test_body_is_not_parsed_when_path_has_guild_id(self, handler, is_guild_admin):
         res = self.wrap(handler)(admin_event(body="not-json"), None)
 
         assert res["statusCode"] == 200
-        is_admin.assert_called_once_with("123", "Bearer token")
+        is_guild_admin.assert_called_once_with("123", "Bearer token")
 
-    def test_rate_limited_is_429_with_retry_after(self, handler, is_admin):
-        is_admin.return_value = AdminCheckResult(
-            False, 429, "RateLimited: {}", retry_after=2.5
+    def test_rate_limited_is_429_with_retry_after(self, handler, get_admin_guilds):
+        get_admin_guilds.return_value = AdminGuildsResult(
+            None, 429, "RateLimited: {}", 2.5
         )
 
         res = self.wrap(handler)(admin_event(), None)
@@ -278,18 +250,17 @@ class TestAdminCheck:
         assert res["headers"] == CORS_HEADERS
         handler.assert_not_called()
 
-    def test_rate_limited_without_retry_after_defaults_to_zero(self, handler, is_admin):
-        is_admin.return_value = AdminCheckResult(False, 429, "RateLimited: {}")
+    def test_rate_limited_without_retry_after_defaults_to_zero(
+        self, handler, get_admin_guilds
+    ):
+        get_admin_guilds.return_value = AdminGuildsResult(None, 429, "RateLimited: {}")
 
         res = self.wrap(handler)(admin_event(), None)
 
         assert json.loads(res["body"])["retry_after"] == 0
 
-    @pytest.mark.parametrize(
-        "status_code", [200, 401, 403, 404], ids=["not-admin", "401", "403", "404"]
-    )
-    def test_not_admin_is_403(self, handler, is_admin, status_code):
-        is_admin.return_value = AdminCheckResult(False, status_code, "")
+    def test_not_admin_is_403(self, handler, is_guild_admin):
+        is_guild_admin.return_value = False
 
         res = self.wrap(handler)(admin_event(), None)
 
@@ -297,13 +268,26 @@ class TestAdminCheck:
         assert json.loads(res["body"])["code"] == "USER_NOT_ADMIN"
         handler.assert_not_called()
 
+    @pytest.mark.parametrize("status_code", [401, 403])
+    def test_expired_discord_login_is_401(self, handler, get_admin_guilds, status_code):
+        get_admin_guilds.return_value = AdminGuildsResult(None, status_code, "error")
+
+        res = self.wrap(handler)(admin_event(), None)
+
+        assert res["statusCode"] == 401
+        assert json.loads(res["body"]) == {
+            "code": "UNAUTHORIZED",
+            "message": "디스코드 로그인이 만료되었습니다. 다시 로그인해 주세요.",
+        }
+        handler.assert_not_called()
+
     @pytest.mark.parametrize(
         "status_code",
-        [-1, -2, -3, 500, 503],
-        ids=["timeout", "connection-error", "unknown-error", "500", "503"],
+        [-1, -2, -3, 404, 500, 503],
+        ids=["timeout", "connection-error", "unknown-error", "404", "500", "503"],
     )
-    def test_discord_failure_is_502(self, handler, is_admin, status_code):
-        is_admin.return_value = AdminCheckResult(False, status_code, "error")
+    def test_discord_failure_is_502(self, handler, get_admin_guilds, status_code):
+        get_admin_guilds.return_value = AdminGuildsResult(None, status_code, "error")
 
         res = self.wrap(handler)(admin_event(), None)
 
@@ -312,8 +296,8 @@ class TestAdminCheck:
         assert res["headers"] == CORS_HEADERS
         handler.assert_not_called()
 
-    def test_skips_is_admin_when_not_required(self, handler, is_admin):
+    def test_skips_is_admin_when_not_required(self, handler, is_guild_admin):
         res = middleware()(handler)({}, None)
 
         assert res["statusCode"] == 200
-        is_admin.assert_not_called()
+        is_guild_admin.assert_not_called()

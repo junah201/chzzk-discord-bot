@@ -104,11 +104,9 @@ def test_discord_auth_failure_asks_to_log_in_again(
 
     res, body = call()
 
-    assert res["statusCode"] == 502
-    assert body["code"] == "DISCORD_API_ERROR"
-    assert body["message"] == (
-        "디스코드 로그인이 만료되었습니다. 로그아웃한 뒤 다시 로그인해 주세요."
-    )
+    assert res["statusCode"] == 401
+    assert body["code"] == "UNAUTHORIZED"
+    assert body["message"] == "디스코드 로그인이 만료되었습니다. 다시 로그인해 주세요."
     batch_get_item.assert_not_called()
 
 
