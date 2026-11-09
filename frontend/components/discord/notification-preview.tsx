@@ -88,7 +88,7 @@ export function NotificationPreview({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             draggable={false}
-            src="/favicon-192.png"
+            src="/favicon-96x96.png"
             alt=""
             className="mt-0.5 size-10 shrink-0 rounded-full bg-black"
           />
